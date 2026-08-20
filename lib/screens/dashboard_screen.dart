@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import 'login_screen.dart';
+import 'map_screen.dart';
 
 /// Dashboard principal de Bellota - Calendario Menstrual
 /// Diseño fiel a las 4 variantes del mockup de referencia.
@@ -124,48 +125,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 12),
-                // ══════════════════════════════════════
-                // HEADER — Avatar + nombre + logo + campana + foto
-                // ══════════════════════════════════════
-                _buildHeader(),
-                const SizedBox(height: 20),
-                // ══════════════════════════════════════
-                // INICIO DEL PERIODO — Toggle switch
-                // ══════════════════════════════════════
-                _buildPeriodoToggle(),
-                const SizedBox(height: 24),
-                // ══════════════════════════════════════
-                // PREDICCIONES — Card
-                // ══════════════════════════════════════
-                _buildPrediccionesSection(),
-                const SizedBox(height: 24),
-                // ══════════════════════════════════════
-                // RESUMEN DE HOY — Con círculo de fase
-                // ══════════════════════════════════════
-                _buildResumenSection(phase),
-                const SizedBox(height: 24),
-                // ══════════════════════════════════════
-                // INFORMACIÓN ADICIONAL — Card con contenido
-                // ══════════════════════════════════════
-                _buildInfoAdicionalSection(),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
+        child: _getBody(),
       ),
       // ══════════════════════════════════════
       // BOTTOM NAVIGATION BAR — 5 ítems
       // ══════════════════════════════════════
       bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  Widget _getBody() {
+    switch (_selectedNavIndex) {
+      case 0:
+        return _buildDashboardContent();
+      case 3:
+        return const MapScreen();
+      default:
+        return Center(
+          child: Text(
+            'Próximamente',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF7A4F47),
+            ),
+          ),
+        );
+    }
+  }
+
+  Widget _buildDashboardContent() {
+    final phase = _phases[_currentPhaseIndex];
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            // ══════════════════════════════════════
+            // HEADER — Avatar + nombre + logo + campana + foto
+            // ══════════════════════════════════════
+            _buildHeader(),
+            const SizedBox(height: 20),
+            // ══════════════════════════════════════
+            // INICIO DEL PERIODO — Toggle switch
+            // ══════════════════════════════════════
+            _buildPeriodoToggle(),
+            const SizedBox(height: 24),
+            // ══════════════════════════════════════
+            // PREDICCIONES — Card
+            // ══════════════════════════════════════
+            _buildPrediccionesSection(),
+            const SizedBox(height: 24),
+            // ══════════════════════════════════════
+            // RESUMEN DE HOY — Con círculo de fase
+            // ══════════════════════════════════════
+            _buildResumenSection(phase),
+            const SizedBox(height: 24),
+            // ══════════════════════════════════════
+            // INFORMACIÓN ADICIONAL — Card con contenido
+            // ══════════════════════════════════════
+            _buildInfoAdicionalSection(),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 
@@ -637,10 +663,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -649,15 +675,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(Icons.home_rounded, 'Inicio', 0),
-              _navItem(Icons.favorite_border_rounded, 'Salud', 1),
-              _navCenterButton(),
-              _navItem(Icons.location_on_outlined, 'Mapa', 3),
-              _navItem(Icons.person_outline_rounded, 'Perfil', 4),
+              _navItem(Icons.home_filled, 'Home', 0),
+              _navItem(Icons.calendar_month_rounded, 'Calendar', 1),
+              _navItem(Icons.article_outlined, 'Log', 2),
+              _navItem(Icons.location_on_outlined, 'Map', 3),
+              _navItem(Icons.person_outline_rounded, 'Profile', 4),
             ],
           ),
         ),
@@ -677,46 +703,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Icon(
               icon,
-              size: 26,
-              color: isSelected ? BellotaColors.chilero : const Color(0xFFB0A090),
+              size: 28,
+              color: isSelected ? BellotaColors.chilero : const Color(0xFF6D5C58),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               label,
               style: GoogleFonts.poppins(
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? BellotaColors.chilero : const Color(0xFFB0A090),
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? BellotaColors.chilero : const Color(0xFF6D5C58),
               ),
             ),
+            if (isSelected) ...[
+              const SizedBox(height: 6),
+              Container(
+                height: 3,
+                width: 32,
+                decoration: BoxDecoration(
+                  color: BellotaColors.chilero,
+                  borderRadius: BorderRadius.circular(1.5),
+                ),
+              ),
+            ] else ...[
+              const SizedBox(height: 9),
+            ]
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _navCenterButton() {
-    return GestureDetector(
-      onTap: () => setState(() => _selectedNavIndex = 2),
-      child: Container(
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const LinearGradient(
-            colors: [Color(0xFFEE8658), Color(0xFFD35D53)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: BellotaColors.chilero.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
       ),
     );
   }
