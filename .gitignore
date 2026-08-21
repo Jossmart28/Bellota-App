@@ -46,3 +46,10 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Archivos autogenerados de plataformas individuales
+/linux/flutter/generated_plugins.cmake
+/windows/flutter/generated_plugins.cmake
+/macos/Flutter/GeneratedPluginRegistrant.swift
+*.cmake
+
