@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/bellota_colors.dart';
+import '../widgets/bellota_top_actions.dart';
 import 'map_screen.dart';
 
 /// Pantalla de detalle de un centro de salud
-/// Muestra toda la información del centro con diseño fiel al mockup
 class HealthCenterDetailScreen extends StatelessWidget {
   final HealthCenter center;
 
@@ -12,18 +11,21 @@ class HealthCenterDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5EDE3),
+      backgroundColor: BellotaColors.basilica,
       body: SafeArea(
         child: Column(
           children: [
-            // ══════════════════════════════════════
-            // BARRA SUPERIOR — Búsqueda + íconos
-            // ══════════════════════════════════════
+            // ════════════════════════════════════════════
+            // BARRA SUPERIOR — Búsqueda + íconos globales
+            // ════════════════════════════════════════════
             _buildSearchBar(context),
-            // ══════════════════════════════════════
+            
+            // ══════════════════════
             // CONTENIDO SCROLLABLE
-            // ══════════════════════════════════════
+            // ══════════════════════
             Expanded(
               child: SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
@@ -33,25 +35,20 @@ class HealthCenterDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20),
-                      // Título del centro
                       Text(
                         center.name,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
+                        style: textTheme.headlineMedium?.copyWith(
                           fontSize: 22,
-                          fontWeight: FontWeight.w700,
                           color: BellotaColors.textoDark,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Imagen placeholder del centro
-                      _buildImagePlaceholder(),
+                      _buildImagePlaceholder(context),
                       const SizedBox(height: 20),
-                      // Información detallada
-                      _buildInfoSection(),
+                      _buildInfoSection(context),
                       const SizedBox(height: 24),
-                      // Especialidades
-                      _buildSpecialtiesSection(),
+                      _buildSpecialtiesSection(context),
                       const SizedBox(height: 30),
                     ],
                   ),
@@ -65,12 +62,12 @@ class HealthCenterDetailScreen extends StatelessWidget {
   }
 
   // ────────────────────────────────────────
-  // BARRA DE BÚSQUEDA
+  // BARRA DE BÚSQUEDA Y BOTONES GLOBALES
   // ────────────────────────────────────────
   Widget _buildSearchBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: const Color(0xFFF5EDE3),
+      color: BellotaColors.basilica,
       child: Row(
         children: [
           // Botón de regreso
@@ -80,7 +77,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: BellotaColors.blanco,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -90,16 +87,17 @@ class HealthCenterDetailScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF3D2B27), size: 20),
+              child: const Icon(Icons.arrow_back_rounded, color: BellotaColors.textoDark, size: 20),
             ),
           ),
           const SizedBox(width: 10),
+          
           // Campo de búsqueda
           Expanded(
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: BellotaColors.blanco,
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
@@ -112,13 +110,12 @@ class HealthCenterDetailScreen extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(width: 14),
-                  Icon(Icons.search, color: BellotaColors.textoMedio, size: 22),
+                  const Icon(Icons.search, color: BellotaColors.textoMedio, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Buscar...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: BellotaColors.textoMedio.withValues(alpha: 0.6),
                       ),
                     ),
@@ -128,60 +125,29 @@ class HealthCenterDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // Botón de traducción
-          _iconButton(
-            child: Text(
-              '文A',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: BellotaColors.textoDark,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Botón de audio/accesibilidad
-          _iconButton(
-            child: Icon(Icons.volume_up_rounded, color: BellotaColors.textoDark, size: 20),
+          
+          // === BOTONES GLOBALES ===
+          BellotaTopActions(
+            showSettings: false,
+            onLanguagePressed: () {},
+            onTalkBackPressed: () {},
           ),
         ],
       ),
     );
   }
 
-  Widget _iconButton({required Widget child}) {
-    return GestureDetector(
-      onTap: () {}, // Sin función por ahora
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Center(child: child),
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────
+  // ───────────────────────────────
   // IMAGEN PLACEHOLDER DEL CENTRO
-  // ────────────────────────────────────────
-  Widget _buildImagePlaceholder() {
+  // ───────────────────────────────
+  Widget _buildImagePlaceholder(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: const LinearGradient(
-          colors: [Color(0xFFD35D53), Color(0xFFE8897A)],
+          colors: [BellotaColors.chilero, BellotaColors.gradienteClaro],
           begin: Alignment.bottomLeft,
           end: Alignment.topRight,
         ),
@@ -195,7 +161,6 @@ class HealthCenterDetailScreen extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Patrón decorativo
           Positioned(
             right: 20,
             top: 20,
@@ -204,7 +169,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
               height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.15),
+                color: BellotaColors.blanco.withValues(alpha: 0.15),
               ),
             ),
           ),
@@ -216,23 +181,21 @@ class HealthCenterDetailScreen extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.1),
+                color: BellotaColors.blanco.withValues(alpha: 0.1),
               ),
             ),
           ),
-          // Ícono central
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.local_hospital_rounded, color: Colors.white.withValues(alpha: 0.9), size: 48),
+                Icon(Icons.local_hospital_rounded, color: BellotaColors.blanco.withValues(alpha: 0.9), size: 48),
                 const SizedBox(height: 8),
                 Text(
                   'Centro de Salud',
-                  style: GoogleFonts.poppins(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: BellotaColors.blanco.withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -243,15 +206,15 @@ class HealthCenterDetailScreen extends StatelessWidget {
     );
   }
 
-  // ────────────────────────────────────────
+  // ───────────────────────
   // INFORMACIÓN DETALLADA
-  // ────────────────────────────────────────
-  Widget _buildInfoSection() {
+  // ───────────────────────
+  Widget _buildInfoSection(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: BellotaColors.blanco,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -264,21 +227,23 @@ class HealthCenterDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _infoRow('Tipo:', center.type),
+          _infoRow(context, 'Tipo:', center.type),
           const SizedBox(height: 10),
-          _infoRow('Dirección:', center.address),
+          _infoRow(context, 'Dirección:', center.address),
           const SizedBox(height: 10),
-          _infoRow('Horario de atención:', center.schedule),
+          _infoRow(context, 'Horario de atención:', center.schedule),
           const SizedBox(height: 10),
-          _infoRow('Ciudad:', center.city),
+          _infoRow(context, 'Ciudad:', center.city),
           const SizedBox(height: 10),
-          _infoRow('Departamento:', center.department),
+          _infoRow(context, 'Departamento:', center.department),
         ],
       ),
     );
   }
 
-  Widget _infoRow(String label, String value) {
+  Widget _infoRow(BuildContext context, String label, String value) {
+    final textTheme = Theme.of(context).textTheme;
+    
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,7 +253,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: const BoxDecoration(
-              color: Color(0xFF3D2B27),
+              color: BellotaColors.textoDark,
               shape: BoxShape.circle,
             ),
           ),
@@ -300,17 +265,14 @@ class HealthCenterDetailScreen extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '$label ',
-                  style: GoogleFonts.poppins(
+                  style: textTheme.titleMedium?.copyWith(
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
                     color: BellotaColors.textoDark,
                   ),
                 ),
                 TextSpan(
                   text: value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
+                  style: textTheme.bodyMedium?.copyWith(
                     color: BellotaColors.textoMedio,
                   ),
                 ),
@@ -322,16 +284,15 @@ class HealthCenterDetailScreen extends StatelessWidget {
     );
   }
 
-  // ────────────────────────────────────────
-  // ESPECIALIDADES — Chips / Tags
-  // ────────────────────────────────────────
-  Widget _buildSpecialtiesSection() {
+  // ────────────────
+  // ESPECIALIDADES 
+  // ────────────────
+  Widget _buildSpecialtiesSection(BuildContext context) {
     return Column(
       children: [
         Text(
           'Especialidades',
-          style: GoogleFonts.poppins(
-            fontSize: 18,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
             color: BellotaColors.textoDark,
           ),
@@ -354,9 +315,8 @@ class HealthCenterDetailScreen extends StatelessWidget {
               ),
               child: Text(
                 specialty,
-                style: GoogleFonts.poppins(
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontSize: 12,
-                  fontWeight: FontWeight.w500,
                   color: BellotaColors.textoDark,
                 ),
               ),

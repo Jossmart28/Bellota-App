@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import '../theme/bellota_colors.dart';
+import '../widgets/bellota_top_actions.dart';
 import 'health_center_detail_screen.dart';
 
 /// Modelo de datos para un centro de salud
@@ -30,7 +30,7 @@ class HealthCenter {
   });
 }
 
-/// Pantalla de mapa con centros de salud marcados con bellotas
+/// Pantalla de mapa con centros de salud
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
@@ -54,7 +54,7 @@ class _MapScreenState extends State<MapScreen> {
       city: 'Managua',
       department: 'Managua',
       specialties: ['Consulta Ginecológica', 'Planificación Familiar', 'Consulta General'],
-      location: LatLng(12.1364, -86.2514),
+      location: const LatLng(12.1364, -86.2514),
     ),
     HealthCenter(
       id: '2',
@@ -65,7 +65,7 @@ class _MapScreenState extends State<MapScreen> {
       city: 'Managua',
       department: 'Managua',
       specialties: ['Consulta General', 'Pediatría', 'Planificación Familiar'],
-      location: LatLng(12.1190, -86.2680),
+      location: const LatLng(12.1190, -86.2680),
     ),
     HealthCenter(
       id: '3',
@@ -76,7 +76,7 @@ class _MapScreenState extends State<MapScreen> {
       city: 'Managua',
       department: 'Managua',
       specialties: ['Consulta Ginecológica', 'Consulta General'],
-      location: LatLng(12.1080, -86.2250),
+      location: const LatLng(12.1080, -86.2250),
     ),
     HealthCenter(
       id: '4',
@@ -87,7 +87,7 @@ class _MapScreenState extends State<MapScreen> {
       city: 'Managua',
       department: 'Managua',
       specialties: ['Planificación Familiar', 'Consulta Ginecológica'],
-      location: LatLng(12.1450, -86.2750),
+      location: const LatLng(12.1450, -86.2750),
     ),
     HealthCenter(
       id: '5',
@@ -98,7 +98,7 @@ class _MapScreenState extends State<MapScreen> {
       city: 'Managua',
       department: 'Managua',
       specialties: ['Consulta General', 'Consulta Ginecológica', 'Pediatría'],
-      location: LatLng(12.1250, -86.2400),
+      location: const LatLng(12.1250, -86.2400),
     ),
   ];
 
@@ -146,13 +146,14 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ══════════════════════════════════════
+        // ═══════════════════════════════════
         // BARRA SUPERIOR — Búsqueda + íconos
-        // ══════════════════════════════════════
-        _buildSearchBar(),
-        // ══════════════════════════════════════
+        // ═══════════════════════════════════
+        _buildSearchBar(context),
+        
+        // ══════════════════════════
         // MAPA + LISTA (scrollable)
-        // ══════════════════════════════════════
+        // ══════════════════════════
         Expanded(
           child: Column(
             children: [
@@ -166,14 +167,14 @@ class _MapScreenState extends State<MapScreen> {
                 onTap: () => setState(() => _isListVisible = !_isListVisible),
                 child: Container(
                   width: double.infinity,
-                  color: Colors.white,
+                  color: BellotaColors.blanco,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Center(
                     child: Container(
                       width: 48,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD4C4B0),
+                        color: BellotaColors.textoMedio.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(2.5),
                       ),
                     ),
@@ -187,7 +188,7 @@ class _MapScreenState extends State<MapScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 8),
-                        _buildHealthCenterList(),
+                        _buildHealthCenterList(context),
                         const SizedBox(height: 16),
                       ],
                     ),
@@ -200,13 +201,15 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ────────────────────────────────────────
-  // BARRA DE BÚSQUEDA
-  // ────────────────────────────────────────
-  Widget _buildSearchBar() {
+  // ────────────────────────────────────═
+  // BARRA DE BÚSQUEDA Y BOTONES GLOBALES
+  // ─────────────────────────────────────
+  Widget _buildSearchBar(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: const Color(0xFFF5EDE3),
+      color: BellotaColors.basilica,
       child: Row(
         children: [
           // Campo de búsqueda
@@ -214,7 +217,7 @@ class _MapScreenState extends State<MapScreen> {
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: BellotaColors.blanco,
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
@@ -227,21 +230,15 @@ class _MapScreenState extends State<MapScreen> {
               child: Row(
                 children: [
                   const SizedBox(width: 14),
-                  Icon(Icons.search, color: BellotaColors.textoMedio, size: 22),
+                  const Icon(Icons.search, color: BellotaColors.textoMedio, size: 22),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: BellotaColors.textoDark,
-                      ),
+                      style: textTheme.bodyMedium?.copyWith(color: BellotaColors.textoDark),
                       decoration: InputDecoration(
                         hintText: 'Buscar centro de salud...',
-                        hintStyle: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: BellotaColors.textoMedio.withValues(alpha: 0.6),
-                        ),
+                        hintStyle: textTheme.bodyMedium?.copyWith(color: BellotaColors.textoMedio.withValues(alpha: 0.6)),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -256,69 +253,36 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          // Botón de traducción
-          _iconButton(
-            child: Text(
-              '文A',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: BellotaColors.textoDark,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Botón de audio/accesibilidad
-          _iconButton(
-            child: Icon(Icons.volume_up_rounded, color: BellotaColors.textoDark, size: 20),
+          
+          // === BOTONES GLOBALES ===
+          BellotaTopActions(
+            showSettings: false, 
+            onLanguagePressed: () {},
+            onTalkBackPressed: () {},
           ),
         ],
       ),
     );
   }
 
-  Widget _iconButton({required Widget child}) {
-    return GestureDetector(
-      onTap: () {}, // Sin función por ahora
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Center(child: child),
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────
+  // ─────────────────
   // MAPA FLUTTER MAP
-  // ────────────────────────────────────────
+  // ─────────────────
   Widget _buildMap() {
     return FlutterMap(
       mapController: _mapController,
-      options: MapOptions(
+      options: const MapOptions(
         initialCenter: LatLng(12.1250, -86.2500),
         initialZoom: 13.0,
-        interactionOptions: const InteractionOptions(
+        interactionOptions: InteractionOptions(
           flags: InteractiveFlag.all,
         ),
       ),
       children: [
-        // Capa de tiles OpenStreetMap
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.bellota.app',
         ),
-        // Marcadores de bellota
         MarkerLayer(
           markers: _filteredCenters.map((center) {
             return Marker(
@@ -331,7 +295,7 @@ class _MapScreenState extends State<MapScreen> {
                   decoration: BoxDecoration(
                     color: BellotaColors.chilero,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2.5),
+                    border: Border.all(color: BellotaColors.blanco, width: 2.5),
                     boxShadow: [
                       BoxShadow(
                         color: BellotaColors.chilero.withValues(alpha: 0.4),
@@ -352,30 +316,32 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ────────────────────────────────────────
+  // ──────────────────────────
   // LISTA DE CENTROS DE SALUD
-  // ────────────────────────────────────────
-  Widget _buildHealthCenterList() {
+  // ──────────────────────────
+  Widget _buildHealthCenterList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: _filteredCenters.map((center) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: _buildHealthCenterCard(center),
+            child: _buildHealthCenterCard(context, center),
           );
         }).toList(),
       ),
     );
   }
 
-  Widget _buildHealthCenterCard(HealthCenter center) {
+  Widget _buildHealthCenterCard(BuildContext context, HealthCenter center) {
+    final textTheme = Theme.of(context).textTheme;
+
     return GestureDetector(
       onTap: () => _onCardTap(center),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: BellotaColors.blanco,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -394,21 +360,20 @@ class _MapScreenState extends State<MapScreen> {
                 children: [
                   Text(
                     center.name,
-                    style: GoogleFonts.poppins(
+                    style: textTheme.titleMedium?.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: BellotaColors.textoDark,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  _cardBullet(center.type),
-                  _cardBullet(center.address),
-                  _cardBullet('${center.city}, ${center.department}.'),
+                  _cardBullet(context, center.type),
+                  _cardBullet(context, center.address),
+                  _cardBullet(context, '${center.city}, ${center.department}.'),
                 ],
               ),
             ),
             const SizedBox(width: 10),
-            // Botón flecha naranja
             Container(
               width: 40,
               height: 40,
@@ -425,7 +390,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
               child: const Icon(
                 Icons.arrow_forward_rounded,
-                color: Colors.white,
+                color: BellotaColors.blanco,
                 size: 22,
               ),
             ),
@@ -435,7 +400,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _cardBullet(String text) {
+  Widget _cardBullet(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
@@ -447,7 +412,7 @@ class _MapScreenState extends State<MapScreen> {
               width: 4,
               height: 4,
               decoration: const BoxDecoration(
-                color: Color(0xFF7A4F47),
+                color: BellotaColors.textoMedio,
                 shape: BoxShape.circle,
               ),
             ),
@@ -456,11 +421,7 @@ class _MapScreenState extends State<MapScreen> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.poppins(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                color: BellotaColors.textoMedio,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
         ],

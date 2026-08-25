@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../theme/bellota_colors.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
 
-/// Pantalla Splash de Bellota - Calendario Menstrual
-/// Diseño: fondo degradado Chilero con logo oficial centrado y animación de entrada
+/// Pantalla Splash de Bellota
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -24,7 +23,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Ocultar barra de estado (pantalla completa)
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -53,7 +51,6 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navegar según la sesión después de 3 segundos
     Future.delayed(const Duration(seconds: 3), () async {
       final prefs = await SharedPreferences.getInstance();
       final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
@@ -84,30 +81,18 @@ class _SplashScreenState extends State<SplashScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        // Gradiente diagonal Chilero (igual a la imagen de referencia)
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.0, 0.45, 1.0],
-            colors: [
-              Color(0xFFE8897A), // chilero claro
-              Color(0xFFD35D53), // chilero medio
-              Color(0xFFC04840), // chilero oscuro
-            ],
-          ),
+          gradient: BellotaColors.splashGradient,
         ),
         child: SafeArea(
           child: Stack(
             children: [
-              // === PATRÓN DE PUNTOS DECORATIVOS (fondo) ===
               Positioned.fill(
                 child: CustomPaint(
                   painter: _DotPatternPainter(),
                 ),
               ),
 
-              // === LOGO OFICIAL CENTRAL ===
               Center(
                 child: AnimatedBuilder(
                   animation: _controller,
@@ -131,7 +116,6 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
 
-              // === INDICADOR INFERIOR ===
               Positioned(
                 bottom: 48,
                 left: 0,
@@ -152,8 +136,8 @@ class _SplashScreenState extends State<SplashScreen>
                                 height: 8,
                                 decoration: BoxDecoration(
                                   color: i == 0
-                                      ? Colors.white
-                                      : Colors.white.withValues(alpha: 0.4),
+                                      ? BellotaColors.blanco
+                                      : BellotaColors.blanco.withValues(alpha: 0.4),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               );
@@ -162,8 +146,8 @@ class _SplashScreenState extends State<SplashScreen>
                           const SizedBox(height: 16),
                           Text(
                             'Versión 1.0.0',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white.withValues(alpha: 0.5),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: BellotaColors.blanco.withValues(alpha: 0.5),
                               fontSize: 11,
                             ),
                           ),
@@ -181,14 +165,11 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ============================================================
-// PAINTER: Patrón de puntos decorativos del fondo
-// ============================================================
 class _DotPatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.06)
+      ..color = BellotaColors.blanco.withValues(alpha: 0.06)
       ..style = PaintingStyle.fill;
 
     const spacing = 28.0;

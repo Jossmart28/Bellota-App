@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../database/database_helper.dart';
+import '../widgets/bellota_top_actions.dart';
 import 'dashboard_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -41,7 +41,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final password = _passwordController.text;
 
       try {
-        // Verificar si ya existe
         bool exists = await DatabaseHelper.instance.emailExists(email);
         if (exists) {
           setState(() => _isLoading = false);
@@ -51,10 +50,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           return;
         }
 
-        // Registrar
         await DatabaseHelper.instance.registerUser(name, email, password);
         
-        // Guardar sesión
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userName', name);
@@ -77,7 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.poppins()),
+        content: Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: BellotaColors.blanco)),
         backgroundColor: Colors.redAccent,
         behavior: SnackBarBehavior.floating,
       ),
@@ -86,15 +83,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       backgroundColor: BellotaColors.chilero,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios, color: BellotaColors.blanco),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        // === BOTONES GLOBALES ===
+        actions: [
+          BellotaTopActions(
+            showSettings: false,
+            onLanguagePressed: () {},
+            onTalkBackPressed: () {},
+          ),
+          const SizedBox(width: 16),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -106,29 +114,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Text(
                   'Crear Cuenta',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: textTheme.displayMedium?.copyWith(color: BellotaColors.blanco),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Únete a Bellota 🌸',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 16,
-                  ),
+                  style: textTheme.bodyLarge?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.8)),
                 ),
                 const SizedBox(height: 32),
                 
-                // --- Formulario ---
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.12),
+                    color: BellotaColors.blanco.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+                    border: Border.all(color: BellotaColors.blanco.withValues(alpha: 0.25)),
                   ),
                   child: Form(
                     key: _formKey,
@@ -164,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               _passwordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: BellotaColors.blanco.withValues(alpha: 0.7),
                             ),
                             onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
                           ),
@@ -184,7 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               _confirmVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: BellotaColors.blanco.withValues(alpha: 0.7),
                             ),
                             onPressed: () => setState(() => _confirmVisible = !_confirmVisible),
                           ),
@@ -203,20 +203,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onPressed: _isLoading ? null : _handleRegister,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: BellotaColors.melon,
-                              foregroundColor: Colors.white,
+                              foregroundColor: BellotaColors.blanco,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(28),
                               ),
                             ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : Text(
-                                    'Registrarse',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                ? const CircularProgressIndicator(color: BellotaColors.blanco)
+                                : const Text('Registrarse'),
                           ),
                         ),
                       ],
@@ -232,7 +226,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// Reutilizamos el diseño de tu input
+// --- WIDGET REUTILIZABLE LOCAL ---
 class _BellotaTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -261,39 +255,13 @@ class _BellotaTextField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
-      style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),
-      cursorColor: Colors.white,
+      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: BellotaColors.blanco),
+      cursorColor: BellotaColors.blanco,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(prefixIcon, color: Colors.white.withValues(alpha: 0.75)),
+        prefixIcon: Icon(prefixIcon, color: BellotaColors.blanco.withValues(alpha: 0.75)),
         suffixIcon: suffixIcon,
-        filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.12),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        labelStyle: GoogleFonts.poppins(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
-        hintStyle: GoogleFonts.poppins(color: Colors.white.withValues(alpha: 0.45), fontSize: 14),
-        errorStyle: GoogleFonts.poppins(color: const Color(0xFFFFD0CC), fontSize: 11),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.35)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.35)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.white, width: 1.8),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFFFD0CC), width: 1.5),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFFFD0CC), width: 2),
-        ),
       ),
     );
   }

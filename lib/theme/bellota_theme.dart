@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'bellota_colors.dart';
 
-/// Tema principal de la aplicación Bellota - Calendario Menstrual
 class BellotaTheme {
   BellotaTheme._();
 
@@ -17,11 +16,9 @@ class BellotaTheme {
         onPrimary: BellotaColors.blanco,
         onSecondary: BellotaColors.blanco,
       ),
-      // Tipografía secundaria: Poppins (via Google Fonts)
-      // Tipografía principal: Estrella (no disponible en GF, usar Cormorant Garamond como serif elegante)
       textTheme: TextTheme(
-        // Display: para el logo / títulos grandes
-        displayLarge: GoogleFonts.poppins(
+        displayLarge: const TextStyle(
+          fontFamily: 'Estrella',
           fontSize: 32,
           fontWeight: FontWeight.w700,
           color: BellotaColors.blanco,
@@ -32,7 +29,6 @@ class BellotaTheme {
           fontWeight: FontWeight.w600,
           color: BellotaColors.textoDark,
         ),
-        // Headline: títulos de pantalla
         headlineLarge: GoogleFonts.poppins(
           fontSize: 24,
           fontWeight: FontWeight.w700,
@@ -43,7 +39,6 @@ class BellotaTheme {
           fontWeight: FontWeight.w600,
           color: BellotaColors.textoDark,
         ),
-        // Title: subtítulos
         titleLarge: GoogleFonts.poppins(
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -54,7 +49,6 @@ class BellotaTheme {
           fontWeight: FontWeight.w500,
           color: BellotaColors.textoMedio,
         ),
-        // Body: texto general
         bodyLarge: GoogleFonts.poppins(
           fontSize: 16,
           fontWeight: FontWeight.w400,
@@ -70,7 +64,6 @@ class BellotaTheme {
           fontWeight: FontWeight.w300,
           color: BellotaColors.textoMedio,
         ),
-        // Label: etiquetas, botones
         labelLarge: GoogleFonts.poppins(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -83,7 +76,6 @@ class BellotaTheme {
           color: BellotaColors.blanco,
         ),
       ),
-      // Botón principal
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: BellotaColors.chilero,
@@ -100,7 +92,6 @@ class BellotaTheme {
           elevation: 0,
         ),
       ),
-      // Campo de texto
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white.withValues(alpha: 0.15),

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
+import '../widgets/bellota_top_actions.dart';
 import 'login_screen.dart';
 import 'map_screen.dart';
 
-/// Dashboard principal de Bellota - Calendario Menstrual
-/// Diseño fiel a las 4 variantes del mockup de referencia.
-/// Las fases se cambian con un tap en el círculo de fase.
+/// Dashboard principal de Bellota
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -23,59 +21,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _userName = 'UsuarioApp';
   String _userEmail = 'correo@ejemplo.com';
 
-  // ── Definición de las 4 fases ──
+  // ── Definición de las 4 fases usando BellotaColors ──
   final List<_PhaseData> _phases = [
-    _PhaseData(
+    const _PhaseData(
       name: 'Fase\nOvulatoria',
       shortName: 'Ovulatoria',
-      color: Color(0xFFEE8658), // Melón / naranja
+      color: BellotaColors.melon,
       borderColor: Color(0xFFD97A4A),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [
-        'Lorem ipsum dolor sit',
-        'Amet consectetur',
-        'Adipiscing elit sed',
-        'Do eiusmod tempor',
-      ],
+      symptoms: ['Fuerte dolor', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
-    _PhaseData(
+    const _PhaseData(
       name: 'Fase\nLútea',
       shortName: 'Lútea',
-      color: Color(0xFFB0C4D8), // Asunción / azul-lavanda
+      color: BellotaColors.asuncion,
       borderColor: Color(0xFF8FAFC8),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [
-        'Lorem ipsum dolor sit',
-        'Amet consectetur',
-        'Adipiscing elit sed',
-        'Do eiusmod tempor',
-      ],
+      symptoms: ['Cansancio', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
-    _PhaseData(
+    const _PhaseData(
       name: 'Fase\nFolicular',
       shortName: 'Folicular',
-      color: Color(0xFFB5C9A1), // Chiltoma / verde
+      color: BellotaColors.chiltoma,
       borderColor: Color(0xFF97B580),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [
-        'Lorem ipsum dolor sit',
-        'Amet consectetur',
-        'Adipiscing elit sed',
-        'Do eiusmod tempor',
-      ],
+      symptoms: ['Energía alta', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
-    _PhaseData(
+    const _PhaseData(
       name: 'Fase\nMenstrual',
       shortName: 'Menstrual',
-      color: Color(0xFFD35D53), // Chilero / rojo
+      color: BellotaColors.chilero,
       borderColor: Color(0xFFB94A42),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [
-        'Lorem ipsum dolor sit',
-        'Amet consectetur',
-        'Adipiscing elit sed',
-        'Do eiusmod tempor',
-      ],
+      symptoms: ['Cólicos', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
   ];
 
@@ -105,7 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
+            (route) => false,
       );
     }
   }
@@ -118,43 +96,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final phase = _phases[_currentPhaseIndex];
-    // Fondo general crema claro
-    const bgColor = Color(0xFFF5EDE3); // Asunción-like background
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: BellotaColors.basilica, // Fondo original correcto
       body: SafeArea(
-        child: _getBody(),
+        child: _getBody(context),
       ),
-      // ══════════════════════════════════════
-      // BOTTOM NAVIGATION BAR — 5 ítems
-      // ══════════════════════════════════════
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
-  Widget _getBody() {
+  Widget _getBody(BuildContext context) {
     switch (_selectedNavIndex) {
       case 0:
-        return _buildDashboardContent();
+        return _buildDashboardContent(context);
       case 3:
         return const MapScreen();
       default:
         return Center(
           child: Text(
             'Próximamente',
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF7A4F47),
-            ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: BellotaColors.textoMedio),
           ),
         );
     }
   }
 
-  Widget _buildDashboardContent() {
+  Widget _buildDashboardContent(BuildContext context) {
     final phase = _phases[_currentPhaseIndex];
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
@@ -164,30 +131,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
-            // ══════════════════════════════════════
-            // HEADER — Avatar + nombre + logo + campana + foto
-            // ══════════════════════════════════════
-            _buildHeader(),
+            _buildHeader(context),
             const SizedBox(height: 20),
-            // ══════════════════════════════════════
-            // INICIO DEL PERIODO — Toggle switch
-            // ══════════════════════════════════════
-            _buildPeriodoToggle(),
+            _buildPeriodoToggle(context),
             const SizedBox(height: 24),
-            // ══════════════════════════════════════
-            // PREDICCIONES — Card
-            // ══════════════════════════════════════
-            _buildPrediccionesSection(),
+            _buildPrediccionesSection(context),
             const SizedBox(height: 24),
-            // ══════════════════════════════════════
-            // RESUMEN DE HOY — Con círculo de fase
-            // ══════════════════════════════════════
-            _buildResumenSection(phase),
+            _buildResumenSection(context, phase),
             const SizedBox(height: 24),
-            // ══════════════════════════════════════
-            // INFORMACIÓN ADICIONAL — Card con contenido
-            // ══════════════════════════════════════
-            _buildInfoAdicionalSection(),
+            _buildInfoAdicionalSection(context),
             const SizedBox(height: 20),
           ],
         ),
@@ -195,24 +147,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ────────────────────────────────────────
-  // HEADER
-  // ────────────────────────────────────────
-  Widget _buildHeader() {
+  // ───────────────────────────
+  // HEADER CON BOTONERA GLOBAL
+  // ───────────────────────────
+  Widget _buildHeader(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Row(
       children: [
-        // Avatar circular
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: const Color(0xFFE8D5C0),
-            border: Border.all(color: const Color(0xFFD4B896), width: 2),
+        GestureDetector(
+          onLongPress: _logout,
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: BellotaColors.nancite,
+              border: Border.all(color: BellotaColors.textoMedio.withValues(alpha: 0.3), width: 2),
+            ),
+            child: const Icon(Icons.person, color: BellotaColors.textoMedio, size: 24),
           ),
-          child: const Icon(Icons.person, color: Color(0xFF7A4F47), size: 24),
         ),
         const SizedBox(width: 10),
+
         // Nombre + email
         Expanded(
           child: Column(
@@ -220,84 +177,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 _userName,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF3D2B27),
-                ),
+                style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.w700),
               ),
               Text(
                 _userEmail,
-                style: GoogleFonts.poppins(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF7A4F47),
-                ),
+                style: textTheme.bodySmall,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
-        // Logo Bellota icono (estilizado)
-        GestureDetector(
-          onTap: () {}, // Botón sin función por ahora
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFFF7EACC),
-            ),
-            child: Center(
-              child: Text(
-                '🌰',
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        // Campana de notificaciones
-        GestureDetector(
-          onTap: () {}, // Botón sin función por ahora
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: BellotaColors.chilero,
-            ),
-            child: const Icon(Icons.notifications_outlined, color: Colors.white, size: 20),
-          ),
-        ),
-        const SizedBox(width: 8),
-        // Foto de perfil / icono adicional
-        GestureDetector(
-          onTap: () {}, // Botón sin función por ahora
-          onLongPress: _logout, // Cierre de sesión (manteniendo pulsado)
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFFE8D5C0),
-              border: Border.all(color: const Color(0xFFD4B896), width: 1.5),
-            ),
-            child: const Icon(Icons.photo_camera_outlined, color: Color(0xFF7A4F47), size: 18),
-          ),
+
+        BellotaTopActions(
+          showSettings: false,
+          showNotifications: true,
+          onLanguagePressed: () {},
+          onTalkBackPressed: () {},
+          onNotificationPressed: () {},
         ),
       ],
     );
   }
 
-  // ────────────────────────────────────────
+  // ────────────────────────────
   // INICIO DEL PERIODO — Toggle
-  // ────────────────────────────────────────
-  Widget _buildPeriodoToggle() {
+  // ────────────────────────────
+  Widget _buildPeriodoToggle(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: BellotaColors.blanco,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -312,21 +221,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Text(
             'Inicio del periodo',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF3D2B27),
-            ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontSize: 15),
           ),
           Transform.scale(
             scale: 0.85,
             child: Switch(
               value: _periodoIniciado,
               onChanged: (val) => setState(() => _periodoIniciado = val),
-              activeThumbColor: Colors.white,
+              activeThumbColor: BellotaColors.blanco,
               activeTrackColor: BellotaColors.chilero,
-              inactiveThumbColor: Colors.white,
-              inactiveTrackColor: const Color(0xFFD4C4B0),
+              inactiveThumbColor: BellotaColors.blanco,
+              inactiveTrackColor: BellotaColors.textoMedio.withValues(alpha: 0.3),
             ),
           ),
         ],
@@ -334,26 +239,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ────────────────────────────────────────
+  // ──────────────
   // PREDICCIONES
-  // ────────────────────────────────────────
-  Widget _buildPrediccionesSection() {
+  // ──────────────
+  Widget _buildPrediccionesSection(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Predicciones',
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF3D2B27),
-          ),
+          style: textTheme.headlineMedium,
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: BellotaColors.blanco,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -365,66 +268,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           child: Row(
             children: [
-              // Columna izquierda — fecha de próximo periodo
               Expanded(
                 flex: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Lorem ipsum dolor sit amet...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xFF7A4F47),
-                      ),
+                      'Tu próximo periodo será...',
+                      style: textTheme.bodySmall,
                     ),
                     const SizedBox(height: 6),
                     Text(
                       '25/Feb.',
-                      style: GoogleFonts.poppins(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: BellotaColors.chilero,
-                      ),
+                      style: textTheme.headlineLarge?.copyWith(color: BellotaColors.chilero, fontSize: 28),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Lorem ipsum dolor sit amet, consectetur.',
-                      style: GoogleFonts.poppins(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w300,
-                        color: const Color(0xFF7A4F47),
-                      ),
+                      'Basado en tus últimos ciclos.',
+                      style: textTheme.bodySmall?.copyWith(fontSize: 9),
                     ),
                   ],
                 ),
               ),
-              // Divider vertical
               Container(
                 width: 1,
                 height: 80,
                 margin: const EdgeInsets.symmetric(horizontal: 12),
-                color: const Color(0xFFE0D0C0),
+                color: BellotaColors.textoMedio.withValues(alpha: 0.2),
               ),
-              // Columna derecha — síntomas predichos
               Expanded(
                 flex: 5,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Lorem ipsum dolor sit...',
-                      style: GoogleFonts.poppins(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF3D2B27),
-                      ),
+                      'Síntomas esperados',
+                      style: textTheme.bodySmall?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 6),
-                    _bulletItem('Lorem ipsum dolor'),
-                    _bulletItem('Amet consectetur'),
-                    _bulletItem('Adipiscing elit'),
+                    _bulletItem(context, 'Cambios de humor'),
+                    _bulletItem(context, 'Sensibilidad'),
+                    _bulletItem(context, 'Antojos dulces'),
                   ],
                 ),
               ),
@@ -435,19 +319,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _bulletItem(String text) {
+  Widget _bulletItem(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 5),
+            padding: const EdgeInsets.only(top: 6),
             child: Container(
               width: 5,
               height: 5,
               decoration: const BoxDecoration(
-                color: Color(0xFF7A4F47),
+                color: BellotaColors.textoMedio,
                 shape: BoxShape.circle,
               ),
             ),
@@ -456,11 +340,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.poppins(
-                fontSize: 11,
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFF7A4F47),
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
         ],
@@ -468,26 +348,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ────────────────────────────────────────
-  // RESUMEN DE HOY — Círculo de fase + síntomas
-  // ────────────────────────────────────────
-  Widget _buildResumenSection(_PhaseData phase) {
+  // ───────────────
+  // RESUMEN DE HOY
+  // ───────────────
+  Widget _buildResumenSection(BuildContext context, _PhaseData phase) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Resumen de hoy',
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF3D2B27),
-          ),
+          style: textTheme.headlineMedium,
         ),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: BellotaColors.blanco,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -499,7 +377,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           child: Row(
             children: [
-              // Círculo de fase — tappable para cambiar
               GestureDetector(
                 onTap: _cyclePhase,
                 child: AnimatedContainer(
@@ -523,34 +400,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Text(
                       phase.name,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
+                      style: textTheme.labelLarge?.copyWith(fontSize: 13, height: 1.2),
                     ),
                   ),
                 ),
               ),
               const SizedBox(width: 16),
-              // Síntomas registrados
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       phase.symptomsTitle,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF3D2B27),
-                        height: 1.3,
-                      ),
+                      style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
                     ...phase.symptoms.map(
-                      (s) => _bulletItem(s),
+                          (s) => _bulletItem(context, s),
                     ),
                   ],
                 ),
@@ -562,29 +428,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ────────────────────────────────────────
+  // ──────────────────────
   // INFORMACIÓN ADICIONAL
-  // ────────────────────────────────────────
-  Widget _buildInfoAdicionalSection() {
+  // ──────────────────────
+  Widget _buildInfoAdicionalSection(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Información adicional',
-          style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF3D2B27),
-          ),
+          style: textTheme.headlineMedium,
         ),
         const SizedBox(height: 12),
-        // Card de información
         GestureDetector(
-          onTap: () {}, // Botón sin función por ahora
+          onTap: () {},
           child: Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: BellotaColors.blanco,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -596,52 +459,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: Row(
               children: [
-                // Imagen placeholder
                 Container(
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    color: const Color(0xFFF7EACC),
+                    color: BellotaColors.nancite,
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      color: const Color(0xFFEEDFC8),
-                      child: Center(
-                        child: Icon(
-                          Icons.article_outlined,
-                          size: 40,
-                          color: const Color(0xFFC5975B),
-                        ),
-                      ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.article_outlined,
+                      size: 40,
+                      color: BellotaColors.melon,
                     ),
                   ),
                 ),
                 const SizedBox(width: 14),
-                // Texto
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '¿Lorem ipsum dolor sit amet consectetur?',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF3D2B27),
-                          height: 1.3,
-                        ),
+                        '¿Cómo afecta el estrés tu ciclo?',
+                        style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontSize: 13, height: 1.3),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.',
-                        style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xFF7A4F47),
-                          height: 1.4,
-                        ),
+                        'El estrés crónico puede alterar tus niveles hormonales, provocando retrasos en tu periodo o cambios en la ovulación.',
+                        style: textTheme.bodySmall?.copyWith(fontSize: 10, height: 1.4),
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -656,13 +501,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ────────────────────────────────────────
-  // BOTTOM NAVIGATION BAR — 5 ítems
-  // ────────────────────────────────────────
-  Widget _buildBottomNav() {
+  // ───────────────────────
+  // BOTTOM NAVIGATION BAR
+  // ───────────────────────
+  Widget _buildBottomNav(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: BellotaColors.blanco,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         boxShadow: [
           BoxShadow(
@@ -679,11 +524,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(Icons.home_filled, 'Home', 0),
-              _navItem(Icons.calendar_month_rounded, 'Calendar', 1),
-              _navItem(Icons.article_outlined, 'Log', 2),
-              _navItem(Icons.location_on_outlined, 'Map', 3),
-              _navItem(Icons.person_outline_rounded, 'Profile', 4),
+              _navItem(context, Icons.home_filled, 'Inicio', 0),
+              _navItem(context, Icons.calendar_month_rounded, 'Calendario', 1),
+              _navItem(context, Icons.article_outlined, 'Registro', 2),
+              _navItem(context, Icons.location_on_outlined, 'Mapa', 3),
+              _navItem(context, Icons.person_outline_rounded, 'Perfil', 4),
             ],
           ),
         ),
@@ -691,7 +536,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _navItem(IconData icon, String label, int index) {
+  Widget _navItem(BuildContext context, IconData icon, String label, int index) {
     final isSelected = _selectedNavIndex == index;
     return GestureDetector(
       onTap: () => setState(() => _selectedNavIndex = index),
@@ -704,15 +549,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Icon(
               icon,
               size: 28,
-              color: isSelected ? BellotaColors.chilero : const Color(0xFF6D5C58),
+              color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: GoogleFonts.poppins(
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? BellotaColors.chilero : const Color(0xFF6D5C58),
+                color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
               ),
             ),
             if (isSelected) ...[
@@ -735,9 +580,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// ────────────────────────────────────────
+// ─────────────────────────
 // Modelo de datos de fase
-// ────────────────────────────────────────
+// ─────────────────────────
 class _PhaseData {
   final String name;
   final String shortName;
