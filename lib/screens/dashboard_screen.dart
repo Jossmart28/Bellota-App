@@ -5,6 +5,7 @@ import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import 'login_screen.dart';
 import 'map_screen.dart';
+import 'calendar_screen.dart';
 
 /// Dashboard principal de Bellota
 class DashboardScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _userName = 'UsuarioApp';
   String _userEmail = 'correo@ejemplo.com';
 
-  // ── Definición de las 4 fases usando BellotaColors ──
+  // ── Definición de las 4 fases ──
   final List<_PhaseData> _phases = [
     const _PhaseData(
       name: 'Fase\nOvulatoria',
@@ -109,6 +110,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (_selectedNavIndex) {
       case 0:
         return _buildDashboardContent(context);
+      case 1:
+        return const CalendarScreen();
       case 3:
         return const MapScreen();
       default:
