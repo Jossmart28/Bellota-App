@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bellotadevolpment/main.dart';
+import 'package:bellotadevelopment/main.dart';
 
 void main() {
   testWidgets('BellotaApp smoke test', (WidgetTester tester) async {

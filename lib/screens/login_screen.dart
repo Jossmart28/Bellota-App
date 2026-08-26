@@ -81,6 +81,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('userName', user['name']);
           await prefs.setString('userEmail', user['email']);
+          await prefs.setInt('userId', user['id'] as int);
           
           if (mounted) {
             Navigator.of(context).pushReplacement(

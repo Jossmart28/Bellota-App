@@ -50,12 +50,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           return;
         }
 
-        await DatabaseHelper.instance.registerUser(name, email, password);
+        final userId = await DatabaseHelper.instance.registerUser(name, email, password);
         
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userName', name);
         await prefs.setString('userEmail', email);
+        await prefs.setInt('userId', userId);
         
         setState(() => _isLoading = false);
         if (mounted) {

@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../widgets/bellota_icon.dart';
+import '../database/database_helper.dart';
+import 'symptom_log_screen.dart';
 
 enum CalendarViewType { weekly, monthly, annual }
 
@@ -16,9 +19,10 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   String _userName = 'UsuarioApp';
   String _userEmail = 'correo@ejemplo.com';
+  int? _userId;
 
   CalendarViewType _currentView = CalendarViewType.monthly;
-  DateTime _currentDate = DateTime.now(); // Fecha real actual
+  final DateTime _currentDate = DateTime.now(); // Fecha real actual
   DateTime _displayDate = DateTime.now(); // Fecha del mes/semana que se está viendo
   DateTime? _selectedDate; // Día seleccionado por la usuaria
 
@@ -51,9 +55,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
+    String userName = prefs.getString('userName') ?? 'UsuarioApp';
+    String userEmail = prefs.getString('userEmail') ?? 'correo@ejemplo.com';
+    int? userId = prefs.getInt('userId');
+
+    if (userId == null && userEmail != 'correo@ejemplo.com') {
+      userId = await DatabaseHelper.instance.getUserIdByEmail(userEmail);
+      if (userId != null) {
+        await prefs.setInt('userId', userId);
+      }
+    }
+
     setState(() {
-      _userName = prefs.getString('userName') ?? 'UsuarioApp';
-      _userEmail = prefs.getString('userEmail') ?? 'correo@ejemplo.com';
+      _userName = userName;
+      _userEmail = userEmail;
+      _userId = userId;
     });
   }
 
@@ -487,30 +503,87 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (_selectedDate == null) return const SizedBox();
     final textTheme = Theme.of(context).textTheme;
     String dateStr = '${_dayNames[_selectedDate!.weekday == 7 ? 0 : _selectedDate!.weekday]}, ${_selectedDate!.day} de ${_monthNames[_selectedDate!.month - 1]} ${_selectedDate!.year}';
+    String dateKey = '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}';
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: BellotaColors.blanco,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(dateStr, style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          Text('Síntomas registrados', style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 14),
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _userId != null ? DatabaseHelper.instance.getDailyLog(_userId!, dateKey) : Future.value(null),
+      builder: (context, snapshot) {
+        final log = snapshot.data;
+        List<String> symptoms = [];
+        List<String> sexo = [];
+        List<String> flujo = [];
+        bool periodStart = false;
 
-          _buildSymptomItem(BellotaColors.chilero, 'Sangrado moderado. Lorem ipsum dolor.'),
-          _buildSymptomItem(BellotaColors.chiltoma, 'Mareos fuertes. Amet consectetur.'),
-          _buildSymptomItem(BellotaColors.asuncion, 'Jaqueza moderada. Adipiscing elit sed.'),
-        ],
-      ),
+        if (log != null) {
+          symptoms = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
+          sexo = List<String>.from(jsonDecode(log['sexo'] as String? ?? '[]'));
+          flujo = List<String>.from(jsonDecode(log['flujo'] as String? ?? '[]'));
+          periodStart = (log['period_start'] as int?) == 1;
+        }
+
+        bool hasData = symptoms.isNotEmpty || sexo.isNotEmpty || flujo.isNotEmpty || periodStart;
+
+        return Container(
+          margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: BellotaColors.blanco,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2)),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(dateStr, style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+
+              // Botón de Registro
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SymptomLogScreen(selectedDate: _selectedDate),
+                      ),
+                    );
+                    if (result == true) {
+                      setState(() {}); // Refresca para mostrar los datos guardados
+                    }
+                  },
+                  icon: const Text('🌰', style: TextStyle(fontSize: 18)),
+                  label: const Text('Registrar síntomas', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: BellotaColors.chilero,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Text('Síntomas registrados', style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 14),
+
+              if (!hasData)
+                Text(
+                  'No hay registros para este día.\nPresiona el botón para agregar.',
+                  style: textTheme.bodyMedium?.copyWith(color: BellotaColors.textoMedio),
+                ),
+
+              if (periodStart)
+                _buildSymptomItem(BellotaColors.chilero, 'Inicio del período'),
+              ...symptoms.map((s) => _buildSymptomItem(BellotaColors.asuncion, s)),
+              ...sexo.map((s) => _buildSymptomItem(BellotaColors.melon, s)),
+              ...flujo.map((s) => _buildSymptomItem(const Color(0xFFA566C1), s)),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -529,4 +602,4 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
     );
   }
-}
+}
