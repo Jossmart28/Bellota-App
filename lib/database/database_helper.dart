@@ -297,4 +297,59 @@ class DatabaseHelper {
     );
     return result.isNotEmpty;
   }
+
+  /// Obtiene la última fecha en que se registró el inicio de un período
+  Future<DateTime?> getLastPeriodStart(int userId) async {
+    final db = await instance.database;
+    await _createDailyLogsTable(db);
+
+    final result = await db.query(
+      'daily_logs',
+      where: 'user_id = ? AND period_start = 1',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      final dateString = result.first['date'] as String;
+      // Date format is expected to be YYYY-MM-DD
+      try {
+        final parts = dateString.split('-');
+        if (parts.length == 3) {
+          return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return null;
+  }
+
+  /// Obtiene la primera fecha en que se registró el inicio de un período
+  Future<DateTime?> getFirstPeriodStart(int userId) async {
+    final db = await instance.database;
+    await _createDailyLogsTable(db);
+
+    final result = await db.query(
+      'daily_logs',
+      where: 'user_id = ? AND period_start = 1',
+      whereArgs: [userId],
+      orderBy: 'date ASC',
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      final dateString = result.first['date'] as String;
+      try {
+        final parts = dateString.split('-');
+        if (parts.length == 3) {
+          return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return null;
+  }
 }

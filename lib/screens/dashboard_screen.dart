@@ -111,12 +111,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _cycleDuration = profile['cycle_duration'] as int? ?? 28;
     }
 
-    // 2. Determinar fase actual (Simulada como en el calendario o basada en DB si existiese historial)
+    // 2. Determinar fase actual
     final now = DateTime.now();
-    final diff = now.difference(DateTime(2026, 1, 1)).inDays;
-    final cycleDay = (diff % _cycleDuration) + 1;
+    final lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(userId);
+    
+    int cycleDay = 1;
+    if (lastPeriod != null) {
+      final diff = now.difference(lastPeriod).inDays;
+      if (diff >= 0) {
+        cycleDay = (diff % _cycleDuration) + 1;
+      }
+    } else {
+      // Si no hay datos, simulamos o dejamos valor por defecto
+      final diff = now.difference(DateTime(2026, 1, 1)).inDays;
+      cycleDay = diff >= 0 ? (diff % _cycleDuration) + 1 : 1;
+    }
 
-    // Asignamos la fase según el día del ciclo (simulado)
+    // Asignamos la fase según el día del ciclo
     if (cycleDay <= 5) {
       _currentPhaseIndex = 3; // Menstrual
     } else if (cycleDay <= 13) {
@@ -163,12 +174,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             (route) => false,
       );
     }
-  }
-
-  void _cyclePhase() {
-    setState(() {
-      _currentPhaseIndex = (_currentPhaseIndex + 1) % _phases.length;
-    });
   }
 
   @override

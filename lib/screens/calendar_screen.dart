@@ -20,6 +20,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   String _userName = 'UsuarioApp';
   String _userEmail = 'correo@ejemplo.com';
   int? _userId;
+  DateTime? _lastPeriodStart;
+  DateTime? _firstPeriodStart;
 
   CalendarViewType _currentView = CalendarViewType.monthly;
   final DateTime _currentDate = DateTime.now(); // Fecha real actual
@@ -66,10 +68,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
       }
     }
 
+    DateTime? lastPeriodStart;
+    DateTime? firstPeriodStart;
+    if (userId != null) {
+      lastPeriodStart = await DatabaseHelper.instance.getLastPeriodStart(userId);
+      firstPeriodStart = await DatabaseHelper.instance.getFirstPeriodStart(userId);
+    }
+
     setState(() {
       _userName = userName;
       _userEmail = userEmail;
       _userId = userId;
+      _lastPeriodStart = lastPeriodStart;
+      _firstPeriodStart = firstPeriodStart;
     });
   }
 
@@ -77,7 +88,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // LÓGICA SIMULADA DE FASES (Ciclo 28 días)
   // ──────────────────────────────────────────
   Color _getPhaseColorForDay(DateTime date) {
-    final diff = date.difference(DateTime(2026, 1, 1)).inDays;
+    if (_lastPeriodStart == null) {
+      return Colors.grey[300]!; // Color neutral si no hay registro
+    }
+
+    // Calcula la diferencia de días
+    final diff = date.difference(_lastPeriodStart!).inDays;
+    
+    // Extrapolamos hacia atrás y hacia adelante (diff puede ser negativo)
     final cycleDay = (diff % 28) + 1;
 
     if (cycleDay <= 5) return BellotaColors.chilero; // Menstrual
@@ -505,6 +523,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
     String dateStr = '${_dayNames[_selectedDate!.weekday == 7 ? 0 : _selectedDate!.weekday]}, ${_selectedDate!.day} de ${_monthNames[_selectedDate!.month - 1]} ${_selectedDate!.year}';
     String dateKey = '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}';
 
+    final now = DateTime.now();
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
+    final isFuture = _selectedDate!.isAfter(todayEnd);
+    
+    bool isBeforeFirstPeriod = false;
+    if (_firstPeriodStart != null) {
+      final firstStart = DateTime(_firstPeriodStart!.year, _firstPeriodStart!.month, _firstPeriodStart!.day);
+      final selected = DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day);
+      isBeforeFirstPeriod = selected.isBefore(firstStart);
+    }
+
+    bool canRegister = !isFuture && !isBeforeFirstPeriod;
+
     return FutureBuilder<Map<String, dynamic>?>(
       future: _userId != null ? DatabaseHelper.instance.getDailyLog(_userId!, dateKey) : Future.value(null),
       builder: (context, snapshot) {
@@ -543,7 +574,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () async {
+                  onPressed: canRegister ? () async {
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -551,14 +582,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       ),
                     );
                     if (result == true) {
-                      setState(() {}); // Refresca para mostrar los datos guardados
+                      setState(() {
+                         _loadUser(); // Recargar fechas importantes por si cambió el inicio de periodo
+                      });
                     }
-                  },
+                  } : null,
                   icon: const Text('🌰', style: TextStyle(fontSize: 18)),
                   label: const Text('Registrar síntomas', style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: BellotaColors.chilero,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey[300],
+                    disabledForegroundColor: Colors.grey[500],
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
@@ -566,7 +601,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               const SizedBox(height: 16),
 
-              Text('Síntomas registrados', style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
+              Text('Lorem ipsum', style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
               const SizedBox(height: 14),
 
               if (!hasData)

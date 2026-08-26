@@ -6,6 +6,7 @@ import '../database/database_helper.dart';
 import '../widgets/bellota_top_actions.dart';
 import 'register_screen.dart';
 import 'dashboard_screen.dart';
+import 'onboarding_screen.dart';
 
 /// Pantalla de Inicio de Sesión
 class LoginScreen extends StatefulWidget {
@@ -82,10 +83,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           await prefs.setString('userName', user['name']);
           await prefs.setString('userEmail', user['email']);
           await prefs.setInt('userId', user['id'] as int);
-          
+
+          final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+
           if (mounted) {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+              MaterialPageRoute(
+                builder: (_) => onboardingDone ? const DashboardScreen() : const OnboardingScreen(),
+              ),
             );
           }
         } else {

@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../database/database_helper.dart';
 import '../widgets/bellota_top_actions.dart';
-import 'dashboard_screen.dart';
+import 'onboarding_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -61,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() => _isLoading = false);
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
             (route) => false,
           );
         }
