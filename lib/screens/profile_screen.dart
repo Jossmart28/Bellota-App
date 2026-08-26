@@ -1,11 +1,14 @@
-   import 'dart:io';
+   import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import 'notifications_settings_screen.dart';
 import '../database/database_helper.dart';
+import 'medical_report_preview_screen.dart';
 
 /// Pantalla de Perfil de usuario — Bellota App
 /// Diseño fiel al mockup de referencia con paleta de colores Bellota.
@@ -209,6 +212,246 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     } catch (e) {
       // Error silencioso si el usuario cancela
+    }
+  }
+
+  // ── Generar Informe Médico en JSON ──
+  Future<void> _generateMedicalReport() async {
+    if (_userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se encontró usuario.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const AlertDialog(
+        content: Row(children: [
+          CircularProgressIndicator(),
+          SizedBox(width: 20),
+          Text('Generando informe...'),
+        ]),
+      ),
+    );
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final now = DateTime.now();
+      final String fechaHoy = '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+      final String reportId = (now.millisecondsSinceEpoch % 1000000).toString().padLeft(6, '0');
+
+      final String userAge = prefs.getString('user_age') ?? '';
+      final String userLocation = prefs.getString('user_location') ?? '';
+      final List<String> medications = prefs.getStringList('user_medications') ?? [];
+
+      final List<Map<String, dynamic>> allLogs = await DatabaseHelper.instance.getAllDailyLogs(_userId!);
+      final List<DateTime> periodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(_userId!);
+      final DateTime? lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(_userId!);
+      final DateTime? firstPeriod = await DatabaseHelper.instance.getFirstPeriodStart(_userId!);
+
+      String fum = lastPeriod != null
+          ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
+          : 'No especificado';
+      String rangoInicio = firstPeriod != null
+          ? '${firstPeriod.day.toString().padLeft(2, '0')}/${firstPeriod.month.toString().padLeft(2, '0')}/${firstPeriod.year}'
+          : 'No especificado';
+
+      // Promedio ciclo
+      double? promCiclo;
+      String estadoCiclo = 'No especificado';
+      final sortedPeriods = List<DateTime>.from(periodStarts)..sort();
+      if (sortedPeriods.length >= 2) {
+        List<int> duraciones = [];
+        for (int i = 1; i < sortedPeriods.length; i++) {
+          final dif = sortedPeriods[i].difference(sortedPeriods[i - 1]).inDays;
+          if (dif > 0 && dif < 90) duraciones.add(dif);
+        }
+        if (duraciones.isNotEmpty) {
+          promCiclo = duraciones.reduce((a, b) => a + b) / duraciones.length;
+          estadoCiclo = (promCiclo >= 21 && promCiclo <= 35) ? 'Normal' : 'Irregular';
+        }
+      }
+
+      double promSangrado = _periodDuration.toDouble();
+      String estadoSangrado = promSangrado >= 3 && promSangrado <= 7 ? 'Normal' : (promSangrado > 7 ? 'Prolongado' : 'Corto');
+
+      // Flujo más frecuente
+      Map<String, int> flujoCount = {};
+      for (final log in allLogs) {
+        for (final f in (jsonDecode(log['flujo'] as String? ?? '[]') as List)) {
+          flujoCount[f.toString()] = (flujoCount[f.toString()] ?? 0) + 1;
+        }
+      }
+      final flujoMasFrecuente = flujoCount.isNotEmpty
+          ? flujoCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key
+          : null;
+
+      // Síntomas más frecuentes
+      Map<String, int> sympCount = {};
+      for (final log in allLogs) {
+        for (final s in (jsonDecode(log['symptoms'] as String? ?? '[]') as List)) {
+          sympCount[s.toString()] = (sympCount[s.toString()] ?? 0) + 1;
+        }
+      }
+      final topSyms = (sympCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(5).map((e) => e.key).toList();
+
+      // Patrón de sangrado y dolor más recientes
+      Map<String, dynamic> patron = {};
+      Map<String, dynamic> dolor = {};
+      for (final log in allLogs.reversed) {
+        final dk = log['date'] as String;
+        if (patron.isEmpty) {
+          final p = prefs.getString('patron_sangrado_$dk');
+          if (p != null) patron = jsonDecode(p);
+        }
+        if (dolor.isEmpty) {
+          final d = prefs.getString('dolor_sintomatologia_$dk');
+          if (d != null) dolor = jsonDecode(d);
+        }
+        if (patron.isNotEmpty && dolor.isNotEmpty) break;
+      }
+
+      // Historial últimos 3 ciclos
+      List<Map<String, dynamic>> historial = [];
+      for (int i = sortedPeriods.length - 1; i >= 0 && historial.length < 3; i--) {
+        final start = sortedPeriods[i];
+        final end = i + 1 < sortedPeriods.length ? sortedPeriods[i + 1].subtract(const Duration(days: 1)) : null;
+        final diasCiclo = end != null ? end.difference(start).inDays + 1 : null;
+        final startKey = '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
+        String flujoC = 'No especificado';
+        final pStr = prefs.getString('patron_sangrado_$startKey');
+        if (pStr != null) flujoC = (jsonDecode(pStr) as Map)['intensidadFlujo'] ?? 'No especificado';
+        String dolorC = 'No especificado';
+        final dStr = prefs.getString('dolor_sintomatologia_$startKey');
+        if (dStr != null) {
+          final nd = (jsonDecode(dStr) as Map)['nivelDolor'];
+          if (nd != null) dolorC = '${(nd as num).toStringAsFixed(0)}/10';
+        }
+        historial.add({
+          'ciclo': historial.isEmpty ? 'Actual' : 'Anterior ${historial.length}',
+          'periodo_inicio': '${start.day.toString().padLeft(2, '0')}/${start.month.toString().padLeft(2, '0')}/${start.year}',
+          'periodo_fin': end != null ? '${end.day.toString().padLeft(2, '0')}/${end.month.toString().padLeft(2, '0')}/${end.year}' : 'Presente',
+          'dias_periodo': _periodDuration,
+          'dias_ciclo': diasCiclo,
+          'flujo': flujoC,
+          'dolor': dolorC,
+        });
+      }
+
+      // Alertas automáticas
+      List<Map<String, String>> alertas = [];
+      if (promCiclo != null && (promCiclo < 21 || promCiclo > 35)) {
+        alertas.add({'tipo': 'Ciclos irregulares', 'detalle': 'Alerta: ${promCiclo.toStringAsFixed(0)} días (normal 21-35 días)'});
+      } else if (promCiclo != null) {
+        alertas.add({'tipo': 'Ciclos irregulares', 'detalle': 'Duración normal: ${promCiclo.toStringAsFixed(0)} días'});
+      }
+      if (promSangrado > 7) {
+        alertas.add({'tipo': 'Sangrado prolongado', 'detalle': 'Alerta: ${promSangrado.toInt()} días consecutivos (máx. 7 días)'});
+      } else {
+        alertas.add({'tipo': 'Sangrado prolongado', 'detalle': 'Duración normal: ${promSangrado.toInt()} días'});
+      }
+      if (lastPeriod == null) {
+        alertas.add({'tipo': 'Amenorrea', 'detalle': 'Alerta: sin registro. Posible retraso sin confirmación de embarazo.'});
+      } else {
+        alertas.add({'tipo': 'Amenorrea', 'detalle': 'Sin alerta. Última menstruación registrada: $fum'});
+      }
+      final nivelD = dolor['nivelDolor'];
+      if (nivelD != null && (nivelD as num) >= 8) {
+        alertas.add({'tipo': 'Dolor de alerta', 'detalle': 'Alerta: dolor severo ${nivelD.toStringAsFixed(0)}/10 que no cede'});
+      } else {
+        alertas.add({'tipo': 'Dolor de alerta', 'detalle': nivelD != null ? 'Dolor dentro del rango: ${(nivelD as num).toStringAsFixed(0)}/10' : 'Sin registro de dolor'});
+      }
+
+      // ─── Construcción del JSON final (sin nulos) ───
+      Map<String, dynamic> filterNulls(Map<String, dynamic> m) {
+        return Map.fromEntries(m.entries.where((e) => e.value != null && e.value != ''));
+      }
+
+      final report = {
+        'metadata': {
+          'numero_reporte': reportId,
+          'fecha_generacion': fechaHoy,
+          'version': '1.0',
+          'app': 'Bellota - Calendario Menstrual',
+          'tipo': 'Reporte de salud menstrual y clínico ginecológico',
+          'uso': 'Seguimiento y apoyo para consulta profesional',
+          'aviso': 'Este reporte no sustituye una valoración médica profesional.',
+        },
+        'seccion_1_informacion_general': filterNulls({
+          'paciente': _userName,
+          'edad': userAge.isNotEmpty ? '$userAge años' : 'No especificado',
+          'ubicacion': userLocation.isNotEmpty ? userLocation : 'No especificado',
+          'fecha_generacion': fechaHoy,
+          'rango_analizado': firstPeriod != null ? '$rangoInicio al $fechaHoy' : 'No especificado',
+          'total_ciclos': periodStarts.length,
+          'anticonceptivos_medicamentos': medications.isNotEmpty ? medications.join(', ') : 'No especificado',
+          'fum': fum,
+        }),
+        'seccion_2_resumen_estadistico': filterNulls({
+          'promedio_ciclo': promCiclo != null ? {
+            'valor': '${promCiclo.toStringAsFixed(0)} días',
+            'referencia': '21 a 35 días',
+            'estado': estadoCiclo,
+          } : {'valor': 'No especificado', 'referencia': '21 a 35 días', 'estado': 'No especificado'},
+          'promedio_sangrado': {
+            'valor': '${promSangrado.toInt()} días',
+            'referencia': '3 a 6 días (máx. 7 días)',
+            'estado': estadoSangrado,
+          },
+          'fum': fum,
+          'flujo_mas_frecuente': flujoMasFrecuente ?? 'No especificado',
+          if (topSyms.isNotEmpty) 'sintomas_mas_frecuentes': topSyms,
+        }),
+        if (patron.isNotEmpty) 'seccion_3_patron_sangrado_flujo': filterNulls({
+          'intensidad_flujo': patron['intensidadFlujo'],
+          'coagulos': patron['coagulos'],
+          'manchado_intermenstrual': patron['manchado'],
+          if ((patron['manchadoDias'] as String?)?.isNotEmpty == true)
+            'manchado_dias': patron['manchadoDias'],
+          'sintomas_relaciones_sexuales': patron['sintomasSexuales'],
+        }),
+        if (dolor.isNotEmpty) 'seccion_4_dolor_sintomatologia': filterNulls({
+          'nivel_dolor_eva': dolor['nivelDolor'] != null ? '${(dolor['nivelDolor'] as num).toStringAsFixed(0)}/10' : null,
+          'caracter': dolor['caracterDolor'],
+          if ((dolor['diasDolor'] as String?)?.isNotEmpty == true)
+            'dias_dolor_critico': dolor['diasDolor'],
+          'tratamiento': dolor['tratamiento'],
+          if ((dolor['sintomasFisicos'] as List?)?.isNotEmpty == true)
+            'sintomas_fisicos': dolor['sintomasFisicos'],
+          if ((dolor['sintomasEmocionales'] as List?)?.isNotEmpty == true)
+            'sintomas_emocionales': dolor['sintomasEmocionales'],
+          'autoexamen_mama': dolor['autoexamenMama'],
+        }),
+        'seccion_5_alertas_automaticas': alertas,
+        if (historial.isNotEmpty) 'seccion_6_historial_ciclos': historial,
+      };
+
+      // Guardar en documentos
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = 'bellota_informe_$reportId.json';
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsString(const JsonEncoder.withIndent('  ').convert(report));
+
+      if (mounted) Navigator.of(context).pop(); // Cerrar loader
+      
+      // JSON invisible guardado, ahora navegamos a la vista previa
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MedicalReportPreviewScreen(reportData: report, filePath: file.path),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al generar informe: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -794,9 +1037,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 8),
         // Informe médico
         _buildHealthRow(
-          title: 'Informe medico',
+          title: 'Informe médico',
           value: 'Generar',
-          onTap: () {}, // Sin función
+          onTap: _generateMedicalReport,
         ),
       ],
     );

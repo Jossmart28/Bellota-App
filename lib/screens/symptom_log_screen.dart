@@ -6,6 +6,8 @@ import '../database/database_helper.dart';
 import 'symptoms_selection_screen.dart';
 import 'flujo_vaginal_selection_screen.dart';
 import 'sexo_selection_screen.dart';
+import 'patron_sangrado_screen.dart';
+import 'dolor_sintomatologia_screen.dart';
 
 class SymptomLogScreen extends StatefulWidget {
   final DateTime? selectedDate;
@@ -21,6 +23,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   List<String> _selectedSymptoms = [];
   List<String> _selectedFlujos = [];
   List<String> _selectedSexo = [];
+  Map<String, dynamic> _patronSangrado = {};
+  Map<String, dynamic> _dolorSintomatologia = {};
   late DateTime _date;
   int? _userId;
 
@@ -64,6 +68,18 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           _selectedFlujos = List<String>.from(jsonDecode(log['flujo'] as String? ?? '[]'));
         });
       }
+      final String? patronStr = prefs.getString('patron_sangrado_$_dateKey');
+      if (patronStr != null) {
+        setState(() {
+          _patronSangrado = jsonDecode(patronStr);
+        });
+      }
+      final String? dolorStr = prefs.getString('dolor_sintomatologia_$_dateKey');
+      if (dolorStr != null) {
+        setState(() {
+          _dolorSintomatologia = jsonDecode(dolorStr);
+        });
+      }
     }
   }
 
@@ -77,6 +93,9 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         sexo: _selectedSexo,
         flujo: _selectedFlujos,
       );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('patron_sangrado_$_dateKey', jsonEncode(_patronSangrado));
+      await prefs.setString('dolor_sintomatologia_$_dateKey', jsonEncode(_dolorSintomatologia));
     }
 
     if (mounted) {
@@ -128,6 +147,34 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     if (selected != null) {
       setState(() {
         _selectedSexo = selected;
+      });
+    }
+  }
+
+  Future<void> _openPatronSangradoSelection() async {
+    final selected = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PatronSangradoScreen(initialData: _patronSangrado),
+      ),
+    );
+    if (selected != null) {
+      setState(() {
+        _patronSangrado = selected;
+      });
+    }
+  }
+
+  Future<void> _openDolorSintomatologiaSelection() async {
+    final selected = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DolorSintomatologiaScreen(initialData: _dolorSintomatologia),
+      ),
+    );
+    if (selected != null) {
+      setState(() {
+        _dolorSintomatologia = selected;
       });
     }
   }
@@ -210,6 +257,28 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             subtitle: _selectedFlujos.isNotEmpty ? _selectedFlujos.join(', ') : null,
             trailing: _buildPlusButton(),
             onTap: _openFlujoSelection,
+          ),
+          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+
+          // 5. Patrón de sangrado
+          _buildListItem(
+            icon: Icons.bloodtype,
+            iconColor: Colors.redAccent,
+            title: 'Patrón de sangrado',
+            subtitle: _patronSangrado.isNotEmpty ? 'Registrado' : null,
+            trailing: _buildPlusButton(),
+            onTap: _openPatronSangradoSelection,
+          ),
+          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+
+          // 6. Dolor y sintomatología
+          _buildListItem(
+            icon: Icons.healing,
+            iconColor: Colors.teal,
+            title: 'Dolor y sintomatología',
+            subtitle: _dolorSintomatologia.isNotEmpty ? 'Registrado' : null,
+            trailing: _buildPlusButton(),
+            onTap: _openDolorSintomatologiaSelection,
           ),
           const Divider(height: 1, color: Color(0xFFEEEEEE)),
         ],

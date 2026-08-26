@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../database/database_helper.dart';
 import '../widgets/bellota_icon.dart';
-import 'dashboard_screen.dart';
+import 'personal_data_screen.dart';
 
 /// Full-screen calendar tour that overlays a tutorial on top of the calendar.
 /// Guides the user to mark the start of their last period.
@@ -93,7 +93,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) => const DashboardScreen(),
+          pageBuilder: (_, __, ___) => const PersonalDataScreen(),
           transitionsBuilder: (_, anim, __, child) =>
               FadeTransition(opacity: anim, child: child),
           transitionDuration: const Duration(milliseconds: 500),

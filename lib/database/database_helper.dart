@@ -352,4 +352,44 @@ class DatabaseHelper {
     }
     return null;
   }
+
+  /// Obtiene todos los registros diarios de un usuario ordenados por fecha
+  Future<List<Map<String, dynamic>>> getAllDailyLogs(int userId) async {
+    final db = await instance.database;
+    await _createDailyLogsTable(db);
+
+    return await db.query(
+      'daily_logs',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+      orderBy: 'date ASC',
+    );
+  }
+
+  /// Obtiene todas las fechas de inicio de período ordenadas DESC (más reciente primero)
+  Future<List<DateTime>> getAllPeriodStartDates(int userId) async {
+    final db = await instance.database;
+    await _createDailyLogsTable(db);
+
+    final result = await db.query(
+      'daily_logs',
+      where: 'user_id = ? AND period_start = 1',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+    );
+
+    List<DateTime> dates = [];
+    for (final row in result) {
+      final dateString = row['date'] as String;
+      try {
+        final parts = dateString.split('-');
+        if (parts.length == 3) {
+          dates.add(DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2])));
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return dates;
+  }
 }
