@@ -21,7 +21,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   late Animation<Offset> _slideAnim;
 
   // ─── Contenido de los slides ───
-  final List<_SlideData> _slides = const [
+  final List<_SlideData> _slides = [
     _SlideData(
       gradient: [Color(0xFFD35D53), Color(0xFFE8897A)],
       icon: Icons.favorite_rounded,
@@ -56,14 +56,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     super.initState();
     _bgController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: Duration(milliseconds: 700),
     );
     _contentController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: Duration(milliseconds: 600),
     );
     _fadeAnim = CurvedAnimation(parent: _contentController, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+    _slideAnim = Tween<Offset>(begin: Offset(0, 0.12), end: Offset.zero)
         .animate(CurvedAnimation(parent: _contentController, curve: Curves.easeOutCubic));
 
     _bgController.forward();
@@ -81,7 +81,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void _goToNext() {
     if (_currentPage < _slides.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 450),
+        duration: Duration(milliseconds: 450),
         curve: Curves.easeInOutCubic,
       );
     } else {
@@ -95,10 +95,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) => const CalendarTourScreen(),
-          transitionsBuilder: (_, anim, __, child) =>
+          pageBuilder: (_, _, _) => CalendarTourScreen(),
+          transitionsBuilder: (_, anim, _, child) =>
               FadeTransition(opacity: anim, child: child),
-          transitionDuration: const Duration(milliseconds: 500),
+          transitionDuration: Duration(milliseconds: 500),
         ),
       );
     }
@@ -111,7 +111,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
     return Scaffold(
       body: AnimatedContainer(
-        duration: const Duration(milliseconds: 600),
+        duration: Duration(milliseconds: 600),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -130,13 +130,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 children: [
                   // ── Header ──
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // Logo pequeño
                         Image.asset('assets/images/logo_white.png', height: 32,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.circle, color: Colors.white30, size: 32)),
+                            errorBuilder: (_, _, _) => Icon(Icons.circle, color: Colors.white30, size: 32)),
                         // Saltar
                         TextButton(
                           onPressed: _finish,
@@ -176,7 +176,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                   // ── Dots + Botón ──
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(28, 0, 28, 36),
+                    padding: EdgeInsets.fromLTRB(28, 0, 28, 36),
                     child: Column(
                       children: [
                         // Dots
@@ -185,9 +185,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           children: List.generate(_slides.length, (i) {
                             final isActive = i == _currentPage;
                             return AnimatedContainer(
-                              duration: const Duration(milliseconds: 350),
+                              duration: Duration(milliseconds: 350),
                               curve: Curves.easeInOut,
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              margin: EdgeInsets.symmetric(horizontal: 4),
                               width: isActive ? 32 : 8,
                               height: 8,
                               decoration: BoxDecoration(
@@ -199,13 +199,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             );
                           }),
                         ),
-                        const SizedBox(height: 28),
+                        SizedBox(height: 28),
 
                         // Botón CTA
                         GestureDetector(
                           onTap: _goToNext,
                           child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
+                            duration: Duration(milliseconds: 300),
                             width: double.infinity,
                             height: 58,
                             decoration: BoxDecoration(
@@ -215,7 +215,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.15),
                                   blurRadius: 20,
-                                  offset: const Offset(0, 8),
+                                  offset: Offset(0, 8),
                                 ),
                               ],
                             ),
@@ -232,7 +232,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                       letterSpacing: 0.3,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8),
                                   Icon(
                                     _currentPage < _slides.length - 1
                                         ? Icons.arrow_forward_rounded
@@ -259,7 +259,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _buildSlideContent(_SlideData slide, Size size) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
+      padding: EdgeInsets.symmetric(horizontal: 28),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -268,13 +268,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             'assets/images/bellu_ginecologa.png',
             height: size.width * 0.6,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => Text(
+            errorBuilder: (_, _, _) => Text(
               slide.emoji,
-              style: const TextStyle(fontSize: 130),
+              style: TextStyle(fontSize: 130),
             ),
           ),
 
-          const SizedBox(height: 50),
+          SizedBox(height: 50),
 
           // ── Título ──
           Text(
@@ -288,7 +288,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // ── Subtítulo ──
           Text(
@@ -352,7 +352,7 @@ class _SlideData {
   final Color decoration1;
   final Color decoration2;
 
-  const _SlideData({
+  _SlideData({
     required this.gradient,
     required this.icon,
     required this.emoji,

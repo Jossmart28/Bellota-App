@@ -24,7 +24,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedPosition = widget.initialPosition ?? const LatLng(9.9281, -84.0907); // Costa Rica default
+    _selectedPosition = widget.initialPosition ?? LatLng(9.9281, -84.0907); // Costa Rica default
     _resolveAddress(_selectedPosition);
   }
 
@@ -66,7 +66,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 fontSize: 17)),
         backgroundColor: Colors.white,
         elevation: 1,
-        iconTheme: const IconThemeData(color: BellotaColors.textoDark),
+        iconTheme: IconThemeData(color: BellotaColors.textoDark),
       ),
       body: Stack(
         children: [
@@ -89,7 +89,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     point: _selectedPosition,
                     width: 48,
                     height: 48,
-                    child: const Icon(Icons.location_pin, color: BellotaColors.chilero, size: 48),
+                    child: Icon(Icons.location_pin, color: BellotaColors.chilero, size: 48),
                   ),
                 ],
               ),
@@ -102,26 +102,26 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             right: 16,
             bottom: 100,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 12, offset: const Offset(0, 4)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 12, offset: Offset(0, 4)),
                 ],
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.place, color: BellotaColors.chilero),
-                  const SizedBox(width: 10),
+                  Icon(Icons.place, color: BellotaColors.chilero),
+                  SizedBox(width: 10),
                   Expanded(
                     child: _isResolving
                         ? Row(children: [
-                            const SizedBox(
+                            SizedBox(
                               width: 16, height: 16,
                               child: CircularProgressIndicator(strokeWidth: 2, color: BellotaColors.chilero),
                             ),
-                            const SizedBox(width: 10),
+                            SizedBox(width: 10),
                             Text('Buscando dirección…', style: GoogleFonts.poppins(fontSize: 13, color: BellotaColors.textoMedio)),
                           ])
                         : Text(
@@ -142,15 +142,18 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             child: ElevatedButton.icon(
               onPressed: _isResolving
                   ? null
-                  : () => Navigator.pop(context, _locationLabel),
-              icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+                  : () => Navigator.pop(context, {
+                        'label': _locationLabel,
+                        'position': _selectedPosition,
+                      }),
+              icon: Icon(Icons.check_circle_outline, color: Colors.white),
               label: Text(
                 'Confirmar ubicación',
                 style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: BellotaColors.chilero,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 elevation: 4,
               ),
@@ -164,7 +167,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),

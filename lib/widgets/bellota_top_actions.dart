@@ -32,12 +32,12 @@ class BellotaTopActions extends StatelessWidget {
             iconColor: BellotaColors.textoDark,
             onPressed: onSettingsPressed ?? () {},
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
         ],
 
         // 2. Botón de Idioma (Va en todas)
         _buildCircleButton(
-          child: const Text(
+          child: Text(
             '文A',
             style: TextStyle(
               fontSize: 12,
@@ -48,7 +48,7 @@ class BellotaTopActions extends StatelessWidget {
           backgroundColor: BellotaColors.blanco,
           onPressed: onLanguagePressed ?? () {},
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
 
         // 3. Botón de TalkBack / Audio (Va en todas)
         _buildCircleButton(
@@ -60,7 +60,7 @@ class BellotaTopActions extends StatelessWidget {
 
         // 4. Botón de Notificaciones (Solo en el Dashboard)
         if (showNotifications) ...[
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           _buildCircleButton(
             icon: Icons.notifications_outlined,
             backgroundColor: BellotaColors.blanco,
@@ -89,7 +89,7 @@ class BellotaTopActions extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 6,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),

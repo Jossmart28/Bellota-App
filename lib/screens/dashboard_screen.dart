@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:io';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../database/database_helper.dart';
@@ -10,6 +11,7 @@ import 'map_screen.dart';
 import 'calendar_screen.dart';
 import 'symptom_log_screen.dart';
 import 'profile_screen.dart';
+import '../widgets/health_info_carousel.dart';
 
 /// Dashboard principal de Bellota
 class DashboardScreen extends StatefulWidget {
@@ -26,15 +28,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _userName = 'UsuarioApp';
   String _userEmail = 'correo@ejemplo.com';
   int? _userId;
+  String? _profileImagePath;
 
   // Datos dinámicos para el dashboard
   List<String> _todaySymptoms = [];
-  DateTime _nextPeriodDate = DateTime.now().add(const Duration(days: 14));
+  DateTime _nextPeriodDate = DateTime.now().add(Duration(days: 14));
   int _cycleDuration = 28;
 
   // ── Definición de las 4 fases ──
   final List<_PhaseData> _phases = [
-    const _PhaseData(
+    _PhaseData(
       name: 'Fase\nOvulatoria',
       shortName: 'Ovulatoria',
       color: BellotaColors.melon,
@@ -42,7 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       symptomsTitle: 'Síntomas\nRegistrados',
       symptoms: ['Fuerte dolor', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
-    const _PhaseData(
+    _PhaseData(
       name: 'Fase\nLútea',
       shortName: 'Lútea',
       color: BellotaColors.asuncion,
@@ -50,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       symptomsTitle: 'Síntomas\nRegistrados',
       symptoms: ['Cansancio', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
-    const _PhaseData(
+    _PhaseData(
       name: 'Fase\nFolicular',
       shortName: 'Folicular',
       color: BellotaColors.chiltoma,
@@ -58,7 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       symptomsTitle: 'Síntomas\nRegistrados',
       symptoms: ['Energía alta', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
-    const _PhaseData(
+    _PhaseData(
       name: 'Fase\nMenstrual',
       shortName: 'Menstrual',
       color: BellotaColors.chilero,
@@ -73,7 +76,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _loadUser();
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
       ),
@@ -93,10 +96,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     }
 
+    String? profileImagePath = prefs.getString('profileImagePath');
+
     setState(() {
       _userName = userName;
       _userEmail = userEmail;
       _userId = userId;
+      _profileImagePath ??= profileImagePath;
     });
 
     if (userId != null) {
@@ -105,10 +111,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadDashboardData(int userId) async {
-    // 1. Cargar perfil para duración de ciclo (si existe)
+    // 1. Cargar perfil para duración de ciclo (si existe) y foto de perfil
     final profile = await DatabaseHelper.instance.getProfile(userId);
     if (profile != null) {
       _cycleDuration = profile['cycle_duration'] as int? ?? 28;
+      if (profile['profile_image_path'] != null) {
+        setState(() {
+          _profileImagePath = profile['profile_image_path'] as String?;
+        });
+      }
     }
 
     // 2. Determinar fase actual
@@ -170,7 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await prefs.clear();
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => LoginScreen()),
             (route) => false,
       );
     }
@@ -192,11 +203,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 0:
         return _buildDashboardContent(context);
       case 1:
-        return const CalendarScreen();
+        return CalendarScreen();
       case 3:
-        return const MapScreen();
+        return MapScreen();
       case 4:
-        return const ProfileScreen();
+        return ProfileScreen();
       default:
         return Center(
           child: Text(
@@ -210,26 +221,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildDashboardContent(BuildContext context) {
     final phase = _phases[_currentPhaseIndex];
     return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
+      physics: BouncingScrollPhysics(),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 12),
+            SizedBox(height: 16),
             _buildHeader(context),
-            const SizedBox(height: 20),
-            _buildPeriodoToggle(context),
-            const SizedBox(height: 24),
-            _buildPrediccionesSection(context),
-            const SizedBox(height: 24),
-            _buildResumenSection(context, phase),
-            const SizedBox(height: 24),
-            _buildInfoAdicionalSection(context),
-            const SizedBox(height: 20),
+            SizedBox(height: 28),
+            _buildSectionLabel(context, 'Predicciones'),
+            SizedBox(height: 10),
+            _buildPrediccionesCard(context),
+            SizedBox(height: 28),
+            _buildSectionLabel(context, 'Resumen de hoy'),
+            SizedBox(height: 10),
+            _buildResumenCard(context, phase),
+            SizedBox(height: 28),
+            _buildSectionLabel(context, 'Información para ti'),
+            SizedBox(height: 10),
+            HealthInfoCarousel(),
+            SizedBox(height: 28),
           ],
         ),
       ),
+    );
+  }
+
+  /// Etiqueta de sección con línea decorativa suave al lado
+  Widget _buildSectionLabel(BuildContext context, String title) {
+    final textTheme = Theme.of(context).textTheme;
+    return Row(
+      children: [
+        Text(
+          title,
+          style: textTheme.headlineMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  BellotaColors.textoMedio.withValues(alpha: 0.25),
+                  BellotaColors.textoMedio.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -244,17 +286,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
         GestureDetector(
           onLongPress: _logout,
           child: Container(
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: BellotaColors.nancite,
-              border: Border.all(color: BellotaColors.textoMedio.withValues(alpha: 0.3), width: 2),
+              border: Border.all(color: BellotaColors.melon.withValues(alpha: 0.45), width: 2.5),
+              boxShadow: [
+                BoxShadow(
+                  color: BellotaColors.melon.withValues(alpha: 0.18),
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                ),
+              ],
             ),
-            child: const Icon(Icons.person, color: BellotaColors.textoMedio, size: 24),
+            child: ClipOval(
+              child: _profileImagePath != null && File(_profileImagePath!).existsSync()
+                  ? Image.file(
+                      File(_profileImagePath!),
+                      fit: BoxFit.cover,
+                      width: 48,
+                      height: 48,
+                    )
+                  : Image.asset(
+                      'assets/images/default_avatar.png',
+                      fit: BoxFit.cover,
+                      width: 48,
+                      height: 48,
+                    ),
+            ),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 12),
 
         // Nombre + email
         Expanded(
@@ -263,11 +326,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 _userName,
-                style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.w700),
+                style: textTheme.titleMedium?.copyWith(
+                  color: BellotaColors.textoDark,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  letterSpacing: 0.1,
+                ),
               ),
+              SizedBox(height: 1),
               Text(
                 _userEmail,
-                style: textTheme.bodySmall,
+                style: textTheme.bodySmall?.copyWith(fontSize: 11),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -290,24 +359,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ────────────────────────────
   Widget _buildPeriodoToggle(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: BellotaColors.blanco,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: BellotaColors.chilero.withValues(alpha: 0.07),
+            blurRadius: 14,
+            spreadRadius: 0,
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Inicio del periodo',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontSize: 15),
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: BellotaColors.chilero.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.water_drop_outlined,
+                  size: 18,
+                  color: BellotaColors.chilero,
+                ),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Inicio del periodo',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: BellotaColors.textoDark,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
           Transform.scale(
             scale: 0.85,
@@ -352,7 +444,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ──────────────
   // PREDICCIONES
   // ──────────────
-  Widget _buildPrediccionesSection(BuildContext context) {
+  Widget _buildPrediccionesCard(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     final List<String> monthNamesShort = [
@@ -361,102 +453,108 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
     String dateStr = '${_nextPeriodDate.day}/${monthNamesShort[_nextPeriodDate.month - 1]}';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Predicciones',
-          style: textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: BellotaColors.blanco,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: BellotaColors.blanco,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: BellotaColors.melon.withValues(alpha: 0.08),
+            blurRadius: 18,
+            spreadRadius: 0,
+            offset: Offset(0, 6),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Tu próximo periodo será...',
-                      style: textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      dateStr,
-                      style: textTheme.headlineLarge?.copyWith(color: BellotaColors.chilero, fontSize: 28),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Basado en tus últimos ciclos.',
-                      style: textTheme.bodySmall?.copyWith(fontSize: 9),
-                    ),
-                  ],
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Tu próximo periodo será...',
+                  style: textTheme.bodySmall?.copyWith(height: 1.4),
                 ),
-              ),
-              Container(
-                width: 1,
-                height: 80,
-                margin: const EdgeInsets.symmetric(horizontal: 12),
-                color: BellotaColors.textoMedio.withValues(alpha: 0.2),
-              ),
-              Expanded(
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Síntomas esperados',
-                      style: textTheme.bodySmall?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 6),
-                    _bulletItem(context, 'Cambios de humor'),
-                    _bulletItem(context, 'Sensibilidad'),
-                    _bulletItem(context, 'Cansancio'),
-                  ],
+                SizedBox(height: 8),
+                Text(
+                  dateStr,
+                  style: textTheme.headlineLarge?.copyWith(
+                    color: BellotaColors.chilero,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(height: 5),
+                Text(
+                  'Basado en tus últimos ciclos.',
+                  style: textTheme.bodySmall?.copyWith(fontSize: 9.5, height: 1.3),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          Container(
+            width: 1,
+            height: 72,
+            margin: EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  BellotaColors.textoMedio.withValues(alpha: 0.0),
+                  BellotaColors.textoMedio.withValues(alpha: 0.2),
+                  BellotaColors.textoMedio.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Síntomas esperados',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: BellotaColors.textoDark,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+                SizedBox(height: 8),
+                _bulletItem(context, 'Cambios de humor'),
+                _bulletItem(context, 'Sensibilidad'),
+                _bulletItem(context, 'Cansancio'),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _bulletItem(BuildContext context, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
+      padding: EdgeInsets.only(bottom: 5),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Container(
-              width: 5,
-              height: 5,
-              decoration: const BoxDecoration(
-                color: BellotaColors.textoMedio,
-                shape: BoxShape.circle,
-              ),
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: BellotaColors.melon.withValues(alpha: 0.75),
+              shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 7),
           Expanded(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.35),
             ),
           ),
         ],
@@ -467,155 +565,166 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ───────────────
   // RESUMEN DE HOY
   // ───────────────
-  Widget _buildResumenSection(BuildContext context, _PhaseData phase) {
+  Widget _buildResumenCard(BuildContext context, _PhaseData phase) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Resumen de hoy',
-          style: textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: BellotaColors.blanco,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: BellotaColors.blanco,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: phase.color.withValues(alpha: 0.12),
+            blurRadius: 18,
+            spreadRadius: 0,
+            offset: Offset(0, 6),
           ),
-          child: Row(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 350),
-                curve: Curves.easeInOut,
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: phase.color.withValues(alpha: 0.85),
-                  border: Border.all(color: phase.borderColor, width: 3.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: phase.color.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+        ],
+      ),
+      child: Row(
+        children: [
+          AnimatedContainer(
+            duration: Duration(milliseconds: 400),
+            curve: Curves.easeInOutCubic,
+            width: 108,
+            height: 108,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: phase.color.withValues(alpha: 0.80),
+              border: Border.all(
+                color: phase.borderColor.withValues(alpha: 0.7),
+                width: 3,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: phase.color.withValues(alpha: 0.22),
+                  blurRadius: 16,
+                  spreadRadius: 2,
+                  offset: Offset(0, 5),
                 ),
-                child: Center(
-                  child: Text(
-                    phase.name,
-                    textAlign: TextAlign.center,
-                    style: textTheme.labelLarge?.copyWith(fontSize: 13, height: 1.2),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                phase.name,
+                textAlign: TextAlign.center,
+                style: textTheme.labelLarge?.copyWith(fontSize: 12.5, height: 1.25),
+              ),
+            ),
+          ),
+          SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Síntomas Registrados',
+                  style: textTheme.titleMedium?.copyWith(
+                    color: BellotaColors.textoDark,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Síntomas Registrados',
-                      style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontSize: 14),
+                SizedBox(height: 10),
+                if (_todaySymptoms.isEmpty)
+                  Text(
+                    'Ningún síntoma registrado.',
+                    style: textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      height: 1.4,
                     ),
-                    const SizedBox(height: 8),
-                    if (_todaySymptoms.isEmpty)
-                      Text('Ningún síntoma registrado.', style: textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
-                    if (_todaySymptoms.isNotEmpty)
-                      ..._todaySymptoms.take(4).map((s) => _bulletItem(context, s)),
-                    if (_todaySymptoms.length > 4)
-                      Text('+${_todaySymptoms.length - 4} más', style: textTheme.bodySmall?.copyWith(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                if (_todaySymptoms.isNotEmpty)
+                  ..._todaySymptoms.take(4).map((s) => _bulletItem(context, s)),
+                if (_todaySymptoms.length > 4)
+                  Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Text(
+                      '+${_todaySymptoms.length - 4} más',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: BellotaColors.chilero,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   // ──────────────────────
   // INFORMACIÓN ADICIONAL
   // ──────────────────────
-  Widget _buildInfoAdicionalSection(BuildContext context) {
+  Widget _buildInfoAdicionalCard(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Información adicional',
-          style: textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: BellotaColors.blanco,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: BellotaColors.blanco,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: BellotaColors.chiltoma.withValues(alpha: 0.10),
+              blurRadius: 18,
+              spreadRadius: 0,
+              offset: Offset(0, 6),
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    color: BellotaColors.nancite,
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.article_outlined,
-                      size: 40,
-                      color: BellotaColors.melon,
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                color: BellotaColors.nancite,
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.article_outlined,
+                  size: 38,
+                  color: BellotaColors.melon,
+                ),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '¿Cómo afecta el estrés tu ciclo?',
+                    style: textTheme.titleMedium?.copyWith(
+                      color: BellotaColors.textoDark,
+                      fontSize: 13,
+                      height: 1.35,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '¿Cómo afecta el estrés tu ciclo?',
-                        style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontSize: 13, height: 1.3),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'El estrés crónico puede alterar tus niveles hormonales, provocando retrasos en tu periodo o cambios en la ovulación.',
-                        style: textTheme.bodySmall?.copyWith(fontSize: 10, height: 1.4),
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  SizedBox(height: 7),
+                  Text(
+                    'El estrés crónico puede alterar tus niveles hormonales, provocando retrasos en tu periodo o cambios en la ovulación.',
+                    style: textTheme.bodySmall?.copyWith(fontSize: 10.5, height: 1.5),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
+
 
   // ───────────────────────
   // BOTTOM NAVIGATION BAR
@@ -624,19 +733,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       decoration: BoxDecoration(
         color: BellotaColors.blanco,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
+            color: BellotaColors.melon.withValues(alpha: 0.09),
+            blurRadius: 24,
+            spreadRadius: 0,
+            offset: Offset(0, -6),
           ),
         ],
       ),
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -661,7 +771,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const SymptomLogScreen(),
+              builder: (context) => SymptomLogScreen(),
             ),
           );
           if (result == true) {
@@ -669,41 +779,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
         } else {
           setState(() => _selectedNavIndex = index);
+          if (index == 0) {
+            // Recargar datos si volvemos a Inicio (por si cambió la foto u otra cosa en Perfil)
+            _loadUser();
+          }
         }
       },
       behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 60,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? BellotaColors.chilero.withValues(alpha: 0.10)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 28,
+              size: 24,
               color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 3),
             Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
               ),
             ),
-            if (isSelected) ...[
-              const SizedBox(height: 6),
-              Container(
-                height: 3,
-                width: 32,
-                decoration: BoxDecoration(
-                  color: BellotaColors.chilero,
-                  borderRadius: BorderRadius.circular(1.5),
-                ),
-              ),
-            ] else ...[
-              const SizedBox(height: 9),
-            ]
           ],
         ),
       ),
@@ -722,7 +831,7 @@ class _PhaseData {
   final String symptomsTitle;
   final List<String> symptoms;
 
-  const _PhaseData({
+  _PhaseData({
     required this.name,
     required this.shortName,
     required this.color,

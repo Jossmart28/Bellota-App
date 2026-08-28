@@ -61,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         setState(() => _isLoading = false);
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+            MaterialPageRoute(builder: (_) => OnboardingScreen()),
             (route) => false,
           );
         }
@@ -92,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: BellotaColors.blanco),
+          icon: Icon(Icons.arrow_back_ios, color: BellotaColors.blanco),
           onPressed: () => Navigator.of(context).pop(),
         ),
         // === BOTONES GLOBALES ===
@@ -102,14 +102,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onLanguagePressed: () {},
             onTalkBackPressed: () {},
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
+          physics: ClampingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: 28, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -117,15 +117,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   'Crear Cuenta',
                   style: textTheme.displayMedium?.copyWith(color: BellotaColors.blanco),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Únete a Bellota 🌸',
                   style: textTheme.bodyLarge?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.8)),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: BellotaColors.blanco.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(24),
@@ -142,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           prefixIcon: Icons.person_outline,
                           validator: (v) => v!.isEmpty ? 'Ingresa tu nombre' : null,
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         _BellotaTextField(
                           controller: _emailController,
                           label: 'Correo electrónico',
@@ -155,7 +155,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         _BellotaTextField(
                           controller: _passwordController,
                           label: 'Contraseña',
@@ -175,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         _BellotaTextField(
                           controller: _confirmController,
                           label: 'Confirmar Contraseña',
@@ -195,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 32),
+                        SizedBox(height: 32),
                         
                         SizedBox(
                           width: double.infinity,
@@ -210,8 +210,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(color: BellotaColors.blanco)
-                                : const Text('Registrarse'),
+                                ? CircularProgressIndicator(color: BellotaColors.blanco)
+                                : Text('Registrarse'),
                           ),
                         ),
                       ],

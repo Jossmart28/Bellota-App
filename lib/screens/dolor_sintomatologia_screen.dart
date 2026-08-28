@@ -60,8 +60,11 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
 
   void _toggleSetItem(Set<String> set, String item) {
     setState(() {
-      if (set.contains(item)) set.remove(item);
-      else set.add(item);
+      if (set.contains(item)) {
+        set.remove(item);
+      } else {
+        set.add(item);
+      }
     });
   }
 
@@ -74,28 +77,28 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: const Text('Dolor y Sintomatología', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 15)),
+        title: Text('Dolor y Sintomatología', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 15)),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
           ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, 4)),
               ],
             ),
             child: Column(
@@ -108,19 +111,19 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                   activeColor: BellotaColors.chilero,
                   onChanged: (val) => setState(() => _nivelDolor = val),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 _buildLabel('Carácter'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   options: ['Incapacitante', 'No incapacitante'],
                   selected: _caracterDolor,
                   onSelected: (val) => setState(() => _caracterDolor = val),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Días con dolor crítico'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: _diasDolorController,
                   decoration: InputDecoration(
@@ -130,37 +133,37 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Tratamiento'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   options: ['Medicamento', 'Remedios térmicos', 'Ninguno'],
                   selected: _tratamiento,
                   onSelected: (val) => setState(() => _tratamiento = val),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Síntomas físicos'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildMultiChoiceChips(
                   options: ['Cólicos severos', 'Migraña menstrual', 'Mastalgia'],
                   selected: _sintomasFisicos,
                   onToggle: (val) => _toggleSetItem(_sintomasFisicos, val),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Síntomas emocionales'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildMultiChoiceChips(
                   options: ['Ansiedad', 'Cambios de humor', 'Fatiga extrema', 'Sospecha de TDPM'],
                   selected: _sintomasEmocionales,
                   onToggle: (val) => _toggleSetItem(_sintomasEmocionales, val),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Autoexamen de mama'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   options: ['Realizado (7 días post)', 'Pendiente'],
                   selected: _autoexamenMama,
@@ -175,7 +178,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
   }
 
   Widget _buildLabel(String text) {
-    return Text(text, style: const TextStyle(color: BellotaColors.textoDark, fontSize: 15, fontWeight: FontWeight.bold));
+    return Text(text, style: TextStyle(color: BellotaColors.textoDark, fontSize: 15, fontWeight: FontWeight.bold));
   }
 
   Widget _buildSingleChoiceChips({required List<String> options, required String selected, required Function(String) onSelected}) {

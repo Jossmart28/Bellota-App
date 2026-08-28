@@ -87,22 +87,22 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: const Text('Síntomas', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+        title: Text('Síntomas', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context, _selectedSymptoms.toList());
             },
-            child: const Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
           ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         children: [
           ..._symptomCategories.map((category) => _buildCategoryCard(category)),
           _buildCustomSymptomCard(),
@@ -113,15 +113,15 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
 
   Widget _buildCategoryCard(Map<String, dynamic> category) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
+      margin: EdgeInsets.only(bottom: 16.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -129,10 +129,10 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+            padding: EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
             child: Text(
               category['title'],
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: BellotaColors.textoDark,
@@ -140,7 +140,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             ),
           ),
           ...((category['symptoms'] as List<String>).map((symptom) => _buildSymptomRow(symptom))),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
         ],
       ),
     );
@@ -151,25 +151,13 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     return InkWell(
       onTap: () => _toggleSymptom(symptom),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            // Bellota en vez de ícono
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: BellotaColors.nancite,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: const Text('🌰', style: TextStyle(fontSize: 20)),
-            ),
-            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 symptom,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   color: BellotaColors.textoDark,
                 ),
@@ -188,7 +176,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                 color: isSelected ? BellotaColors.chilero : Colors.transparent,
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  ? Icon(Icons.check, size: 16, color: Colors.white)
                   : null,
             ),
           ],
@@ -199,23 +187,23 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
 
   Widget _buildCustomSymptomCard() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 32.0),
+      margin: EdgeInsets.only(bottom: 32.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Personalización',
             style: TextStyle(
               fontSize: 16,
@@ -223,7 +211,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
               color: BellotaColors.textoDark,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           TextField(
             controller: _customSymptomController,
             onSubmitted: (_) => _saveCustomSymptom(),
@@ -240,12 +228,12 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: BellotaColors.chilero),
+                borderSide: BorderSide(color: BellotaColors.chilero),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Pulse la tecla Enter para finalizar la edición',
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
@@ -253,7 +241,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
           // Mostrar síntomas personalizados agregados
           if (_selectedSymptoms.any((s) => !_symptomCategories.any((cat) => (cat['symptoms'] as List).contains(s))))
             Padding(
-              padding: const EdgeInsets.only(top: 16.0),
+              padding: EdgeInsets.only(top: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: _selectedSymptoms

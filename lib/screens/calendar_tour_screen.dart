@@ -39,7 +39,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: Duration(milliseconds: 900),
     )..repeat(reverse: true);
     _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
@@ -47,7 +47,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
     _overlayFadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: Duration(milliseconds: 400),
       value: 1.0,
     );
     _overlayFadeAnim = CurvedAnimation(
@@ -90,13 +90,16 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
       );
     }
 
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('calendar_tour_done', true);
+
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) => const PersonalDataScreen(),
-          transitionsBuilder: (_, anim, __, child) =>
+          pageBuilder: (_, _, _) => PersonalDataScreen(),
+          transitionsBuilder: (_, anim, _, child) =>
               FadeTransition(opacity: anim, child: child),
-          transitionDuration: const Duration(milliseconds: 500),
+          transitionDuration: Duration(milliseconds: 500),
         ),
       );
     }
@@ -120,9 +123,9 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               child: Column(
                 children: [
                   _buildHeader(),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _buildCalendar(),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   if (_tourStep == 1) _buildSelectionPanel(),
                 ],
               ),
@@ -142,18 +145,18 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
         children: [
-          const BellotaIcon(color: BellotaColors.chilero, size: 28),
-          const SizedBox(width: 10),
+          BellotaIcon(color: BellotaColors.chilero, size: 28),
+          SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${_monthNames[_displayDate.month - 1]} ${_displayDate.year}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: BellotaColors.textoDark,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -162,7 +165,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 Text(
                   _tourStep == 0 ? 'Empecemos' : 'Toca el día de inicio',
                   style: TextStyle(
-                    color: BellotaColors.textoMedio.withOpacity(0.7),
+                    color: BellotaColors.textoMedio.withValues(alpha: 0.7),
                     fontSize: 13,
                   ),
                 ),
@@ -173,13 +176,13 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.chevron_left, color: BellotaColors.chilero),
+                icon: Icon(Icons.chevron_left, color: BellotaColors.chilero),
                 onPressed: () => setState(() {
                   _displayDate = DateTime(_displayDate.year, _displayDate.month - 1, 1);
                 }),
               ),
               IconButton(
-                icon: const Icon(Icons.chevron_right, color: BellotaColors.chilero),
+                icon: Icon(Icons.chevron_right, color: BellotaColors.chilero),
                 onPressed: () => setState(() {
                   _displayDate = DateTime(_displayDate.year, _displayDate.month + 1, 1);
                 }),
@@ -199,7 +202,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
     int emptyDays = firstWeekday == 7 ? 0 : firstWeekday;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
           // Day headers
@@ -207,34 +210,34 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: _dayNames.map((d) => Expanded(
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                margin: EdgeInsets.symmetric(horizontal: 2),
+                padding: EdgeInsets.symmetric(vertical: 4),
                 decoration: BoxDecoration(
                   color: BellotaColors.chilero,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Text(d,
-                    style: const TextStyle(color: BellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
+                    style: TextStyle(color: BellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
                   ),
                 ),
               ),
             )).toList(),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           // Day grid
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics: NeverScrollableScrollPhysics(),
             itemCount: daysInMonth + emptyDays,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
               childAspectRatio: 0.85,
               crossAxisSpacing: 6,
               mainAxisSpacing: 6,
             ),
             itemBuilder: (context, index) {
-              if (index < emptyDays) return const SizedBox();
+              if (index < emptyDays) return SizedBox();
               final date = DateTime(year, month, index - emptyDays + 1);
               final isSelected = _selectedPeriodStart != null &&
                   date.year == _selectedPeriodStart!.year &&
@@ -258,7 +261,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                       }
                     : null,
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                  duration: Duration(milliseconds: 200),
                   decoration: BoxDecoration(
                     color: isFuture
                         ? Colors.grey[200]
@@ -269,7 +272,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                       width: isSelected ? 2 : 1,
                     ),
                     boxShadow: isSelected
-                        ? [BoxShadow(color: BellotaColors.chilero.withOpacity(0.4), blurRadius: 4)]
+                        ? [BoxShadow(color: BellotaColors.chilero.withValues(alpha: 0.4), blurRadius: 4)]
                         : [],
                   ),
                   child: Center(
@@ -293,7 +296,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
   Widget _buildSelectionPanel() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -303,31 +306,31 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               builder: (_, child) => Transform.scale(scale: _pulseAnim.value, child: child),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(18),
+                padding: EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: BellotaColors.chilero.withOpacity(0.1),
+                  color: BellotaColors.chilero.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: BellotaColors.chilero.withOpacity(0.4), width: 1.5),
+                  border: Border.all(color: BellotaColors.chilero.withValues(alpha: 0.4), width: 1.5),
                 ),
                 child: Column(
                   children: [
-                    const BellotaIcon(color: BellotaColors.chilero, size: 32),
-                    const SizedBox(height: 10),
+                    BellotaIcon(color: BellotaColors.chilero, size: 32),
+                    SizedBox(height: 10),
                     Text(
                       '${_dayNames[_selectedPeriodStart!.weekday == 7 ? 0 : _selectedPeriodStart!.weekday]}, ${_selectedPeriodStart!.day} de ${_monthNames[_selectedPeriodStart!.month - 1]}',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: BellotaColors.textoDark,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
                         height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       'Inicio del último período',
                       style: TextStyle(
-                        color: BellotaColors.textoMedio.withOpacity(0.7),
+                        color: BellotaColors.textoMedio.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -335,11 +338,11 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 ),
               ),
             ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Confirm button
           AnimatedOpacity(
             opacity: _selectedPeriodStart != null ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 250),
+            duration: Duration(milliseconds: 250),
             child: IgnorePointer(
               ignoring: _selectedPeriodStart == null,
               child: ElevatedButton(
@@ -347,18 +350,18 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: BellotaColors.chilero,
                   foregroundColor: BellotaColors.blanco,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                  padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   elevation: 4,
                 ),
-                child: const Text('Confirmar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                child: Text('Confirmar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Prompt text
           Padding(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: EdgeInsets.only(bottom: 24),
             child: Text(
               'Toca el día en que comenzó\ntu último período',
               textAlign: TextAlign.center,
@@ -376,20 +379,20 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
   Widget _buildTourOverlay() {
     return Container(
-      color: BellotaColors.textoDark.withOpacity(0.72),
+      color: BellotaColors.textoDark.withValues(alpha: 0.72),
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+          padding: EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Animated bellota
               ScaleTransition(
                 scale: _pulseAnim,
-                child: const BellotaIcon(color: BellotaColors.nancite, size: 64),
+                child: BellotaIcon(color: BellotaColors.nancite, size: 64),
               ),
-              const SizedBox(height: 32),
-              const Text(
+              SizedBox(height: 32),
+              Text(
                 '¡Bienvenida a Bellota!',
                 style: TextStyle(
                   color: BellotaColors.blanco,
@@ -398,33 +401,33 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 'Para comenzar, necesitamos saber cuándo fue el primer día de tu último período.\n\nToca un día en el calendario para marcarlo.',
                 style: TextStyle(
-                  color: BellotaColors.blanco.withOpacity(0.85),
+                  color: BellotaColors.blanco.withValues(alpha: 0.85),
                   fontSize: 15,
                   height: 1.6,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               // Arrow pointing down
               Column(
                 children: [
                   Icon(Icons.arrow_downward_rounded,
-                      color: BellotaColors.nancite.withOpacity(0.8), size: 28),
-                  const SizedBox(height: 4),
+                      color: BellotaColors.nancite.withValues(alpha: 0.8), size: 28),
+                  SizedBox(height: 4),
                   Text(
                     'El calendario está debajo',
                     style: TextStyle(
-                      color: BellotaColors.nancite.withOpacity(0.7),
+                      color: BellotaColors.nancite.withValues(alpha: 0.7),
                       fontSize: 12,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 36),
+              SizedBox(height: 36),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -432,11 +435,11 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: BellotaColors.chilero,
                     foregroundColor: BellotaColors.blanco,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     elevation: 6,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Entendido, ¡vamos!',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),

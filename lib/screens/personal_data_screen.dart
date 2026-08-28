@@ -23,6 +23,28 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   final _ageController = TextEditingController();
   String _locationLabel = '';
   LatLng? _locationLatLng;
+  String? _selectedDepartment;
+  String? _selectedMunicipality;
+
+  static const Map<String, List<String>> _nicaraguaLocations = {
+    'Managua': ['Managua', 'Ciudad Sandino', 'Tipitapa', 'San Rafael del Sur', 'Mateare', 'Villa El Carmen', 'San Francisco Libre', 'El Crucero'],
+    'León': ['León', 'El Sauce', 'La Paz Centro', 'Nagarote', 'Telica', 'Larreynaga', 'Achuapa', 'Quezalguaque', 'El Jicaral', 'Santa Rosa del Peñón'],
+    'Chinandega': ['Chinandega', 'El Viejo', 'Somotillo', 'Corinto', 'Chichigalpa', 'Puerto Morazán', 'Cinco Pinos', 'Santo Tomás del Norte', 'San Pedro del Norte', 'El Realejo', 'Posoltega', 'Villanueva', 'San Francisco del Norte'],
+    'Masaya': ['Masaya', 'Nindirí', 'Masatepe', 'Catarina', 'San Juan de Oriente', 'Tisma', 'La Concepción', 'Nandasmo', 'Niquinohomo'],
+    'Granada': ['Granada', 'Nandaime', 'Diriomo', 'Diriá'],
+    'Carazo': ['Jinotepe', 'Diriamba', 'San Marcos', 'Santa Teresa', 'El Rosario', 'Dolores', 'La Paz de Carazo', 'La Conquista'],
+    'Rivas': ['Rivas', 'San Juan del Sur', 'Altagracia', 'Moyogalpa', 'Tola', 'San Jorge', 'Belén', 'Buenos Aires', 'Potosí', 'Cárdenas'],
+    'Estelí': ['Estelí', 'La Trinidad', 'San Juan de Limay', 'Condega', 'Pueblo Nuevo', 'San Nicolás'],
+    'Madriz': ['Somoto', 'San Juan de Río Coco', 'Telpaneca', 'Palacagüina', 'Yalagüina', 'Totogalpa', 'Las Sabanas', 'San José de Cusmapa', 'San Lucas'],
+    'Nueva Segovia': ['Ocotal', 'Jalapa', 'El Jícaro', 'Quilalí', 'Wiwilí', 'Murra', 'San Fernando', 'Mozonte', 'Dipilto', 'Macuelizo', 'Santa María', 'Ciudad Antigua'],
+    'Matagalpa': ['Matagalpa', 'El Tuma - La Dalia', 'Waslala', 'Matiguás', 'Sébaco', 'Ciudad Darío', 'San Ramón', 'San Dionisio', 'Esquipulas', 'Muy Muy', 'Río Blanco', 'Terrabona', 'San Isidro'],
+    'Jinotega': ['Jinotega', 'El Cuá', 'San José de Bocay', 'Wiwilí', 'Pantasma', 'San Rafael del Norte', 'Yalí', 'La Concordia'],
+    'Boaco': ['Boaco', 'Camoapa', 'San Lorenzo', 'Teustepe', 'San José de los Remates', 'Santa Lucía'],
+    'Chontales': ['Juigalpa', 'Acoyapa', 'Santo Tomás', 'La Libertad', 'San Pedro de Lóvago', 'Villa Sandino', 'Comalapa', 'Santo Domingo', 'Cuapa'],
+    'Río San Juan': ['San Carlos', 'El Castillo', 'San Miguelito', 'Morrito', 'San Juan de Nicaragua'],
+    'RACCN': ['Puerto Cabezas (Bilwi)', 'Waspam', 'Siuna', 'Rosita', 'Bonanza', 'Prinzapolka'],
+    'RACCS': ['Bluefields', 'El Rama', 'Nueva Guinea', 'Corn Island', 'Muelle de los Bueyes', 'Laguna de Perlas', 'El Tortuguero', 'Desembocadura de Río Grande', 'La Cruz de Río Grande'],
+  };
 
   final List<String> _medications = [
     'Ninguno', 'DIU', 'Pastillas', 'Anticonvulsivos', 'Anticoagulantes',
@@ -42,10 +64,10 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: Duration(milliseconds: 900),
     );
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
+    _slideAnim = Tween<Offset>(begin: Offset(0, 0.1), end: Offset.zero)
         .animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
     _animController.forward();
   }
@@ -62,6 +84,20 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_age', _ageController.text.trim());
       await prefs.setString('user_location', _locationLabel);
+      if (_locationLatLng != null) {
+        await prefs.setDouble('user_latitude', _locationLatLng!.latitude);
+        await prefs.setDouble('user_longitude', _locationLatLng!.longitude);
+      }
+      if (_selectedDepartment != null) {
+        await prefs.setString('user_department', _selectedDepartment!);
+      } else {
+        await prefs.remove('user_department');
+      }
+      if (_selectedMunicipality != null) {
+        await prefs.setString('user_municipality', _selectedMunicipality!);
+      } else {
+        await prefs.remove('user_municipality');
+      }
       await prefs.setStringList('user_medications', _selectedMedications.toList());
 
       int? userId = prefs.getInt('userId');
@@ -75,13 +111,15 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         );
       }
 
+      await prefs.setBool('setup_completed', true);
+
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const DashboardScreen(),
-            transitionsBuilder: (_, anim, __, child) =>
+            pageBuilder: (_, _, _) => DashboardScreen(),
+            transitionsBuilder: (_, anim, _, child) =>
                 FadeTransition(opacity: anim, child: child),
-            transitionDuration: const Duration(milliseconds: 600),
+            transitionDuration: Duration(milliseconds: 600),
           ),
         );
       }
@@ -114,7 +152,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         children: [
           // ── Fondo degradado ──
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomCenter,
@@ -140,8 +178,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     // ── Contenido ──
                     Expanded(
                       child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                        physics: BouncingScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(20, 8, 20, 32),
                         child: Form(
                           key: _formKey,
                           child: Column(
@@ -152,16 +190,16 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                                 number: '1',
                                 child: _buildPersonalSection(),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                               _buildCard(
                                 icon: Icons.calendar_today_rounded,
                                 title: 'Tu Ciclo Menstrual',
                                 number: '2',
                                 child: _buildCycleSection(),
                               ),
-                              const SizedBox(height: 28),
+                              SizedBox(height: 28),
                               _buildCTAButton(),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -180,12 +218,12 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   // ── HEADER ──────────────────────────────────────────────────────────────────
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
       child: Row(
         children: [
           Image.asset('assets/images/logo_white.png', height: 30,
-              errorBuilder: (_, __, ___) => const Icon(Icons.circle, color: Colors.white54, size: 30)),
-          const SizedBox(width: 14),
+              errorBuilder: (_, _, _) => Icon(Icons.circle, color: Colors.white54, size: 30)),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,7 +268,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           BoxShadow(
             color: BellotaColors.chilero.withValues(alpha: 0.12),
             blurRadius: 24,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -239,14 +277,14 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         children: [
           // Cabecera de la tarjeta
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+            padding: EdgeInsets.fromLTRB(20, 16, 20, 14),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [Color(0xFFD35D53), Color(0xFFEE8658)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
             child: Row(
               children: [
@@ -268,9 +306,9 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Icon(icon, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   title,
                   style: GoogleFonts.poppins(
@@ -284,7 +322,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           ),
           // Contenido
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 24),
             child: child,
           ),
         ],
@@ -298,7 +336,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel('Edad', Icons.cake_rounded),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         TextFormField(
           controller: _ageController,
           keyboardType: TextInputType.number,
@@ -312,27 +350,32 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           },
         ),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildFieldLabel('Ubicación', Icons.place_rounded),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _buildLocationPicker(),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
+        _buildFieldLabel('Filtro para Centros de Salud', Icons.map_rounded),
+        SizedBox(height: 8),
+        _buildDepartmentMunicipalityPicker(),
+
+        SizedBox(height: 20),
         _buildFieldLabel('Anticonceptivos / Medicamentos', Icons.medication_rounded),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: _medications.map((med) {
             final isSelected = _selectedMedications.contains(med);
             return AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+              duration: Duration(milliseconds: 200),
               child: FilterChip(
                 label: Text(med),
                 selected: isSelected,
                 onSelected: (_) => _toggleMedication(med),
                 selectedColor: BellotaColors.chilero,
-                backgroundColor: const Color(0xFFF7EACC),
+                backgroundColor: Color(0xFFF7EACC),
                 checkmarkColor: Colors.white,
                 labelStyle: GoogleFonts.poppins(
                   color: isSelected ? Colors.white : BellotaColors.textoDark,
@@ -345,7 +388,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     color: isSelected ? BellotaColors.chilero : Colors.transparent,
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               ),
             );
           }).toList(),
@@ -372,7 +415,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
             if (_periodDuration > _cycleDuration) _periodDuration = _cycleDuration;
           }),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         _buildSliderBlock(
           label: 'Duración de la menstruación',
           value: _periodDuration,
@@ -386,10 +429,10 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
             if (_periodDuration > _cycleDuration) _cycleDuration = _periodDuration;
           }),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         // Info chip
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: BellotaColors.basilica,
             borderRadius: BorderRadius.circular(14),
@@ -397,8 +440,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline_rounded, size: 18, color: BellotaColors.textoMedio),
-              const SizedBox(width: 8),
+              Icon(Icons.info_outline_rounded, size: 18, color: BellotaColors.textoMedio),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Ciclo: $_cycleDuration días  •  Menstruación: $_periodDuration días',
@@ -433,7 +476,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         Row(
           children: [
             Icon(icon, color: color, size: 18),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(
               label,
               style: GoogleFonts.poppins(
@@ -442,9 +485,9 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 color: BellotaColors.textoDark,
               ),
             ),
-            const Spacer(),
+            Spacer(),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
@@ -460,14 +503,14 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         SliderTheme(
           data: SliderThemeData(
             activeTrackColor: color,
             inactiveTrackColor: color.withValues(alpha: 0.15),
             thumbColor: color,
             overlayColor: color.withValues(alpha: 0.15),
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10),
             trackHeight: 5,
           ),
           child: Slider(
@@ -487,19 +530,22 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     final hasLocation = _locationLabel.isNotEmpty;
     return GestureDetector(
       onTap: () async {
-        final result = await Navigator.push<String>(
+        final result = await Navigator.push<Map<String, dynamic>>(
           context,
           MaterialPageRoute(
             builder: (_) => LocationPickerScreen(initialPosition: _locationLatLng),
           ),
         );
         if (result != null && mounted) {
-          setState(() => _locationLabel = result);
+          setState(() {
+            _locationLabel = result['label'] as String;
+            _locationLatLng = result['position'] as LatLng;
+          });
         }
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        duration: Duration(milliseconds: 300),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: hasLocation
               ? BellotaColors.chilero.withValues(alpha: 0.06)
@@ -527,7 +573,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 size: 20,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,6 +607,201 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
+  // ── FILTRO DEPARTAMENTO / MUNICIPIO ─────────────────────────────────────────
+  Widget _buildDepartmentMunicipalityPicker() {
+    final hasSelection = _selectedDepartment != null && _selectedMunicipality != null;
+    final label = hasSelection
+        ? '$_selectedMunicipality, $_selectedDepartment'
+        : 'Seleccionar departamento y municipio';
+
+    return GestureDetector(
+      onTap: _showLocationSelectorSheet,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: hasSelection
+              ? BellotaColors.chilero.withValues(alpha: 0.06)
+              : Colors.grey.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: hasSelection ? BellotaColors.chilero.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.25),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: hasSelection
+                    ? BellotaColors.chilero.withValues(alpha: 0.12)
+                    : Colors.grey.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasSelection ? Icons.map_rounded : Icons.map_outlined,
+                color: hasSelection ? BellotaColors.chilero : Colors.grey,
+                size: 20,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hasSelection ? 'Filtro seleccionado' : 'Filtro de clínicas',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: hasSelection ? BellotaColors.chilero : Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: hasSelection ? FontWeight.w600 : FontWeight.normal,
+                      color: hasSelection ? BellotaColors.textoDark : Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: hasSelection ? BellotaColors.chilero : Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLocationSelectorSheet() {
+    String? tempDept = _selectedDepartment;
+    String? tempMuni = _selectedMunicipality;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(builder: (context, setModalState) {
+          final departments = _nicaraguaLocations.keys.toList();
+          final municipalities = tempDept != null ? _nicaraguaLocations[tempDept]! : <String>[];
+
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            padding: EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 50,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Selecciona tu Departamento',
+                  style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: BellotaColors.textoDark),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: tempDept,
+                      isExpanded: true,
+                      hint: Text('Departamento'),
+                      items: departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                      onChanged: (val) {
+                        setModalState(() {
+                          tempDept = val;
+                          tempMuni = null; // reset muni
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                if (tempDept != null) ...[
+                  Text(
+                    'Selecciona tu Municipio',
+                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: BellotaColors.textoDark),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: tempMuni,
+                        isExpanded: true,
+                        hint: Text('Municipio'),
+                        items: municipalities.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+                        onChanged: (val) {
+                          setModalState(() {
+                            tempMuni = val;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+                Spacer(),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedDepartment = tempDept;
+                      _selectedMunicipality = tempMuni;
+                    });
+                    Navigator.pop(ctx);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: BellotaColors.chilero,
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Guardar Selección',
+                        style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
   // ── CTA BUTTON ───────────────────────────────────────────────────────────────
   Widget _buildCTAButton() {
     return GestureDetector(
@@ -569,7 +810,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         width: double.infinity,
         height: 58,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [Color(0xFFD35D53), Color(0xFFEE8658)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
@@ -579,7 +820,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
             BoxShadow(
               color: BellotaColors.chilero.withValues(alpha: 0.45),
               blurRadius: 20,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -596,8 +837,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                   letterSpacing: 0.3,
                 ),
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 22),
+              SizedBox(width: 8),
+              Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 22),
             ],
           ),
         ),
@@ -610,7 +851,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     return Row(
       children: [
         Icon(icon, size: 16, color: BellotaColors.chilero),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(
           text,
           style: GoogleFonts.poppins(
@@ -630,7 +871,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
       prefixIcon: Icon(icon, color: BellotaColors.chilero.withValues(alpha: 0.6), size: 20),
       filled: true,
       fillColor: Colors.grey.withValues(alpha: 0.06),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
@@ -641,7 +882,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: BellotaColors.chilero, width: 1.5),
+        borderSide: BorderSide(color: BellotaColors.chilero, width: 1.5),
       ),
     );
   }

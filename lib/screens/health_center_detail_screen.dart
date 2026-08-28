@@ -28,13 +28,13 @@ class HealthCenterDetailScreen extends StatelessWidget {
             // ══════════════════════
             Expanded(
               child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
+                physics: ClampingScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       Text(
                         center.name,
                         textAlign: TextAlign.center,
@@ -43,13 +43,13 @@ class HealthCenterDetailScreen extends StatelessWidget {
                           color: BellotaColors.textoDark,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       _buildImagePlaceholder(context),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20 ),
                       _buildInfoSection(context),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       _buildSpecialtiesSection(context),
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30),
                     ],
                   ),
                 ),
@@ -66,7 +66,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
   // ────────────────────────────────────────
   Widget _buildSearchBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: BellotaColors.basilica,
       child: Row(
         children: [
@@ -83,14 +83,14 @@ class HealthCenterDetailScreen extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 6,
-                    offset: const Offset(0, 2),
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),
-              child: const Icon(Icons.arrow_back_rounded, color: BellotaColors.textoDark, size: 20),
+              child: Icon(Icons.arrow_back_rounded, color: BellotaColors.textoDark, size: 20),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           
           // Campo de búsqueda
           Expanded(
@@ -103,15 +103,15 @@ class HealthCenterDetailScreen extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),
               child: Row(
                 children: [
-                  const SizedBox(width: 14),
-                  const Icon(Icons.search, color: BellotaColors.textoMedio, size: 22),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 14),
+                  Icon(Icons.search, color: BellotaColors.textoMedio, size: 22),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Buscar...',
@@ -124,7 +124,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           
           // === BOTONES GLOBALES ===
           BellotaTopActions(
@@ -146,7 +146,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
       height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [BellotaColors.chilero, BellotaColors.gradienteClaro],
           begin: Alignment.bottomLeft,
           end: Alignment.topRight,
@@ -155,7 +155,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
           BoxShadow(
             color: BellotaColors.chilero.withValues(alpha: 0.25),
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -190,7 +190,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.local_hospital_rounded, color: BellotaColors.blanco.withValues(alpha: 0.9), size: 48),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Centro de Salud',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -212,7 +212,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
   Widget _buildInfoSection(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: BellotaColors.blanco,
         borderRadius: BorderRadius.circular(20),
@@ -220,7 +220,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -228,13 +228,13 @@ class HealthCenterDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _infoRow(context, 'Tipo:', center.type),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           _infoRow(context, 'Dirección:', center.address),
-          const SizedBox(height: 10),
-          _infoRow(context, 'Horario de atención:', center.schedule),
-          const SizedBox(height: 10),
-          _infoRow(context, 'Ciudad:', center.city),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
+          _infoRow(context, 'Teléfono:', center.phone),
+          SizedBox(height: 10),
+          _infoRow(context, 'Municipio:', center.municipality),
+          SizedBox(height: 10),
           _infoRow(context, 'Departamento:', center.department),
         ],
       ),
@@ -248,17 +248,17 @@ class HealthCenterDetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 6),
+          padding: EdgeInsets.only(top: 6),
           child: Container(
             width: 6,
             height: 6,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: BellotaColors.textoDark,
               shape: BoxShape.circle,
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(
           child: RichText(
             text: TextSpan(
@@ -285,26 +285,26 @@ class HealthCenterDetailScreen extends StatelessWidget {
   }
 
   // ────────────────
-  // ESPECIALIDADES 
+  // SERVICIOS 
   // ────────────────
   Widget _buildSpecialtiesSection(BuildContext context) {
     return Column(
       children: [
         Text(
-          'Especialidades',
+          'Servicios',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
             color: BellotaColors.textoDark,
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14),
         Wrap(
           spacing: 10,
           runSpacing: 10,
           alignment: WrapAlignment.center,
-          children: center.specialties.map((specialty) {
+          children: center.services.map((service) {
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
                 color: BellotaColors.nancite,
                 borderRadius: BorderRadius.circular(20),
@@ -314,7 +314,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
                 ),
               ),
               child: Text(
-                specialty,
+                service,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontSize: 12,
                   color: BellotaColors.textoDark,

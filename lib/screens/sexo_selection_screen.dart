@@ -45,22 +45,22 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: const Text('Sexo', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+        title: Text('Sexo', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context, _selectedSexo.toList());
             },
-            child: const Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
           ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         children: [
           Container(
             decoration: BoxDecoration(
@@ -68,18 +68,18 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 ..._sexoOptions.map((option) => _buildSexoRow(option)),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
               ],
             ),
           ),
@@ -93,25 +93,13 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
     return InkWell(
       onTap: () => _toggleSexo(option),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            // Bellota en vez de ícono genérico
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: BellotaColors.nancite,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: const Text('🌰', style: TextStyle(fontSize: 20)),
-            ),
-            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 option,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   color: BellotaColors.textoDark,
                 ),
@@ -130,7 +118,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
                 color: isSelected ? BellotaColors.chilero : Colors.transparent,
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  ? Icon(Icons.check, size: 16, color: Colors.white)
                   : null,
             ),
           ],

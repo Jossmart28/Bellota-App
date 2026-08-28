@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
@@ -47,7 +47,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     _userId = prefs.getInt('userId');
-    
+
     if (_userId == null) {
       String userEmail = prefs.getString('userEmail') ?? '';
       if (userEmail.isNotEmpty) {
@@ -103,9 +103,12 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         SnackBar(
           content: Text('Registro guardado para $_formattedDate'),
           backgroundColor: BellotaColors.chilero,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         ),
       );
-      Navigator.pop(context, true); // true indica que se guardó
+      Navigator.pop(context, true);
     }
   }
 
@@ -182,111 +185,193 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: BellotaColors.textoDark),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Registro - $_formattedDate',
-          style: const TextStyle(color: BellotaColors.textoDark, fontSize: 16),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: BellotaColors.textoDark),
-        actions: [
-          // Botón Aceptar
-          TextButton(
-            onPressed: _saveAndAccept,
-            child: const Text(
-              'Aceptar',
-              style: TextStyle(
-                color: BellotaColors.chilero,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: BellotaColors.basilica,
+      appBar: _buildAppBar(context),
       body: ListView(
+        physics: BouncingScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
-          // 1. Inicia el período
-          _buildListItem(
-            icon: Icons.water_drop,
+          _buildDateHeader(context),
+          SizedBox(height: 20),
+          _buildCard(
+            context,
+            icon: Icons.water_drop_outlined,
             iconColor: BellotaColors.chilero,
             title: 'Inicia el período',
             trailing: _buildSiNoToggle(
               value: iniciaPeriodo,
-              onChanged: (val) {
-                setState(() => iniciaPeriodo = val);
-              },
+              onChanged: (val) => setState(() => iniciaPeriodo = val),
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-
-          // 2. Sexo
-          _buildListItem(
-            icon: Icons.favorite,
+          SizedBox(height: 12),
+          _buildCard(
+            context,
+            icon: Icons.favorite_border_rounded,
             iconColor: BellotaColors.melon,
             title: 'Sexo',
             subtitle: _selectedSexo.isNotEmpty ? _selectedSexo.join(', ') : null,
-            trailing: _buildPlusButton(),
+            trailing: _buildAddButton(hasItems: _selectedSexo.isNotEmpty),
             onTap: _openSexoSelection,
           ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-
-          // 3. Síntomas
-          _buildListItem(
-            icon: Icons.medical_services,
+          SizedBox(height: 12),
+          _buildCard(
+            context,
+            icon: Icons.medical_services_outlined,
             iconColor: BellotaColors.asuncion,
             title: 'Síntomas',
             subtitle: _selectedSymptoms.isNotEmpty ? _selectedSymptoms.join(', ') : null,
-            trailing: _buildPlusButton(),
+            trailing: _buildAddButton(hasItems: _selectedSymptoms.isNotEmpty),
             onTap: _openSymptomsSelection,
           ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-
-          // 4. Flujo vaginal
-          _buildListItem(
-            icon: Icons.opacity,
-            iconColor: const Color(0xFFA566C1),
+          SizedBox(height: 12),
+          _buildCard(
+            context,
+            icon: Icons.opacity_rounded,
+            iconColor: Color(0xFFA566C1),
             title: 'Flujo vaginal',
             subtitle: _selectedFlujos.isNotEmpty ? _selectedFlujos.join(', ') : null,
-            trailing: _buildPlusButton(),
+            trailing: _buildAddButton(hasItems: _selectedFlujos.isNotEmpty),
             onTap: _openFlujoSelection,
           ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-
-          // 5. Patrón de sangrado
-          _buildListItem(
-            icon: Icons.bloodtype,
-            iconColor: Colors.redAccent,
+          SizedBox(height: 12),
+          _buildCard(
+            context,
+            icon: Icons.bloodtype_outlined,
+            iconColor: BellotaColors.chilero,
             title: 'Patrón de sangrado',
-            subtitle: _patronSangrado.isNotEmpty ? 'Registrado' : null,
-            trailing: _buildPlusButton(),
+            subtitle: _patronSangrado.isNotEmpty ? 'Registrado ✓' : null,
+            trailing: _buildAddButton(hasItems: _patronSangrado.isNotEmpty),
             onTap: _openPatronSangradoSelection,
           ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-
-          // 6. Dolor y sintomatología
-          _buildListItem(
-            icon: Icons.healing,
-            iconColor: Colors.teal,
+          SizedBox(height: 12),
+          _buildCard(
+            context,
+            icon: Icons.healing_outlined,
+            iconColor: BellotaColors.chiltoma,
             title: 'Dolor y sintomatología',
-            subtitle: _dolorSintomatologia.isNotEmpty ? 'Registrado' : null,
-            trailing: _buildPlusButton(),
+            subtitle: _dolorSintomatologia.isNotEmpty ? 'Registrado ✓' : null,
+            trailing: _buildAddButton(hasItems: _dolorSintomatologia.isNotEmpty),
             onTap: _openDolorSintomatologiaSelection,
           ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+          SizedBox(height: 32),
+          _buildSaveButton(context),
+          SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _buildListItem({
+  // APP BAR
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: BellotaColors.basilica,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      leading: GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Container(
+          margin: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: BellotaColors.blanco,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: BellotaColors.melon.withValues(alpha: 0.10),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: BellotaColors.textoDark,
+            size: 18,
+          ),
+        ),
+      ),
+      title: Text(
+        'Registro',
+        style: TextStyle(
+          color: BellotaColors.textoDark,
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.1,
+        ),
+      ),
+      centerTitle: true,
+      actions: [
+        Padding(
+          padding: EdgeInsets.only(right: 16),
+          child: GestureDetector(
+            onTap: _saveAndAccept,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: BellotaColors.chilero.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'Guardar',
+                style: TextStyle(
+                  color: BellotaColors.chilero,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // DATE HEADER
+  Widget _buildDateHeader(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(9),
+          decoration: BoxDecoration(
+            color: BellotaColors.chilero.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            Icons.calendar_today_rounded,
+            size: 16,
+            color: BellotaColors.chilero,
+          ),
+        ),
+        SizedBox(width: 10),
+        Text(
+          _formattedDate,
+          style: TextStyle(
+            color: BellotaColors.textoMedio,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.1,
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  BellotaColors.textoMedio.withValues(alpha: 0.20),
+                  BellotaColors.textoMedio.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // CARD POR ÍTEM
+  Widget _buildCard(
+    BuildContext context, {
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -294,49 +379,64 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     required Widget trailing,
     VoidCallback? onTap,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: BellotaColors.blanco,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: iconColor.withValues(alpha: 0.08),
+              blurRadius: 14,
+              spreadRadius: 0,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.2),
-                shape: BoxShape.circle,
+                color: iconColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(13),
               ),
-              child: Icon(icon, color: iconColor, size: 24),
+              child: Icon(icon, color: iconColor, size: 22),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: 15.5,
                       color: BellotaColors.textoDark,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.05,
                     ),
                   ),
-                  if (subtitle != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: BellotaColors.textoMedio.withOpacity(0.8),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                  if (subtitle != null) ...[
+                    SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: BellotaColors.textoMedio.withValues(alpha: 0.85),
+                        height: 1.35,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                  ],
                 ],
               ),
             ),
+            SizedBox(width: 10),
             trailing,
           ],
         ),
@@ -344,51 +444,58 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
+  // TOGGLE SÍ / NO
   Widget _buildSiNoToggle({required bool value, required ValueChanged<bool> onChanged}) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFE0E0E0),
-        borderRadius: BorderRadius.circular(8),
+        color: BellotaColors.nancite,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
             onTap: () => onChanged(true),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: value ? BellotaColors.chilero : Colors.transparent,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  bottomLeft: Radius.circular(8),
-                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: value
+                    ? [BoxShadow(color: BellotaColors.chilero.withValues(alpha: 0.25), blurRadius: 8, offset: Offset(0, 2))]
+                    : [],
               ),
               child: Text(
                 'Sí',
                 style: TextStyle(
-                  color: value ? Colors.white : Colors.white,
-                  fontWeight: FontWeight.bold,
+                  color: value ? Colors.white : BellotaColors.textoMedio,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
             ),
           ),
           GestureDetector(
             onTap: () => onChanged(false),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: !value ? BellotaColors.chilero : Colors.transparent,
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(8),
-                  bottomRight: Radius.circular(8),
-                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: !value
+                    ? [BoxShadow(color: BellotaColors.chilero.withValues(alpha: 0.25), blurRadius: 8, offset: Offset(0, 2))]
+                    : [],
               ),
               child: Text(
                 'No',
                 style: TextStyle(
-                  color: !value ? Colors.white : Colors.white,
-                  fontWeight: FontWeight.bold,
+                  color: !value ? Colors.white : BellotaColors.textoMedio,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
             ),
@@ -398,17 +505,56 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  Widget _buildPlusButton() {
-    return Container(
-      padding: const EdgeInsets.all(2),
+  // BOTÓN AÑADIR
+  Widget _buildAddButton({bool hasItems = false}) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      padding: EdgeInsets.all(7),
       decoration: BoxDecoration(
+        color: hasItems ? BellotaColors.chilero.withValues(alpha: 0.12) : Colors.transparent,
         shape: BoxShape.circle,
-        border: Border.all(color: BellotaColors.chilero, width: 1.5),
+        border: Border.all(
+          color: BellotaColors.chilero.withValues(alpha: hasItems ? 0.0 : 0.6),
+          width: 1.5,
+        ),
       ),
-      child: const Icon(
-        Icons.add,
+      child: Icon(
+        hasItems ? Icons.edit_outlined : Icons.add_rounded,
         color: BellotaColors.chilero,
-        size: 20,
+        size: 18,
+      ),
+    );
+  }
+
+  // BOTÓN GUARDAR
+  Widget _buildSaveButton(BuildContext context) {
+    return GestureDetector(
+      onTap: _saveAndAccept,
+      child: Container(
+        height: 54,
+        decoration: BoxDecoration(
+          gradient: BellotaColors.buttonGradient,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: BellotaColors.chilero.withValues(alpha: 0.30),
+              blurRadius: 16,
+              spreadRadius: 0,
+              offset: Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            'Guardar registro',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 15.5,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ),
       ),
     );
   }

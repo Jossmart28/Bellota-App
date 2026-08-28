@@ -6,8 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
+import '../theme/theme_notifier.dart';
 import 'notifications_settings_screen.dart';
 import '../database/database_helper.dart';
+import 'login_screen.dart';
 import 'medical_report_preview_screen.dart';
 
 /// Pantalla de Perfil de usuario — Bellota App
@@ -22,13 +24,11 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = 'UsuarioApp';
   String _userEmail = 'correo@ejemplo.com';
-  String _gmail = '';
   int _cycleDuration = 28;
   int _periodDuration = 7;
   String? _profileImagePath;
   int? _userId;
 
-  final TextEditingController _gmailController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -49,8 +49,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _userId = userId;
           _userName = profile['username'] ?? prefs.getString('userName') ?? 'UsuarioApp';
           _userEmail = email;
-          _gmail = profile['gmail'] ?? '';
-          _gmailController.text = _gmail;
           _cycleDuration = profile['cycle_duration'] ?? 28;
           _periodDuration = profile['period_duration'] ?? 7;
           _profileImagePath = profile['profile_image_path'] ?? prefs.getString('profileImagePath');
@@ -69,11 +67,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  Future<void> _saveGmail(String val) async {
-    if (_userId != null) {
-      await DatabaseHelper.instance.updateProfileField(_userId!, 'gmail', val.trim());
+  Future<void> _handleLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.logout_rounded, color: Colors.red, size: 20),
+            ),
+            SizedBox(width: 12),
+            Text(
+              'Cerrar Sesión',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w700,
+                fontSize: 17,
+                color: BellotaColors.textoDark,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          '¿Estás segura de que deseas cerrar sesión?\nTus datos quedarán guardados para cuando vuelvas.',
+          style: GoogleFonts.poppins(fontSize: 13, color: BellotaColors.textoMedio),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.poppins(color: BellotaColors.textoMedio, fontWeight: FontWeight.w500),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              minimumSize: Size(0, 38),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text('Cerrar Sesión', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      // Mantenemos datos médicos en la BD; solo limpiamos sesión activa
+      await prefs.remove('userEmail');
+      await prefs.remove('userId');
+
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          PageRouteBuilder(
+            pageBuilder: (_, _, _) => LoginScreen(),
+            transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
+            transitionDuration: Duration(milliseconds: 600),
+          ),
+          (route) => false,
+        );
+      }
     }
   }
+
 
   Future<void> _saveCycleDuration(int value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -95,12 +161,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: EdgeInsets.symmetric(vertical: 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -108,11 +174,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD4C4B0),
+                  color: Color(0xFFD4C4B0),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Text(
                 'Cambiar foto de perfil',
                 style: GoogleFonts.poppins(
@@ -121,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: BellotaColors.textoDark,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ListTile(
                 leading: Container(
                   width: 44,
@@ -130,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: BellotaColors.melon.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.photo_library_outlined,
+                  child: Icon(Icons.photo_library_outlined,
                       color: BellotaColors.melon),
                 ),
                 title: Text('Galería',
@@ -150,7 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: BellotaColors.chilero.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.camera_alt_outlined,
+                  child: Icon(Icons.camera_alt_outlined,
                       color: BellotaColors.chilero),
                 ),
                 title: Text('Cámara',
@@ -172,7 +238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child:
-                        const Icon(Icons.delete_outline, color: Colors.red),
+                        Icon(Icons.delete_outline, color: Colors.red),
                   ),
                   title: Text('Eliminar foto',
                       style: GoogleFonts.poppins(
@@ -219,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _generateMedicalReport() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se encontró usuario.'), backgroundColor: Colors.red),
+        SnackBar(content: Text('No se encontró usuario.'), backgroundColor: Colors.red),
       );
       return;
     }
@@ -227,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const AlertDialog(
+      builder: (_) => AlertDialog(
         content: Row(children: [
           CircularProgressIndicator(),
           SizedBox(width: 20),
@@ -254,34 +320,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
       String fum = lastPeriod != null
           ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
           : 'No especificado';
-      String rangoInicio = firstPeriod != null
-          ? '${firstPeriod.day.toString().padLeft(2, '0')}/${firstPeriod.month.toString().padLeft(2, '0')}/${firstPeriod.year}'
+      String rangoInicio = lastPeriod != null
+          ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
           : 'No especificado';
+      String rangoFin = lastPeriod != null
+          ? () {
+              final end = lastPeriod.add(Duration(days: _cycleDuration));
+              return '${end.day.toString().padLeft(2, '0')}/${end.month.toString().padLeft(2, '0')}/${end.year}';
+            }()
+          : fechaHoy;
 
       // Promedio ciclo
-      double? promCiclo;
-      String estadoCiclo = 'No especificado';
+      double? promCiclo = _cycleDuration.toDouble();
+      String estadoCiclo = (promCiclo >= 21 && promCiclo <= 35) ? 'Normal' : 'Irregular';
       final sortedPeriods = List<DateTime>.from(periodStarts)..sort();
-      if (sortedPeriods.length >= 2) {
-        List<int> duraciones = [];
-        for (int i = 1; i < sortedPeriods.length; i++) {
-          final dif = sortedPeriods[i].difference(sortedPeriods[i - 1]).inDays;
-          if (dif > 0 && dif < 90) duraciones.add(dif);
-        }
-        if (duraciones.isNotEmpty) {
-          promCiclo = duraciones.reduce((a, b) => a + b) / duraciones.length;
-          estadoCiclo = (promCiclo >= 21 && promCiclo <= 35) ? 'Normal' : 'Irregular';
-        }
-      }
 
       double promSangrado = _periodDuration.toDouble();
       String estadoSangrado = promSangrado >= 3 && promSangrado <= 7 ? 'Normal' : (promSangrado > 7 ? 'Prolongado' : 'Corto');
 
-      // Flujo más frecuente
+      // Flujo más frecuente en el ciclo actual
       Map<String, int> flujoCount = {};
+      DateTime? endOfCycle = lastPeriod?.add(Duration(days: _cycleDuration));
+      
       for (final log in allLogs) {
-        for (final f in (jsonDecode(log['flujo'] as String? ?? '[]') as List)) {
-          flujoCount[f.toString()] = (flujoCount[f.toString()] ?? 0) + 1;
+        if (lastPeriod != null && endOfCycle != null) {
+          try {
+            final d = DateTime.parse(log['date'] as String);
+            if (d.isAfter(lastPeriod.subtract(Duration(days: 1))) && d.isBefore(endOfCycle.add(Duration(days: 1)))) {
+              for (final f in (jsonDecode(log['flujo'] as String? ?? '[]') as List)) {
+                flujoCount[f.toString()] = (flujoCount[f.toString()] ?? 0) + 1;
+              }
+            }
+          } catch (e) {
+            // ignore parse errors
+          }
         }
       }
       final flujoMasFrecuente = flujoCount.isNotEmpty
@@ -313,32 +385,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (patron.isNotEmpty && dolor.isNotEmpty) break;
       }
 
-      // Historial últimos 3 ciclos
-      List<Map<String, dynamic>> historial = [];
-      for (int i = sortedPeriods.length - 1; i >= 0 && historial.length < 3; i--) {
-        final start = sortedPeriods[i];
-        final end = i + 1 < sortedPeriods.length ? sortedPeriods[i + 1].subtract(const Duration(days: 1)) : null;
-        final diasCiclo = end != null ? end.difference(start).inDays + 1 : null;
-        final startKey = '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
-        String flujoC = 'No especificado';
-        final pStr = prefs.getString('patron_sangrado_$startKey');
-        if (pStr != null) flujoC = (jsonDecode(pStr) as Map)['intensidadFlujo'] ?? 'No especificado';
-        String dolorC = 'No especificado';
-        final dStr = prefs.getString('dolor_sintomatologia_$startKey');
-        if (dStr != null) {
-          final nd = (jsonDecode(dStr) as Map)['nivelDolor'];
-          if (nd != null) dolorC = '${(nd as num).toStringAsFixed(0)}/10';
-        }
-        historial.add({
-          'ciclo': historial.isEmpty ? 'Actual' : 'Anterior ${historial.length}',
-          'periodo_inicio': '${start.day.toString().padLeft(2, '0')}/${start.month.toString().padLeft(2, '0')}/${start.year}',
-          'periodo_fin': end != null ? '${end.day.toString().padLeft(2, '0')}/${end.month.toString().padLeft(2, '0')}/${end.year}' : 'Presente',
-          'dias_periodo': _periodDuration,
-          'dias_ciclo': diasCiclo,
-          'flujo': flujoC,
-          'dolor': dolorC,
-        });
-      }
 
       // Alertas automáticas
       List<Map<String, String>> alertas = [];
@@ -384,7 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'edad': userAge.isNotEmpty ? '$userAge años' : 'No especificado',
           'ubicacion': userLocation.isNotEmpty ? userLocation : 'No especificado',
           'fecha_generacion': fechaHoy,
-          'rango_analizado': firstPeriod != null ? '$rangoInicio al $fechaHoy' : 'No especificado',
+          'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : 'No especificado',
           'total_ciclos': periodStarts.length,
           'anticonceptivos_medicamentos': medications.isNotEmpty ? medications.join(', ') : 'No especificado',
           'fum': fum,
@@ -425,14 +471,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'autoexamen_mama': dolor['autoexamenMama'],
         }),
         'seccion_5_alertas_automaticas': alertas,
-        if (historial.isNotEmpty) 'seccion_6_historial_ciclos': historial,
+
       };
 
       // Guardar en documentos
       final directory = await getApplicationDocumentsDirectory();
       final fileName = 'bellota_informe_$reportId.json';
       final file = File('${directory.path}/$fileName');
-      await file.writeAsString(const JsonEncoder.withIndent('  ').convert(report));
+      await file.writeAsString(JsonEncoder.withIndent('  ').convert(report));
 
       if (mounted) Navigator.of(context).pop(); // Cerrar loader
       
@@ -461,13 +507,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       backgroundColor: Colors.white,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            padding: EdgeInsets.fromLTRB(24, 16, 24, 24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -476,11 +522,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD4C4B0),
+                    color: Color(0xFFD4C4B0),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 Text(
                   'Duración del ciclo',
                   style: GoogleFonts.poppins(
@@ -489,7 +535,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: BellotaColors.textoDark,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Ajusta la duración promedio de tu ciclo menstrual',
                   textAlign: TextAlign.center,
@@ -498,7 +544,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: BellotaColors.textoMedio,
                   ),
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
                 // Value display
                 Container(
                   width: 100,
@@ -540,7 +586,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 // Slider
                 SliderTheme(
                   data: SliderThemeData(
@@ -552,7 +598,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         BellotaColors.melon.withValues(alpha: 0.15),
                     thumbShape: _CustomThumbShape(),
                     trackHeight: 6,
-                    trackShape: const RoundedRectSliderTrackShape(),
+                    trackShape: RoundedRectSliderTrackShape(),
                   ),
                   child: Slider(
                     value: tempValue.toDouble(),
@@ -566,7 +612,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -581,7 +627,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
                 // Save button
                 SizedBox(
                   width: double.infinity,
@@ -623,13 +669,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       backgroundColor: Colors.white,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            padding: EdgeInsets.fromLTRB(24, 16, 24, 24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -638,11 +684,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD4C4B0),
+                    color: Color(0xFFD4C4B0),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 Text(
                   'Duración de la menstruación',
                   style: GoogleFonts.poppins(
@@ -651,7 +697,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: BellotaColors.textoDark,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Ajusta cuántos días dura tu menstruación',
                   textAlign: TextAlign.center,
@@ -660,7 +706,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: BellotaColors.textoMedio,
                   ),
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
                 // Value display
                 Container(
                   width: 100,
@@ -702,7 +748,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 // Slider
                 SliderTheme(
                   data: SliderThemeData(
@@ -714,7 +760,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         BellotaColors.chilero.withValues(alpha: 0.15),
                     thumbShape: _CustomThumbShape(),
                     trackHeight: 6,
-                    trackShape: const RoundedRectSliderTrackShape(),
+                    trackShape: RoundedRectSliderTrackShape(),
                   ),
                   child: Slider(
                     value: tempValue.toDouble(),
@@ -728,7 +774,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -743,7 +789,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
                 // Save button
                 SizedBox(
                   width: double.infinity,
@@ -782,36 +828,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
+      physics: ClampingScrollPhysics(),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             // ── Header icons (top right) ──
             _buildTopIcons(),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             // ── Avatar + Name + Email ──
             _buildAvatarSection(),
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
             // ── Divider ──
             Container(
               height: 1,
-              color: const Color(0xFFE0D0C0).withValues(alpha: 0.5),
+              color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             // ── Perfil de salud ──
             _buildHealthSection(),
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
             // ── Divider ──
             Container(
               height: 1,
-              color: const Color(0xFFE0D0C0).withValues(alpha: 0.5),
+              color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             // ── Preferencia de la aplicación ──
             _buildPreferencesSection(),
-            const SizedBox(height: 30),
+            SizedBox(height: 28),
+            // ── Divider ──
+            Container(
+              height: 1,
+              color: Colors.red.withValues(alpha: 0.15),
+            ),
+            SizedBox(height: 20),
+            // ── Botón Cerrar Sesión ──
+            _buildLogoutButton(),
+            SizedBox(height: 36),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Logout Button ─────────────────────────────────────────────────────────
+  Widget _buildLogoutButton() {
+    return GestureDetector(
+      onTap: _handleLogout,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.red.withValues(alpha: 0.25), width: 1.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.logout_rounded, color: Colors.red, size: 20),
+            SizedBox(width: 10),
+            Text(
+              'Cerrar Sesión',
+              style: GoogleFonts.poppins(
+                color: Colors.red,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -835,15 +921,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  offset: Offset(0, 2),
                 ),
               ],
             ),
-            child: const Icon(Icons.translate_rounded,
+            child: Icon(Icons.translate_rounded,
                 size: 18, color: BellotaColors.textoDark),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         GestureDetector(
           onTap: () {}, // Sin función
           child: Container(
@@ -856,12 +942,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 BoxShadow(
                   color: BellotaColors.chilero.withValues(alpha: 0.3),
                   blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  offset: Offset(0, 2),
                 ),
               ],
             ),
             child:
-                const Icon(Icons.volume_up_rounded, size: 18, color: Colors.white),
+                Icon(Icons.volume_up_rounded, size: 18, color: Colors.white),
           ),
         ),
       ],
@@ -871,9 +957,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // ── Avatar circular + nombre + email ──
   Widget _buildAvatarSection() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Avatar
-        GestureDetector(
+        Center(
+          child: GestureDetector(
           onTap: _pickProfileImage,
           child: Stack(
             children: [
@@ -890,7 +978,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     BoxShadow(
                       color: BellotaColors.melon.withValues(alpha: 0.15),
                       blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
@@ -923,14 +1011,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: BellotaColors.chilero,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
-                  child: const Icon(Icons.camera_alt_rounded,
+                  child: Icon(Icons.camera_alt_rounded,
                       color: Colors.white, size: 16),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        ),
+        SizedBox(height: 14),
         // Username
         Text(
           _userName,
@@ -940,7 +1029,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: BellotaColors.textoDark,
           ),
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 2),
         // Email
         Text(
           _userEmail,
@@ -950,44 +1039,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: BellotaColors.textoMedio,
           ),
         ),
-        const SizedBox(height: 12),
-        // Gmail Field
-        SizedBox(
-          width: 250,
-          child: TextField(
-            controller: _gmailController,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              color: BellotaColors.textoDark,
-              fontWeight: FontWeight.w500,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Añadir cuenta de Gmail',
-              hintStyle: GoogleFonts.poppins(
-                fontSize: 13,
-                color: BellotaColors.textoMedio.withValues(alpha: 0.5),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: BellotaColors.melon, width: 1.5),
-              ),
-            ),
-            onChanged: (val) => _gmail = val,
-            onSubmitted: (val) => _saveGmail(val),
-          ),
-        ),
+
       ],
     );
   }
@@ -1010,31 +1062,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            // Pixel art cat lying down (yellow/orange)
-            SizedBox(
-              width: 60,
-              height: 40,
-              child: CustomPaint(
-                painter: _PixelCatPainter(),
-              ),
-            ),
           ],
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14),
         // Duración del ciclo
         _buildHealthRow(
           title: 'Duración del ciclo',
           value: '$_cycleDuration días',
           onTap: _showCycleDurationPicker,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         // Duración de la menstruación
         _buildHealthRow(
           title: 'Duración de la menstruación',
           value: '$_periodDuration días',
           onTap: _showPeriodDurationPicker,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         // Informe médico
         _buildHealthRow(
           title: 'Informe médico',
@@ -1053,7 +1097,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -1061,7 +1105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 6,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -1085,7 +1129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: BellotaColors.melon,
               ),
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Icon(
               Icons.chevron_right_rounded,
               color: BellotaColors.melon.withValues(alpha: 0.6),
@@ -1110,7 +1154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: BellotaColors.textoDark,
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14),
         // Recordatorios y notificaciones
         _buildPreferenceRow(
           title: 'Recordatorios y notificaciones',
@@ -1119,31 +1163,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const NotificationsSettingsScreen(),
+                builder: (_) => NotificationsSettingsScreen(),
               ),
             );
           },
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         // Política de privacidad
         _buildPreferenceRow(
           title: 'Política de privacidad',
           value: null,
           onTap: () {}, // Sin función
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         // Idioma
         _buildPreferenceRow(
           title: 'Idioma',
           value: 'Español',
           onTap: () {}, // Sin función
         ),
-        const SizedBox(height: 8),
-        // Apariencia
-        _buildPreferenceRow(
-          title: 'Apariencia',
-          value: 'Claro',
-          onTap: () {}, // Sin función
+        SizedBox(height: 8),
+        // Apariencia — Toggle Modo Oscuro
+        ValueListenableBuilder<ThemeMode>(
+          valueListenable: themeNotifier,
+          builder: (_, mode, _) {
+            final isDark = mode == ThemeMode.dark;
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Apariencia',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: BellotaColors.textoDark,
+                          ),
+                        ),
+                        Text(
+                          isDark ? 'Modo Oscuro' : 'Modo Claro',
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: BellotaColors.textoMedio,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                        size: 18,
+                        color: isDark ? Color(0xFF9B7FD4) : BellotaColors.melon,
+                      ),
+                      SizedBox(width: 8),
+                      Switch(
+                        value: isDark,
+                        onChanged: (_) => themeNotifier.toggle(),
+                        activeThumbColor: Color(0xFF9B7FD4),
+                        activeTrackColor: Color(0xFF9B7FD4).withValues(alpha: 0.3),
+                        inactiveThumbColor: BellotaColors.melon,
+                        inactiveTrackColor: BellotaColors.melon.withValues(alpha: 0.3),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ],
     );
@@ -1157,7 +1260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -1165,7 +1268,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 6,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -1190,7 +1293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: BellotaColors.melon,
                 ),
               ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Icon(
               Icons.chevron_right_rounded,
               color: BellotaColors.textoMedio.withValues(alpha: 0.4),
@@ -1207,7 +1310,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 class _CustomThumbShape extends SliderComponentShape {
   @override
   Size getPreferredSize(bool isEnabled, bool isDiscrete) =>
-      const Size(24, 24);
+      Size(24, 24);
 
   @override
   void paint(
@@ -1228,11 +1331,11 @@ class _CustomThumbShape extends SliderComponentShape {
 
     // Shadow
     canvas.drawCircle(
-      center + const Offset(0, 1),
+      center + Offset(0, 1),
       13,
       Paint()
         ..color = Colors.black.withValues(alpha: 0.10)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3),
     );
 
     // White fill
@@ -1261,120 +1364,3 @@ class _CustomThumbShape extends SliderComponentShape {
   }
 }
 
-// ── Pixel Art Cat Painter (lying yellow/orange cat) ──
-class _PixelCatPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double px = size.width / 16; // pixel size
-
-    // Colors
-    final orangeDark = Paint()..color = const Color(0xFFD4882C);
-    final orangeLight = Paint()..color = const Color(0xFFE8A845);
-    final orangeMid = Paint()..color = const Color(0xFFDB9535);
-    final cream = Paint()..color = const Color(0xFFF5D89A);
-    final dark = Paint()..color = const Color(0xFF6B4226);
-    final nose = Paint()..color = const Color(0xFFDB6B5E);
-    final white = Paint()..color = const Color(0xFFFFF8E7);
-
-    void px2(Paint p, double x, double y) {
-      canvas.drawRect(Rect.fromLTWH(x * px, y * px, px, px), p);
-    }
-
-    // Ears (row 0-1)
-    px2(orangeDark, 2, 0);
-    px2(orangeDark, 3, 0);
-    px2(orangeDark, 11, 0);
-    px2(orangeDark, 12, 0);
-
-    px2(orangeDark, 1, 1);
-    px2(orangeLight, 2, 1);
-    px2(orangeLight, 3, 1);
-    px2(orangeDark, 4, 1);
-    px2(orangeDark, 10, 1);
-    px2(orangeLight, 11, 1);
-    px2(orangeLight, 12, 1);
-    px2(orangeDark, 13, 1);
-
-    // Head top (row 2)
-    px2(orangeDark, 1, 2);
-    px2(cream, 2, 2);
-    px2(orangeLight, 3, 2);
-    px2(orangeDark, 4, 2);
-    px2(orangeMid, 5, 2);
-    px2(orangeMid, 6, 2);
-    px2(orangeMid, 7, 2);
-    px2(orangeMid, 8, 2);
-    px2(orangeMid, 9, 2);
-    px2(orangeDark, 10, 2);
-    px2(orangeLight, 11, 2);
-    px2(cream, 12, 2);
-    px2(orangeDark, 13, 2);
-
-    // Eyes row (row 3)
-    px2(orangeMid, 2, 3);
-    px2(orangeLight, 3, 3);
-    px2(dark, 4, 3); // left eye
-    px2(orangeLight, 5, 3);
-    px2(cream, 6, 3);
-    px2(cream, 7, 3);
-    px2(cream, 8, 3);
-    px2(orangeLight, 9, 3);
-    px2(dark, 10, 3); // right eye
-    px2(orangeLight, 11, 3);
-    px2(orangeMid, 12, 3);
-
-    // Nose/mouth row (row 4)
-    px2(orangeMid, 2, 4);
-    px2(orangeLight, 3, 4);
-    px2(cream, 4, 4);
-    px2(cream, 5, 4);
-    px2(cream, 6, 4);
-    px2(nose, 7, 4); // nose
-    px2(cream, 8, 4);
-    px2(cream, 9, 4);
-    px2(cream, 10, 4);
-    px2(orangeLight, 11, 4);
-    px2(orangeMid, 12, 4);
-
-    // Chin (row 5)
-    px2(orangeMid, 3, 5);
-    px2(orangeLight, 4, 5);
-    px2(cream, 5, 5);
-    px2(white, 6, 5);
-    px2(white, 7, 5);
-    px2(white, 8, 5);
-    px2(cream, 9, 5);
-    px2(orangeLight, 10, 5);
-    px2(orangeMid, 11, 5);
-
-    // Body (rows 6-8) — lying down
-    for (int x = 1; x <= 14; x++) {
-      px2(orangeLight, x.toDouble(), 6);
-    }
-    for (int x = 0; x <= 15; x++) {
-      px2(x % 2 == 0 ? orangeMid : orangeLight, x.toDouble(), 7);
-    }
-
-    // Paws + tail (row 8)
-    px2(cream, 0, 8);
-    px2(cream, 1, 8);
-    px2(orangeMid, 2, 8);
-    px2(orangeLight, 3, 8);
-    px2(orangeLight, 4, 8);
-    px2(orangeLight, 5, 8);
-    px2(orangeLight, 6, 8);
-    px2(orangeLight, 7, 8);
-    px2(orangeLight, 8, 8);
-    px2(orangeLight, 9, 8);
-    px2(orangeLight, 10, 8);
-    px2(orangeMid, 11, 8);
-    px2(cream, 12, 8);
-    px2(cream, 13, 8);
-    // tail
-    px2(orangeDark, 14, 8);
-    px2(orangeDark, 15, 8);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

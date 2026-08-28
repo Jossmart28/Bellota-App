@@ -37,7 +37,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
+          margin: pw.EdgeInsets.all(32),
           build: (context) {
             return _buildPdfContent(widget.reportData, logoImage);
           },
@@ -63,7 +63,6 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     final pat = data['seccion_3_patron_sangrado_flujo'] as Map? ?? {};
     final dol = data['seccion_4_dolor_sintomatologia'] as Map? ?? {};
     final alertas = data['seccion_5_alertas_automaticas'] as List? ?? [];
-    final hist = data['seccion_6_historial_ciclos'] as List? ?? [];
 
     return [
       pw.Row(
@@ -74,8 +73,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('REPORTE DE SALUD', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: const PdfColor.fromInt(0xFFDE7B6B))),
-              pw.Text('Reporte menstrual y clínico ginecológico', style: const pw.TextStyle(fontSize: 12)),
+              pw.Text('REPORTE DE SALUD', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColor.fromInt(0xFFDE7B6B))),
+              pw.Text('Reporte menstrual y clínico ginecológico', style: pw.TextStyle(fontSize: 12)),
             ],
           ),
         ],
@@ -114,50 +113,30 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
         for (var alerta in alertas) _buildPdfRow(alerta['tipo']?.toString() ?? '', alerta['detalle']?.toString() ?? ''),
       ],
       
-      if (hist.isNotEmpty) ...[
-        pw.SizedBox(height: 12),
-        _buildPdfSection('6. HISTORIAL CRONOLÓGICO DE CICLOS'),
-        pw.TableHelper.fromTextArray(
-          headers: ['Ciclo', 'Período', 'Días', 'Ciclo total', 'Flujo', 'Dolor'],
-          data: hist.map((e) => [
-            e['ciclo'].toString(),
-            '${e['periodo_inicio']} - ${e['periodo_fin']}',
-            e['dias_periodo'].toString(),
-            e['dias_ciclo'].toString(),
-            e['flujo'].toString(),
-            e['dolor'].toString(),
-          ]).toList(),
-          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
-          cellStyle: const pw.TextStyle(fontSize: 10),
-          headerDecoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFFEFCDC8)),
-          cellHeight: 20,
-        ),
-      ],
-      
       pw.SizedBox(height: 24),
       pw.Divider(),
-      pw.Text(meta['aviso']?.toString() ?? '', style: pw.TextStyle(fontSize: 10, color: const PdfColor.fromInt(0xFF757575), fontStyle: pw.FontStyle.italic)),
+      pw.Text(meta['aviso']?.toString() ?? '', style: pw.TextStyle(fontSize: 10, color: PdfColor.fromInt(0xFF757575), fontStyle: pw.FontStyle.italic)),
     ];
   }
 
   pw.Widget _buildPdfSection(String title) {
     return pw.Container(
-      color: const PdfColor.fromInt(0xFFEFCDC8),
+      color: PdfColor.fromInt(0xFFEFCDC8),
       width: double.infinity,
-      padding: const pw.EdgeInsets.all(6),
-      margin: const pw.EdgeInsets.only(bottom: 6),
-      child: pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: const PdfColor.fromInt(0xFF5A5A5A))),
+      padding: pw.EdgeInsets.all(6),
+      margin: pw.EdgeInsets.only(bottom: 6),
+      child: pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColor.fromInt(0xFF5A5A5A))),
     );
   }
 
   pw.Widget _buildPdfRow(String label, String value) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(vertical: 2),
+      padding: pw.EdgeInsets.symmetric(vertical: 2),
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Expanded(flex: 2, child: pw.Text(label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11))),
-          pw.Expanded(flex: 3, child: pw.Text(value, style: const pw.TextStyle(fontSize: 11))),
+          pw.Expanded(flex: 3, child: pw.Text(value, style: pw.TextStyle(fontSize: 11))),
         ],
       ),
     );
@@ -172,19 +151,18 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     final pat = data['seccion_3_patron_sangrado_flujo'] as Map? ?? {};
     final dol = data['seccion_4_dolor_sintomatologia'] as Map? ?? {};
     final alertas = data['seccion_5_alertas_automaticas'] as List? ?? [];
-    final hist = data['seccion_6_historial_ciclos'] as List? ?? [];
 
     return Container(
       color: Colors.white,
-      padding: isExport ? const EdgeInsets.all(24) : EdgeInsets.zero,
+      padding: isExport ? EdgeInsets.all(24) : EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Image.asset('assets/images/logo_color.png', height: 60, errorBuilder: (_,__,___) => const Icon(Icons.favorite, color: BellotaColors.chilero, size: 40)),
-              const SizedBox(width: 16),
+              Image.asset('assets/images/logo_color.png', height: 60, errorBuilder: (_,_,_) => Icon(Icons.favorite, color: BellotaColors.chilero, size: 40)),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +174,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           _buildSectionHeader('1. INFORMACIÓN GENERAL'),
           _buildDataTable({
@@ -207,7 +185,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             'FUM': gen['fum'],
           }),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildSectionHeader('2. RESUMEN ESTADÍSTICO'),
           _buildDataTable({
             'Promedio del ciclo': res['promedio_ciclo'] != null ? '${res['promedio_ciclo']['valor']} (${res['promedio_ciclo']['estado']})' : null,
@@ -216,25 +194,25 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           }),
 
           if (pat.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildSectionHeader('3. PATRÓN DE SANGRADO Y FLUJO'),
             _buildDataTable(pat.map((k, v) => MapEntry(k.replaceAll('_', ' '), v))),
           ],
 
           if (dol.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildSectionHeader('4. DOLOR Y SINTOMATOLOGÍA ACOMPAÑANTE'),
             _buildDataTable(dol.map((k, v) => MapEntry(k.replaceAll('_', ' '), v))),
           ],
 
           if (alertas.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildSectionHeader('5. ALERTAS AUTOMÁTICAS PARA CONSULTA MÉDICA'),
             Container(
-              decoration: BoxDecoration(border: Border.all(color: BellotaColors.melon.withOpacity(0.5))),
+              decoration: BoxDecoration(border: Border.all(color: BellotaColors.melon.withValues(alpha: 0.5))),
               child: Column(
                 children: alertas.map((a) => Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
                   child: Row(
                     children: [
                       Expanded(flex: 1, child: Text(a['tipo']?.toString() ?? '', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 12))),
@@ -245,43 +223,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
               ),
             ),
           ],
-
-          if (hist.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _buildSectionHeader('6. HISTORIAL CRONOLÓGICO DE CICLOS'),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Container(
-                decoration: BoxDecoration(border: Border.all(color: BellotaColors.melon.withOpacity(0.5))),
-                child: DataTable(
-                  headingRowColor: WidgetStateProperty.all(BellotaColors.melon.withOpacity(0.2)),
-                  dataRowMinHeight: 30,
-                  dataRowMaxHeight: 40,
-                  columnSpacing: 16,
-                  columns: [
-                    DataColumn(label: Text('Ciclo', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11))),
-                    DataColumn(label: Text('Período', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11))),
-                    DataColumn(label: Text('Días', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11))),
-                    DataColumn(label: Text('Ciclo', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11))),
-                    DataColumn(label: Text('Flujo', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11))),
-                    DataColumn(label: Text('Dolor', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11))),
-                  ],
-                  rows: hist.map((e) => DataRow(
-                    cells: [
-                      DataCell(Text(e['ciclo'].toString(), style: GoogleFonts.poppins(fontSize: 11))),
-                      DataCell(Text('${e['periodo_inicio']}\n${e['periodo_fin']}', style: GoogleFonts.poppins(fontSize: 10))),
-                      DataCell(Text(e['dias_periodo'].toString(), style: GoogleFonts.poppins(fontSize: 11))),
-                      DataCell(Text(e['dias_ciclo'].toString(), style: GoogleFonts.poppins(fontSize: 11))),
-                      DataCell(Text(e['flujo'].toString(), style: GoogleFonts.poppins(fontSize: 11))),
-                      DataCell(Text(e['dolor'].toString(), style: GoogleFonts.poppins(fontSize: 11))),
-                    ],
-                  )).toList(),
-                ),
-              ),
-            ),
-          ],
           
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           Text(meta['aviso']?.toString() ?? '', style: GoogleFonts.poppins(fontSize: 10, fontStyle: FontStyle.italic, color: BellotaColors.textoMedio)),
         ],
       ),
@@ -291,9 +234,9 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
   Widget _buildSectionHeader(String title) {
     return Container(
       width: double.infinity,
-      color: BellotaColors.melon.withOpacity(0.3),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      margin: const EdgeInsets.only(bottom: 8),
+      color: BellotaColors.melon.withValues(alpha: 0.3),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: EdgeInsets.only(bottom: 8),
       child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: BellotaColors.textoDark, fontSize: 14)),
     );
   }
@@ -301,13 +244,13 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
   Widget _buildDataTable(Map<String, dynamic> data) {
     final entries = data.entries.where((e) => e.value != null).toList();
     return Container(
-      decoration: BoxDecoration(border: Border.all(color: BellotaColors.melon.withOpacity(0.5))),
+      decoration: BoxDecoration(border: Border.all(color: BellotaColors.melon.withValues(alpha: 0.5))),
       child: Column(
         children: entries.map((e) {
           final isEven = entries.indexOf(e) % 2 == 0;
           return Container(
-            color: isEven ? Colors.white : Colors.grey.withOpacity(0.05),
-            padding: const EdgeInsets.all(8.0),
+            color: isEven ? Colors.white : Colors.grey.withValues(alpha: 0.05),
+            padding: EdgeInsets.all(8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -329,37 +272,37 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
         title: Text('Vista Previa', style: GoogleFonts.poppins(color: BellotaColors.textoDark, fontSize: 18, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
-        iconTheme: const IconThemeData(color: BellotaColors.textoDark),
+        iconTheme: IconThemeData(color: BellotaColors.textoDark),
       ),
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: _buildReportContent(isExport: false),
           ),
           if (_isExporting)
             Container(
-              color: Colors.white.withOpacity(0.8),
-              child: const Center(child: CircularProgressIndicator(color: BellotaColors.chilero)),
+              color: Colors.white.withValues(alpha: 0.8),
+              child: Center(child: CircularProgressIndicator(color: BellotaColors.chilero)),
             ),
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, -5))],
         ),
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: _isExporting ? null : _exportPdf,
-            icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-            label: const Text('Guardar PDF'),
+            icon: Icon(Icons.picture_as_pdf, color: Colors.white),
+            label: Text('Guardar PDF'),
             style: ElevatedButton.styleFrom(
               backgroundColor: BellotaColors.chilero,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
           ),

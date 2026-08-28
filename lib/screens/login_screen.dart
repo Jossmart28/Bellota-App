@@ -7,6 +7,8 @@ import '../widgets/bellota_top_actions.dart';
 import 'register_screen.dart';
 import 'dashboard_screen.dart';
 import 'onboarding_screen.dart';
+import 'calendar_tour_screen.dart';
+import 'personal_data_screen.dart';
 
 /// Pantalla de Inicio de Sesión
 class LoginScreen extends StatefulWidget {
@@ -33,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.initState();
 
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
       ),
@@ -41,11 +43,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: Duration(milliseconds: 900),
     );
 
     _formSlide = Tween<Offset>(
-      begin: const Offset(0, 0.4),
+      begin: Offset(0, 0.4),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animController,
@@ -85,11 +87,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           await prefs.setInt('userId', user['id'] as int);
 
           final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+          final calendarTourDone = prefs.getBool('calendar_tour_done') ?? false;
+          final setupCompleted = prefs.getBool('setup_completed') ?? false;
 
           if (mounted) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => onboardingDone ? const DashboardScreen() : const OnboardingScreen(),
+                builder: (_) {
+                  if (!onboardingDone) return OnboardingScreen();
+                  if (!calendarTourDone) return CalendarTourScreen();
+                  if (!setupCompleted) return PersonalDataScreen();
+                  return DashboardScreen();
+                },
               ),
             );
           }
@@ -148,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
             SafeArea(
               child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
+                physics: ClampingScrollPhysics(),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: size.height - MediaQuery.of(context).padding.top),
                   child: IntrinsicHeight(
@@ -184,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   Widget _buildLogoSection() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
       child: Center(
         child: Image.asset(
           'assets/images/logo_white.png',
@@ -200,11 +209,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.fromLTRB(28, 36, 28, 32),
+      margin: EdgeInsets.only(top: 8),
+      padding: EdgeInsets.fromLTRB(28, 36, 28, 32),
       decoration: BoxDecoration(
         color: BellotaColors.blanco.withValues(alpha: 0.12),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
         border: Border(
           top: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
           left: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
@@ -220,12 +229,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               'Iniciar Sesión',
               style: textTheme.displayMedium?.copyWith(color: BellotaColors.blanco),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               'Bienvenida de vuelta 🌸',
               style: textTheme.bodyMedium?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.75)),
             ),
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
 
             _BellotaTextField(
               controller: _emailController,
@@ -239,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             _BellotaTextField(
               controller: _passwordController,
@@ -260,7 +269,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 return null;
               },
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
             Align(
               alignment: Alignment.centerRight,
@@ -269,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 style: TextButton.styleFrom(
                   foregroundColor: BellotaColors.blanco,
                   padding: EdgeInsets.zero,
-                  minimumSize: const Size(10, 36),
+                  minimumSize: Size(10, 36),
                 ),
                 child: Text(
                   '¿Olvidaste tu contraseña?',
@@ -281,20 +290,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             _BellotaButton(
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
               label: 'Ingresar',
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             Row(
               children: [
                 Expanded(child: Divider(color: BellotaColors.blanco.withValues(alpha: 0.3), height: 1)),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     'o continúa con',
                     style: textTheme.bodySmall?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.65)),
@@ -303,26 +312,26 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 Expanded(child: Divider(color: BellotaColors.blanco.withValues(alpha: 0.3), height: 1)),
               ],
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             _SocialButton(
               label: 'Continuar con Google',
               icon: Icons.g_mobiledata_rounded,
               onPressed: () {},
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             Center(
               child: RichText(
                 text: TextSpan(
                   style: textTheme.bodySmall?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.75)),
                   children: [
-                    const TextSpan(text: '¿No tienes cuenta? '),
+                    TextSpan(text: '¿No tienes cuenta? '),
                     WidgetSpan(
                       child: GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                            MaterialPageRoute(builder: (_) => RegisterScreen()),
                           );
                         },
                         child: Text(
@@ -413,7 +422,7 @@ class _BellotaButton extends StatelessWidget {
             BoxShadow(
               color: BellotaColors.chilero.withValues(alpha: 0.5),
               blurRadius: 16,
-              offset: const Offset(0, 6),
+              offset: Offset(0, 6),
             ),
           ],
         ),
@@ -425,7 +434,7 @@ class _BellotaButton extends StatelessWidget {
             foregroundColor: BellotaColors.blanco,
           ),
           child: isLoading
-              ? const SizedBox(
+              ? SizedBox(
                   width: 24,
                   height: 24,
                   child: CircularProgressIndicator(color: BellotaColors.blanco, strokeWidth: 2.5),

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
 
@@ -53,60 +52,60 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: const Text('Patrón de Sangrado', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text('Patrón de Sangrado', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16)),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
           ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, 4)),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildLabel('Intensidad del flujo'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   options: ['Leve <3', 'Moderado 3-5', 'Abundante >5'],
                   selected: _intensidadFlujo,
                   onSelected: (val) => setState(() => _intensidadFlujo = val),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Coágulos'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   options: ['Nunca', 'Ocasional', 'Frecuente'],
                   selected: _coagulos,
                   onSelected: (val) => setState(() => _coagulos = val),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Manchado intermenstrual'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   options: ['No', 'Sí'],
                   selected: _manchado,
                   onSelected: (val) => setState(() => _manchado = val),
                 ),
                 if (_manchado == 'Sí') ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   TextFormField(
                     controller: _manchadoDiasController,
                     decoration: InputDecoration(
@@ -117,10 +116,10 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _buildLabel('Síntomas en relaciones sexuales'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   options: ['Dolor', 'Sangrado', 'Flujo inusual', 'Ninguno'],
                   selected: _sintomasSexuales,
@@ -135,7 +134,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
   }
 
   Widget _buildLabel(String text) {
-    return Text(text, style: const TextStyle(color: BellotaColors.textoDark, fontSize: 15, fontWeight: FontWeight.bold));
+    return Text(text, style: TextStyle(color: BellotaColors.textoDark, fontSize: 15, fontWeight: FontWeight.bold));
   }
 
   Widget _buildSingleChoiceChips({required List<String> options, required String selected, required Function(String) onSelected}) {

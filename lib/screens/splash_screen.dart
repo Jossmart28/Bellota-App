@@ -4,6 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import 'login_screen.dart';
 import 'dashboard_screen.dart';
+import 'onboarding_screen.dart';
+import 'calendar_tour_screen.dart';
+import 'personal_data_screen.dart';
 
 /// Pantalla Splash de Bellota
 class SplashScreen extends StatefulWidget {
@@ -24,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
 
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
       ),
@@ -32,37 +35,50 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: Duration(milliseconds: 1500),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.7, curve: Curves.easeIn),
+        curve: Interval(0.0, 0.7, curve: Curves.easeIn),
       ),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.75, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.8, curve: Curves.easeOutBack),
+        curve: Interval(0.0, 0.8, curve: Curves.easeOutBack),
       ),
     );
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () async {
+    Future.delayed(Duration(seconds: 3), () async {
       final prefs = await SharedPreferences.getInstance();
       final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+      final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+      final calendarTourDone = prefs.getBool('calendar_tour_done') ?? false;
+      final setupCompleted = prefs.getBool('setup_completed') ?? false;
 
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (_, animation, _) => isLoggedIn ? const DashboardScreen() : const LoginScreen(),
+            pageBuilder: (_, animation, _) {
+              if (isLoggedIn) {
+                if (!onboardingDone) return OnboardingScreen();
+                if (!calendarTourDone) return CalendarTourScreen();
+                if (!setupCompleted) return PersonalDataScreen();
+                return DashboardScreen();
+              } else {
+                return LoginScreen();
+              }
+            },
             transitionsBuilder: (_, animation, _, child) {
               return FadeTransition(opacity: animation, child: child);
             },
-            transitionDuration: const Duration(milliseconds: 600),
+            transitionDuration: Duration(milliseconds: 600),
           ),
         );
       }
@@ -81,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: BellotaColors.splashGradient,
         ),
         child: SafeArea(
@@ -106,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
                     );
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    padding: EdgeInsets.symmetric(horizontal: 40),
                     child: Image.asset(
                       'assets/images/logo_white.png',
                       width: 280,
@@ -131,7 +147,7 @@ class _SplashScreenState extends State<SplashScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: List.generate(3, (i) {
                               return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                margin: EdgeInsets.symmetric(horizontal: 4),
                                 width: i == 0 ? 24 : 8,
                                 height: 8,
                                 decoration: BoxDecoration(
@@ -143,7 +159,7 @@ class _SplashScreenState extends State<SplashScreen>
                               );
                             }),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           Text(
                             'Versión 1.0.0',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -172,8 +188,8 @@ class _DotPatternPainter extends CustomPainter {
       ..color = BellotaColors.blanco.withValues(alpha: 0.06)
       ..style = PaintingStyle.fill;
 
-    const spacing = 28.0;
-    const dotRadius = 2.0;
+    final spacing = 28.0;
+    final dotRadius = 2.0;
 
     for (double x = 0; x < size.width + spacing; x += spacing) {
       for (double y = 0; y < size.height + spacing; y += spacing) {

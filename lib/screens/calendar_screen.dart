@@ -1,4 +1,4 @@
- import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
@@ -112,7 +112,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         // HEADER GLOBAL
         // ══════════════
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 10),
           child: _buildHeader(context),
         ),
 
@@ -120,15 +120,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
         // CONTROLES DE VISTA Y TÍTULO
         // ════════════════════════════
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20),
           child: _buildViewSelectorRow(),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
 
         // LEYENDA
         if (_currentView != CalendarViewType.weekly)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.only(bottom: 12),
             child: _buildPhaseLegend(),
           ),
 
@@ -149,12 +149,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
           _buildAnnualDetailHeader(),
           Expanded(
             child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
+              physics: ClampingScrollPhysics(),
               child: Column(
                 children: [
                   _buildMonthlyCalendar(_annualDetailMonth!.year, _annualDetailMonth!.month),
                   if (_selectedDate != null) _buildSymptomsBox(),
-                  const SizedBox(height: 30),
+                  SizedBox(height: 30),
                 ],
               ),
             ),
@@ -164,13 +164,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
+      physics: ClampingScrollPhysics(),
       child: Column(
         children: [
           _buildCalendarContent(),
           if (_selectedDate != null && _currentView != CalendarViewType.annual)
             _buildSymptomsBox(),
-          const SizedBox(height: 30),
+          SizedBox(height: 30),
         ],
       ),
     );
@@ -180,30 +180,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // HEADER Y CONTROLES
   // ───────────────────
   Widget _buildHeader(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     return Row(
       children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: BellotaColors.nancite,
-            border: Border.all(color: BellotaColors.textoMedio.withValues(alpha: 0.3), width: 2),
-          ),
-          child: const Icon(Icons.person, color: BellotaColors.textoMedio, size: 24),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_userName, style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.w700)),
-              Text(_userEmail, style: textTheme.bodySmall, overflow: TextOverflow.ellipsis),
-            ],
-          ),
-        ),
-        const BellotaTopActions(
+        Spacer(),
+        BellotaTopActions(
           showSettings: false,
           showNotifications: false,
         ),
@@ -221,7 +201,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     } else {
       int weekday = _displayDate.weekday == 7 ? 0 : _displayDate.weekday;
       DateTime startOfWeek = _displayDate.subtract(Duration(days: weekday));
-      DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
+      DateTime endOfWeek = startOfWeek.add(Duration(days: 6));
       title = '${startOfWeek.day} - ${endOfWeek.day} ${_monthNames[startOfWeek.month - 1]} ${startOfWeek.year}';
     }
 
@@ -256,14 +236,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _selectedDate = view != CalendarViewType.annual ? _currentDate : null;
       }),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      offset: const Offset(0, 40),
-      itemBuilder: (context) => const [
+      offset: Offset(0, 40),
+      itemBuilder: (context) => [
         PopupMenuItem(value: CalendarViewType.weekly, child: Text('Vista Semanal')),
         PopupMenuItem(value: CalendarViewType.monthly, child: Text('Vista Mensual')),
         PopupMenuItem(value: CalendarViewType.annual, child: Text('Vista Anual')),
       ],
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: BellotaColors.chilero,
           borderRadius: BorderRadius.circular(20),
@@ -272,10 +252,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Vista', style: TextStyle(color: BellotaColors.blanco.withValues(alpha: 0.8), fontSize: 12)),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Container(width: 1, height: 12, color: BellotaColors.blanco.withValues(alpha: 0.5)),
-            const SizedBox(width: 6),
-            Text(currentLabel, style: const TextStyle(color: BellotaColors.blanco, fontSize: 12, fontWeight: FontWeight.bold)),
+            SizedBox(width: 6),
+            Text(currentLabel, style: TextStyle(color: BellotaColors.blanco, fontSize: 12, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -287,7 +267,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // ─────────────────
   Widget _buildPhaseLegend() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Wrap(
         spacing: 12,
         runSpacing: 6,
@@ -307,8 +287,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
+        SizedBox(width: 4),
+        Text(label, style: TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
       ],
     );
   }
@@ -333,11 +313,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
     DateTime startOfWeek = _displayDate.subtract(Duration(days: weekday));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
           _buildDaysHeader(),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(7, (index) {
@@ -378,28 +358,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
     int emptyDays = firstWeekday == 7 ? 0 : firstWeekday;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (_currentView == CalendarViewType.annual && _annualDetailMonth == null) ...[
             Text(_monthNames[month - 1], style: Theme.of(context).textTheme.titleMedium?.copyWith(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
           _buildDaysHeader(),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics: NeverScrollableScrollPhysics(),
             itemCount: daysInMonth + emptyDays,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
               childAspectRatio: 0.85,
               crossAxisSpacing: 6,
               mainAxisSpacing: 6,
             ),
             itemBuilder: (context, index) {
-              if (index < emptyDays) return const SizedBox();
+              if (index < emptyDays) return SizedBox();
               DateTime date = DateTime(year, month, index - emptyDays + 1);
               return _buildDayCell(date);
             },
@@ -413,11 +393,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildAnnualView() {
     return ListView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       itemCount: 12,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: EdgeInsets.only(bottom: 24),
           child: _buildMonthlyCalendar(_displayDate.year, index + 1),
         );
       },
@@ -426,7 +406,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Widget _buildAnnualDetailHeader() {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, bottom: 12),
+      padding: EdgeInsets.only(left: 20, bottom: 12),
       child: Align(
         alignment: Alignment.centerLeft,
         child: TextButton.icon(
@@ -434,10 +414,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _annualDetailMonth = null;
             _selectedDate = null;
           }),
-          icon: const Icon(Icons.arrow_back_ios_rounded, size: 16, color: BellotaColors.chilero),
-          label: const Text('Volver al Año', style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
+          icon: Icon(Icons.arrow_back_ios_rounded, size: 16, color: BellotaColors.chilero),
+          label: Text('Volver al Año', style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             backgroundColor: BellotaColors.chilero.withValues(alpha: 0.1),
           ),
         ),
@@ -454,13 +434,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
       children: _dayNames.map((day) {
         return Expanded(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            margin: EdgeInsets.symmetric(horizontal: 2),
+            padding: EdgeInsets.symmetric(vertical: 4),
             decoration: BoxDecoration(color: BellotaColors.chilero, borderRadius: BorderRadius.circular(8)),
             child: Center(
               child: Text(
                 day,
-                style: const TextStyle(color: BellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
+                style: TextStyle(color: BellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
                 maxLines: 1,
               ),
             ),
@@ -491,15 +471,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: _currentView == CalendarViewType.weekly ? const EdgeInsets.symmetric(horizontal: 3) : EdgeInsets.zero,
+        duration: Duration(milliseconds: 200),
+        margin: _currentView == CalendarViewType.weekly ? EdgeInsets.symmetric(horizontal: 3) : EdgeInsets.zero,
         width: _currentView == CalendarViewType.weekly ? 40 : null,
         height: _currentView == CalendarViewType.weekly ? 60 : null,
         decoration: BoxDecoration(
           color: phaseColor.withValues(alpha: isSelected ? 1.0 : 0.6),
           borderRadius: BorderRadius.circular(10),
           border: isSelected ? Border.all(color: BellotaColors.textoDark, width: 1.5) : null,
-          boxShadow: isSelected ? [BoxShadow(color: phaseColor.withValues(alpha: 0.5), blurRadius: 4, offset: const Offset(0, 2))] : [],
+          boxShadow: isSelected ? [BoxShadow(color: phaseColor.withValues(alpha: 0.5), blurRadius: 4, offset: Offset(0, 2))] : [],
         ),
         child: Center(
           child: Text(
@@ -518,7 +498,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // CAJA DE SÍNTOMAS Y BELLOTAS
   // ───────────────────────────
   Widget _buildSymptomsBox() {
-    if (_selectedDate == null) return const SizedBox();
+    if (_selectedDate == null) return SizedBox();
     final textTheme = Theme.of(context).textTheme;
     String dateStr = '${_dayNames[_selectedDate!.weekday == 7 ? 0 : _selectedDate!.weekday]}, ${_selectedDate!.day} de ${_monthNames[_selectedDate!.month - 1]} ${_selectedDate!.year}';
     String dateKey = '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}';
@@ -527,14 +507,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59);
     final isFuture = _selectedDate!.isAfter(todayEnd);
     
-    bool isBeforeFirstPeriod = false;
-    if (_firstPeriodStart != null) {
-      final firstStart = DateTime(_firstPeriodStart!.year, _firstPeriodStart!.month, _firstPeriodStart!.day);
-      final selected = DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day);
-      isBeforeFirstPeriod = selected.isBefore(firstStart);
-    }
-
-    bool canRegister = !isFuture && !isBeforeFirstPeriod;
+    bool canRegister = !isFuture;
 
     return FutureBuilder<Map<String, dynamic>?>(
       future: _userId != null ? DatabaseHelper.instance.getDailyLog(_userId!, dateKey) : Future.value(null),
@@ -555,25 +528,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
         bool hasData = symptoms.isNotEmpty || sexo.isNotEmpty || flujo.isNotEmpty || periodStart;
 
         return Container(
-          margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-          padding: const EdgeInsets.all(20),
+          margin: EdgeInsets.fromLTRB(20, 24, 20, 0),
+          padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: BellotaColors.blanco,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2)),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: Offset(0, 2)),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(dateStr, style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               // Botón de Registro
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   onPressed: canRegister ? () async {
                     final result = await Navigator.push(
                       context,
@@ -587,22 +560,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       });
                     }
                   } : null,
-                  icon: const Text('🌰', style: TextStyle(fontSize: 18)),
-                  label: const Text('Registrar síntomas', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text('Registrar síntomas', style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: BellotaColors.chilero,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[300],
                     disabledForegroundColor: Colors.grey[500],
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-
-              Text('Lorem ipsum', style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 14),
+              SizedBox(height: 16),
 
               if (!hasData)
                 Text(
@@ -614,7 +583,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 _buildSymptomItem(BellotaColors.chilero, 'Inicio del período'),
               ...symptoms.map((s) => _buildSymptomItem(BellotaColors.asuncion, s)),
               ...sexo.map((s) => _buildSymptomItem(BellotaColors.melon, s)),
-              ...flujo.map((s) => _buildSymptomItem(const Color(0xFFA566C1), s)),
+              ...flujo.map((s) => _buildSymptomItem(Color(0xFFA566C1), s)),
             ],
           ),
         );
@@ -624,12 +593,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Widget _buildSymptomItem(Color color, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           BellotaIcon(color: color, size: 20),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
           ),

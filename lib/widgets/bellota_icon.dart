@@ -29,11 +29,11 @@ class _BellotaPainter extends CustomPainter {
     final h = size.height;
     final paint = Paint()..style = PaintingStyle.fill;
 
-    paint.color = const Color(0xFF5D4037);
+    paint.color = Color(0xFF5D4037);
     final stemRect = Rect.fromLTWH(w * 0.45, 0, w * 0.1, h * 0.15);
     canvas.drawRect(stemRect, paint);
 
-    paint.color = const Color(0xFF795548);
+    paint.color = Color(0xFF795548);
     final capPath = Path()
       ..moveTo(0, h * 0.4)
       ..quadraticBezierTo(w * 0.5, -0.1 * h, w, h * 0.4)

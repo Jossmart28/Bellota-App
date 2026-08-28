@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'theme/bellota_theme.dart';
+import 'theme/theme_notifier.dart';
 import 'screens/splash_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setPreferredOrientations([
@@ -12,7 +13,10 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const BellotaApp());
+  // Cargar preferencia de tema guardada antes de mostrar la app
+  await themeNotifier.load();
+
+  runApp(BellotaApp());
 }
 
 class BellotaApp extends StatelessWidget {
@@ -20,11 +24,18 @@ class BellotaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Bellota · Calendario Menstrual',
-      debugShowCheckedModeBanner: false,
-      theme: BellotaTheme.lightTheme,
-      home: const SplashScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (context, mode, _) {
+        return MaterialApp(
+          title: 'Bellota · Calendario Menstrual',
+          debugShowCheckedModeBanner: false,
+          theme: BellotaTheme.lightTheme,
+          darkTheme: BellotaTheme.darkTheme,
+          themeMode: mode,
+          home: SplashScreen(),
+        );
+      },
     );
   }
 }
