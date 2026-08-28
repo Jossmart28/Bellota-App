@@ -3,6 +3,9 @@ import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import '../core/models/user_model.dart';
+import '../core/models/profile_model.dart';
+
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
@@ -392,4 +395,21 @@ class DatabaseHelper {
     }
     return dates;
   }
+
+  // ── Métodos con tipos seguros (TypedAPI) ────────────────────────────────────
+  // Los métodos anteriores retornan Map<String,dynamic> para retro-compatibilidad.
+  // Estos nuevos métodos retornan modelos tipados para uso en código nuevo.
+
+  /// Versión tipada de [loginUser]. Retorna un [UserModel] o `null`.
+  Future<UserModel?> loginUserTyped(String email, String password) async {
+    final map = await loginUser(email, password);
+    return map != null ? UserModel.fromMap(map) : null;
+  }
+
+  /// Versión tipada de [getProfile]. Retorna un [ProfileModel] o `null`.
+  Future<ProfileModel?> getProfileTyped(int userId) async {
+    final map = await getProfile(userId);
+    return map != null ? ProfileModel.fromMap(map) : null;
+  }
 }
+

@@ -1,3 +1,5 @@
+import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
 
@@ -97,7 +99,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             onPressed: () {
               Navigator.pop(context, _selectedSymptoms.toList());
             },
-            child: Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text(AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
           ),
         ],
       ),

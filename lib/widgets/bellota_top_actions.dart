@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
+import '../l10n/language_notifier.dart';
 
 class BellotaTopActions extends StatelessWidget {
   final bool showSettings;
@@ -37,16 +38,23 @@ class BellotaTopActions extends StatelessWidget {
 
         // 2. Botón de Idioma (Va en todas)
         _buildCircleButton(
-          child: Text(
-            '文A',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: BellotaColors.textoDark,
-            ),
+          child: ValueListenableBuilder<String>(
+            valueListenable: languageNotifier,
+            builder: (context, lang, _) {
+              return Text(
+                lang.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: BellotaColors.textoDark,
+                ),
+              );
+            }
           ),
           backgroundColor: BellotaColors.blanco,
-          onPressed: onLanguagePressed ?? () {},
+          onPressed: onLanguagePressed ?? () {
+            languageNotifier.toggle();
+          },
         ),
         SizedBox(width: 6),
 

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'theme/bellota_theme.dart';
 import 'theme/theme_notifier.dart';
 import 'screens/splash_screen.dart';
+import 'l10n/language_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,8 +14,9 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Cargar preferencia de tema guardada antes de mostrar la app
+  // Cargar preferencia de tema y lenguaje guardada antes de mostrar la app
   await themeNotifier.load();
+  await languageNotifier.load();
 
   runApp(BellotaApp());
 }
@@ -24,18 +26,23 @@ class BellotaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeNotifier,
-      builder: (context, mode, _) {
-        return MaterialApp(
-          title: 'Bellota · Calendario Menstrual',
-          debugShowCheckedModeBanner: false,
-          theme: BellotaTheme.lightTheme,
-          darkTheme: BellotaTheme.darkTheme,
-          themeMode: mode,
-          home: SplashScreen(),
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: themeNotifier,
+          builder: (context, mode, _) {
+            return MaterialApp(
+              title: 'Bellota · Calendario Menstrual',
+              debugShowCheckedModeBanner: false,
+              theme: BellotaTheme.lightTheme,
+              darkTheme: BellotaTheme.darkTheme,
+              themeMode: mode,
+              home: SplashScreen(),
+            );
+          },
         );
-      },
+      }
     );
   }
 }

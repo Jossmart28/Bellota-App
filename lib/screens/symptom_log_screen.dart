@@ -1,4 +1,6 @@
-﻿import 'dart:convert';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
@@ -290,7 +292,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         ),
       ),
       title: Text(
-        'Registro',
+        AppTranslations.get('navigation', 'log', languageNotifier.currentLang),
         style: TextStyle(
           color: BellotaColors.textoDark,
           fontSize: 17,

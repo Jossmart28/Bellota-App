@@ -1,3 +1,5 @@
+import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
 
@@ -85,7 +87,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
         actions: [
           TextButton(
             onPressed: _save,
-            child: Text('Confirmar', style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text(AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
           ),
         ],
       ),
@@ -156,7 +158,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 _buildLabel('Síntomas emocionales'),
                 SizedBox(height: 8),
                 _buildMultiChoiceChips(
-                  options: ['Ansiedad', 'Cambios de humor', 'Fatiga extrema', 'Sospecha de TDPM'],
+                  options: ['Ansiedad', AppTranslations.get('symptoms', 'mood_swings', languageNotifier.currentLang), 'Fatiga extrema', 'Sospecha de TDPM'],
                   selected: _sintomasEmocionales,
                   onToggle: (val) => _toggleSetItem(_sintomasEmocionales, val),
                 ),

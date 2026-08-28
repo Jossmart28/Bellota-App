@@ -1,3 +1,5 @@
+import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,35 +41,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<_PhaseData> _phases = [
     _PhaseData(
       name: 'Fase\nOvulatoria',
-      shortName: 'Ovulatoria',
+      shortName: AppTranslations.get('cycle_phases', 'ovulatory', languageNotifier.currentLang),
       color: BellotaColors.melon,
       borderColor: Color(0xFFD97A4A),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: ['Fuerte dolor', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      symptoms: [AppTranslations.get('symptoms', 'severe_pain', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
     _PhaseData(
       name: 'Fase\nLútea',
-      shortName: 'Lútea',
+      shortName: AppTranslations.get('cycle_phases', 'luteal', languageNotifier.currentLang),
       color: BellotaColors.asuncion,
       borderColor: Color(0xFF8FAFC8),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: ['Cansancio', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      symptoms: [AppTranslations.get('symptoms', 'fatigue', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
     _PhaseData(
       name: 'Fase\nFolicular',
-      shortName: 'Folicular',
+      shortName: AppTranslations.get('cycle_phases', 'follicular', languageNotifier.currentLang),
       color: BellotaColors.chiltoma,
       borderColor: Color(0xFF97B580),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: ['Energía alta', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      symptoms: [AppTranslations.get('symptoms', 'high_energy', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
     _PhaseData(
       name: 'Fase\nMenstrual',
-      shortName: 'Menstrual',
+      shortName: AppTranslations.get('cycle_phases', 'menstrual', languageNotifier.currentLang),
       color: BellotaColors.chilero,
       borderColor: Color(0xFFB94A42),
       symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: ['Cólicos', 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      symptoms: [AppTranslations.get('symptoms', 'cramps', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
     ),
   ];
 
@@ -211,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       default:
         return Center(
           child: Text(
-            'Próximamente',
+            AppTranslations.get('dashboard', 'coming_soon', languageNotifier.currentLang),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(color: BellotaColors.textoMedio),
           ),
         );
@@ -230,15 +232,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 16),
             _buildHeader(context),
             SizedBox(height: 28),
-            _buildSectionLabel(context, 'Predicciones'),
+            _buildSectionLabel(context, AppTranslations.get('dashboard', 'predictions', languageNotifier.currentLang)),
             SizedBox(height: 10),
             _buildPrediccionesCard(context),
             SizedBox(height: 28),
-            _buildSectionLabel(context, 'Resumen de hoy'),
+            _buildSectionLabel(context, AppTranslations.get('dashboard', 'todays_summary', languageNotifier.currentLang)),
             SizedBox(height: 10),
             _buildResumenCard(context, phase),
             SizedBox(height: 28),
-            _buildSectionLabel(context, 'Información para ti'),
+            _buildSectionLabel(context, AppTranslations.get('dashboard', 'information_for_you', languageNotifier.currentLang)),
             SizedBox(height: 10),
             HealthInfoCarousel(),
             SizedBox(height: 28),
@@ -392,7 +394,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               SizedBox(width: 12),
               Text(
-                'Inicio del periodo',
+                AppTranslations.get('symptoms_and_actions', 'period_start', languageNotifier.currentLang),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: BellotaColors.textoDark,
                   fontSize: 15,
@@ -475,7 +477,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tu próximo periodo será...',
+                  AppTranslations.get('symptoms_and_actions', 'next_period_will_be', languageNotifier.currentLang),
                   style: textTheme.bodySmall?.copyWith(height: 1.4),
                 ),
                 SizedBox(height: 8),
@@ -489,7 +491,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  'Basado en tus últimos ciclos.',
+                  AppTranslations.get('symptoms_and_actions', 'based_on_last_cycles', languageNotifier.currentLang),
                   style: textTheme.bodySmall?.copyWith(fontSize: 9.5, height: 1.3),
                 ),
               ],
@@ -517,7 +519,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Síntomas esperados',
+                  AppTranslations.get('symptoms_and_actions', 'expected_symptoms', languageNotifier.currentLang),
                   style: textTheme.bodySmall?.copyWith(
                     color: BellotaColors.textoDark,
                     fontWeight: FontWeight.w600,
@@ -525,9 +527,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 SizedBox(height: 8),
-                _bulletItem(context, 'Cambios de humor'),
-                _bulletItem(context, 'Sensibilidad'),
-                _bulletItem(context, 'Cansancio'),
+                _bulletItem(context, AppTranslations.get('symptoms', 'mood_swings', languageNotifier.currentLang)),
+                _bulletItem(context, AppTranslations.get('symptoms', 'sensitivity', languageNotifier.currentLang)),
+                _bulletItem(context, AppTranslations.get('symptoms', 'fatigue', languageNotifier.currentLang)),
               ],
             ),
           ),
@@ -619,7 +621,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Síntomas Registrados',
+                  AppTranslations.get('symptoms_and_actions', 'logged_symptoms', languageNotifier.currentLang),
                   style: textTheme.titleMedium?.copyWith(
                     color: BellotaColors.textoDark,
                     fontSize: 13.5,
@@ -629,7 +631,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 SizedBox(height: 10),
                 if (_todaySymptoms.isEmpty)
                   Text(
-                    'Ningún síntoma registrado.',
+                    AppTranslations.get('symptoms_and_actions', 'no_symptoms_logged', languageNotifier.currentLang),
                     style: textTheme.bodySmall?.copyWith(
                       fontStyle: FontStyle.italic,
                       height: 1.4,
@@ -750,11 +752,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(context, Icons.home_filled, 'Inicio', 0),
-              _navItem(context, Icons.calendar_month_rounded, 'Calendario', 1),
-              _navItem(context, Icons.article_outlined, 'Registro', 2),
-              _navItem(context, Icons.location_on_outlined, 'Mapa', 3),
-              _navItem(context, Icons.person_outline_rounded, 'Perfil', 4),
+              _navItem(context, Icons.home_filled, AppTranslations.get('navigation', 'home', languageNotifier.currentLang), 0),
+              _navItem(context, Icons.calendar_month_rounded, AppTranslations.get('navigation', 'calendar', languageNotifier.currentLang), 1),
+              _navItem(context, Icons.article_outlined, AppTranslations.get('navigation', 'log', languageNotifier.currentLang), 2),
+              _navItem(context, Icons.location_on_outlined, AppTranslations.get('navigation', 'map', languageNotifier.currentLang), 3),
+              _navItem(context, Icons.person_outline_rounded, AppTranslations.get('navigation', 'profile', languageNotifier.currentLang), 4),
             ],
           ),
         ),

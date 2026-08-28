@@ -1,3 +1,5 @@
+import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -225,8 +227,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildCustomDropdown() {
-    String currentLabel = _currentView == CalendarViewType.annual ? 'Año' :
-    _currentView == CalendarViewType.monthly ? 'Mes' : 'Sem.';
+    String currentLabel = _currentView == CalendarViewType.annual ? AppTranslations.get('calendar_views', 'year', languageNotifier.currentLang) :
+    _currentView == CalendarViewType.monthly ? AppTranslations.get('calendar_views', 'month', languageNotifier.currentLang) : AppTranslations.get('calendar_views', 'week_short', languageNotifier.currentLang);
 
     return PopupMenuButton<CalendarViewType>(
       onSelected: (view) => setState(() {
@@ -238,9 +240,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       offset: Offset(0, 40),
       itemBuilder: (context) => [
-        PopupMenuItem(value: CalendarViewType.weekly, child: Text('Vista Semanal')),
-        PopupMenuItem(value: CalendarViewType.monthly, child: Text('Vista Mensual')),
-        PopupMenuItem(value: CalendarViewType.annual, child: Text('Vista Anual')),
+        PopupMenuItem(value: CalendarViewType.weekly, child: Text(AppTranslations.get('calendar_views', 'weekly_view', languageNotifier.currentLang))),
+        PopupMenuItem(value: CalendarViewType.monthly, child: Text(AppTranslations.get('calendar_views', 'monthly_view', languageNotifier.currentLang))),
+        PopupMenuItem(value: CalendarViewType.annual, child: Text(AppTranslations.get('calendar_views', 'yearly_view', languageNotifier.currentLang))),
       ],
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -251,7 +253,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Vista', style: TextStyle(color: BellotaColors.blanco.withValues(alpha: 0.8), fontSize: 12)),
+            Text(AppTranslations.get('calendar_views', 'view', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.blanco.withValues(alpha: 0.8), fontSize: 12)),
             SizedBox(width: 6),
             Container(width: 1, height: 12, color: BellotaColors.blanco.withValues(alpha: 0.5)),
             SizedBox(width: 6),
@@ -273,10 +275,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
         runSpacing: 6,
         alignment: WrapAlignment.center,
         children: [
-          _legendItem(BellotaColors.chilero, 'Menstrual'),
-          _legendItem(BellotaColors.chiltoma, 'Folicular'),
-          _legendItem(BellotaColors.melon, 'Ovulatoria'),
-          _legendItem(BellotaColors.asuncion, 'Lútea'),
+          _legendItem(BellotaColors.chilero, AppTranslations.get('cycle_phases', 'menstrual', languageNotifier.currentLang)),
+          _legendItem(BellotaColors.chiltoma, AppTranslations.get('cycle_phases', 'follicular', languageNotifier.currentLang)),
+          _legendItem(BellotaColors.melon, AppTranslations.get('cycle_phases', 'ovulatory', languageNotifier.currentLang)),
+          _legendItem(BellotaColors.asuncion, AppTranslations.get('cycle_phases', 'luteal', languageNotifier.currentLang)),
         ],
       ),
     );
@@ -415,7 +417,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _selectedDate = null;
           }),
           icon: Icon(Icons.arrow_back_ios_rounded, size: 16, color: BellotaColors.chilero),
-          label: Text('Volver al Año', style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
+          label: Text(AppTranslations.get('calendar_views', 'back_to_year', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
           style: TextButton.styleFrom(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             backgroundColor: BellotaColors.chilero.withValues(alpha: 0.1),
@@ -560,7 +562,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       });
                     }
                   } : null,
-                  child: Text('Registrar síntomas', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(AppTranslations.get('symptoms_and_actions', 'log_symptoms', languageNotifier.currentLang), style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: BellotaColors.chilero,
                     foregroundColor: Colors.white,

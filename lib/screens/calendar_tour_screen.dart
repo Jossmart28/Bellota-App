@@ -1,3 +1,5 @@
+import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
@@ -163,7 +165,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                   ),
                 ),
                 Text(
-                  _tourStep == 0 ? 'Empecemos' : 'Toca el día de inicio',
+                  _tourStep == 0 ? AppTranslations.get('onboarding', 'lets_start', languageNotifier.currentLang) : AppTranslations.get('onboarding', 'tap_start_day', languageNotifier.currentLang),
                   style: TextStyle(
                     color: BellotaColors.textoMedio.withValues(alpha: 0.7),
                     fontSize: 13,
@@ -328,7 +330,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Inicio del último período',
+                      AppTranslations.get('symptoms_and_actions', 'last_period_start', languageNotifier.currentLang),
                       style: TextStyle(
                         color: BellotaColors.textoMedio.withValues(alpha: 0.7),
                         fontSize: 12,
@@ -354,7 +356,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   elevation: 4,
                 ),
-                child: Text('Confirmar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                child: Text(AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ),
             ),
           ),
@@ -393,7 +395,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               ),
               SizedBox(height: 32),
               Text(
-                '¡Bienvenida a Bellota!',
+                AppTranslations.get('onboarding', 'welcome', languageNotifier.currentLang),
                 style: TextStyle(
                   color: BellotaColors.blanco,
                   fontSize: 24,
@@ -419,7 +421,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                       color: BellotaColors.nancite.withValues(alpha: 0.8), size: 28),
                   SizedBox(height: 4),
                   Text(
-                    'El calendario está debajo',
+                    AppTranslations.get('onboarding', 'calendar_is_below', languageNotifier.currentLang),
                     style: TextStyle(
                       color: BellotaColors.nancite.withValues(alpha: 0.7),
                       fontSize: 12,
@@ -440,7 +442,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                     elevation: 6,
                   ),
                   child: Text(
-                    'Entendido, ¡vamos!',
+                    AppTranslations.get('onboarding', 'got_it_lets_go', languageNotifier.currentLang),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),

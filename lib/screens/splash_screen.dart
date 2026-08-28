@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../theme/bellota_colors.dart';
-import 'login_screen.dart';
-import 'dashboard_screen.dart';
-import 'onboarding_screen.dart';
-import 'calendar_tour_screen.dart';
-import 'personal_data_screen.dart';
 
-/// Pantalla Splash de Bellota
+import '../core/services/navigation_service.dart';
+import '../theme/bellota_colors.dart';
+
+/// Pantalla de inicio (Splash) de Bellota.
+///
+/// Muestra el logo animado mientras determina la pantalla de destino
+/// usando [NavigationService.resolveRootScreen], eliminando la lógica
+/// de redirección duplicada que existía en [LoginScreen].
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -18,16 +19,19 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
+  // ── Animaciones ────────────────────────────────────────────────────────────
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+
+  // ── Ciclo de vida ──────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
 
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
+      const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
       ),
@@ -35,54 +39,25 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Interval(0.0, 0.7, curve: Curves.easeIn),
+        curve: const Interval(0.0, 0.7, curve: Curves.easeIn),
       ),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.75, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Interval(0.0, 0.8, curve: Curves.easeOutBack),
+        curve: const Interval(0.0, 0.8, curve: Curves.easeOutBack),
       ),
     );
 
     _controller.forward();
-
-    Future.delayed(Duration(seconds: 3), () async {
-      final prefs = await SharedPreferences.getInstance();
-      final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-      final onboardingDone = prefs.getBool('onboarding_done') ?? false;
-      final calendarTourDone = prefs.getBool('calendar_tour_done') ?? false;
-      final setupCompleted = prefs.getBool('setup_completed') ?? false;
-
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, animation, _) {
-              if (isLoggedIn) {
-                if (!onboardingDone) return OnboardingScreen();
-                if (!calendarTourDone) return CalendarTourScreen();
-                if (!setupCompleted) return PersonalDataScreen();
-                return DashboardScreen();
-              } else {
-                return LoginScreen();
-              }
-            },
-            transitionsBuilder: (_, animation, _, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: Duration(milliseconds: 600),
-          ),
-        );
-      }
-    });
+    _scheduleNavigation();
   }
 
   @override
@@ -91,24 +66,46 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
+  // ── Lógica de navegación ───────────────────────────────────────────────────
+
+  /// Espera 3 segundos y navega a la pantalla correspondiente según el estado
+  /// de sesión e incorporación del usuario.
+  void _scheduleNavigation() {
+    Future.delayed(const Duration(seconds: 3), () async {
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, _, _) =>
+              NavigationService.resolveRootScreen(prefs),
+          transitionsBuilder: (_, animation, _, child) =>
+              FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 600),
+        ),
+      );
+    });
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: BellotaColors.splashGradient,
-        ),
+        decoration: BoxDecoration(gradient: BellotaColors.splashGradient),
         child: SafeArea(
           child: Stack(
             children: [
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: _DotPatternPainter(),
-                ),
+              // Patrón de puntos decorativo
+              const Positioned.fill(
+                child: CustomPaint(painter: _DotPatternPainter()),
               ),
 
+              // Logo animado centrado
               Center(
                 child: AnimatedBuilder(
                   animation: _controller,
@@ -121,10 +118,10 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     );
                   },
-                  child: Padding(
+                  child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 40),
-                    child: Image.asset(
-                      'assets/images/logo_white.png',
+                    child: Image(
+                      image: AssetImage('assets/images/logo_white.png'),
                       width: 280,
                       fit: BoxFit.contain,
                     ),
@@ -132,6 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
 
+              // Indicadores inferiores y versión
               Positioned(
                 bottom: 48,
                 left: 0,
@@ -143,29 +141,16 @@ class _SplashScreenState extends State<SplashScreen>
                       opacity: _fadeAnimation,
                       child: Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(3, (i) {
-                              return Container(
-                                margin: EdgeInsets.symmetric(horizontal: 4),
-                                width: i == 0 ? 24 : 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: i == 0
-                                      ? BellotaColors.blanco
-                                      : BellotaColors.blanco.withValues(alpha: 0.4),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              );
-                            }),
-                          ),
-                          SizedBox(height: 16),
+                          _buildPageIndicators(),
+                          const SizedBox(height: 16),
                           Text(
                             'Versión 1.0.0',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: BellotaColors.blanco.withValues(alpha: 0.5),
-                              fontSize: 11,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: BellotaColors.blanco
+                                          .withValues(alpha: 0.5),
+                                      fontSize: 11,
+                                    ),
                           ),
                         ],
                       ),
@@ -179,21 +164,46 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+
+  /// Construye los indicadores de página en la parte inferior del splash.
+  Widget _buildPageIndicators() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (i) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: i == 0 ? 24 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: i == 0
+                ? BellotaColors.blanco
+                : BellotaColors.blanco.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
+    );
+  }
 }
 
+// ── Painter decorativo ─────────────────────────────────────────────────────
+
+/// Patrón de puntos sutiles sobre el fondo degradado del splash.
 class _DotPatternPainter extends CustomPainter {
+  const _DotPatternPainter();
+
+  static const double _spacing = 28.0;
+  static const double _dotRadius = 2.0;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = BellotaColors.blanco.withValues(alpha: 0.06)
       ..style = PaintingStyle.fill;
 
-    final spacing = 28.0;
-    final dotRadius = 2.0;
-
-    for (double x = 0; x < size.width + spacing; x += spacing) {
-      for (double y = 0; y < size.height + spacing; y += spacing) {
-        canvas.drawCircle(Offset(x, y), dotRadius, paint);
+    for (double x = 0; x < size.width + _spacing; x += _spacing) {
+      for (double y = 0; y < size.height + _spacing; y += _spacing) {
+        canvas.drawCircle(Offset(x, y), _dotRadius, paint);
       }
     }
   }

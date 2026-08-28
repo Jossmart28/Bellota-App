@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/services/auth_service.dart';
+import '../core/services/navigation_service.dart';
 import '../theme/bellota_colors.dart';
-import '../database/database_helper.dart';
+import '../widgets/bellota_text_field.dart';
 import '../widgets/bellota_top_actions.dart';
 import 'register_screen.dart';
-import 'dashboard_screen.dart';
-import 'onboarding_screen.dart';
-import 'calendar_tour_screen.dart';
-import 'personal_data_screen.dart';
 
-/// Pantalla de Inicio de Sesión
+/// Pantalla de Inicio de Sesión de Bellota.
+///
+/// Valida las credenciales locales del usuario y redirige al flujo
+/// de incorporación correcto usando [NavigationService.resolveHomeScreen].
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,24 +20,30 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  // ── Formulario ─────────────────────────────────────────────────────────────
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  // ── Estado local ───────────────────────────────────────────────────────────
   bool _passwordVisible = false;
   bool _isLoading = false;
 
+  // ── Animaciones ────────────────────────────────────────────────────────────
   late AnimationController _animController;
   late Animation<Offset> _formSlide;
   late Animation<double> _formFade;
+
+  // ── Ciclo de vida ──────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
 
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
+      const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
       ),
@@ -43,11 +51,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
     _animController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 900),
     );
 
     _formSlide = Tween<Offset>(
-      begin: Offset(0, 0.4),
+      begin: const Offset(0, 0.4),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animController,
@@ -69,60 +77,62 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
+  // ── Lógica de negocio ──────────────────────────────────────────────────────
+
   Future<void> _handleLogin() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
-      
-      final email = _emailController.text.trim();
-      final password = _passwordController.text;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-      try {
-        final user = await DatabaseHelper.instance.loginUser(email, password);
-        
-        if (user != null) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('isLoggedIn', true);
-          await prefs.setString('userName', user['name']);
-          await prefs.setString('userEmail', user['email']);
-          await prefs.setInt('userId', user['id'] as int);
+    setState(() => _isLoading = true);
 
-          final onboardingDone = prefs.getBool('onboarding_done') ?? false;
-          final calendarTourDone = prefs.getBool('calendar_tour_done') ?? false;
-          final setupCompleted = prefs.getBool('setup_completed') ?? false;
+    try {
+      final user = await AuthService.instance.login(
+        _emailController.text,
+        _passwordController.text,
+      );
 
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) {
-                  if (!onboardingDone) return OnboardingScreen();
-                  if (!calendarTourDone) return CalendarTourScreen();
-                  if (!setupCompleted) return PersonalDataScreen();
-                  return DashboardScreen();
-                },
-              ),
-            );
-          }
-        } else {
-          setState(() => _isLoading = false);
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Credenciales incorrectas.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: BellotaColors.blanco)),
-                backgroundColor: Colors.redAccent,
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        setState(() => _isLoading = false);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-             SnackBar(content: Text('Error al iniciar sesión.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: BellotaColors.blanco))),
-          );
-        }
+      if (user != null) {
+        await AuthService.instance.saveSession(user);
+        if (!mounted) return;
+
+        // Resolución de pantalla sin gaps asíncronos tras el mounted check
+        final prefs = await SharedPreferences.getInstance();
+        if (!mounted) return;
+        final destination = NavigationService.resolveHomeScreen(prefs);
+        NavigationService.goReplace(context, destination);
+      } else {
+        _setLoading(false);
+        _showError('Credenciales incorrectas.');
       }
+    } catch (_) {
+      _setLoading(false);
+      _showError('Error al iniciar sesión.');
     }
   }
+
+  // ── Helpers de UI ──────────────────────────────────────────────────────────
+
+  void _setLoading(bool value) {
+    if (mounted) setState(() => _isLoading = value);
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: BellotaColors.blanco),
+        ),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -136,13 +146,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         color: BellotaColors.chilero,
         child: Stack(
           children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _LoginBackgroundPainter(),
-              ),
+            // Fondo decorativo
+            const Positioned.fill(
+              child: CustomPaint(painter: _LoginBackgroundPainter()),
             ),
-            
-            // === BOTONES GLOBALES ===
+
+            // Botones globales (idioma / accesibilidad)
             Positioned(
               top: 16,
               right: 16,
@@ -155,11 +164,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ),
             ),
 
+            // Contenido principal
             SafeArea(
               child: SingleChildScrollView(
-                physics: ClampingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: size.height - MediaQuery.of(context).padding.top),
+                  constraints: BoxConstraints(
+                    minHeight: size.height -
+                        MediaQuery.of(context).padding.top,
+                  ),
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
@@ -189,14 +202,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
-  // --- SECCIONES DE UI ---
+  // ── Secciones de UI ────────────────────────────────────────────────────────
 
   Widget _buildLogoSection() {
-    return Padding(
+    return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
       child: Center(
-        child: Image.asset(
-          'assets/images/logo_white.png',
+        child: Image(
+          image: AssetImage('assets/images/logo_white.png'),
           width: 220,
           fit: BoxFit.contain,
         ),
@@ -209,15 +222,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(top: 8),
-      padding: EdgeInsets.fromLTRB(28, 36, 28, 32),
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.fromLTRB(28, 36, 28, 32),
       decoration: BoxDecoration(
         color: BellotaColors.blanco.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
         border: Border(
-          top: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
-          left: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
-          right: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+          top: BorderSide(
+              color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+          left: BorderSide(
+              color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+          right: BorderSide(
+              color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
         ),
       ),
       child: Form(
@@ -227,16 +243,19 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           children: [
             Text(
               'Iniciar Sesión',
-              style: textTheme.displayMedium?.copyWith(color: BellotaColors.blanco),
+              style: textTheme.displayMedium
+                  ?.copyWith(color: BellotaColors.blanco),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Bienvenida de vuelta 🌸',
-              style: textTheme.bodyMedium?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.75)),
+              style: textTheme.bodyMedium?.copyWith(
+                  color: BellotaColors.blanco.withValues(alpha: 0.75)),
             ),
-            SizedBox(height: 28),
+            const SizedBox(height: 28),
 
-            _BellotaTextField(
+            // Campo de email
+            BellotaTextField(
               controller: _emailController,
               label: 'Correo electrónico',
               hint: 'tu@correo.com',
@@ -248,9 +267,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 return null;
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-            _BellotaTextField(
+            // Campo de contraseña
+            BellotaTextField(
               controller: _passwordController,
               label: 'Contraseña',
               hint: '••••••••',
@@ -258,10 +278,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               obscureText: !_passwordVisible,
               suffixIcon: IconButton(
                 icon: Icon(
-                  _passwordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  _passwordVisible
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                   color: BellotaColors.blanco.withValues(alpha: 0.7),
                 ),
-                onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
+                onPressed: () =>
+                    setState(() => _passwordVisible = !_passwordVisible),
               ),
               validator: (v) {
                 if (v == null || v.isEmpty) return 'Ingresa tu contraseña';
@@ -269,8 +292,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 return null;
               },
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
+            // Olvidé mi contraseña
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -278,62 +302,74 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 style: TextButton.styleFrom(
                   foregroundColor: BellotaColors.blanco,
                   padding: EdgeInsets.zero,
-                  minimumSize: Size(10, 36),
+                  minimumSize: const Size(10, 36),
                 ),
                 child: Text(
                   '¿Olvidaste tu contraseña?',
                   style: textTheme.bodySmall?.copyWith(
                     color: BellotaColors.blanco.withValues(alpha: 0.85),
                     decoration: TextDecoration.underline,
-                    decorationColor: BellotaColors.blanco.withValues(alpha: 0.6),
+                    decorationColor:
+                        BellotaColors.blanco.withValues(alpha: 0.6),
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
+            // Botón de ingreso
             _BellotaButton(
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
               label: 'Ingresar',
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
+            // Separador "o continúa con"
             Row(
               children: [
-                Expanded(child: Divider(color: BellotaColors.blanco.withValues(alpha: 0.3), height: 1)),
+                Expanded(
+                    child: Divider(
+                        color: BellotaColors.blanco.withValues(alpha: 0.3),
+                        height: 1)),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     'o continúa con',
-                    style: textTheme.bodySmall?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.65)),
+                    style: textTheme.bodySmall?.copyWith(
+                        color: BellotaColors.blanco.withValues(alpha: 0.65)),
                   ),
                 ),
-                Expanded(child: Divider(color: BellotaColors.blanco.withValues(alpha: 0.3), height: 1)),
+                Expanded(
+                    child: Divider(
+                        color: BellotaColors.blanco.withValues(alpha: 0.3),
+                        height: 1)),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
+            // Botón de Google
             _SocialButton(
               label: 'Continuar con Google',
               icon: Icons.g_mobiledata_rounded,
               onPressed: () {},
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
+            // Enlace a registro
             Center(
               child: RichText(
                 text: TextSpan(
-                  style: textTheme.bodySmall?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.75)),
+                  style: textTheme.bodySmall?.copyWith(
+                      color: BellotaColors.blanco.withValues(alpha: 0.75)),
                   children: [
-                    TextSpan(text: '¿No tienes cuenta? '),
+                    const TextSpan(text: '¿No tienes cuenta? '),
                     WidgetSpan(
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => RegisterScreen()),
-                          );
-                        },
+                        onTap: () => NavigationService.goTo(
+                          context,
+                          const RegisterScreen(),
+                        ),
                         child: Text(
                           'Regístrate',
                           style: textTheme.bodySmall?.copyWith(
@@ -356,48 +392,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 }
 
-// --- COMPONENTES REUTILIZABLES ---
+// ── Componentes locales de UI ──────────────────────────────────────────────
 
-class _BellotaTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final IconData prefixIcon;
-  final bool obscureText;
-  final Widget? suffixIcon;
-  final TextInputType? keyboardType;
-  final String? Function(String?)? validator;
-
-  const _BellotaTextField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    required this.prefixIcon,
-    this.obscureText = false,
-    this.suffixIcon,
-    this.keyboardType,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: BellotaColors.blanco),
-      cursorColor: BellotaColors.blanco,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(prefixIcon, color: BellotaColors.blanco.withValues(alpha: 0.75)),
-        suffixIcon: suffixIcon,
-      ),
-    );
-  }
-}
-
+/// Botón principal con gradiente Bellota.
 class _BellotaButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
@@ -422,7 +419,7 @@ class _BellotaButton extends StatelessWidget {
             BoxShadow(
               color: BellotaColors.chilero.withValues(alpha: 0.5),
               blurRadius: 16,
-              offset: Offset(0, 6),
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -437,17 +434,17 @@ class _BellotaButton extends StatelessWidget {
               ? SizedBox(
                   width: 24,
                   height: 24,
-                  child: CircularProgressIndicator(color: BellotaColors.blanco, strokeWidth: 2.5),
+                  child: CircularProgressIndicator(
+                      color: BellotaColors.blanco, strokeWidth: 2.5),
                 )
-              : Text(
-                  label,
-                ),
+              : Text(label),
         ),
       ),
     );
   }
 }
 
+/// Botón de proveedor externo (Google, Apple, etc.).
 class _SocialButton extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -470,8 +467,10 @@ class _SocialButton extends StatelessWidget {
         label: Text(label),
         style: OutlinedButton.styleFrom(
           foregroundColor: BellotaColors.blanco,
-          side: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.45), width: 1.2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          side: BorderSide(
+              color: BellotaColors.blanco.withValues(alpha: 0.45), width: 1.2),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           backgroundColor: BellotaColors.blanco.withValues(alpha: 0.08),
         ),
       ),
@@ -479,7 +478,10 @@ class _SocialButton extends StatelessWidget {
   }
 }
 
+/// Fondo decorativo de la pantalla de login con curvas y círculos sutiles.
 class _LoginBackgroundPainter extends CustomPainter {
+  const _LoginBackgroundPainter();
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -488,19 +490,30 @@ class _LoginBackgroundPainter extends CustomPainter {
 
     final path1 = Path()
       ..moveTo(size.width * 0.5, 0)
-      ..quadraticBezierTo(size.width * 1.2, size.height * 0.2, size.width, size.height * 0.45)
+      ..quadraticBezierTo(
+          size.width * 1.2, size.height * 0.2, size.width, size.height * 0.45)
       ..lineTo(size.width, 0)
       ..close();
     canvas.drawPath(path1, paint);
 
     final path2 = Path()
       ..moveTo(0, size.height * 0.7)
-      ..quadraticBezierTo(size.width * 0.3, size.height * 0.9, 0, size.height)
+      ..quadraticBezierTo(
+          size.width * 0.3, size.height * 0.9, 0, size.height)
       ..close();
-    canvas.drawPath(path2, paint..color = BellotaColors.blanco.withValues(alpha: 0.04));
+    canvas.drawPath(
+        path2, paint..color = BellotaColors.blanco.withValues(alpha: 0.04));
 
-    canvas.drawCircle(Offset(size.width * 0.85, size.height * 0.12), size.width * 0.18, paint..color = BellotaColors.blanco.withValues(alpha: 0.04));
-    canvas.drawCircle(Offset(size.width * 0.1, size.height * 0.85), size.width * 0.12, paint..color = BellotaColors.blanco.withValues(alpha: 0.03));
+    canvas.drawCircle(
+      Offset(size.width * 0.85, size.height * 0.12),
+      size.width * 0.18,
+      paint..color = BellotaColors.blanco.withValues(alpha: 0.04),
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.1, size.height * 0.85),
+      size.width * 0.12,
+      paint..color = BellotaColors.blanco.withValues(alpha: 0.03),
+    );
   }
 
   @override
