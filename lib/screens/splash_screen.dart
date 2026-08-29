@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/services/navigation_service.dart';
+import '../l10n/app_translations.dart';
+import '../l10n/language_notifier.dart';
 import '../theme/bellota_colors.dart';
 
 /// Pantalla de inicio (Splash) de Bellota.
@@ -143,6 +146,20 @@ class _SplashScreenState extends State<SplashScreen>
                         children: [
                           _buildPageIndicators(),
                           const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: Text(
+                              AppTranslations.get('onboarding_and_auth', 'slogan', languageNotifier.currentLang),
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
                           Text(
                             'Versión 1.0.0',
                             style:

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_translations.dart';
+import '../l10n/language_notifier.dart';
 import 'calendar_tour_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -21,35 +23,37 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   late Animation<Offset> _slideAnim;
 
   // ─── Contenido de los slides ───
-  final List<_SlideData> _slides = [
-    _SlideData(
-      gradient: [Color(0xFFD35D53), Color(0xFFE8897A)],
-      icon: Icons.favorite_rounded,
-      emoji: '🌸',
-      title: 'Conoce tu ciclo',
-      subtitle: 'Registra cada día y descubre\nlos patrones que tu cuerpo te comunica.',
-      decoration1: Color(0xFFFF8A80),
-      decoration2: Color(0xFFFFCDD2),
-    ),
-    _SlideData(
-      gradient: [Color(0xFFEE8658), Color(0xFFF7AD78)],
-      icon: Icons.edit_note_rounded,
-      emoji: '📝',
-      title: 'Registra cómo te sientes',
-      subtitle: 'Síntomas, flujo, humor y más —\ntodo en un solo lugar, cada día.',
-      decoration1: Color(0xFFFFCC80),
-      decoration2: Color(0xFFFFF3E0),
-    ),
-    _SlideData(
-      gradient: [Color(0xFF7A9EB5), Color(0xFFB0C4D8)],
-      icon: Icons.insights_rounded,
-      emoji: '✨',
-      title: 'Predicciones inteligentes',
-      subtitle: 'Bellota aprende de tu historial\ny te avisa cuándo esperar tu próximo período.',
-      decoration1: Color(0xFF90CAF9),
-      decoration2: Color(0xFFE3F2FD),
-    ),
-  ];
+  List<_SlideData> _getSlides(String lang) {
+    return [
+      _SlideData(
+        gradient: [Color(0xFFD35D53), Color(0xFFE8897A)],
+        icon: Icons.favorite_rounded,
+        emoji: '🌸',
+        title: AppTranslations.get('onboarding_and_auth', 'slide1_title', lang),
+        subtitle: AppTranslations.get('onboarding_and_auth', 'slide1_sub', lang),
+        decoration1: Color(0xFFFF8A80),
+        decoration2: Color(0xFFFFCDD2),
+      ),
+      _SlideData(
+        gradient: [Color(0xFFEE8658), Color(0xFFF7AD78)],
+        icon: Icons.edit_note_rounded,
+        emoji: '📝',
+        title: AppTranslations.get('onboarding_and_auth', 'slide2_title', lang),
+        subtitle: AppTranslations.get('onboarding_and_auth', 'slide2_sub', lang),
+        decoration1: Color(0xFFFFCC80),
+        decoration2: Color(0xFFFFF3E0),
+      ),
+      _SlideData(
+        gradient: [Color(0xFF7A9EB5), Color(0xFFB0C4D8)],
+        icon: Icons.insights_rounded,
+        emoji: '✨',
+        title: AppTranslations.get('onboarding_and_auth', 'slide3_title', lang),
+        subtitle: AppTranslations.get('onboarding_and_auth', 'slide3_sub', lang),
+        decoration1: Color(0xFF90CAF9),
+        decoration2: Color(0xFFE3F2FD),
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -79,7 +83,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   void _goToNext() {
-    if (_currentPage < _slides.length - 1) {
+    final lang = languageNotifier.currentLang;
+    if (_currentPage < _getSlides(lang).length - 1) {
       _pageController.nextPage(
         duration: Duration(milliseconds: 450),
         curve: Curves.easeInOutCubic,
@@ -106,7 +111,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final slide = _slides[_currentPage];
+    final lang = languageNotifier.currentLang;
+    final slidesList = _getSlides(lang);
+    final slide = slidesList[_currentPage];
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -141,7 +148,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         TextButton(
                           onPressed: _finish,
                           child: Text(
-                            'Saltar',
+                            AppTranslations.get('onboarding_and_auth', 'skip', lang),
                             style: GoogleFonts.poppins(
                               color: Colors.white70,
                               fontSize: 14,
@@ -161,13 +168,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         setState(() => _currentPage = index);
                         _contentController.forward(from: 0);
                       },
-                      itemCount: _slides.length,
+                      itemCount: slidesList.length,
                       itemBuilder: (context, index) {
                         return FadeTransition(
                           opacity: _fadeAnim,
                           child: SlideTransition(
                             position: _slideAnim,
-                            child: _buildSlideContent(_slides[index], size),
+                            child: _buildSlideContent(slidesList[index], size),
                           ),
                         );
                       },
@@ -182,7 +189,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         // Dots
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(_slides.length, (i) {
+                          children: List.generate(slidesList.length, (i) {
                             final isActive = i == _currentPage;
                             return AnimatedContainer(
                               duration: Duration(milliseconds: 350),
@@ -224,7 +231,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    _currentPage < _slides.length - 1 ? 'Continuar' : 'Comenzar',
+                                    _currentPage < slidesList.length - 1 ? AppTranslations.get('onboarding_and_auth', 'continue', lang) : AppTranslations.get('onboarding_and_auth', 'start', lang),
                                     style: GoogleFonts.poppins(
                                       color: slide.gradient.first,
                                       fontSize: 17,
@@ -234,7 +241,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                   ),
                                   SizedBox(width: 8),
                                   Icon(
-                                    _currentPage < _slides.length - 1
+                                    _currentPage < slidesList.length - 1
                                         ? Icons.arrow_forward_rounded
                                         : Icons.check_circle_rounded,
                                     color: slide.gradient.first,

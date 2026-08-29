@@ -16,10 +16,10 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
   late Set<String> _selectedSexo;
 
   final List<String> _sexoOptions = [
-    'Sin anticoncepción',
-    'Condón',
-    'Sin eyacular',
-    'Píldora de corta duración',
+    AppTranslations.get('registration_form', 'no_contraception', languageNotifier.currentLang),
+    AppTranslations.get('registration_form', 'condom', languageNotifier.currentLang),
+    AppTranslations.get('registration_form', 'no_ejaculation', languageNotifier.currentLang),
+    AppTranslations.get('registration_form', 'short_pill', languageNotifier.currentLang),
   ];
 
   @override
@@ -47,10 +47,10 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text(AppTranslations.get('registration_form', 'cancel', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: Text('Sexo', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+        title: Text(AppTranslations.get('registration_form', 'sex', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           TextButton(

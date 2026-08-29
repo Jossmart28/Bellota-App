@@ -68,18 +68,30 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           _selectedSymptoms = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
           _selectedSexo = List<String>.from(jsonDecode(log['sexo'] as String? ?? '[]'));
           _selectedFlujos = List<String>.from(jsonDecode(log['flujo'] as String? ?? '[]'));
-        });
-      }
-      final String? patronStr = prefs.getString('patron_sangrado_$_dateKey');
-      if (patronStr != null) {
-        setState(() {
-          _patronSangrado = jsonDecode(patronStr);
-        });
-      }
-      final String? dolorStr = prefs.getString('dolor_sintomatologia_$_dateKey');
-      if (dolorStr != null) {
-        setState(() {
-          _dolorSintomatologia = jsonDecode(dolorStr);
+          
+          // Load bleeding pattern from SQLite (was SharedPreferences)
+          _patronSangrado = {};
+          if (log['bleeding_intensity'] != null) _patronSangrado['intensidadFlujo'] = log['bleeding_intensity'];
+          if (log['clots'] != null) _patronSangrado['coagulos'] = log['clots'];
+          if ((log['spotting'] as int?) == 1) _patronSangrado['manchado'] = 'Sí';
+          if (log['spotting_days'] != null) _patronSangrado['manchadoDias'] = log['spotting_days'];
+          if (log['sexual_symptoms'] != null) _patronSangrado['sintomasSexuales'] = log['sexual_symptoms'];
+          
+          // Load pain data from SQLite (was SharedPreferences)
+          _dolorSintomatologia = {};
+          if (log['pain_level'] != null) _dolorSintomatologia['nivelDolor'] = log['pain_level'];
+          if (log['pain_character'] != null) _dolorSintomatologia['caracterDolor'] = log['pain_character'];
+          if (log['pain_days'] != null) _dolorSintomatologia['diasDolor'] = log['pain_days'];
+          if (log['treatment'] != null) _dolorSintomatologia['tratamiento'] = log['treatment'];
+          final physStr = log['physical_symptoms'] as String?;
+          if (physStr != null && physStr != '[]') {
+            _dolorSintomatologia['sintomasFisicos'] = List<String>.from(jsonDecode(physStr));
+          }
+          final emoStr = log['emotional_symptoms'] as String?;
+          if (emoStr != null && emoStr != '[]') {
+            _dolorSintomatologia['sintomasEmocionales'] = List<String>.from(jsonDecode(emoStr));
+          }
+          if (log['breast_exam'] != null) _dolorSintomatologia['autoexamenMama'] = log['breast_exam'];
         });
       }
     }
@@ -87,17 +99,32 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
 
   Future<void> _saveAndAccept() async {
     if (_userId != null) {
-      await DatabaseHelper.instance.saveDailyLog(
+      await DatabaseHelper.instance.saveDailyLogV2(
         userId: _userId!,
         date: _dateKey,
         periodStart: iniciaPeriodo,
         symptoms: _selectedSymptoms,
         sexo: _selectedSexo,
         flujo: _selectedFlujos,
+        // Bleeding pattern data
+        bleedingIntensity: _patronSangrado['intensidadFlujo'] as String?,
+        clots: _patronSangrado['coagulos'] as String?,
+        spotting: (_patronSangrado['manchado'] == 'Sí' || _patronSangrado['manchado'] == 'Yes'),
+        spottingDays: _patronSangrado['manchadoDias'] as String?,
+        sexualSymptoms: _patronSangrado['sintomasSexuales'] as String?,
+        // Pain & symptomatology data
+        painLevel: _dolorSintomatologia['nivelDolor']?.toDouble(),
+        painCharacter: _dolorSintomatologia['caracterDolor'] as String?,
+        painDays: _dolorSintomatologia['diasDolor'] as String?,
+        treatment: _dolorSintomatologia['tratamiento'] as String?,
+        physicalSymptoms: _dolorSintomatologia['sintomasFisicos'] != null 
+            ? List<String>.from(_dolorSintomatologia['sintomasFisicos'])
+            : [],
+        emotionalSymptoms: _dolorSintomatologia['sintomasEmocionales'] != null 
+            ? List<String>.from(_dolorSintomatologia['sintomasEmocionales'])
+            : [],
+        breastExam: _dolorSintomatologia['autoexamenMama'] as String?,
       );
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('patron_sangrado_$_dateKey', jsonEncode(_patronSangrado));
-      await prefs.setString('dolor_sintomatologia_$_dateKey', jsonEncode(_dolorSintomatologia));
     }
 
     if (mounted) {
@@ -199,7 +226,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             context,
             icon: Icons.water_drop_outlined,
             iconColor: BellotaColors.chilero,
-            title: 'Inicia el período',
+            title: AppTranslations.get('registration_form', 'period_starts', languageNotifier.currentLang),
             trailing: _buildSiNoToggle(
               value: iniciaPeriodo,
               onChanged: (val) => setState(() => iniciaPeriodo = val),
@@ -210,7 +237,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             context,
             icon: Icons.favorite_border_rounded,
             iconColor: BellotaColors.melon,
-            title: 'Sexo',
+            title: AppTranslations.get('registration_form', 'sex', languageNotifier.currentLang),
             subtitle: _selectedSexo.isNotEmpty ? _selectedSexo.join(', ') : null,
             trailing: _buildAddButton(hasItems: _selectedSexo.isNotEmpty),
             onTap: _openSexoSelection,
@@ -220,7 +247,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             context,
             icon: Icons.medical_services_outlined,
             iconColor: BellotaColors.asuncion,
-            title: 'Síntomas',
+            title: AppTranslations.get('registration_form', 'symptoms', languageNotifier.currentLang),
             subtitle: _selectedSymptoms.isNotEmpty ? _selectedSymptoms.join(', ') : null,
             trailing: _buildAddButton(hasItems: _selectedSymptoms.isNotEmpty),
             onTap: _openSymptomsSelection,
@@ -230,7 +257,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             context,
             icon: Icons.opacity_rounded,
             iconColor: Color(0xFFA566C1),
-            title: 'Flujo vaginal',
+            title: AppTranslations.get('registration_form', 'vaginal_flow', languageNotifier.currentLang),
             subtitle: _selectedFlujos.isNotEmpty ? _selectedFlujos.join(', ') : null,
             trailing: _buildAddButton(hasItems: _selectedFlujos.isNotEmpty),
             onTap: _openFlujoSelection,
@@ -240,8 +267,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             context,
             icon: Icons.bloodtype_outlined,
             iconColor: BellotaColors.chilero,
-            title: 'Patrón de sangrado',
-            subtitle: _patronSangrado.isNotEmpty ? 'Registrado ✓' : null,
+            title: AppTranslations.get('registration_form', 'bleeding_pattern', languageNotifier.currentLang),
+            subtitle: _patronSangrado.isNotEmpty ? AppTranslations.get('registration_form', 'saved', languageNotifier.currentLang) : null,
             trailing: _buildAddButton(hasItems: _patronSangrado.isNotEmpty),
             onTap: _openPatronSangradoSelection,
           ),
@@ -250,8 +277,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             context,
             icon: Icons.healing_outlined,
             iconColor: BellotaColors.chiltoma,
-            title: 'Dolor y sintomatología',
-            subtitle: _dolorSintomatologia.isNotEmpty ? 'Registrado ✓' : null,
+            title: AppTranslations.get('registration_form', 'pain_and_symptoms', languageNotifier.currentLang),
+            subtitle: _dolorSintomatologia.isNotEmpty ? AppTranslations.get('registration_form', 'saved', languageNotifier.currentLang) : null,
             trailing: _buildAddButton(hasItems: _dolorSintomatologia.isNotEmpty),
             onTap: _openDolorSintomatologiaSelection,
           ),
@@ -313,7 +340,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                'Guardar',
+                AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang),
                 style: TextStyle(
                   color: BellotaColors.chilero,
                   fontWeight: FontWeight.w700,
@@ -470,7 +497,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     : [],
               ),
               child: Text(
-                'Sí',
+                AppTranslations.get('registration_form', 'yes', languageNotifier.currentLang),
                 style: TextStyle(
                   color: value ? Colors.white : BellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
@@ -493,7 +520,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     : [],
               ),
               child: Text(
-                'No',
+                AppTranslations.get('registration_form', 'no', languageNotifier.currentLang),
                 style: TextStyle(
                   color: !value ? Colors.white : BellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
@@ -548,7 +575,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         ),
         child: Center(
           child: Text(
-            'Guardar registro',
+            AppTranslations.get('registration_form', 'save_log', languageNotifier.currentLang),
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w700,

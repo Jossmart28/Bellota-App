@@ -6,6 +6,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../theme/bellota_colors.dart';
+import '../l10n/app_translations.dart';
+import '../l10n/language_notifier.dart';
 
 class MedicalReportPreviewScreen extends StatefulWidget {
   final Map<String, dynamic> reportData;
@@ -63,6 +65,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     final pat = data['seccion_3_patron_sangrado_flujo'] as Map? ?? {};
     final dol = data['seccion_4_dolor_sintomatologia'] as Map? ?? {};
     final alertas = data['seccion_5_alertas_automaticas'] as List? ?? [];
+    final lang = languageNotifier.currentLang;
 
     return [
       pw.Row(
@@ -73,43 +76,43 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('REPORTE DE SALUD', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColor.fromInt(0xFFDE7B6B))),
-              pw.Text('Reporte menstrual y clínico ginecológico', style: pw.TextStyle(fontSize: 12)),
+              pw.Text(AppTranslations.get('profile_and_report', 'health_report_title', lang), style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColor.fromInt(0xFFDE7B6B))),
+              pw.Text(AppTranslations.get('profile_and_report', 'health_report_subtitle', lang), style: pw.TextStyle(fontSize: 12)),
             ],
           ),
         ],
       ),
       pw.SizedBox(height: 16),
       
-      _buildPdfSection('1. INFORMACIÓN GENERAL'),
-      _buildPdfRow('Paciente:', gen['paciente']?.toString() ?? '-'),
-      _buildPdfRow('Edad:', gen['edad']?.toString() ?? '-'),
-      _buildPdfRow('FUM:', gen['fum']?.toString() ?? '-'),
-      _buildPdfRow('Anticonceptivos:', gen['anticonceptivos_medicamentos']?.toString() ?? '-'),
+      _buildPdfSection(AppTranslations.get('profile_and_report', 'sec_general', lang)),
+      _buildPdfRow('${AppTranslations.get('profile_and_report', 'patient', lang)}:', gen['paciente']?.toString() ?? '-'),
+      _buildPdfRow('${AppTranslations.get('profile_and_report', 'age', lang)}:', gen['edad']?.toString() ?? '-'),
+      _buildPdfRow('${AppTranslations.get('profile_and_report', 'lmp', lang)}:', gen['fum']?.toString() ?? '-'),
+      _buildPdfRow('${AppTranslations.get('profile_and_report', 'contraceptives', lang)}:', gen['anticonceptivos_medicamentos']?.toString() ?? '-'),
       
       pw.SizedBox(height: 12),
-      _buildPdfSection('2. RESUMEN ESTADÍSTICO'),
+      _buildPdfSection(AppTranslations.get('profile_and_report', 'sec_summary', lang)),
       if (res['promedio_ciclo'] != null)
-        _buildPdfRow('Promedio del ciclo:', '${res['promedio_ciclo']['valor']} (${res['promedio_ciclo']['estado']})'),
+        _buildPdfRow('${AppTranslations.get('profile_and_report', 'cycle_average', lang)}:', '${res['promedio_ciclo']['valor']} (${res['promedio_ciclo']['estado']})'),
       if (res['promedio_sangrado'] != null)
-        _buildPdfRow('Promedio de sangrado:', '${res['promedio_sangrado']['valor']} (${res['promedio_sangrado']['estado']})'),
-      _buildPdfRow('Flujo más frecuente:', res['flujo_mas_frecuente']?.toString() ?? '-'),
+        _buildPdfRow('${AppTranslations.get('profile_and_report', 'bleeding_average', lang)}:', '${res['promedio_sangrado']['valor']} (${res['promedio_sangrado']['estado']})'),
+      _buildPdfRow('${AppTranslations.get('profile_and_report', 'most_frequent_flow', lang)}:', res['flujo_mas_frecuente']?.toString() ?? '-'),
       
       if (pat.isNotEmpty) ...[
         pw.SizedBox(height: 12),
-        _buildPdfSection('3. PATRÓN DE SANGRADO Y FLUJO'),
+        _buildPdfSection(AppTranslations.get('profile_and_report', 'sec_pattern', lang)),
         for (var entry in pat.entries) _buildPdfRow(entry.key.toString().replaceAll('_', ' '), entry.value.toString()),
       ],
       
       if (dol.isNotEmpty) ...[
         pw.SizedBox(height: 12),
-        _buildPdfSection('4. DOLOR Y SINTOMATOLOGÍA'),
+        _buildPdfSection(AppTranslations.get('profile_and_report', 'sec_pain', lang)),
         for (var entry in dol.entries) _buildPdfRow(entry.key.toString().replaceAll('_', ' '), entry.value.toString()),
       ],
       
       if (alertas.isNotEmpty) ...[
         pw.SizedBox(height: 12),
-        _buildPdfSection('5. ALERTAS AUTOMÁTICAS PARA CONSULTA MÉDICA'),
+        _buildPdfSection(AppTranslations.get('profile_and_report', 'sec_alerts', lang)),
         for (var alerta in alertas) _buildPdfRow(alerta['tipo']?.toString() ?? '', alerta['detalle']?.toString() ?? ''),
       ],
       
@@ -151,6 +154,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     final pat = data['seccion_3_patron_sangrado_flujo'] as Map? ?? {};
     final dol = data['seccion_4_dolor_sintomatologia'] as Map? ?? {};
     final alertas = data['seccion_5_alertas_automaticas'] as List? ?? [];
+    final lang = languageNotifier.currentLang;
 
     return Container(
       color: Colors.white,
@@ -167,8 +171,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('REPORTE DE SALUD', style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: BellotaColors.chilero)),
-                    Text('Reporte menstrual y clínico ginecológico', style: GoogleFonts.poppins(fontSize: 12, color: BellotaColors.textoMedio)),
+                    Text(AppTranslations.get('profile_and_report', 'health_report_title', lang), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: BellotaColors.chilero)),
+                    Text(AppTranslations.get('profile_and_report', 'health_report_subtitle', lang), style: GoogleFonts.poppins(fontSize: 12, color: BellotaColors.textoMedio)),
                   ],
                 ),
               ),
@@ -176,38 +180,38 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           ),
           SizedBox(height: 16),
           
-          _buildSectionHeader('1. INFORMACIÓN GENERAL'),
+          _buildSectionHeader(AppTranslations.get('profile_and_report', 'sec_general', lang)),
           _buildDataTable({
-            'Paciente': gen['paciente'],
-            'Edad': gen['edad'],
-            'Rango analizado': gen['rango_analizado'],
-            'Anticonceptivos': gen['anticonceptivos_medicamentos'],
-            'FUM': gen['fum'],
+            AppTranslations.get('profile_and_report', 'patient', lang): gen['paciente'],
+            AppTranslations.get('profile_and_report', 'age', lang): gen['edad'],
+            AppTranslations.get('profile_and_report', 'analyzed_range', lang): gen['rango_analizado'],
+            AppTranslations.get('profile_and_report', 'contraceptives', lang): gen['anticonceptivos_medicamentos'],
+            AppTranslations.get('profile_and_report', 'lmp', lang): gen['fum'],
           }),
 
           SizedBox(height: 16),
-          _buildSectionHeader('2. RESUMEN ESTADÍSTICO'),
+          _buildSectionHeader(AppTranslations.get('profile_and_report', 'sec_summary', lang)),
           _buildDataTable({
-            'Promedio del ciclo': res['promedio_ciclo'] != null ? '${res['promedio_ciclo']['valor']} (${res['promedio_ciclo']['estado']})' : null,
-            'Promedio de sangrado': res['promedio_sangrado'] != null ? '${res['promedio_sangrado']['valor']} (${res['promedio_sangrado']['estado']})' : null,
-            'Flujo más frecuente': res['flujo_mas_frecuente'],
+            AppTranslations.get('profile_and_report', 'cycle_average', lang): res['promedio_ciclo'] != null ? '${res['promedio_ciclo']['valor']} (${res['promedio_ciclo']['estado']})' : null,
+            AppTranslations.get('profile_and_report', 'bleeding_average', lang): res['promedio_sangrado'] != null ? '${res['promedio_sangrado']['valor']} (${res['promedio_sangrado']['estado']})' : null,
+            AppTranslations.get('profile_and_report', 'most_frequent_flow', lang): res['flujo_mas_frecuente'],
           }),
 
           if (pat.isNotEmpty) ...[
             SizedBox(height: 16),
-            _buildSectionHeader('3. PATRÓN DE SANGRADO Y FLUJO'),
+            _buildSectionHeader(AppTranslations.get('profile_and_report', 'sec_pattern', lang)),
             _buildDataTable(pat.map((k, v) => MapEntry(k.replaceAll('_', ' '), v))),
           ],
 
           if (dol.isNotEmpty) ...[
             SizedBox(height: 16),
-            _buildSectionHeader('4. DOLOR Y SINTOMATOLOGÍA ACOMPAÑANTE'),
+            _buildSectionHeader(AppTranslations.get('profile_and_report', 'sec_pain', lang)),
             _buildDataTable(dol.map((k, v) => MapEntry(k.replaceAll('_', ' '), v))),
           ],
 
           if (alertas.isNotEmpty) ...[
             SizedBox(height: 16),
-            _buildSectionHeader('5. ALERTAS AUTOMÁTICAS PARA CONSULTA MÉDICA'),
+            _buildSectionHeader(AppTranslations.get('profile_and_report', 'sec_alerts', lang)),
             Container(
               decoration: BoxDecoration(border: Border.all(color: BellotaColors.melon.withValues(alpha: 0.5))),
               child: Column(
@@ -269,7 +273,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Vista Previa', style: GoogleFonts.poppins(color: BellotaColors.textoDark, fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text(AppTranslations.get('profile_and_report', 'preview', languageNotifier.currentLang), style: GoogleFonts.poppins(color: BellotaColors.textoDark, fontSize: 18, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 1,
         iconTheme: IconThemeData(color: BellotaColors.textoDark),
@@ -298,7 +302,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           child: ElevatedButton.icon(
             onPressed: _isExporting ? null : _exportPdf,
             icon: Icon(Icons.picture_as_pdf, color: Colors.white),
-            label: Text('Guardar PDF'),
+            label: Text(AppTranslations.get('profile_and_report', 'save_pdf', languageNotifier.currentLang)),
             style: ElevatedButton.styleFrom(
               backgroundColor: BellotaColors.chilero,
               foregroundColor: Colors.white,

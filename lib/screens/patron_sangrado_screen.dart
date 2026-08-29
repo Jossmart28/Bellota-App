@@ -54,10 +54,10 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text(AppTranslations.get('registration_form', 'cancel', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: Text('Patrón de Sangrado', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: Text(AppTranslations.get('registration_form', 'bleeding_pattern', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16)),
         centerTitle: true,
         actions: [
           TextButton(
@@ -81,37 +81,48 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLabel('Intensidad del flujo'),
+                _buildLabel(AppTranslations.get('registration_form', 'flow_intensity', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
-                  options: ['Leve <3', 'Moderado 3-5', 'Abundante >5'],
+                  options: [
+                    AppTranslations.get('registration_form', 'light_flow', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'moderate_flow', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'heavy_flow', languageNotifier.currentLang),
+                  ],
                   selected: _intensidadFlujo,
                   onSelected: (val) => setState(() => _intensidadFlujo = val),
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel('Coágulos'),
+                _buildLabel(AppTranslations.get('registration_form', 'clots', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
-                  options: ['Nunca', 'Ocasional', 'Frecuente'],
+                  options: [
+                    AppTranslations.get('registration_form', 'never', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'occasional', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'frequent', languageNotifier.currentLang),
+                  ],
                   selected: _coagulos,
                   onSelected: (val) => setState(() => _coagulos = val),
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel('Manchado intermenstrual'),
+                _buildLabel(AppTranslations.get('registration_form', 'intermenstrual_spotting', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
-                  options: ['No', 'Sí'],
+                  options: [
+                    AppTranslations.get('registration_form', 'no', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'yes', languageNotifier.currentLang),
+                  ],
                   selected: _manchado,
                   onSelected: (val) => setState(() => _manchado = val),
                 ),
-                if (_manchado == 'Sí') ...[
+                if (_manchado == AppTranslations.get('registration_form', 'yes', languageNotifier.currentLang) || _manchado == 'Sí') ...[
                   SizedBox(height: 8),
                   TextFormField(
                     controller: _manchadoDiasController,
                     decoration: InputDecoration(
-                      hintText: 'Días del ciclo (Ej. 14, 15)',
+                      hintText: AppTranslations.get('registration_form', 'cycle_days', languageNotifier.currentLang),
                       filled: true,
                       fillColor: BellotaColors.basilica,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -120,10 +131,15 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                 ],
                 SizedBox(height: 24),
 
-                _buildLabel('Síntomas en relaciones sexuales'),
+                _buildLabel(AppTranslations.get('registration_form', 'sex_symptoms', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
-                  options: ['Dolor', 'Sangrado', 'Flujo inusual', 'Ninguno'],
+                  options: [
+                    AppTranslations.get('registration_form', 'pain', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'bleeding', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'unusual_flow', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'none', languageNotifier.currentLang),
+                  ],
                   selected: _sintomasSexuales,
                   onSelected: (val) => setState(() => _sintomasSexuales = val),
                 ),

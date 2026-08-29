@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import '../l10n/app_translations.dart';
+import '../l10n/language_notifier.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/navigation_service.dart';
 import '../theme/bellota_colors.dart';
@@ -106,6 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final lang = languageNotifier.currentLang;
 
     return Scaffold(
       backgroundColor: BellotaColors.chilero,
@@ -135,13 +139,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 // Encabezado
                 Text(
-                  'Crear Cuenta',
+                  AppTranslations.get('onboarding_and_auth', 'create_account', lang),
                   style: textTheme.displayMedium
                       ?.copyWith(color: BellotaColors.blanco),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Únete a Bellota 🌸',
+                  AppTranslations.get('onboarding_and_auth', 'join_bellota', lang),
                   style: textTheme.bodyLarge?.copyWith(
                       color: BellotaColors.blanco.withValues(alpha: 0.8)),
                 ),
@@ -163,26 +167,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Nombre
                         BellotaTextField(
                           controller: _nameController,
-                          label: 'Nombre',
-                          hint: 'Tu nombre o apodo',
+                          label: AppTranslations.get('onboarding_and_auth', 'name_label', lang),
+                          hint: AppTranslations.get('onboarding_and_auth', 'name_hint', lang),
                           prefixIcon: Icons.person_outline,
                           validator: (v) =>
-                              v!.isEmpty ? 'Ingresa tu nombre' : null,
+                              v!.isEmpty ? AppTranslations.get('onboarding_and_auth', 'enter_name', lang) : null,
                         ),
                         const SizedBox(height: 16),
 
                         // Correo electrónico
                         BellotaTextField(
                           controller: _emailController,
-                          label: 'Correo electrónico',
-                          hint: 'tu@correo.com',
+                          label: AppTranslations.get('onboarding_and_auth', 'email_label', lang),
+                          hint: AppTranslations.get('onboarding_and_auth', 'email_hint', lang),
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return 'Ingresa tu correo';
+                              return AppTranslations.get('onboarding_and_auth', 'enter_email', lang);
                             }
-                            if (!v.contains('@')) return 'Correo no válido';
+                            if (!v.contains('@')) return AppTranslations.get('onboarding_and_auth', 'invalid_email', lang);
                             return null;
                           },
                         ),
@@ -191,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Contraseña
                         BellotaTextField(
                           controller: _passwordController,
-                          label: 'Contraseña',
+                          label: AppTranslations.get('onboarding_and_auth', 'password_label', lang),
                           hint: '••••••••',
                           prefixIcon: Icons.lock_outline,
                           obscureText: !_passwordVisible,
@@ -207,9 +211,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return 'Ingresa una contraseña';
+                              return AppTranslations.get('onboarding_and_auth', 'enter_pass', lang);
                             }
-                            if (v.length < 6) return 'Mínimo 6 caracteres';
+                            if (v.length < 6) return AppTranslations.get('onboarding_and_auth', 'min_6_chars', lang);
                             return null;
                           },
                         ),
@@ -218,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Confirmar contraseña
                         BellotaTextField(
                           controller: _confirmController,
-                          label: 'Confirmar Contraseña',
+                          label: AppTranslations.get('onboarding_and_auth', 'confirm_pass', lang),
                           hint: '••••••••',
                           prefixIcon: Icons.lock_outline,
                           obscureText: !_confirmVisible,
@@ -234,10 +238,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return 'Confirma tu contraseña';
+                              return AppTranslations.get('onboarding_and_auth', 'confirm_pass_req', lang);
                             }
                             if (v != _passwordController.text) {
-                              return 'Las contraseñas no coinciden';
+                              return AppTranslations.get('onboarding_and_auth', 'pass_no_match', lang);
                             }
                             return null;
                           },
@@ -260,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: _isLoading
                                 ? CircularProgressIndicator(
                                     color: BellotaColors.blanco)
-                                : const Text('Registrarse'),
+                                : Text(AppTranslations.get('onboarding_and_auth', 'register_btn', lang)),
                           ),
                         ),
                       ],

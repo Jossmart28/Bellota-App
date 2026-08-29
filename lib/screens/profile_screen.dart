@@ -11,6 +11,8 @@ import 'notifications_settings_screen.dart';
 import '../database/database_helper.dart';
 import 'login_screen.dart';
 import 'medical_report_preview_screen.dart';
+import '../l10n/app_translations.dart';
+import '../l10n/language_notifier.dart';
 
 /// Pantalla de Perfil de usuario — Bellota App
 /// Diseño fiel al mockup de referencia con paleta de colores Bellota.
@@ -85,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(width: 12),
             Text(
-              'Cerrar Sesión',
+              AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang),
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w700,
                 fontSize: 17,
@@ -95,14 +97,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         content: Text(
-          '¿Estás segura de que deseas cerrar sesión?\nTus datos quedarán guardados para cuando vuelvas.',
+          AppTranslations.get('profile_and_report', 'logout_confirm', languageNotifier.currentLang).replaceAll('\\n', '\n'),
           style: GoogleFonts.poppins(fontSize: 13, color: BellotaColors.textoMedio),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
-              'Cancelar',
+              AppTranslations.get('profile_and_report', 'cancel', languageNotifier.currentLang),
               style: GoogleFonts.poppins(color: BellotaColors.textoMedio, fontWeight: FontWeight.w500),
             ),
           ),
@@ -114,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               minimumSize: Size(0, 38),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text('Cerrar Sesión', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13)),
+            child: Text(AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang), style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13)),
           ),
         ],
       ),
@@ -180,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 20),
               Text(
-                'Cambiar foto de perfil',
+                AppTranslations.get('profile_and_report', 'change_photo', languageNotifier.currentLang),
                 style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
@@ -199,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Icon(Icons.photo_library_outlined,
                       color: BellotaColors.melon),
                 ),
-                title: Text('Galería',
+                title: Text(AppTranslations.get('profile_and_report', 'gallery', languageNotifier.currentLang),
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
                         color: BellotaColors.textoDark)),
@@ -219,7 +221,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Icon(Icons.camera_alt_outlined,
                       color: BellotaColors.chilero),
                 ),
-                title: Text('Cámara',
+                title: Text(AppTranslations.get('profile_and_report', 'camera', languageNotifier.currentLang),
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
                         color: BellotaColors.textoDark)),
@@ -240,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child:
                         Icon(Icons.delete_outline, color: Colors.red),
                   ),
-                  title: Text('Eliminar foto',
+                  title: Text(AppTranslations.get('profile_and_report', 'delete_photo', languageNotifier.currentLang),
                       style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w500, color: Colors.red)),
                   onTap: () async {
@@ -297,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Row(children: [
           CircularProgressIndicator(),
           SizedBox(width: 20),
-          Text('Generando informe...'),
+          Text(AppTranslations.get('profile_and_report', 'generating_report', languageNotifier.currentLang)),
         ]),
       ),
     );
@@ -316,13 +318,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final List<DateTime> periodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(_userId!);
       final DateTime? lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(_userId!);
       final DateTime? firstPeriod = await DatabaseHelper.instance.getFirstPeriodStart(_userId!);
+      final lang = languageNotifier.currentLang;
+      final notSpec = AppTranslations.get('profile_and_report', 'not_specified', lang);
 
       String fum = lastPeriod != null
           ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
-          : 'No especificado';
+          : notSpec;
       String rangoInicio = lastPeriod != null
           ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
-          : 'No especificado';
+          : notSpec;
       String rangoFin = lastPeriod != null
           ? () {
               final end = lastPeriod.add(Duration(days: _cycleDuration));
@@ -332,11 +336,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Promedio ciclo
       double? promCiclo = _cycleDuration.toDouble();
-      String estadoCiclo = (promCiclo >= 21 && promCiclo <= 35) ? 'Normal' : 'Irregular';
+      String estadoCiclo = (promCiclo >= 21 && promCiclo <= 35) ? AppTranslations.get('profile_and_report', 'normal', lang) : AppTranslations.get('profile_and_report', 'irregular', lang);
       final sortedPeriods = List<DateTime>.from(periodStarts)..sort();
 
       double promSangrado = _periodDuration.toDouble();
-      String estadoSangrado = promSangrado >= 3 && promSangrado <= 7 ? 'Normal' : (promSangrado > 7 ? 'Prolongado' : 'Corto');
+      String estadoSangrado = promSangrado >= 3 && promSangrado <= 7 ? AppTranslations.get('profile_and_report', 'normal', lang) : (promSangrado > 7 ? AppTranslations.get('profile_and_report', 'prolonged', lang) : AppTranslations.get('profile_and_report', 'short', lang));
 
       // Flujo más frecuente en el ciclo actual
       Map<String, int> flujoCount = {};
@@ -388,26 +392,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Alertas automáticas
       List<Map<String, String>> alertas = [];
+      String irregStr = AppTranslations.get('profile_and_report', 'irregular_cycles', lang);
       if (promCiclo != null && (promCiclo < 21 || promCiclo > 35)) {
-        alertas.add({'tipo': 'Ciclos irregulares', 'detalle': 'Alerta: ${promCiclo.toStringAsFixed(0)} días (normal 21-35 días)'});
+        alertas.add({'tipo': irregStr, 'detalle': lang == 'mi' ? 'Alerta: ${promCiclo.toStringAsFixed(0)} yu (pain 21-35 yu)' : (lang == 'en' ? 'Alert: ${promCiclo.toStringAsFixed(0)} days (normal 21-35 days)' : 'Alerta: ${promCiclo.toStringAsFixed(0)} días (normal 21-35 días)')});
       } else if (promCiclo != null) {
-        alertas.add({'tipo': 'Ciclos irregulares', 'detalle': 'Duración normal: ${promCiclo.toStringAsFixed(0)} días'});
+        alertas.add({'tipo': irregStr, 'detalle': lang == 'mi' ? 'Luhka pain: ${promCiclo.toStringAsFixed(0)} yu' : (lang == 'en' ? 'Normal duration: ${promCiclo.toStringAsFixed(0)} days' : 'Duración normal: ${promCiclo.toStringAsFixed(0)} días')});
       }
+      String prolonStr = AppTranslations.get('profile_and_report', 'prolonged_bleeding', lang);
       if (promSangrado > 7) {
-        alertas.add({'tipo': 'Sangrado prolongado', 'detalle': 'Alerta: ${promSangrado.toInt()} días consecutivos (máx. 7 días)'});
+        alertas.add({'tipo': prolonStr, 'detalle': lang == 'mi' ? 'Alerta: ${promSangrado.toInt()} yu (máx. 7 yu)' : (lang == 'en' ? 'Alert: ${promSangrado.toInt()} consecutive days (max 7 days)' : 'Alerta: ${promSangrado.toInt()} días consecutivos (máx. 7 días)')});
       } else {
-        alertas.add({'tipo': 'Sangrado prolongado', 'detalle': 'Duración normal: ${promSangrado.toInt()} días'});
+        alertas.add({'tipo': prolonStr, 'detalle': lang == 'mi' ? 'Luhka pain: ${promSangrado.toInt()} yu' : (lang == 'en' ? 'Normal duration: ${promSangrado.toInt()} days' : 'Duración normal: ${promSangrado.toInt()} días')});
       }
+      String ameStr = AppTranslations.get('profile_and_report', 'amenorrhea', lang);
       if (lastPeriod == null) {
-        alertas.add({'tipo': 'Amenorrea', 'detalle': 'Alerta: sin registro. Posible retraso sin confirmación de embarazo.'});
+        alertas.add({'tipo': ameStr, 'detalle': lang == 'mi' ? 'Alerta: ulbanka apia. Kati balras.' : (lang == 'en' ? 'Alert: no log. Possible delay without pregnancy confirmed.' : 'Alerta: sin registro. Posible retraso sin confirmación de embarazo.')});
       } else {
-        alertas.add({'tipo': 'Amenorrea', 'detalle': 'Sin alerta. Última menstruación registrada: $fum'});
+        alertas.add({'tipo': ameStr, 'detalle': lang == 'mi' ? 'Alerta apia. Kati ta: $fum' : (lang == 'en' ? 'No alert. Last period logged: $fum' : 'Sin alerta. Última menstruación registrada: $fum')});
       }
       final nivelD = dolor['nivelDolor'];
+      String alertPStr = AppTranslations.get('profile_and_report', 'alert_pain', lang);
       if (nivelD != null && (nivelD as num) >= 8) {
-        alertas.add({'tipo': 'Dolor de alerta', 'detalle': 'Alerta: dolor severo ${nivelD.toStringAsFixed(0)}/10 que no cede'});
+        alertas.add({'tipo': alertPStr, 'detalle': lang == 'mi' ? 'Alerta: latwan tara ${nivelD.toStringAsFixed(0)}/10' : (lang == 'en' ? 'Alert: severe pain ${nivelD.toStringAsFixed(0)}/10 that does not subside' : 'Alerta: dolor severo ${nivelD.toStringAsFixed(0)}/10 que no cede')});
       } else {
-        alertas.add({'tipo': 'Dolor de alerta', 'detalle': nivelD != null ? 'Dolor dentro del rango: ${(nivelD as num).toStringAsFixed(0)}/10' : 'Sin registro de dolor'});
+        alertas.add({'tipo': alertPStr, 'detalle': nivelD != null ? (lang == 'mi' ? 'Latwan pain: ${(nivelD as num).toStringAsFixed(0)}/10' : (lang == 'en' ? 'Pain in normal range: ${(nivelD as num).toStringAsFixed(0)}/10' : 'Dolor dentro del rango: ${(nivelD as num).toStringAsFixed(0)}/10')) : (lang == 'mi' ? 'Latwan ulbanka apia' : (lang == 'en' ? 'No pain logged' : 'Sin registro de dolor'))});
       }
 
       // ─── Construcción del JSON final (sin nulos) ───
@@ -427,12 +435,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         },
         'seccion_1_informacion_general': filterNulls({
           'paciente': _userName,
-          'edad': userAge.isNotEmpty ? '$userAge años' : 'No especificado',
-          'ubicacion': userLocation.isNotEmpty ? userLocation : 'No especificado',
+          'edad': userAge.isNotEmpty ? '$userAge años' : notSpec,
+          'ubicacion': userLocation.isNotEmpty ? userLocation : notSpec,
           'fecha_generacion': fechaHoy,
-          'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : 'No especificado',
+          'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : notSpec,
           'total_ciclos': periodStarts.length,
-          'anticonceptivos_medicamentos': medications.isNotEmpty ? medications.join(', ') : 'No especificado',
+          'anticonceptivos_medicamentos': medications.isNotEmpty ? medications.join(', ') : notSpec,
           'fum': fum,
         }),
         'seccion_2_resumen_estadistico': filterNulls({
@@ -440,14 +448,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'valor': '${promCiclo.toStringAsFixed(0)} días',
             'referencia': '21 a 35 días',
             'estado': estadoCiclo,
-          } : {'valor': 'No especificado', 'referencia': '21 a 35 días', 'estado': 'No especificado'},
+          } : {'valor': notSpec, 'referencia': '21 a 35 días', 'estado': notSpec},
           'promedio_sangrado': {
             'valor': '${promSangrado.toInt()} días',
             'referencia': '3 a 6 días (máx. 7 días)',
             'estado': estadoSangrado,
           },
           'fum': fum,
-          'flujo_mas_frecuente': flujoMasFrecuente ?? 'No especificado',
+          'flujo_mas_frecuente': flujoMasFrecuente ?? notSpec,
           if (topSyms.isNotEmpty) 'sintomas_mas_frecuentes': topSyms,
         }),
         if (patron.isNotEmpty) 'seccion_3_patron_sangrado_flujo': filterNulls({
@@ -528,7 +536,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 24),
                 Text(
-                  'Duración del ciclo',
+                  AppTranslations.get('profile_and_report', 'cycle_duration', languageNotifier.currentLang),
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -537,7 +545,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Ajusta la duración promedio de tu ciclo menstrual',
+                  AppTranslations.get('profile_and_report', 'adjust_cycle', languageNotifier.currentLang),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
@@ -576,7 +584,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Text(
-                        'días',
+                        AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang),
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -605,7 +613,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     min: 20,
                     max: 45,
                     divisions: 25,
-                    label: '$tempValue días',
+                    label: '$tempValue ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                     onChanged: (val) {
                       setModalState(() => tempValue = val.round());
                     },
@@ -616,11 +624,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('20 días',
+                      Text('20 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: BellotaColors.textoMedio)),
-                      Text('45 días',
+                      Text('45 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: BellotaColors.textoMedio)),
@@ -647,7 +655,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Guardar',
+                      AppTranslations.get('profile_and_report', 'save', languageNotifier.currentLang),
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -690,7 +698,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 24),
                 Text(
-                  'Duración de la menstruación',
+                  AppTranslations.get('profile_and_report', 'period_duration', languageNotifier.currentLang),
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -699,7 +707,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Ajusta cuántos días dura tu menstruación',
+                  AppTranslations.get('profile_and_report', 'adjust_period', languageNotifier.currentLang),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
@@ -738,7 +746,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Text(
-                        'días',
+                        tempValue == 1 ? AppTranslations.get('profile_and_report', 'day', languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang),
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -767,7 +775,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     min: 1,
                     max: 10,
                     divisions: 9,
-                    label: '$tempValue días',
+                    label: '$tempValue ${tempValue == 1 ? AppTranslations.get('profile_and_report', 'day', languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                     onChanged: (val) {
                       setModalState(() => tempValue = val.round());
                     },
@@ -778,11 +786,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('1 día',
+                      Text('1 ${AppTranslations.get('profile_and_report', 'day', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: BellotaColors.textoMedio)),
-                      Text('10 días',
+                      Text('10 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: BellotaColors.textoMedio)),
@@ -809,7 +817,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Guardar',
+                      AppTranslations.get('profile_and_report', 'save', languageNotifier.currentLang),
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1054,7 +1062,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Expanded(
               child: Text(
-                'Perfil de salud',
+                AppTranslations.get('profile_and_report', 'health_profile', languageNotifier.currentLang),
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -1067,22 +1075,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 14),
         // Duración del ciclo
         _buildHealthRow(
-          title: 'Duración del ciclo',
-          value: '$_cycleDuration días',
+          title: AppTranslations.get('profile_and_report', 'cycle_duration', languageNotifier.currentLang),
+          value: '$_cycleDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showCycleDurationPicker,
         ),
         SizedBox(height: 8),
         // Duración de la menstruación
         _buildHealthRow(
-          title: 'Duración de la menstruación',
-          value: '$_periodDuration días',
+          title: AppTranslations.get('profile_and_report', 'period_duration', languageNotifier.currentLang),
+          value: '$_periodDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showPeriodDurationPicker,
         ),
         SizedBox(height: 8),
         // Informe médico
         _buildHealthRow(
-          title: 'Informe médico',
-          value: 'Generar',
+          title: AppTranslations.get('profile_and_report', 'medical_report', languageNotifier.currentLang),
+          value: AppTranslations.get('profile_and_report', 'generate', languageNotifier.currentLang),
           onTap: _generateMedicalReport,
         ),
       ],
@@ -1147,7 +1155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Preferencia de la aplicación',
+          AppTranslations.get('profile_and_report', 'app_preferences', languageNotifier.currentLang),
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -1157,7 +1165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 14),
         // Recordatorios y notificaciones
         _buildPreferenceRow(
-          title: 'Recordatorios y notificaciones',
+          title: AppTranslations.get('profile_and_report', 'reminders_notifications', languageNotifier.currentLang),
           value: null,
           onTap: () {
             Navigator.push(
@@ -1171,15 +1179,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 8),
         // Política de privacidad
         _buildPreferenceRow(
-          title: 'Política de privacidad',
+          title: AppTranslations.get('profile_and_report', 'privacy_policy', languageNotifier.currentLang),
           value: null,
           onTap: () {}, // Sin función
         ),
         SizedBox(height: 8),
         // Idioma
         _buildPreferenceRow(
-          title: 'Idioma',
-          value: 'Español',
+          title: AppTranslations.get('profile_and_report', 'language', languageNotifier.currentLang),
+          value: languageNotifier.currentLang == 'es' ? 'Español' : (languageNotifier.currentLang == 'mi' ? 'Miskito' : 'English'),
           onTap: () {}, // Sin función
         ),
         SizedBox(height: 8),

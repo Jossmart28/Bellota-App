@@ -25,7 +25,7 @@ class ProfileModel {
     required this.username,
     this.gmail = '',
     this.cycleDuration = 28,
-    this.periodDuration = 7,
+    this.periodDuration = 5,
     this.profileImagePath,
     this.notifPeriodo = true,
     this.notifOvulacion = true,

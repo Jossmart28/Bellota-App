@@ -79,10 +79,10 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text(AppTranslations.get('registration_form', 'cancel', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: Text('Dolor y Sintomatología', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 15)),
+        title: Text(AppTranslations.get('registration_form', 'pain_and_symptoms', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 15)),
         centerTitle: true,
         actions: [
           TextButton(
@@ -106,7 +106,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLabel('Nivel de dolor (${_nivelDolor.toInt()}/10 EVA)'),
+                _buildLabel('${AppTranslations.get('registration_form', 'pain_level', languageNotifier.currentLang)} (${_nivelDolor.toInt()}/10 EVA)'),
                 Slider(
                   value: _nivelDolor,
                   min: 0, max: 10, divisions: 10,
@@ -115,21 +115,24 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 ),
                 SizedBox(height: 16),
 
-                _buildLabel('Carácter'),
+                _buildLabel(AppTranslations.get('registration_form', 'character', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
-                  options: ['Incapacitante', 'No incapacitante'],
+                  options: [
+                    AppTranslations.get('registration_form', 'incapacitating', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'not_incapacitating', languageNotifier.currentLang),
+                  ],
                   selected: _caracterDolor,
                   onSelected: (val) => setState(() => _caracterDolor = val),
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel('Días con dolor crítico'),
+                _buildLabel(AppTranslations.get('registration_form', 'critical_pain_days', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 TextFormField(
                   controller: _diasDolorController,
                   decoration: InputDecoration(
-                    hintText: 'Días de la fase (Ej. 1, 2)',
+                    hintText: AppTranslations.get('registration_form', 'phase_days', languageNotifier.currentLang),
                     filled: true,
                     fillColor: BellotaColors.basilica,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -137,37 +140,53 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel('Tratamiento'),
+                _buildLabel(AppTranslations.get('registration_form', 'treatment', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
-                  options: ['Medicamento', 'Remedios térmicos', 'Ninguno'],
+                  options: [
+                    AppTranslations.get('registration_form', 'medication', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'thermal_remedies', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'none', languageNotifier.currentLang),
+                  ],
                   selected: _tratamiento,
                   onSelected: (val) => setState(() => _tratamiento = val),
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel('Síntomas físicos'),
+                _buildLabel(AppTranslations.get('registration_form', 'physical_symptoms', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildMultiChoiceChips(
-                  options: ['Cólicos severos', 'Migraña menstrual', 'Mastalgia'],
+                  options: [
+                    AppTranslations.get('registration_form', 'severe_cramps', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'menstrual_migraine', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'mastalgia', languageNotifier.currentLang),
+                  ],
                   selected: _sintomasFisicos,
                   onToggle: (val) => _toggleSetItem(_sintomasFisicos, val),
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel('Síntomas emocionales'),
+                _buildLabel(AppTranslations.get('registration_form', 'emotional_symptoms', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildMultiChoiceChips(
-                  options: ['Ansiedad', AppTranslations.get('symptoms', 'mood_swings', languageNotifier.currentLang), 'Fatiga extrema', 'Sospecha de TDPM'],
+                  options: [
+                    AppTranslations.get('registration_form', 'anxiety', languageNotifier.currentLang),
+                    AppTranslations.get('symptoms', 'mood_swings', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'extreme_fatigue', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'pmdd_suspicion', languageNotifier.currentLang),
+                  ],
                   selected: _sintomasEmocionales,
                   onToggle: (val) => _toggleSetItem(_sintomasEmocionales, val),
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel('Autoexamen de mama'),
+                _buildLabel(AppTranslations.get('registration_form', 'breast_exam', languageNotifier.currentLang)),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
-                  options: ['Realizado (7 días post)', 'Pendiente'],
+                  options: [
+                    AppTranslations.get('registration_form', 'done', languageNotifier.currentLang),
+                    AppTranslations.get('registration_form', 'pending', languageNotifier.currentLang),
+                  ],
                   selected: _autoexamenMama,
                   onSelected: (val) => setState(() => _autoexamenMama = val),
                 ),

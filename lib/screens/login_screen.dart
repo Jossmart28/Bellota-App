@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../l10n/app_translations.dart';
+import '../l10n/language_notifier.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/navigation_service.dart';
 import '../theme/bellota_colors.dart';
@@ -219,6 +222,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _buildFormSection(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final lang = languageNotifier.currentLang;
 
     return Container(
       width: double.infinity,
@@ -242,13 +246,13 @@ class _LoginScreenState extends State<LoginScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Iniciar Sesión',
+              AppTranslations.get('onboarding_and_auth', 'login_title', lang),
               style: textTheme.displayMedium
                   ?.copyWith(color: BellotaColors.blanco),
             ),
             const SizedBox(height: 4),
             Text(
-              'Bienvenida de vuelta 🌸',
+              AppTranslations.get('onboarding_and_auth', 'welcome_back', lang),
               style: textTheme.bodyMedium?.copyWith(
                   color: BellotaColors.blanco.withValues(alpha: 0.75)),
             ),
@@ -257,13 +261,13 @@ class _LoginScreenState extends State<LoginScreen>
             // Campo de email
             BellotaTextField(
               controller: _emailController,
-              label: 'Correo electrónico',
-              hint: 'tu@correo.com',
+              label: AppTranslations.get('onboarding_and_auth', 'email_label', lang),
+              hint: AppTranslations.get('onboarding_and_auth', 'email_hint', lang),
               prefixIcon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Ingresa tu correo';
-                if (!v.contains('@')) return 'Correo no válido';
+                if (v == null || v.isEmpty) return AppTranslations.get('onboarding_and_auth', 'enter_email', lang);
+                if (!v.contains('@')) return AppTranslations.get('onboarding_and_auth', 'invalid_email', lang);
                 return null;
               },
             ),
@@ -272,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen>
             // Campo de contraseña
             BellotaTextField(
               controller: _passwordController,
-              label: 'Contraseña',
+              label: AppTranslations.get('onboarding_and_auth', 'password_label', lang),
               hint: '••••••••',
               prefixIcon: Icons.lock_outline,
               obscureText: !_passwordVisible,
@@ -287,8 +291,8 @@ class _LoginScreenState extends State<LoginScreen>
                     setState(() => _passwordVisible = !_passwordVisible),
               ),
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Ingresa tu contraseña';
-                if (v.length < 6) return 'Mínimo 6 caracteres';
+                if (v == null || v.isEmpty) return AppTranslations.get('onboarding_and_auth', 'enter_pass', lang);
+                if (v.length < 6) return AppTranslations.get('onboarding_and_auth', 'min_6_chars', lang);
                 return null;
               },
             ),
@@ -305,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen>
                   minimumSize: const Size(10, 36),
                 ),
                 child: Text(
-                  '¿Olvidaste tu contraseña?',
+                  AppTranslations.get('onboarding_and_auth', 'forgot_pass', lang),
                   style: textTheme.bodySmall?.copyWith(
                     color: BellotaColors.blanco.withValues(alpha: 0.85),
                     decoration: TextDecoration.underline,
@@ -321,7 +325,7 @@ class _LoginScreenState extends State<LoginScreen>
             _BellotaButton(
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
-              label: 'Ingresar',
+              label: AppTranslations.get('onboarding_and_auth', 'enter', lang),
             ),
             const SizedBox(height: 20),
 
@@ -335,7 +339,7 @@ class _LoginScreenState extends State<LoginScreen>
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
-                    'o continúa con',
+                    AppTranslations.get('onboarding_and_auth', 'or_continue_with', lang),
                     style: textTheme.bodySmall?.copyWith(
                         color: BellotaColors.blanco.withValues(alpha: 0.65)),
                   ),
@@ -350,7 +354,7 @@ class _LoginScreenState extends State<LoginScreen>
 
             // Botón de Google
             _SocialButton(
-              label: 'Continuar con Google',
+              label: AppTranslations.get('onboarding_and_auth', 'continue_google', lang),
               icon: Icons.g_mobiledata_rounded,
               onPressed: () {},
             ),
@@ -363,7 +367,7 @@ class _LoginScreenState extends State<LoginScreen>
                   style: textTheme.bodySmall?.copyWith(
                       color: BellotaColors.blanco.withValues(alpha: 0.75)),
                   children: [
-                    const TextSpan(text: '¿No tienes cuenta? '),
+                    TextSpan(text: AppTranslations.get('onboarding_and_auth', 'no_account', lang)),
                     WidgetSpan(
                       child: GestureDetector(
                         onTap: () => NavigationService.goTo(
@@ -371,7 +375,7 @@ class _LoginScreenState extends State<LoginScreen>
                           const RegisterScreen(),
                         ),
                         child: Text(
-                          'Regístrate',
+                          AppTranslations.get('onboarding_and_auth', 'register_now', lang),
                           style: textTheme.bodySmall?.copyWith(
                             color: BellotaColors.blanco,
                             fontWeight: FontWeight.w700,

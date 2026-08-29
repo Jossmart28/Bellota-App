@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_translations.dart';
+import '../l10n/language_notifier.dart';
+import '../core/services/navigation_service.dart';
 import '../theme/bellota_colors.dart';
 import '../database/database_helper.dart';
 import 'dashboard_screen.dart';
@@ -146,6 +149,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final lang = languageNotifier.currentLang;
 
     return Scaffold(
       body: Stack(
@@ -173,7 +177,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 child: Column(
                   children: [
                     // ── Header ──
-                    _buildHeader(),
+                    _buildHeader(lang),
 
                     // ── Contenido ──
                     Expanded(
@@ -186,19 +190,19 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                             children: [
                               _buildCard(
                                 icon: Icons.person_outline_rounded,
-                                title: 'Datos Personales',
+                                title: AppTranslations.get('onboarding_and_auth', 'personal_data', lang),
                                 number: '1',
-                                child: _buildPersonalSection(),
+                                child: _buildPersonalSection(lang),
                               ),
                               SizedBox(height: 16),
                               _buildCard(
                                 icon: Icons.calendar_today_rounded,
-                                title: 'Tu Ciclo Menstrual',
+                                title: AppTranslations.get('onboarding_and_auth', 'your_cycle', lang),
                                 number: '2',
-                                child: _buildCycleSection(),
+                                child: _buildCycleSection(lang),
                               ),
                               SizedBox(height: 28),
-                              _buildCTAButton(),
+                              _buildCTAButton(lang),
                               SizedBox(height: 16),
                             ],
                           ),
@@ -216,7 +220,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   }
 
   // ── HEADER ──────────────────────────────────────────────────────────────────
-  Widget _buildHeader() {
+  Widget _buildHeader(String lang) {
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
       child: Row(
@@ -229,7 +233,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Cuéntanos sobre ti',
+                  AppTranslations.get('onboarding_and_auth', 'tell_us', lang),
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 20,
@@ -238,7 +242,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                   ),
                 ),
                 Text(
-                  'Solo lo hacemos una vez 🌸',
+                  AppTranslations.get('onboarding_and_auth', 'only_once', lang),
                   style: GoogleFonts.poppins(
                     color: Colors.white.withValues(alpha: 0.75),
                     fontSize: 12,
@@ -330,38 +334,38 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── SECCIÓN DATOS PERSONALES ─────────────────────────────────────────────────
-  Widget _buildPersonalSection() {
+  // ── SECCIÓN DATOS PERSONALES ───────────────────────────────────────────
+  Widget _buildPersonalSection(String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildFieldLabel('Edad', Icons.cake_rounded),
+        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'age', lang), Icons.cake_rounded),
         SizedBox(height: 8),
         TextFormField(
           controller: _ageController,
           keyboardType: TextInputType.number,
           style: GoogleFonts.poppins(color: BellotaColors.textoDark, fontSize: 15),
-          decoration: _inputDecoration('Ej. 25 años', Icons.numbers_rounded),
+          decoration: _inputDecoration(AppTranslations.get('onboarding_and_auth', 'age_hint', lang), Icons.numbers_rounded),
           validator: (val) {
             if (val != null && val.isNotEmpty && int.tryParse(val) == null) {
-              return 'Introduce un número válido';
+              return AppTranslations.get('onboarding_and_auth', 'invalid_number', lang);
             }
             return null;
           },
         ),
 
         SizedBox(height: 20),
-        _buildFieldLabel('Ubicación', Icons.place_rounded),
+        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'location', lang), Icons.place_rounded),
         SizedBox(height: 8),
-        _buildLocationPicker(),
+        _buildLocationPicker(lang),
 
         SizedBox(height: 20),
-        _buildFieldLabel('Filtro para Centros de Salud', Icons.map_rounded),
+        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'health_center_filter', lang), Icons.map_rounded),
         SizedBox(height: 8),
-        _buildDepartmentMunicipalityPicker(),
+        _buildDepartmentMunicipalityPicker(lang),
 
         SizedBox(height: 20),
-        _buildFieldLabel('Anticonceptivos / Medicamentos', Icons.medication_rounded),
+        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'medications', lang), Icons.medication_rounded),
         SizedBox(height: 10),
         Wrap(
           spacing: 8,
@@ -397,15 +401,15 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── SECCIÓN CICLO ────────────────────────────────────────────────────────────
-  Widget _buildCycleSection() {
+  // ── SECCIÓN CICLO ─────────────────────────────────────────────────────────
+  Widget _buildCycleSection(String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSliderBlock(
-          label: 'Duración del ciclo',
+          label: AppTranslations.get('onboarding_and_auth', 'cycle_duration', lang),
           value: _cycleDuration,
-          unit: 'días',
+          unit: AppTranslations.get('profile_and_report', 'days', lang),
           min: 20,
           max: 45,
           color: BellotaColors.chilero,
@@ -417,9 +421,9 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         ),
         SizedBox(height: 20),
         _buildSliderBlock(
-          label: 'Duración de la menstruación',
+          label: AppTranslations.get('onboarding_and_auth', 'period_duration', lang),
           value: _periodDuration,
-          unit: 'días',
+          unit: AppTranslations.get('profile_and_report', 'days', lang),
           min: 1,
           max: 10,
           color: BellotaColors.melon,
@@ -444,7 +448,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Ciclo: $_cycleDuration días  •  Menstruación: $_periodDuration días',
+                  '${AppTranslations.get('onboarding_and_auth', 'cycle', lang)}: $_cycleDuration ${AppTranslations.get('profile_and_report', 'days', lang)}  •  ${AppTranslations.get('onboarding_and_auth', 'menstruation', lang)}: $_periodDuration ${AppTranslations.get('profile_and_report', 'days', lang)}',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: BellotaColors.textoMedio,
@@ -526,7 +530,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   }
 
   // ── LOCATION PICKER ──────────────────────────────────────────────────────────
-  Widget _buildLocationPicker() {
+  Widget _buildLocationPicker(String lang) {
     final hasLocation = _locationLabel.isNotEmpty;
     return GestureDetector(
       onTap: () async {
@@ -607,8 +611,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── FILTRO DEPARTAMENTO / MUNICIPIO ─────────────────────────────────────────
-  Widget _buildDepartmentMunicipalityPicker() {
+  // ── DEPARTAMENTOS Y MUNICIPIOS (Local) ──
+  Widget _buildDepartmentMunicipalityPicker(String lang) {
     final hasSelection = _selectedDepartment != null && _selectedMunicipality != null;
     final label = hasSelection
         ? '$_selectedMunicipality, $_selectedDepartment'
@@ -802,8 +806,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── CTA BUTTON ───────────────────────────────────────────────────────────────
-  Widget _buildCTAButton() {
+  // ── BOTÓN CONTINUAR ──
+  Widget _buildCTAButton(String lang) {
     return GestureDetector(
       onTap: _saveAndContinue,
       child: Container(
@@ -829,7 +833,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Finalizar Registro',
+                AppTranslations.get('onboarding_and_auth', 'finish_registration', lang),
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 17,

@@ -18,38 +18,38 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
 
   final List<Map<String, dynamic>> _symptomCategories = [
     {
-      'title': 'Todo el cuerpo',
+      'title': AppTranslations.get('registration_form', 'whole_body', languageNotifier.currentLang),
       'symptoms': [
-        'Fiebre',
-        'Dolor de cuerpo',
-        'Distensión general',
+        AppTranslations.get('registration_form', 'fever', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'body_ache', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'general_distension', languageNotifier.currentLang),
       ]
     },
     {
-      'title': 'Cabeza',
+      'title': AppTranslations.get('registration_form', 'head', languageNotifier.currentLang),
       'symptoms': [
-        'Dolor de cabeza',
-        'Vértigo',
-        'Insomnio',
-        'Vómitos',
-        'Acné',
+        AppTranslations.get('registration_form', 'headache', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'vertigo', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'insomnia', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'vomiting', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'acne', languageNotifier.currentLang),
       ]
     },
     {
-      'title': 'Abdomen',
+      'title': AppTranslations.get('registration_form', 'abdomen', languageNotifier.currentLang),
       'symptoms': [
-        'Dolor abdominal',
-        'Distensión abdominal y vientre hinchado',
-        'Diarrea',
-        'Estreñimiento',
+        AppTranslations.get('registration_form', 'abdominal_pain', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'abdominal_distension', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'diarrhea', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'constipation', languageNotifier.currentLang),
       ]
     },
     {
-      'title': 'Otro',
+      'title': AppTranslations.get('registration_form', 'other', languageNotifier.currentLang),
       'symptoms': [
-        'Sensibilidad en los senos',
-        'Secreción vaginal anormal',
-        'Manchado menstrual',
+        AppTranslations.get('registration_form', 'breast_tenderness', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'abnormal_discharge', languageNotifier.currentLang),
+        AppTranslations.get('registration_form', 'spotting', languageNotifier.currentLang),
       ]
     }
   ];
@@ -89,10 +89,10 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text(AppTranslations.get('registration_form', 'cancel', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: Text('Síntomas', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+        title: Text(AppTranslations.get('registration_form', 'symptoms', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           TextButton(
@@ -206,7 +206,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Personalización',
+            AppTranslations.get('registration_form', 'personalization', languageNotifier.currentLang),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -218,7 +218,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             controller: _customSymptomController,
             onSubmitted: (_) => _saveCustomSymptom(),
             decoration: InputDecoration(
-              hintText: 'Síntomas personalizados',
+              hintText: AppTranslations.get('registration_form', 'custom_symptoms', languageNotifier.currentLang),
               hintStyle: TextStyle(color: Colors.grey[400]),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -237,7 +237,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
           ),
           SizedBox(height: 8),
           Text(
-            'Pulse la tecla Enter para finalizar la edición',
+            AppTranslations.get('registration_form', 'press_enter', languageNotifier.currentLang),
             style: TextStyle(fontSize: 12, color: Colors.grey[500]),
           ),
           // Mostrar síntomas personalizados agregados

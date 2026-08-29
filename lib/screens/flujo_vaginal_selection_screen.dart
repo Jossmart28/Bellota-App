@@ -16,11 +16,11 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
   late Set<String> _selectedFlujos;
 
   final List<String> _flujoOptions = [
-    'Seco',
-    'Espeso',
-    'Líquido y elástico',
-    'Acuoso',
-    'Clara de huevo',
+    AppTranslations.get('registration_form', 'dry', languageNotifier.currentLang),
+    AppTranslations.get('registration_form', 'thick', languageNotifier.currentLang),
+    AppTranslations.get('registration_form', 'liquid_elastic', languageNotifier.currentLang),
+    AppTranslations.get('registration_form', 'watery', languageNotifier.currentLang),
+    AppTranslations.get('registration_form', 'egg_white', languageNotifier.currentLang),
   ];
 
   @override
@@ -48,10 +48,10 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text('Cancelar', style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text(AppTranslations.get('registration_form', 'cancel', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
         ),
         leadingWidth: 80,
-        title: Text('Flujo vaginal', style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+        title: Text(AppTranslations.get('registration_form', 'vaginal_flow', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           TextButton(

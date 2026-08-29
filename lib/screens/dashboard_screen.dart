@@ -14,6 +14,7 @@ import 'calendar_screen.dart';
 import 'symptom_log_screen.dart';
 import 'profile_screen.dart';
 import '../widgets/health_info_carousel.dart';
+import '../core/services/cycle_service.dart';
 
 /// Dashboard principal de Bellota
 class DashboardScreen extends StatefulWidget {
@@ -36,6 +37,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<String> _todaySymptoms = [];
   DateTime _nextPeriodDate = DateTime.now().add(Duration(days: 14));
   int _cycleDuration = 28;
+  int _periodDuration = 5;
+  CycleInfo? _cycleInfo;
+  bool _hasPeriodsRegistered = true;
 
   // ── Definición de las 4 fases ──
   final List<_PhaseData> _phases = [
@@ -113,10 +117,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadDashboardData(int userId) async {
-    // 1. Cargar perfil para duración de ciclo (si existe) y foto de perfil
+    // 1. Cargar perfil para duración de ciclo y foto de perfil
     final profile = await DatabaseHelper.instance.getProfile(userId);
     if (profile != null) {
       _cycleDuration = profile['cycle_duration'] as int? ?? 28;
+      _periodDuration = profile['period_duration'] as int? ?? 5;
       if (profile['profile_image_path'] != null) {
         setState(() {
           _profileImagePath = profile['profile_image_path'] as String?;
@@ -124,57 +129,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     }
 
-    // 2. Determinar fase actual
+    // 2. Obtener datos de períodos
     final now = DateTime.now();
     final lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(userId);
+    final allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
     
-    int cycleDay = 1;
-    if (lastPeriod != null) {
-      final diff = now.difference(lastPeriod).inDays;
-      if (diff >= 0) {
-        cycleDay = (diff % _cycleDuration) + 1;
-      }
-    } else {
-      // Si no hay datos, simulamos o dejamos valor por defecto
-      final diff = now.difference(DateTime(2026, 1, 1)).inDays;
-      cycleDay = diff >= 0 ? (diff % _cycleDuration) + 1 : 1;
+    // 3. Calcular info del ciclo usando CycleService
+    final cycleInfo = CycleService.instance.calculateCycleInfo(
+      referenceDate: now,
+      lastPeriodStart: lastPeriod,
+      cycleDuration: _cycleDuration,
+      periodDuration: _periodDuration,
+      allPeriodStarts: allPeriodStarts.isNotEmpty ? allPeriodStarts : null,
+    );
+
+    // 4. Mapear fase a índice del array _phases
+    int phaseIndex;
+    switch (cycleInfo.phase) {
+      case CyclePhase.ovulatory:
+        phaseIndex = 0;
+      case CyclePhase.luteal:
+        phaseIndex = 1;
+      case CyclePhase.follicular:
+        phaseIndex = 2;
+      case CyclePhase.menstrual:
+        phaseIndex = 3;
     }
 
-    // Asignamos la fase según el día del ciclo
-    if (cycleDay <= 5) {
-      _currentPhaseIndex = 3; // Menstrual
-    } else if (cycleDay <= 13) {
-      _currentPhaseIndex = 2; // Folicular
-    } else if (cycleDay <= 16) {
-      _currentPhaseIndex = 0; // Ovulatoria
-    } else {
-      _currentPhaseIndex = 1; // Lútea
-    }
-    
-    // Próximo periodo estimado
-    int daysUntilNext = _cycleDuration - cycleDay + 1;
-    _nextPeriodDate = now.add(Duration(days: daysUntilNext));
-
-    // 3. Cargar síntomas registrados HOY
+    // 5. Cargar síntomas registrados HOY
     String todayKey = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final log = await DatabaseHelper.instance.getDailyLog(userId, todayKey);
 
     List<String> combinedSymptoms = [];
+    bool periodoIniciado = false;
     if (log != null) {
-      if ((log['period_start'] as int?) == 1) {
-        _periodoIniciado = true;
-      } else {
-        _periodoIniciado = false;
-      }
-      
+      periodoIniciado = (log['period_start'] as int?) == 1;
       List<String> s = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
       combinedSymptoms.addAll(s);
-    } else {
-      _periodoIniciado = false;
     }
 
     setState(() {
+      _currentPhaseIndex = phaseIndex;
+      _cycleInfo = cycleInfo;
+      _hasPeriodsRegistered = cycleInfo.hasData;
+      _nextPeriodDate = cycleInfo.nextPeriodDate;
       _todaySymptoms = combinedSymptoms;
+      _periodoIniciado = periodoIniciado;
     });
   }
 
@@ -232,9 +232,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 16),
             _buildHeader(context),
             SizedBox(height: 28),
+            _buildPeriodoToggle(context),
+            SizedBox(height: 20),
             _buildSectionLabel(context, AppTranslations.get('dashboard', 'predictions', languageNotifier.currentLang)),
             SizedBox(height: 10),
-            _buildPrediccionesCard(context),
+            if (!_hasPeriodsRegistered)
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: BellotaColors.blanco,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: BellotaColors.melon.withValues(alpha: 0.08),
+                      blurRadius: 18,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.calendar_today_rounded, size: 40, color: BellotaColors.textoMedio.withValues(alpha: 0.5)),
+                    SizedBox(height: 12),
+                    Text(
+                      'Registra tu primer período para ver predicciones',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: BellotaColors.textoMedio),
+                    ),
+                  ],
+                ),
+              ),
+            if (_hasPeriodsRegistered)
+              _buildPrediccionesCard(context),
             SizedBox(height: 28),
             _buildSectionLabel(context, AppTranslations.get('dashboard', 'todays_summary', languageNotifier.currentLang)),
             SizedBox(height: 10),

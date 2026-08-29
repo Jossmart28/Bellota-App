@@ -8,6 +8,7 @@ import '../widgets/bellota_top_actions.dart';
 import '../widgets/bellota_icon.dart';
 import '../database/database_helper.dart';
 import 'symptom_log_screen.dart';
+import '../core/services/cycle_service.dart';
 
 enum CalendarViewType { weekly, monthly, annual }
 
@@ -24,6 +25,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   int? _userId;
   DateTime? _lastPeriodStart;
   DateTime? _firstPeriodStart;
+  int _cycleDuration = 28;
+  int _periodDuration = 5;
 
   CalendarViewType _currentView = CalendarViewType.monthly;
   final DateTime _currentDate = DateTime.now(); // Fecha real actual
@@ -72,9 +75,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     DateTime? lastPeriodStart;
     DateTime? firstPeriodStart;
+    int cycleDuration = 28;
+    int periodDuration = 5;
+
     if (userId != null) {
       lastPeriodStart = await DatabaseHelper.instance.getLastPeriodStart(userId);
       firstPeriodStart = await DatabaseHelper.instance.getFirstPeriodStart(userId);
+      
+      // Load cycle configuration from profile
+      final profile = await DatabaseHelper.instance.getProfile(userId);
+      if (profile != null) {
+        cycleDuration = profile['cycle_duration'] as int? ?? 28;
+        periodDuration = profile['period_duration'] as int? ?? 5;
+      }
     }
 
     setState(() {
@@ -83,6 +96,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _userId = userId;
       _lastPeriodStart = lastPeriodStart;
       _firstPeriodStart = firstPeriodStart;
+      _cycleDuration = cycleDuration;
+      _periodDuration = periodDuration;
     });
   }
 
@@ -94,16 +109,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
       return Colors.grey[300]!; // Color neutral si no hay registro
     }
 
-    // Calcula la diferencia de días
-    final diff = date.difference(_lastPeriodStart!).inDays;
-    
-    // Extrapolamos hacia atrás y hacia adelante (diff puede ser negativo)
-    final cycleDay = (diff % 28) + 1;
+    final phase = CycleService.instance.getPhaseForDate(
+      date: date,
+      lastPeriodStart: _lastPeriodStart!,
+      cycleDuration: _cycleDuration,
+      periodDuration: _periodDuration,
+    );
 
-    if (cycleDay <= 5) return BellotaColors.chilero; // Menstrual
-    if (cycleDay <= 13) return BellotaColors.chiltoma; // Folicular
-    if (cycleDay <= 16) return BellotaColors.melon; // Ovulatoria
-    return BellotaColors.asuncion; // Lútea
+    return CycleService.instance.getPhaseColor(phase);
   }
 
   @override
