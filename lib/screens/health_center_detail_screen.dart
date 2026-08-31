@@ -129,7 +129,6 @@ class HealthCenterDetailScreen extends StatelessWidget {
           // === BOTONES GLOBALES ===
           BellotaTopActions(
             showSettings: false,
-            onLanguagePressed: () {},
             onTalkBackPressed: () {},
           ),
         ],

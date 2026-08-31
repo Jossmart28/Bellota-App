@@ -28,11 +28,36 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
   late AnimationController _overlayFadeController;
   late Animation<double> _overlayFadeAnim;
 
-  final List<String> _dayNames = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
-  final List<String> _monthNames = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
+  List<String> get _dayNames {
+    final lang = languageNotifier.currentLang;
+    return [
+      AppTranslations.get('calendar', 'sun', lang),
+      AppTranslations.get('calendar', 'mon', lang),
+      AppTranslations.get('calendar', 'tue', lang),
+      AppTranslations.get('calendar', 'wed', lang),
+      AppTranslations.get('calendar', 'thu', lang),
+      AppTranslations.get('calendar', 'fri', lang),
+      AppTranslations.get('calendar', 'sat', lang),
+    ];
+  }
+
+  List<String> get _monthNames {
+    final lang = languageNotifier.currentLang;
+    return [
+      AppTranslations.get('calendar', 'jan', lang),
+      AppTranslations.get('calendar', 'feb', lang),
+      AppTranslations.get('calendar', 'mar', lang),
+      AppTranslations.get('calendar', 'apr', lang),
+      AppTranslations.get('calendar', 'may', lang),
+      AppTranslations.get('calendar', 'jun', lang),
+      AppTranslations.get('calendar', 'jul', lang),
+      AppTranslations.get('calendar', 'aug', lang),
+      AppTranslations.get('calendar', 'sep', lang),
+      AppTranslations.get('calendar', 'oct', lang),
+      AppTranslations.get('calendar', 'nov', lang),
+      AppTranslations.get('calendar', 'dec', lang),
+    ];
+  }
 
   @override
   void initState() {
@@ -115,9 +140,12 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: BellotaColors.basilica,
-      body: SafeArea(
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          backgroundColor: BellotaColors.basilica,
+          body: SafeArea(
         child: Stack(
           children: [
             // ── Main Calendar Content ──
@@ -143,7 +171,8 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
         ),
       ),
     );
-  }
+  });
+}
 
   Widget _buildHeader() {
     return Padding(
@@ -365,7 +394,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
           Padding(
             padding: EdgeInsets.only(bottom: 24),
             child: Text(
-              'Toca el día en que comenzó\ntu último período',
+              AppTranslations.get('onboarding', 'tap_last_period_start', languageNotifier.currentLang),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: BellotaColors.textoMedio,
@@ -405,7 +434,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               ),
               SizedBox(height: 16),
               Text(
-                'Para comenzar, necesitamos saber cuándo fue el primer día de tu último período.\n\nToca un día en el calendario para marcarlo.',
+                AppTranslations.get('onboarding', 'instructions', languageNotifier.currentLang),
                 style: TextStyle(
                   color: BellotaColors.blanco.withValues(alpha: 0.85),
                   fontSize: 15,

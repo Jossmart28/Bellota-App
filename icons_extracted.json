@@ -1,0 +1,803 @@
+[
+  {
+    "name": "Icons.arrow_back_ios_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\calendar_screen.dart",
+      "lib\\screens\\notifications_settings_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 16, color: BellotaColors.chilero",
+      "size: default, color: BellotaColors.textoDark"
+    ]
+  },
+  {
+    "name": "BellotaIcon",
+    "library": "Custom Widget",
+    "locations": [
+      "lib\\screens\\calendar_screen.dart",
+      "lib\\screens\\calendar_tour_screen.dart",
+      "lib\\screens\\map_screen.dart",
+      "lib\\widgets\\bellota_icon.dart"
+    ],
+    "path_or_code": "lib/widgets/bellota_icon.dart",
+    "properties": [
+      "size: 20, color: color",
+      "size: 28, color: BellotaColors.chilero",
+      "size: 32, color: BellotaColors.chilero",
+      "size: 64, color: BellotaColors.nancite",
+      "size: default (24), color: default"
+    ]
+  },
+  {
+    "name": "Icons.chevron_left",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\calendar_tour_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.chilero"
+    ]
+  },
+  {
+    "name": "Icons.chevron_right",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\calendar_tour_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.chilero"
+    ]
+  },
+  {
+    "name": "Icons.arrow_downward_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\calendar_tour_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.nancite.withValues"
+    ]
+  },
+  {
+    "name": "Icons.calendar_today_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart",
+      "lib\\screens\\personal_data_screen.dart",
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 40, color: BellotaColors.textoMedio.withValues",
+      "size: 16, color: BellotaColors.chilero"
+    ]
+  },
+  {
+    "name": "Icons.water_drop_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart",
+      "lib\\screens\\notifications_settings_screen.dart",
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 18, color: BellotaColors.chilero"
+    ]
+  },
+  {
+    "name": "Icons.article_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 38, color: BellotaColors.melon"
+    ]
+  },
+  {
+    "name": "Icons.home_filled",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.calendar_month_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.location_on_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.person_outline_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart",
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "default_avatar.png",
+    "library": "Image Asset",
+    "locations": [
+      "lib\\screens\\dashboard_screen.dart",
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "assets/images/default_avatar.png",
+    "properties": [
+      "width: 48, height: 48",
+      "width: 110, height: 110"
+    ]
+  },
+  {
+    "name": "Icons.check",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\flujo_vaginal_selection_screen.dart",
+      "lib\\screens\\sexo_selection_screen.dart",
+      "lib\\screens\\symptoms_selection_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 16, color: Colors.white"
+    ]
+  },
+  {
+    "name": "Icons.arrow_back_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\health_center_detail_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 20, color: BellotaColors.textoDark"
+    ]
+  },
+  {
+    "name": "Icons.search",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\health_center_detail_screen.dart",
+      "lib\\screens\\map_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 22, color: BellotaColors.textoMedio"
+    ]
+  },
+  {
+    "name": "Icons.local_hospital_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\health_center_detail_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.blanco.withValues"
+    ]
+  },
+  {
+    "name": "Icons.location_pin",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\location_picker_screen.dart",
+      "lib\\screens\\map_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 48, color: BellotaColors.chilero",
+      "size: 32, color: BellotaColors.textoDark"
+    ]
+  },
+  {
+    "name": "Icons.place",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\location_picker_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.chilero"
+    ]
+  },
+  {
+    "name": "Icons.check_circle_outline",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\location_picker_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: Colors.white"
+    ]
+  },
+  {
+    "name": "Icons.email_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\login_screen.dart",
+      "lib\\screens\\register_screen.dart",
+      "lib\\widgets\\bellota_text_field.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.lock_outline",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\login_screen.dart",
+      "lib\\screens\\register_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.visibility_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\login_screen.dart",
+      "lib\\screens\\register_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.visibility_off_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\login_screen.dart",
+      "lib\\screens\\register_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.g_mobiledata_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\login_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "logo_white.png",
+    "library": "Image Asset",
+    "locations": [
+      "lib\\screens\\login_screen.dart",
+      "lib\\screens\\onboarding_screen.dart",
+      "lib\\screens\\personal_data_screen.dart",
+      "lib\\screens\\splash_screen.dart"
+    ],
+    "path_or_code": "assets/images/logo_white.png",
+    "properties": [
+      "height: 32",
+      "height: 30"
+    ]
+  },
+  {
+    "name": "Icons.arrow_forward_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\map_screen.dart",
+      "lib\\screens\\onboarding_screen.dart",
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 22, color: BellotaColors.blanco",
+      "size: 22, color: Colors.white"
+    ]
+  },
+  {
+    "name": "Icons.favorite",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\medical_report_preview_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 40, color: BellotaColors.chilero"
+    ]
+  },
+  {
+    "name": "Icons.picture_as_pdf",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\medical_report_preview_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: Colors.white"
+    ]
+  },
+  {
+    "name": "logo_color.png",
+    "library": "Image Asset",
+    "locations": [
+      "lib\\screens\\medical_report_preview_screen.dart"
+    ],
+    "path_or_code": "assets/images/logo_color.png",
+    "properties": [
+      "height: 60"
+    ]
+  },
+  {
+    "name": "Icons.favorite_border_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\notifications_settings_screen.dart",
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.medication_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\notifications_settings_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.calendar_month_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\notifications_settings_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.notifications_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\notifications_settings_screen.dart",
+      "lib\\widgets\\bellota_top_actions.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.volume_up_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\notifications_settings_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.circle",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\onboarding_screen.dart",
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 32, color: Colors.white30",
+      "size: 30, color: Colors.white54"
+    ]
+  },
+  {
+    "name": "Icons.image_not_supported",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\onboarding_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 100, color: Colors.white54"
+    ]
+  },
+  {
+    "name": "Icons.check_circle_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\onboarding_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.info_outline_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 18, color: BellotaColors.textoMedio"
+    ]
+  },
+  {
+    "name": "Icons.chevron_right_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart",
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: hasLocation",
+      "size: default, color: BellotaColors.melon.withValues",
+      "size: default, color: BellotaColors.textoMedio.withValues"
+    ]
+  },
+  {
+    "name": "Icons.cake_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.numbers_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.place_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.medication_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.loop_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.water_drop_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.map_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\personal_data_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.logout_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 20, color: Colors.red"
+    ]
+  },
+  {
+    "name": "Icons.photo_library_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.melon"
+    ]
+  },
+  {
+    "name": "Icons.camera_alt_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.chilero"
+    ]
+  },
+  {
+    "name": "Icons.delete_outline",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: Colors.red"
+    ]
+  },
+  {
+    "name": "Icons.translate_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 18, color: BellotaColors.textoDark"
+    ]
+  },
+  {
+    "name": "Icons.volume_up_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart",
+      "lib\\widgets\\bellota_top_actions.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 18, color: Colors.white"
+    ]
+  },
+  {
+    "name": "Icons.camera_alt_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 16, color: Colors.white"
+    ]
+  },
+  {
+    "name": "Icons.dark_mode_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.light_mode_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\profile_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.arrow_back_ios",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\register_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: default, color: BellotaColors.blanco"
+    ]
+  },
+  {
+    "name": "Icons.person_outline",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\register_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "showmas_logo.png",
+    "library": "Image Asset",
+    "locations": [
+      "lib\\screens\\splash_screen.dart"
+    ],
+    "path_or_code": "assets/images/showmas_logo.png",
+    "properties": [
+      "height: 60"
+    ]
+  },
+  {
+    "name": "Icons.arrow_back_ios_new_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 18, color: BellotaColors.textoDark"
+    ]
+  },
+  {
+    "name": "Icons.medical_services_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.opacity_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.bloodtype_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.healing_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.edit_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.add_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\screens\\symptom_log_screen.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.settings_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\widgets\\bellota_top_actions.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "default"
+    ]
+  },
+  {
+    "name": "Icons.image_outlined",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\widgets\\health_info_carousel.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 38, color: data.accentColor.withValues"
+    ]
+  },
+  {
+    "name": "Icons.open_in_new_rounded",
+    "library": "Material Icons",
+    "locations": [
+      "lib\\widgets\\health_info_carousel.dart"
+    ],
+    "path_or_code": "Material builtin",
+    "properties": [
+      "size: 12, color: Colors.white"
+    ]
+  }
+]

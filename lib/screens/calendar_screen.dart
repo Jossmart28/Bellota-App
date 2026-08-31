@@ -40,11 +40,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // Estado para la Subventana de la vista anual
   DateTime? _annualDetailMonth;
 
-  final List<String> _dayNames = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
-  final List<String> _monthNames = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-  ];
+  List<String> get _dayNames {
+    final lang = languageNotifier.currentLang;
+    return [
+      AppTranslations.get('calendar', 'sun', lang),
+      AppTranslations.get('calendar', 'mon', lang),
+      AppTranslations.get('calendar', 'tue', lang),
+      AppTranslations.get('calendar', 'wed', lang),
+      AppTranslations.get('calendar', 'thu', lang),
+      AppTranslations.get('calendar', 'fri', lang),
+      AppTranslations.get('calendar', 'sat', lang),
+    ];
+  }
+
+  List<String> get _monthNames {
+    final lang = languageNotifier.currentLang;
+    return [
+      AppTranslations.get('calendar', 'jan', lang),
+      AppTranslations.get('calendar', 'feb', lang),
+      AppTranslations.get('calendar', 'mar', lang),
+      AppTranslations.get('calendar', 'apr', lang),
+      AppTranslations.get('calendar', 'may', lang),
+      AppTranslations.get('calendar', 'jun', lang),
+      AppTranslations.get('calendar', 'jul', lang),
+      AppTranslations.get('calendar', 'aug', lang),
+      AppTranslations.get('calendar', 'sep', lang),
+      AppTranslations.get('calendar', 'oct', lang),
+      AppTranslations.get('calendar', 'nov', lang),
+      AppTranslations.get('calendar', 'dec', lang),
+    ];
+  }
 
   @override
   void initState() {
@@ -515,7 +540,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildSymptomsBox() {
     if (_selectedDate == null) return SizedBox();
     final textTheme = Theme.of(context).textTheme;
-    String dateStr = '${_dayNames[_selectedDate!.weekday == 7 ? 0 : _selectedDate!.weekday]}, ${_selectedDate!.day} de ${_monthNames[_selectedDate!.month - 1]} ${_selectedDate!.year}';
+    final lang = languageNotifier.currentLang;
+    final _de = lang == 'en' ? '' : ' de ';
+    String dateStr = lang == 'en'
+        ? '${_dayNames[_selectedDate!.weekday == 7 ? 0 : _selectedDate!.weekday]}, ${_monthNames[_selectedDate!.month - 1]} ${_selectedDate!.day}, ${_selectedDate!.year}'
+        : '${_dayNames[_selectedDate!.weekday == 7 ? 0 : _selectedDate!.weekday]}, ${_selectedDate!.day}$_de${_monthNames[_selectedDate!.month - 1]} ${_selectedDate!.year}';
     String dateKey = '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}';
 
     final now = DateTime.now();
@@ -590,12 +619,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
               if (!hasData)
                 Text(
-                  'No hay registros para este día.\nPresiona el botón para agregar.',
+                  AppTranslations.get('calendar_screen', 'no_entries_day', languageNotifier.currentLang),
                   style: textTheme.bodyMedium?.copyWith(color: BellotaColors.textoMedio),
                 ),
 
               if (periodStart)
-                _buildSymptomItem(BellotaColors.chilero, 'Inicio del período'),
+                _buildSymptomItem(BellotaColors.chilero, AppTranslations.get('calendar_screen', 'period_start', languageNotifier.currentLang)),
               ...symptoms.map((s) => _buildSymptomItem(BellotaColors.asuncion, s)),
               ...sexo.map((s) => _buildSymptomItem(BellotaColors.melon, s)),
               ...flujo.map((s) => _buildSymptomItem(Color(0xFFA566C1), s)),

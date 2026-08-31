@@ -301,6 +301,21 @@ class DatabaseHelper {
     return null;
   }
 
+  // Obtener usuario por correo electrónico
+  Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'users',
+      where: 'email = ?',
+      whereArgs: [email.trim().toLowerCase()],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
+  }
+
   // Obtener el perfil de un usuario
   Future<Map<String, dynamic>?> getProfile(int userId) async {
     final db = await instance.database;

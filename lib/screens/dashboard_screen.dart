@@ -42,40 +42,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _hasPeriodsRegistered = true;
 
   // ── Definición de las 4 fases ──
-  final List<_PhaseData> _phases = [
-    _PhaseData(
-      name: 'Fase\nOvulatoria',
-      shortName: AppTranslations.get('cycle_phases', 'ovulatory', languageNotifier.currentLang),
-      color: BellotaColors.melon,
-      borderColor: Color(0xFFD97A4A),
-      symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [AppTranslations.get('symptoms', 'severe_pain', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
-    ),
-    _PhaseData(
-      name: 'Fase\nLútea',
-      shortName: AppTranslations.get('cycle_phases', 'luteal', languageNotifier.currentLang),
-      color: BellotaColors.asuncion,
-      borderColor: Color(0xFF8FAFC8),
-      symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [AppTranslations.get('symptoms', 'fatigue', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
-    ),
-    _PhaseData(
-      name: 'Fase\nFolicular',
-      shortName: AppTranslations.get('cycle_phases', 'follicular', languageNotifier.currentLang),
-      color: BellotaColors.chiltoma,
-      borderColor: Color(0xFF97B580),
-      symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [AppTranslations.get('symptoms', 'high_energy', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
-    ),
-    _PhaseData(
-      name: 'Fase\nMenstrual',
-      shortName: AppTranslations.get('cycle_phases', 'menstrual', languageNotifier.currentLang),
-      color: BellotaColors.chilero,
-      borderColor: Color(0xFFB94A42),
-      symptomsTitle: 'Síntomas\nRegistrados',
-      symptoms: [AppTranslations.get('symptoms', 'cramps', languageNotifier.currentLang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
-    ),
-  ];
+  List<_PhaseData> _getPhases(String lang) {
+    return [
+      _PhaseData(
+        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'ovulatory', lang)}',
+        shortName: AppTranslations.get('cycle_phases', 'ovulatory', lang),
+        color: BellotaColors.melon,
+        borderColor: Color(0xFFD97A4A),
+        symptomsTitle: 'Síntomas\nRegistrados',
+        symptoms: [AppTranslations.get('symptoms', 'severe_pain', lang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      ),
+      _PhaseData(
+        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'luteal', lang)}',
+        shortName: AppTranslations.get('cycle_phases', 'luteal', lang),
+        color: BellotaColors.asuncion,
+        borderColor: Color(0xFF8FAFC8),
+        symptomsTitle: 'Síntomas\nRegistrados',
+        symptoms: [AppTranslations.get('symptoms', 'fatigue', lang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      ),
+      _PhaseData(
+        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'follicular', lang)}',
+        shortName: AppTranslations.get('cycle_phases', 'follicular', lang),
+        color: BellotaColors.chiltoma,
+        borderColor: Color(0xFF97B580),
+        symptomsTitle: 'Síntomas\nRegistrados',
+        symptoms: [AppTranslations.get('symptoms', 'high_energy', lang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      ),
+      _PhaseData(
+        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'menstrual', lang)}',
+        shortName: AppTranslations.get('cycle_phases', 'menstrual', lang),
+        color: BellotaColors.chilero,
+        borderColor: Color(0xFFD46A63),
+        symptomsTitle: 'Síntomas\nRegistrados',
+        symptoms: [AppTranslations.get('symptoms', 'cramps', lang), 'Amet consectetur', 'Adipiscing elit sed', 'Do eiusmod tempor'],
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -191,19 +193,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: BellotaColors.basilica, // Fondo original correcto
-      body: SafeArea(
-        child: _getBody(context),
-      ),
-      bottomNavigationBar: _buildBottomNav(context),
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          backgroundColor: BellotaColors.basilica, // Fondo original correcto
+          body: SafeArea(
+            child: _getBody(context, lang),
+          ),
+          bottomNavigationBar: _buildBottomNav(context),
+        );
+      },
     );
   }
 
-  Widget _getBody(BuildContext context) {
+  Widget _getBody(BuildContext context, String lang) {
     switch (_selectedNavIndex) {
       case 0:
-        return _buildDashboardContent(context);
+        return _buildDashboardContent(context, lang);
       case 1:
         return CalendarScreen();
       case 3:
@@ -220,8 +227,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Widget _buildDashboardContent(BuildContext context) {
-    final phase = _phases[_currentPhaseIndex];
+  Widget _buildDashboardContent(BuildContext context, String lang) {
+    final phase = _getPhases(lang)[_currentPhaseIndex];
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       child: Padding(
@@ -377,7 +384,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         BellotaTopActions(
           showSettings: false,
           showNotifications: true,
-          onLanguagePressed: () {},
           onTalkBackPressed: () {},
           onNotificationPressed: () {},
         ),
@@ -785,7 +791,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _navItem(context, Icons.calendar_month_rounded, AppTranslations.get('navigation', 'calendar', languageNotifier.currentLang), 1),
               _navItem(context, Icons.article_outlined, AppTranslations.get('navigation', 'log', languageNotifier.currentLang), 2),
               _navItem(context, Icons.location_on_outlined, AppTranslations.get('navigation', 'map', languageNotifier.currentLang), 3),
-              _navItem(context, Icons.person_outline_rounded, AppTranslations.get('navigation', 'profile', languageNotifier.currentLang), 4),
+              _navItem(context, Icons.person_outline_rounded, languageNotifier.currentLang == 'mi' ? '' : AppTranslations.get('navigation', 'profile', languageNotifier.currentLang), 4),
             ],
           ),
         ),
@@ -835,15 +841,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               size: 24,
               color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
             ),
-            SizedBox(height: 3),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
+            if (label.isNotEmpty) ...[
+              SizedBox(height: 3),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 10,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

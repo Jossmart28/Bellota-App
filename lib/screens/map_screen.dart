@@ -832,7 +832,6 @@ class _MapScreenState extends State<MapScreen> {
           // === BOTONES GLOBALES ===
           BellotaTopActions(
             showSettings: false, 
-            onLanguagePressed: () {},
             onTalkBackPressed: () {},
           ),
         ],

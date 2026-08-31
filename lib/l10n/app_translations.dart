@@ -57,6 +57,11 @@ class AppTranslations {
       }
     },
     "cycle_phases": {
+      "phase": {
+        "es": "Fase",
+        "en": "Phase",
+        "mi": "Fase"
+      },
       "menstrual_phase": {
         "es": "Fase Menstrual",
         "en": "Menstrual Phase",
@@ -364,6 +369,9 @@ class AppTranslations {
       "reminders_notifications": {"es": "Recordatorios y notificaciones", "en": "Reminders & notifications", "mi": "Kupia krakaia"},
       "privacy_policy": {"es": "Política de privacidad", "en": "Privacy policy", "mi": "Man dukiak ban kaikaia"},
       "language": {"es": "Idioma", "en": "Language", "mi": "Bila"},
+      "appearance": {"es": "Apariencia", "en": "Appearance", "mi": "Naha"},
+      "light_mode": {"es": "Modo Claro", "en": "Light Mode", "mi": "Ingni Mode"},
+      "dark_mode": {"es": "Modo Oscuro", "en": "Dark Mode", "mi": "Tihmia Mode"},
       "logout": {"es": "Cerrar Sesión", "en": "Log out", "mi": "Takaya"},
       "generating_report": {"es": "Generando informe...", "en": "Generating report...", "mi": "Sika ulbanka daukisa..."},
       "not_specified": {"es": "No especificado", "en": "Not specified", "mi": "Nu apia"},
@@ -448,14 +456,37 @@ class AppTranslations {
       "age": {"es": "Edad", "en": "Age", "mi": "Mani"},
       "age_hint": {"es": "Ej. 25 años", "en": "e.g. 25 years", "mi": "Ej. 25 mani"},
       "invalid_number": {"es": "Introduce un número válido", "en": "Enter a valid number", "mi": "Número pain apia"},
+      "location_selected": {"es": "Ubicación seleccionada", "en": "Location selected", "mi": "Mani pliska lakan"},
+      "select_on_map": {"es": "Seleccionar en el mapa", "en": "Select on map", "mi": "Mapa ra plikaia"},
+      "tap_to_open_map": {"es": "Toca para abrir el mapa", "en": "Tap to open map", "mi": "Mapa pakaia dimaia"},
       "location": {"es": "Ubicación", "en": "Location", "mi": "Ubicación"},
       "health_center_filter": {"es": "Filtro para Centros de Salud", "en": "Health Center Filter", "mi": "Sika Watla Filtro"},
       "medications": {"es": "Anticonceptivos / Medicamentos", "en": "Contraceptives / Medications", "mi": "Anticonceptivos / Sika"},
+      "med_none": {"es": "Ninguno", "en": "None", "mi": "Apia"},
+      "med_iud": {"es": "DIU", "en": "IUD", "mi": "DIU"},
+      "med_pills": {"es": "Pastillas", "en": "Pills", "mi": "Pastil"},
+      "med_anticonvulsants": {"es": "Anticonvulsivos", "en": "Anticonvulsants", "mi": "Anticonvulsivos"},
+      "med_anticoagulants": {"es": "Anticoagulantes", "en": "Anticoagulants", "mi": "Anticoagulantes"},
       "cycle": {"es": "Ciclo", "en": "Cycle", "mi": "Kati"},
       "menstruation": {"es": "Menstruación", "en": "Menstruation", "mi": "Kati yu nani"},
       "finish_registration": {"es": "Finalizar Registro", "en": "Finish Registration", "mi": "Bana Ulbaia"}
     }
   };
+
+  // Medication keys (stable identifiers used internally)
+  static const List<String> medicationKeys = ['none', 'iud', 'pills', 'anticonvulsants', 'anticoagulants'];
+
+  /// Returns the translated label for a medication key
+  static String getMedLabel(String key, String lang) {
+    final map = <String, String>{
+      'none': get('onboarding_and_auth', 'med_none', lang),
+      'iud': get('onboarding_and_auth', 'med_iud', lang),
+      'pills': get('onboarding_and_auth', 'med_pills', lang),
+      'anticonvulsants': get('onboarding_and_auth', 'med_anticonvulsants', lang),
+      'anticoagulants': get('onboarding_and_auth', 'med_anticoagulants', lang),
+    };
+    return map[key] ?? key;
+  }
 
   static String get(String category, String key, String lang) {
     if (translations.containsKey(category) && translations[category]!.containsKey(key)) {

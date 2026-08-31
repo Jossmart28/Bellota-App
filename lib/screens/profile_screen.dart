@@ -899,7 +899,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Icon(Icons.logout_rounded, color: Colors.red, size: 20),
             SizedBox(width: 10),
             Text(
-              'Cerrar Sesión',
+              AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang),
               style: GoogleFonts.poppins(
                 color: Colors.red,
                 fontSize: 15,
@@ -1216,7 +1216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Apariencia',
+                          AppTranslations.get('profile_and_report', 'appearance', languageNotifier.currentLang),
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -1224,7 +1224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         Text(
-                          isDark ? 'Modo Oscuro' : 'Modo Claro',
+                          isDark ? AppTranslations.get('profile_and_report', 'dark_mode', languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'light_mode', languageNotifier.currentLang),
                           style: GoogleFonts.poppins(
                             fontSize: 11,
                             color: BellotaColors.textoMedio,

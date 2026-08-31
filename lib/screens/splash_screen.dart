@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/services/navigation_service.dart';
-import '../l10n/app_translations.dart';
-import '../l10n/language_notifier.dart';
 import '../theme/bellota_colors.dart';
 
 /// Pantalla de inicio (Splash) de Bellota.
@@ -143,31 +140,12 @@ class _SplashScreenState extends State<SplashScreen>
                     return FadeTransition(
                       opacity: _fadeAnimation,
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildPageIndicators(),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
-                            child: Text(
-                              AppTranslations.get('onboarding_and_auth', 'slogan', languageNotifier.currentLang),
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'Versión 1.0.0',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: BellotaColors.blanco
-                                          .withValues(alpha: 0.5),
-                                      fontSize: 11,
-                                    ),
+                          Image.asset(
+                            'assets/images/showmas_logo.png',
+                            height: 60,
+                            fit: BoxFit.contain,
                           ),
                         ],
                       ),
@@ -182,25 +160,6 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  /// Construye los indicadores de página en la parte inferior del splash.
-  Widget _buildPageIndicators() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(3, (i) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: i == 0 ? 24 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: i == 0
-                ? BellotaColors.blanco
-                : BellotaColors.blanco.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        );
-      }),
-    );
-  }
 }
 
 // ── Painter decorativo ─────────────────────────────────────────────────────

@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
+import '../theme/bellota_colors.dart';
+import '../widgets/bellota_top_actions.dart';
 import 'calendar_tour_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -22,13 +24,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
 
-  // ─── Contenido de los slides ───
   List<_SlideData> _getSlides(String lang) {
     return [
       _SlideData(
         gradient: [Color(0xFFD35D53), Color(0xFFE8897A)],
-        icon: Icons.favorite_rounded,
-        emoji: '🌸',
+        imagePath: 'assets/images/slide1.png',
         title: AppTranslations.get('onboarding_and_auth', 'slide1_title', lang),
         subtitle: AppTranslations.get('onboarding_and_auth', 'slide1_sub', lang),
         decoration1: Color(0xFFFF8A80),
@@ -36,8 +36,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       ),
       _SlideData(
         gradient: [Color(0xFFEE8658), Color(0xFFF7AD78)],
-        icon: Icons.edit_note_rounded,
-        emoji: '📝',
+        imagePath: 'assets/images/slide2.png',
         title: AppTranslations.get('onboarding_and_auth', 'slide2_title', lang),
         subtitle: AppTranslations.get('onboarding_and_auth', 'slide2_sub', lang),
         decoration1: Color(0xFFFFCC80),
@@ -45,8 +44,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       ),
       _SlideData(
         gradient: [Color(0xFF7A9EB5), Color(0xFFB0C4D8)],
-        icon: Icons.insights_rounded,
-        emoji: '✨',
+        imagePath: 'assets/images/slide3.png',
         title: AppTranslations.get('onboarding_and_auth', 'slide3_title', lang),
         subtitle: AppTranslations.get('onboarding_and_auth', 'slide3_sub', lang),
         decoration1: Color(0xFF90CAF9),
@@ -111,156 +109,166 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final lang = languageNotifier.currentLang;
-    final slidesList = _getSlides(lang);
-    final slide = slidesList[_currentPage];
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      body: AnimatedContainer(
-        duration: Duration(milliseconds: 600),
-        curve: Curves.easeInOut,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: slide.gradient,
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // ── Fondo Cottagecore decorativo ──
-              _buildCottagecoreBg(size, slide),
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        final slidesList = _getSlides(lang);
+        final slide = slidesList[_currentPage];
 
-              Column(
+        return Scaffold(
+          body: AnimatedContainer(
+            duration: Duration(milliseconds: 600),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: slide.gradient,
+              ),
+            ),
+            child: SafeArea(
+              child: Stack(
                 children: [
-                  // ── Header ──
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Logo pequeño
-                        Image.asset('assets/images/logo_white.png', height: 32,
-                            errorBuilder: (_, _, _) => Icon(Icons.circle, color: Colors.white30, size: 32)),
-                        // Saltar
-                        TextButton(
-                          onPressed: _finish,
-                          child: Text(
-                            AppTranslations.get('onboarding_and_auth', 'skip', lang),
-                            style: GoogleFonts.poppins(
-                              color: Colors.white70,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                  // ── Fondo Cottagecore decorativo ──
+                  _buildCottagecoreBg(size, slide),
+
+                  Column(
+                    children: [
+                      // ── Header ──
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
+                        child: Row(
+                          children: [
+                            // Logo pequeño
+                            Image.asset('assets/images/logo_white.png', height: 32,
+                                errorBuilder: (_, _, _) => Icon(Icons.circle, color: Colors.white30, size: 32)),
+                            Spacer(),
+                            // Idioma
+                            BellotaTopActions(showSettings: false, onTalkBackPressed: () {}),
+                            SizedBox(width: 8),
+                            // Saltar
+                            TextButton(
+                              onPressed: _finish,
+                              child: Text(
+                                AppTranslations.get('onboarding_and_auth', 'skip', lang),
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
 
-                  // ── Slides ──
-                  Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        setState(() => _currentPage = index);
-                        _contentController.forward(from: 0);
-                      },
-                      itemCount: slidesList.length,
-                      itemBuilder: (context, index) {
-                        return FadeTransition(
-                          opacity: _fadeAnim,
-                          child: SlideTransition(
-                            position: _slideAnim,
-                            child: _buildSlideContent(slidesList[index], size),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  // ── Dots + Botón ──
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(28, 0, 28, 36),
-                    child: Column(
-                      children: [
-                        // Dots
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(slidesList.length, (i) {
-                            final isActive = i == _currentPage;
-                            return AnimatedContainer(
-                              duration: Duration(milliseconds: 350),
-                              curve: Curves.easeInOut,
-                              margin: EdgeInsets.symmetric(horizontal: 4),
-                              width: isActive ? 32 : 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: isActive
-                                    ? Colors.white
-                                    : Colors.white.withValues(alpha: 0.35),
-                                borderRadius: BorderRadius.circular(4),
+                      // ── Slides ──
+                      Expanded(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            setState(() => _currentPage = index);
+                            _contentController.forward(from: 0);
+                          },
+                          itemCount: slidesList.length,
+                          itemBuilder: (context, index) {
+                            return FadeTransition(
+                              opacity: _fadeAnim,
+                              child: SlideTransition(
+                                position: _slideAnim,
+                                child: _buildSlideContent(slidesList[index], size),
                               ),
                             );
-                          }),
+                          },
                         ),
-                        SizedBox(height: 28),
+                      ),
 
-                        // Botón CTA
-                        GestureDetector(
-                          onTap: _goToNext,
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 300),
-                            width: double.infinity,
-                            height: 58,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(32),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.15),
-                                  blurRadius: 20,
-                                  offset: Offset(0, 8),
-                                ),
-                              ],
+                      // ── Dots + Botón ──
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(28, 0, 28, 36),
+                        child: Column(
+                          children: [
+                            // Dots
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(slidesList.length, (i) {
+                                final isActive = i == _currentPage;
+                                return AnimatedContainer(
+                                  duration: Duration(milliseconds: 350),
+                                  curve: Curves.easeInOut,
+                                  margin: EdgeInsets.symmetric(horizontal: 4),
+                                  width: isActive ? 32 : 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? Colors.white
+                                        : Colors.white.withValues(alpha: 0.35),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                );
+                              }),
                             ),
-                            child: Center(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    _currentPage < slidesList.length - 1 ? AppTranslations.get('onboarding_and_auth', 'continue', lang) : AppTranslations.get('onboarding_and_auth', 'start', lang),
-                                    style: GoogleFonts.poppins(
-                                      color: slide.gradient.first,
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.3,
+                            SizedBox(height: 28),
+
+                            // Botón CTA
+                            GestureDetector(
+                              onTap: _goToNext,
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 300),
+                                width: double.infinity,
+                                height: 58,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(32),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.15),
+                                      blurRadius: 20,
+                                      offset: Offset(0, 8),
                                     ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        _currentPage < slidesList.length - 1
+                                            ? AppTranslations.get('onboarding_and_auth', 'continue', lang)
+                                            : AppTranslations.get('onboarding_and_auth', 'start', lang),
+                                        style: GoogleFonts.poppins(
+                                          color: slide.gradient.first,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(
+                                        _currentPage < slidesList.length - 1
+                                            ? Icons.arrow_forward_rounded
+                                            : Icons.check_circle_rounded,
+                                        color: slide.gradient.first,
+                                        size: 22,
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(width: 8),
-                                  Icon(
-                                    _currentPage < slidesList.length - 1
-                                        ? Icons.arrow_forward_rounded
-                                        : Icons.check_circle_rounded,
-                                    color: slide.gradient.first,
-                                    size: 22,
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -272,12 +280,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         children: [
           // ── Imagen directa (sin cuadrado) ──
           Image.asset(
-            'assets/images/bellu_ginecologa.png',
+            slide.imagePath,
             height: size.width * 0.6,
             fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => Text(
-              slide.emoji,
-              style: TextStyle(fontSize: 130),
+            errorBuilder: (_, _, _) => Icon(
+              Icons.image_not_supported,
+              size: 100,
+              color: Colors.white54,
             ),
           ),
 
@@ -352,8 +361,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
 class _SlideData {
   final List<Color> gradient;
-  final IconData icon;
-  final String emoji;
+  final String imagePath;
   final String title;
   final String subtitle;
   final Color decoration1;
@@ -361,8 +369,7 @@ class _SlideData {
 
   _SlideData({
     required this.gradient,
-    required this.icon,
-    required this.emoji,
+    required this.imagePath,
     required this.title,
     required this.subtitle,
     required this.decoration1,

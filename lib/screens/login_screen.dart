@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_translations.dart';
@@ -112,6 +111,27 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  Future<void> _handleGoogleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final user = await AuthService.instance.signInWithGoogle();
+      if (user != null) {
+        await AuthService.instance.saveSession(user);
+        if (!mounted) return;
+
+        final prefs = await SharedPreferences.getInstance();
+        if (!mounted) return;
+        final destination = NavigationService.resolveHomeScreen(prefs);
+        NavigationService.goReplace(context, destination);
+      } else {
+        _setLoading(false);
+      }
+    } catch (_) {
+      _setLoading(false);
+      _showError('Error al iniciar sesión con Google.');
+    }
+  }
+
   // ── Helpers de UI ──────────────────────────────────────────────────────────
 
   void _setLoading(bool value) {
@@ -141,67 +161,72 @@ class _LoginScreenState extends State<LoginScreen>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: BellotaColors.chilero,
-        child: Stack(
-          children: [
-            // Fondo decorativo
-            const Positioned.fill(
-              child: CustomPaint(painter: _LoginBackgroundPainter()),
-            ),
-
-            // Botones globales (idioma / accesibilidad)
-            Positioned(
-              top: 16,
-              right: 16,
-              child: SafeArea(
-                child: BellotaTopActions(
-                  showSettings: false,
-                  onLanguagePressed: () {},
-                  onTalkBackPressed: () {},
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          resizeToAvoidBottomInset: true,
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: BellotaColors.chilero,
+            child: Stack(
+              children: [
+                // Fondo decorativo
+                const Positioned.fill(
+                  child: CustomPaint(painter: _LoginBackgroundPainter()),
                 ),
-              ),
-            ),
 
-            // Contenido principal
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: size.height -
-                        MediaQuery.of(context).padding.top,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: _buildLogoSection(),
-                        ),
-                        Expanded(
-                          flex: 5,
-                          child: SlideTransition(
-                            position: _formSlide,
-                            child: FadeTransition(
-                              opacity: _formFade,
-                              child: _buildFormSection(context),
-                            ),
-                          ),
-                        ),
-                      ],
+                // Botones globales (idioma / accesibilidad)
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: SafeArea(
+                    child: BellotaTopActions(
+                      showSettings: false,
+                      onLanguagePressed: () => languageNotifier.toggle(),
+                      onTalkBackPressed: () {},
                     ),
                   ),
                 ),
-              ),
+
+                // Contenido principal
+                SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: size.height -
+                            MediaQuery.of(context).padding.top,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: _buildLogoSection(),
+                            ),
+                            Expanded(
+                              flex: 5,
+                              child: SlideTransition(
+                                position: _formSlide,
+                                child: FadeTransition(
+                                  opacity: _formFade,
+                                  child: _buildFormSection(context),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -356,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen>
             _SocialButton(
               label: AppTranslations.get('onboarding_and_auth', 'continue_google', lang),
               icon: Icons.g_mobiledata_rounded,
-              onPressed: () {},
+              onPressed: _isLoading ? () {} : _handleGoogleLogin,
             ),
             const SizedBox(height: 24),
 

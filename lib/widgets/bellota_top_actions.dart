@@ -52,8 +52,11 @@ class BellotaTopActions extends StatelessWidget {
             }
           ),
           backgroundColor: BellotaColors.blanco,
-          onPressed: onLanguagePressed ?? () {
+          onPressed: () {
             languageNotifier.toggle();
+            if (onLanguagePressed != null) {
+              onLanguagePressed!();
+            }
           },
         ),
         SizedBox(width: 6),

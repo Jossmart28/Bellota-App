@@ -5,8 +5,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
-import '../core/services/navigation_service.dart';
 import '../theme/bellota_colors.dart';
+import '../widgets/bellota_top_actions.dart';
 import '../database/database_helper.dart';
 import 'dashboard_screen.dart';
 import 'location_picker_screen.dart';
@@ -26,33 +26,9 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   final _ageController = TextEditingController();
   String _locationLabel = '';
   LatLng? _locationLatLng;
-  String? _selectedDepartment;
-  String? _selectedMunicipality;
 
-  static const Map<String, List<String>> _nicaraguaLocations = {
-    'Managua': ['Managua', 'Ciudad Sandino', 'Tipitapa', 'San Rafael del Sur', 'Mateare', 'Villa El Carmen', 'San Francisco Libre', 'El Crucero'],
-    'León': ['León', 'El Sauce', 'La Paz Centro', 'Nagarote', 'Telica', 'Larreynaga', 'Achuapa', 'Quezalguaque', 'El Jicaral', 'Santa Rosa del Peñón'],
-    'Chinandega': ['Chinandega', 'El Viejo', 'Somotillo', 'Corinto', 'Chichigalpa', 'Puerto Morazán', 'Cinco Pinos', 'Santo Tomás del Norte', 'San Pedro del Norte', 'El Realejo', 'Posoltega', 'Villanueva', 'San Francisco del Norte'],
-    'Masaya': ['Masaya', 'Nindirí', 'Masatepe', 'Catarina', 'San Juan de Oriente', 'Tisma', 'La Concepción', 'Nandasmo', 'Niquinohomo'],
-    'Granada': ['Granada', 'Nandaime', 'Diriomo', 'Diriá'],
-    'Carazo': ['Jinotepe', 'Diriamba', 'San Marcos', 'Santa Teresa', 'El Rosario', 'Dolores', 'La Paz de Carazo', 'La Conquista'],
-    'Rivas': ['Rivas', 'San Juan del Sur', 'Altagracia', 'Moyogalpa', 'Tola', 'San Jorge', 'Belén', 'Buenos Aires', 'Potosí', 'Cárdenas'],
-    'Estelí': ['Estelí', 'La Trinidad', 'San Juan de Limay', 'Condega', 'Pueblo Nuevo', 'San Nicolás'],
-    'Madriz': ['Somoto', 'San Juan de Río Coco', 'Telpaneca', 'Palacagüina', 'Yalagüina', 'Totogalpa', 'Las Sabanas', 'San José de Cusmapa', 'San Lucas'],
-    'Nueva Segovia': ['Ocotal', 'Jalapa', 'El Jícaro', 'Quilalí', 'Wiwilí', 'Murra', 'San Fernando', 'Mozonte', 'Dipilto', 'Macuelizo', 'Santa María', 'Ciudad Antigua'],
-    'Matagalpa': ['Matagalpa', 'El Tuma - La Dalia', 'Waslala', 'Matiguás', 'Sébaco', 'Ciudad Darío', 'San Ramón', 'San Dionisio', 'Esquipulas', 'Muy Muy', 'Río Blanco', 'Terrabona', 'San Isidro'],
-    'Jinotega': ['Jinotega', 'El Cuá', 'San José de Bocay', 'Wiwilí', 'Pantasma', 'San Rafael del Norte', 'Yalí', 'La Concordia'],
-    'Boaco': ['Boaco', 'Camoapa', 'San Lorenzo', 'Teustepe', 'San José de los Remates', 'Santa Lucía'],
-    'Chontales': ['Juigalpa', 'Acoyapa', 'Santo Tomás', 'La Libertad', 'San Pedro de Lóvago', 'Villa Sandino', 'Comalapa', 'Santo Domingo', 'Cuapa'],
-    'Río San Juan': ['San Carlos', 'El Castillo', 'San Miguelito', 'Morrito', 'San Juan de Nicaragua'],
-    'RACCN': ['Puerto Cabezas (Bilwi)', 'Waspam', 'Siuna', 'Rosita', 'Bonanza', 'Prinzapolka'],
-    'RACCS': ['Bluefields', 'El Rama', 'Nueva Guinea', 'Corn Island', 'Muelle de los Bueyes', 'Laguna de Perlas', 'El Tortuguero', 'Desembocadura de Río Grande', 'La Cruz de Río Grande'],
-  };
-
-  final List<String> _medications = [
-    'Ninguno', 'DIU', 'Pastillas', 'Anticonvulsivos', 'Anticoagulantes',
-  ];
-  final Set<String> _selectedMedications = {'Ninguno'};
+  final List<String> _medications = AppTranslations.medicationKeys;
+  final Set<String> _selectedMedications = {'none'};
 
   // 2. Ciclo Menstrual
   int _cycleDuration = 28;
@@ -91,16 +67,6 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         await prefs.setDouble('user_latitude', _locationLatLng!.latitude);
         await prefs.setDouble('user_longitude', _locationLatLng!.longitude);
       }
-      if (_selectedDepartment != null) {
-        await prefs.setString('user_department', _selectedDepartment!);
-      } else {
-        await prefs.remove('user_department');
-      }
-      if (_selectedMunicipality != null) {
-        await prefs.setString('user_municipality', _selectedMunicipality!);
-      } else {
-        await prefs.remove('user_municipality');
-      }
       await prefs.setStringList('user_medications', _selectedMedications.toList());
 
       int? userId = prefs.getInt('userId');
@@ -131,14 +97,14 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
 
   void _toggleMedication(String med) {
     setState(() {
-      if (med == 'Ninguno') {
+      if (med == 'none') {
         _selectedMedications.clear();
-        _selectedMedications.add('Ninguno');
+        _selectedMedications.add('none');
       } else {
-        _selectedMedications.remove('Ninguno');
+        _selectedMedications.remove('none');
         if (_selectedMedications.contains(med)) {
           _selectedMedications.remove(med);
-          if (_selectedMedications.isEmpty) _selectedMedications.add('Ninguno');
+          if (_selectedMedications.isEmpty) _selectedMedications.add('none');
         } else {
           _selectedMedications.add(med);
         }
@@ -149,73 +115,77 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final lang = languageNotifier.currentLang;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          // ── Fondo degradado ──
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFD35D53), Color(0xFFEE8658), Color(0xFFFFF3E0)],
-                stops: [0.0, 0.45, 1.0],
-              ),
-            ),
-          ),
-
-          // ── Círculos decorativos ──
-          _buildDecorations(size),
-
-          SafeArea(
-            child: FadeTransition(
-              opacity: _fadeAnim,
-              child: SlideTransition(
-                position: _slideAnim,
-                child: Column(
-                  children: [
-                    // ── Header ──
-                    _buildHeader(lang),
-
-                    // ── Contenido ──
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(20, 8, 20, 32),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              _buildCard(
-                                icon: Icons.person_outline_rounded,
-                                title: AppTranslations.get('onboarding_and_auth', 'personal_data', lang),
-                                number: '1',
-                                child: _buildPersonalSection(lang),
-                              ),
-                              SizedBox(height: 16),
-                              _buildCard(
-                                icon: Icons.calendar_today_rounded,
-                                title: AppTranslations.get('onboarding_and_auth', 'your_cycle', lang),
-                                number: '2',
-                                child: _buildCycleSection(lang),
-                              ),
-                              SizedBox(height: 28),
-                              _buildCTAButton(lang),
-                              SizedBox(height: 16),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              // ── Fondo degradado ──
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFFD35D53), Color(0xFFEE8658), Color(0xFFFFF3E0)],
+                    stops: [0.0, 0.45, 1.0],
+                  ),
                 ),
               ),
-            ),
+
+              // ── Círculos decorativos ──
+              _buildDecorations(size),
+
+              SafeArea(
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: Column(
+                      children: [
+                        // ── Header ──
+                        _buildHeader(lang),
+
+                        // ── Contenido ──
+                        Expanded(
+                          child: SingleChildScrollView(
+                            physics: BouncingScrollPhysics(),
+                            padding: EdgeInsets.fromLTRB(20, 8, 20, 32),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  _buildCard(
+                                    icon: Icons.person_outline_rounded,
+                                    title: AppTranslations.get('onboarding_and_auth', 'personal_data', lang),
+                                    number: '1',
+                                    child: _buildPersonalSection(lang),
+                                  ),
+                                  SizedBox(height: 16),
+                                  _buildCard(
+                                    icon: Icons.calendar_today_rounded,
+                                    title: AppTranslations.get('onboarding_and_auth', 'your_cycle', lang),
+                                    number: '2',
+                                    child: _buildCycleSection(lang),
+                                  ),
+                                  SizedBox(height: 28),
+                                  _buildCTAButton(lang),
+                                  SizedBox(height: 16),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -250,6 +220,10 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 ),
               ],
             ),
+          ),
+          BellotaTopActions(
+            showSettings: false,
+            onTalkBackPressed: () {},
           ),
         ],
       ),
@@ -360,11 +334,6 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         _buildLocationPicker(lang),
 
         SizedBox(height: 20),
-        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'health_center_filter', lang), Icons.map_rounded),
-        SizedBox(height: 8),
-        _buildDepartmentMunicipalityPicker(lang),
-
-        SizedBox(height: 20),
         _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'medications', lang), Icons.medication_rounded),
         SizedBox(height: 10),
         Wrap(
@@ -372,10 +341,11 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           runSpacing: 8,
           children: _medications.map((med) {
             final isSelected = _selectedMedications.contains(med);
+            final medLabel = AppTranslations.getMedLabel(med, lang);
             return AnimatedContainer(
               duration: Duration(milliseconds: 200),
               child: FilterChip(
-                label: Text(med),
+                label: Text(medLabel),
                 selected: isSelected,
                 onSelected: (_) => _toggleMedication(med),
                 selectedColor: BellotaColors.chilero,
@@ -583,7 +553,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    hasLocation ? 'Ubicación seleccionada' : 'Seleccionar en el mapa',
+                    hasLocation ? AppTranslations.get('onboarding_and_auth', 'location_selected', lang) : AppTranslations.get('onboarding_and_auth', 'select_on_map', lang),
                     style: GoogleFonts.poppins(
                       fontSize: 11,
                       color: hasLocation ? BellotaColors.chilero : Colors.grey,
@@ -591,7 +561,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     ),
                   ),
                   Text(
-                    hasLocation ? _locationLabel : 'Toca para abrir el mapa',
+                    hasLocation ? _locationLabel : AppTranslations.get('onboarding_and_auth', 'tap_to_open_map', lang),
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: hasLocation ? FontWeight.w600 : FontWeight.normal,
@@ -611,200 +581,6 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── DEPARTAMENTOS Y MUNICIPIOS (Local) ──
-  Widget _buildDepartmentMunicipalityPicker(String lang) {
-    final hasSelection = _selectedDepartment != null && _selectedMunicipality != null;
-    final label = hasSelection
-        ? '$_selectedMunicipality, $_selectedDepartment'
-        : 'Seleccionar departamento y municipio';
-
-    return GestureDetector(
-      onTap: _showLocationSelectorSheet,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: hasSelection
-              ? BellotaColors.chilero.withValues(alpha: 0.06)
-              : Colors.grey.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: hasSelection ? BellotaColors.chilero.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.25),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: hasSelection
-                    ? BellotaColors.chilero.withValues(alpha: 0.12)
-                    : Colors.grey.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                hasSelection ? Icons.map_rounded : Icons.map_outlined,
-                color: hasSelection ? BellotaColors.chilero : Colors.grey,
-                size: 20,
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    hasSelection ? 'Filtro seleccionado' : 'Filtro de clínicas',
-                    style: GoogleFonts.poppins(
-                      fontSize: 11,
-                      color: hasSelection ? BellotaColors.chilero : Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    label,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: hasSelection ? FontWeight.w600 : FontWeight.normal,
-                      color: hasSelection ? BellotaColors.textoDark : Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: hasSelection ? BellotaColors.chilero : Colors.grey,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showLocationSelectorSheet() {
-    String? tempDept = _selectedDepartment;
-    String? tempMuni = _selectedMunicipality;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return StatefulBuilder(builder: (context, setModalState) {
-          final departments = _nicaraguaLocations.keys.toList();
-          final municipalities = tempDept != null ? _nicaraguaLocations[tempDept]! : <String>[];
-
-          return Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            padding: EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 50,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Selecciona tu Departamento',
-                  style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: BellotaColors.textoDark),
-                ),
-                SizedBox(height: 10),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: tempDept,
-                      isExpanded: true,
-                      hint: Text('Departamento'),
-                      items: departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                      onChanged: (val) {
-                        setModalState(() {
-                          tempDept = val;
-                          tempMuni = null; // reset muni
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                if (tempDept != null) ...[
-                  Text(
-                    'Selecciona tu Municipio',
-                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: BellotaColors.textoDark),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: tempMuni,
-                        isExpanded: true,
-                        hint: Text('Municipio'),
-                        items: municipalities.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
-                        onChanged: (val) {
-                          setModalState(() {
-                            tempMuni = val;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-                Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedDepartment = tempDept;
-                      _selectedMunicipality = tempMuni;
-                    });
-                    Navigator.pop(ctx);
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: BellotaColors.chilero,
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Guardar Selección',
-                        style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
-      },
-    );
-  }
 
   // ── BOTÓN CONTINUAR ──
   Widget _buildCTAButton(String lang) {

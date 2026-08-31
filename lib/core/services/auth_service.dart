@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../constants/app_keys.dart';
 import '../models/user_model.dart';
 import '../../database/database_helper.dart';
@@ -102,5 +103,39 @@ class AuthService {
       email: email,
       createdAt: DateTime.now(), // fecha real no requerida en sesión
     );
+  }
+
+  // ── Google OAuth ───────────────────────────────────────────────────────────
+
+  /// Inicia sesión o registra un usuario usando Google OAuth.
+  Future<UserModel?> signInWithGoogle() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) return null;
+
+      final String email = googleUser.email.trim().toLowerCase();
+      final String name = googleUser.displayName ?? 'Usuario Google';
+
+      final userMap = await DatabaseHelper.instance.getUserByEmail(email);
+      if (userMap != null) {
+        return UserModel.fromMap(userMap);
+      } else {
+        final userId = await DatabaseHelper.instance.registerUser(
+          name,
+          email,
+          'google_oauth_no_password_required',
+        );
+        return UserModel(
+          id: userId,
+          name: name,
+          email: email,
+          createdAt: DateTime.now(),
+        );
+      }
+    } catch (e) {
+      print('Error en signInWithGoogle: $e');
+      return null;
+    }
   }
 }
