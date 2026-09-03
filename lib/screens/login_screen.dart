@@ -94,6 +94,12 @@ class _LoginScreenState extends State<LoginScreen>
 
       if (user != null) {
         await AuthService.instance.saveSession(user);
+        // Registrar login exitoso en el log de auditoría
+        await AuthService.instance.logAction(
+          action: 'login',
+          targetType: 'user',
+          targetId: user.id,
+        );
         if (!mounted) return;
 
         // Resolución de pantalla sin gaps asíncronos tras el mounted check
@@ -104,6 +110,11 @@ class _LoginScreenState extends State<LoginScreen>
       } else {
         _setLoading(false);
         _showError('Credenciales incorrectas.');
+        // Registrar intento de login fallido
+        await AuthService.instance.logAction(
+          action: 'login_failed',
+          details: {'email': _emailController.text.trim().toLowerCase()},
+        );
       }
     } catch (_) {
       _setLoading(false);
@@ -117,6 +128,13 @@ class _LoginScreenState extends State<LoginScreen>
       final user = await AuthService.instance.signInWithGoogle();
       if (user != null) {
         await AuthService.instance.saveSession(user);
+        // Registrar login de Google
+        await AuthService.instance.logAction(
+          action: 'login',
+          targetType: 'user',
+          targetId: user.id,
+          details: {'method': 'google_oauth'},
+        );
         if (!mounted) return;
 
         final prefs = await SharedPreferences.getInstance();

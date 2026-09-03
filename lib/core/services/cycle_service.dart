@@ -102,6 +102,9 @@ class CycleService {
       
       avgLength = lengths.map((e) => e.toDouble()).reduce((a, b) => a + b) / lengths.length;
       effectiveCycleDuration = avgLength.round();
+      if (effectiveCycleDuration < 15) {
+        effectiveCycleDuration = cycleDuration;
+      }
 
       for (int len in lengths) {
         if ((len - avgLength).abs() > 7) {
@@ -175,23 +178,40 @@ class CycleService {
     required DateTime lastPeriodStart,
     required int cycleDuration,
     required int periodDuration,
+    List<DateTime>? allPeriodStarts,
   }) {
+    int effectiveCycleDuration = cycleDuration;
+
+    if (allPeriodStarts != null && allPeriodStarts.length >= 2) {
+      List<int> lengths = [];
+      List<DateTime> sorted = allPeriodStarts.map((d) => _dateOnly(d)).toList()..sort();
+      for (int i = 1; i < sorted.length; i++) {
+        lengths.add(sorted[i].difference(sorted[i - 1]).inDays);
+      }
+      
+      double avgLength = lengths.map((e) => e.toDouble()).reduce((a, b) => a + b) / lengths.length;
+      effectiveCycleDuration = avgLength.round();
+      if (effectiveCycleDuration < 15) {
+        effectiveCycleDuration = cycleDuration;
+      }
+    }
+
     final d = _dateOnly(date);
     final start = _dateOnly(lastPeriodStart);
     int diffDays = d.difference(start).inDays;
     
     int cycleDay;
     if (diffDays >= 0) {
-      cycleDay = (diffDays % cycleDuration) + 1;
+      cycleDay = (diffDays % effectiveCycleDuration) + 1;
     } else {
-      cycleDay = cycleDuration - ((-diffDays) % cycleDuration) + 1;
-      if (cycleDay > cycleDuration) cycleDay = 1;
+      cycleDay = effectiveCycleDuration - ((-diffDays) % effectiveCycleDuration) + 1;
+      if (cycleDay > effectiveCycleDuration) cycleDay = 1;
     }
 
-    int ovulationDay = cycleDuration - 14;
-    if (ovulationDay < 1) ovulationDay = cycleDuration ~/ 2;
+    int ovulationDay = effectiveCycleDuration - 14;
+    if (ovulationDay < 1) ovulationDay = effectiveCycleDuration ~/ 2;
 
-    return _determinePhase(cycleDay, periodDuration, ovulationDay, cycleDuration);
+    return _determinePhase(cycleDay, periodDuration, ovulationDay, effectiveCycleDuration);
   }
 
   /// Obtiene el color correspondiente a la fase del ciclo.

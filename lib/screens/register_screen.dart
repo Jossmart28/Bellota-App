@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
@@ -51,6 +51,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _nameController.text, email, _passwordController.text,
       );
       await AuthService.instance.saveSession(user);
+      // Registrar el evento de registro en el log de auditoría
+      await AuthService.instance.logAction(
+        action: 'register',
+        targetType: 'user',
+        targetId: user.id,
+      );
       _setLoading(false);
       if (!mounted) return;
       NavigationService.goAndClearStack(context, const OnboardingScreen());

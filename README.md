@@ -1,4 +1,4 @@
-﻿# 🌰 Bellota App
+# 🌰 Bellota App
 
 > **Plataforma digital de seguimiento del ciclo menstrual, registro de síntomas y educación en salud femenina.**
 
@@ -198,6 +198,24 @@ T_next = T_last + D_cycle
 
 ---
 
+## 🛡️ Control de Acceso Basado en Roles (RBAC)
+
+El sistema incorpora un robusto control de acceso tanto en el frontend como en el backend, soportando los siguientes roles:
+
+| Rol | Descripción | Permisos Clave |
+|---|---|---|
+| **Usuario** | Usuario estándar de la app. (Rol por defecto). | Gestionar su propio perfil, registrar síntomas diarios, exportar sus reportes personales. |
+| **Administrador** | Administrador del sistema. Tiene acceso completo. | Gestionar usuarios (suspender, eliminar, cambiar roles), configurar el sistema. |
+| **Auditor** | Rol de supervisión y cumplimiento. | Acceso de solo lectura global, visualización de logs de auditoría, exportación de reportes de cumplimiento. |
+
+### Integración Backend (JWT + RBAC)
+El backend opcional ahora soporta autenticación mediante JWT (JSON Web Tokens). Los endpoints de la API están protegidos por validación de roles en tiempo real utilizando las dependencias de FastAPI:
+- Rutas bajo `/admin/` requieren rol de administrador.
+- Rutas bajo `/audit/` requieren rol de administrador o auditor.
+- Rutas bajo `/profile/`, `/logs/`, `/medications/` aplican reglas de propiedad (un usuario sólo puede ver sus propios datos, un admin puede ver/modificar cualquiera, un auditor puede ver cualquiera sin modificar).
+
+---
+
 ## 🗄️ Esquema de Base de Datos (Local - SQLite)
 
 ```
@@ -206,16 +224,25 @@ USERS          1 ──────── 1   PROFILES
  name                          username
  email (UK)                    cycle_duration
  password_hash                 period_duration
- created_at                    notif_periodo / pildora / ...
+ role                          notif_periodo / pildora / ...
+ is_active
+ created_at
 
 USERS          1 ──────── N   DAILY_LOGS
  id (PK)                       id (PK)
                                 user_id (FK)
                                 date
                                 period_start
-                                symptoms (JSON)
-                                flujo (JSON)
-                                sexo
+                                ... (síntomas, flujo, etc)
+
+USERS          1 ──────── N   AUDIT_LOGS
+ id (PK)                       id (PK)
+                                user_id (FK)
+                                action
+                                target_type
+                                target_id
+                                details (JSON)
+                                ip_address
                                 created_at
 ```
 

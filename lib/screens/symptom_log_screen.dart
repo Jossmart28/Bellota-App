@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../database/database_helper.dart';
+import '../core/services/notification_service.dart';
 import 'symptoms_selection_screen.dart';
 import 'flujo_vaginal_selection_screen.dart';
 import 'sexo_selection_screen.dart';
@@ -98,6 +99,45 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   }
 
   Future<void> _saveAndAccept() async {
+    if (_userId != null && iniciaPeriodo) {
+      final starts = await DatabaseHelper.instance.getAllPeriodStartDates(_userId!);
+      bool hasRecentPeriod = false;
+      for (var d in starts) {
+        if (d.year == _date.year && d.month == _date.month && d.day == _date.day) continue;
+        if ((d.difference(_date).inDays).abs() <= 15) {
+          hasRecentPeriod = true;
+          break;
+        }
+      }
+
+      if (hasRecentPeriod) {
+        bool confirm = false;
+        if (mounted) {
+          confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_title', languageNotifier.currentLang) == 'recent_period_title' ? '¿Periodo reciente?' : AppTranslations.get('symptoms_and_actions', 'recent_period_title', languageNotifier.currentLang)),
+              content: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_error', languageNotifier.currentLang)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(AppTranslations.get('registration_form', 'no', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoMedio)),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(AppTranslations.get('registration_form', 'yes', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ) ?? false;
+        }
+        if (!confirm) {
+          return;
+        }
+      }
+    }
+
     if (_userId != null) {
       await DatabaseHelper.instance.saveDailyLogV2(
         userId: _userId!,
@@ -125,6 +165,9 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             : [],
         breastExam: _dolorSintomatologia['autoexamenMama'] as String?,
       );
+
+      // Reprogramar notificaciones porque puede haber cambiado el inicio del periodo
+      await NotificationService.instance.scheduleAllNotifications(_userId!);
     }
 
     if (mounted) {

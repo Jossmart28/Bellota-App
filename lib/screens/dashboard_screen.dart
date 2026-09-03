@@ -15,6 +15,7 @@ import 'symptom_log_screen.dart';
 import 'profile_screen.dart';
 import '../widgets/health_info_carousel.dart';
 import '../core/services/cycle_service.dart';
+import '../core/services/notification_service.dart';
 
 /// Dashboard principal de Bellota
 class DashboardScreen extends StatefulWidget {
@@ -115,6 +116,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (userId != null) {
       await _loadDashboardData(userId);
+
+      // Solicitar permiso de notificaciones (si no se ha dado) y programar recordatorios
+      final hasPermission =
+          await NotificationService.instance.hasPermission();
+      if (!hasPermission) {
+        await NotificationService.instance.requestPermission();
+      }
+      await NotificationService.instance.scheduleAllNotifications(userId);
     }
   }
 
@@ -239,8 +248,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(height: 16),
             _buildHeader(context),
             SizedBox(height: 28),
-            _buildPeriodoToggle(context),
-            SizedBox(height: 20),
             _buildSectionLabel(context, AppTranslations.get('dashboard', 'predictions', languageNotifier.currentLang)),
             SizedBox(height: 10),
             if (!_hasPeriodsRegistered)
@@ -391,92 +398,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ────────────────────────────
-  // INICIO DEL PERIODO — Toggle
-  // ────────────────────────────
-  Widget _buildPeriodoToggle(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-        color: BellotaColors.blanco,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: BellotaColors.chilero.withValues(alpha: 0.07),
-            blurRadius: 14,
-            spreadRadius: 0,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: BellotaColors.chilero.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.water_drop_outlined,
-                  size: 18,
-                  color: BellotaColors.chilero,
-                ),
-              ),
-              SizedBox(width: 12),
-              Text(
-                AppTranslations.get('symptoms_and_actions', 'period_start', languageNotifier.currentLang),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: BellotaColors.textoDark,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          Transform.scale(
-            scale: 0.85,
-            child: Switch(
-              value: _periodoIniciado,
-              onChanged: (val) async {
-                setState(() => _periodoIniciado = val);
-                if (_userId != null) {
-                  final now = DateTime.now();
-                  String todayKey = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-                  final log = await DatabaseHelper.instance.getDailyLog(_userId!, todayKey);
-                  List<String> s = [];
-                  List<String> f = [];
-                  List<String> x = [];
-                  if (log != null) {
-                    s = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
-                    f = List<String>.from(jsonDecode(log['flujo'] as String? ?? '[]'));
-                    x = List<String>.from(jsonDecode(log['sexo'] as String? ?? '[]'));
-                  }
-                  await DatabaseHelper.instance.saveDailyLog(
-                    userId: _userId!,
-                    date: todayKey,
-                    periodStart: val,
-                    symptoms: s,
-                    sexo: x,
-                    flujo: f,
-                  );
-                  _loadDashboardData(_userId!);
-                }
-              },
-              activeThumbColor: BellotaColors.blanco,
-              activeTrackColor: BellotaColors.chilero,
-              inactiveThumbColor: BellotaColors.blanco,
-              inactiveTrackColor: BellotaColors.textoMedio.withValues(alpha: 0.3),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   // ──────────────
   // PREDICCIONES

@@ -5,6 +5,7 @@ import 'theme/bellota_theme.dart';
 import 'theme/theme_notifier.dart';
 import 'screens/splash_screen.dart';
 import 'l10n/language_notifier.dart';
+import 'core/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,9 @@ void main() async {
   // Cargar preferencia de tema y lenguaje guardada antes de mostrar la app
   await themeNotifier.load();
   await languageNotifier.load();
+
+  // Inicializar el servicio de notificaciones
+  await NotificationService.instance.initialize();
 
   runApp(BellotaApp());
 }

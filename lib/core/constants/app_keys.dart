@@ -38,4 +38,11 @@ abstract final class AppKeys {
   // ── Perfil ─────────────────────────────────────────────────────────────────
   /// Ruta local de la imagen de perfil del usuario.
   static const String profileImagePath = 'profileImagePath';
+
+  // ── RBAC (Roles y permisos) ────────────────────────────────────────────────
+  /// Rol del usuario activo ('admin', 'usuario', 'auditor').
+  static const String userRole = 'userRole';
+
+  /// Indica si la cuenta del usuario está activa.
+  static const String isActive = 'isActive';
 }

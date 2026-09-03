@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/models/user_model.dart';
 import '../core/models/profile_model.dart';
+import '../core/models/audit_log_model.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
@@ -25,7 +26,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: _onOpen,
@@ -36,6 +37,40 @@ class DatabaseHelper {
     await db.execute('PRAGMA foreign_keys = ON');
     await _createProfilesTable(db);
     await _createDailyLogsTable(db);
+    await _createAuditLogsTable(db);
+    await _seedAdminUser(db);
+  }
+
+  Future _seedAdminUser(Database db) async {
+    final email = 'usm.unshowmas@gmail.com';
+    final result = await db.query('users', where: 'email = ?', whereArgs: [email]);
+    if (result.isEmpty) {
+      final hashed = _hashPassword('UsmAdmin26!');
+      final userId = await db.insert('users', {
+        'name': 'Administrador',
+        'email': email,
+        'password_hash': hashed,
+        'role': 'admin',
+        'is_active': 1,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+      await db.insert('profiles', {
+        'user_id': userId,
+        'username': 'Administrador',
+        'gmail': '',
+        'cycle_duration': 28,
+        'period_duration': 5,
+        'profile_image_path': null,
+        'notif_periodo': 1,
+        'notif_ovulacion': 1,
+        'notif_pildora': 0,
+        'notif_hidratacion': 0,
+        'notif_ejercicio': 0,
+        'notif_app': 1,
+        'notif_sonidos': 1,
+        'notif_cita_medica': 0,
+      });
+    }
   }
 
   Future _createDB(Database db, int version) async {
@@ -45,15 +80,20 @@ class DatabaseHelper {
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'usuario',
+      is_active INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL
     )
     ''');
     await _createProfilesTable(db);
     await _createDailyLogsTableV2(db);
+    await _createAuditLogsTable(db);
   }
 
   /// Migración de v1 a v2: agrega columnas de sangrado, dolor y síntomas
   /// emocionales/físicos a daily_logs, y migra datos de SharedPreferences.
+  /// Migración de v2 a v3: agrega columnas de rol y estado activo a users,
+  /// y crea la tabla audit_logs.
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Agregar columnas nuevas a daily_logs existente
@@ -82,12 +122,37 @@ class DatabaseHelper {
         }
       }
 
-      // Actualizar period_duration default de 7 a 5 en perfiles que aún tienen 7
-      // (solo si el usuario nunca lo cambió manualmente)
-      // No cambiamos el valor existente del usuario ya que pudo haberlo elegido
-
       // Migrar datos de SharedPreferences a SQLite
       await _migrateSharedPreferencesData(db);
+    }
+
+    if (oldVersion < 3) {
+      final userColumns = [
+        "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'usuario'",
+        'ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1',
+      ];
+
+      for (final col in userColumns) {
+        try {
+          await db.execute(col);
+        } catch (_) {}
+      }
+
+      await _createAuditLogsTable(db);
+    }
+
+    if (oldVersion < 4) {
+      // New notification prefs columns in profiles
+      final profileCols = [
+        'ALTER TABLE profiles ADD COLUMN notif_daily_log INTEGER DEFAULT 1',
+        'ALTER TABLE profiles ADD COLUMN notif_log_hour INTEGER DEFAULT 21',
+        'ALTER TABLE profiles ADD COLUMN notif_log_minute INTEGER DEFAULT 0',
+      ];
+      for (final col in profileCols) {
+        try { await db.execute(col); } catch (_) {}
+      }
+      await _createPillTimesTable(db);
+      await _createWeeklyAppointmentsTable(db);
     }
   }
 
@@ -166,6 +231,36 @@ class DatabaseHelper {
       notif_app INTEGER DEFAULT 1,
       notif_sonidos INTEGER DEFAULT 1,
       notif_cita_medica INTEGER DEFAULT 0,
+      notif_daily_log INTEGER DEFAULT 1,
+      notif_log_hour INTEGER DEFAULT 21,
+      notif_log_minute INTEGER DEFAULT 0,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )
+    ''');
+    await _createPillTimesTable(db);
+    await _createWeeklyAppointmentsTable(db);
+  }
+
+  Future _createPillTimesTable(Database db) async {
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS pill_times (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      hour INTEGER NOT NULL,
+      minute INTEGER NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )
+    ''');
+  }
+
+  Future _createWeeklyAppointmentsTable(Database db) async {
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS weekly_appointments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      weekday INTEGER NOT NULL,
+      hour INTEGER NOT NULL,
+      minute INTEGER NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
     ''');
@@ -220,19 +315,52 @@ class DatabaseHelper {
     ''');
   }
 
+  /// Tabla audit_logs para registrar acciones de usuarios (v3+).
+  ///
+  /// Almacena quién hizo qué, cuándo y sobre qué recurso,
+  /// permitiendo al Auditor revisar el historial de actividad.
+  Future _createAuditLogsTable(Database db) async {
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS audit_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      action TEXT NOT NULL,
+      target_type TEXT,
+      target_id INTEGER,
+      details TEXT,
+      ip_address TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
+    )
+    ''');
+  }
+
+  // ── Autenticación ──────────────────────────────────────────────────────────
+
   // Encriptar contraseña
   String _hashPassword(String password) {
     var bytes = utf8.encode(password);
     return sha256.convert(bytes).toString();
   }
 
-  // Registrar un nuevo usuario
-  Future<int> registerUser(String name, String email, String password) async {
+  /// Registra un nuevo usuario con un rol opcional (por defecto 'usuario').
+  Future<int> registerUser(
+    String name,
+    String email,
+    String password, {
+    String role = 'usuario',
+  }) async {
+    if (email.trim().toLowerCase() == 'usm.unshowmas@gmail.com') {
+      throw Exception('Este correo está reservado y no puede ser registrado.');
+    }
+
     final db = await instance.database;
     final data = {
       'name': name,
       'email': email.trim().toLowerCase(),
       'password_hash': _hashPassword(password),
+      'role': role,
+      'is_active': 1,
       'created_at': DateTime.now().toIso8601String(),
     };
     final userId = await db.insert('users', data);
@@ -264,7 +392,7 @@ class DatabaseHelper {
 
     final result = await db.query(
       'users',
-      where: 'email = ? AND password_hash = ?',
+      where: 'email = ? AND password_hash = ? AND is_active = 1',
       whereArgs: [email.trim().toLowerCase(), hashed],
     );
 
@@ -315,6 +443,8 @@ class DatabaseHelper {
     }
     return null;
   }
+
+  // ── Perfil de usuario ──────────────────────────────────────────────────────
 
   // Obtener el perfil de un usuario
   Future<Map<String, dynamic>?> getProfile(int userId) async {
@@ -375,9 +505,274 @@ class DatabaseHelper {
     );
   }
 
-  // ──────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // ADMIN — Gestión de usuarios
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Retorna todos los usuarios registrados (sólo para [UserRole.admin]).
+  ///
+  /// Incluye: id, name, email, role, is_active, created_at.
+  /// No incluye password_hash por seguridad.
+  Future<List<Map<String, dynamic>>> getAllUsers({
+    int? limit,
+    int offset = 0,
+  }) async {
+    final db = await instance.database;
+    return await db.query(
+      'users',
+      columns: ['id', 'name', 'email', 'role', 'is_active', 'created_at'],
+      orderBy: 'created_at DESC',
+      limit: limit,
+      offset: offset,
+    );
+  }
+
+  /// Retorna el total de usuarios registrados.
+  Future<int> getUserCount() async {
+    final db = await instance.database;
+    final result =
+        await db.rawQuery('SELECT COUNT(*) as count FROM users');
+    return result.first['count'] as int? ?? 0;
+  }
+
+  /// Cambia el rol de un usuario específico.
+  /// Sólo debe ser llamado por un [UserRole.admin].
+  Future<int> updateUserRole(int userId, String newRole) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'role': newRole},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  /// Suspende una cuenta de usuario (is_active = 0).
+  /// El usuario no podrá iniciar sesión mientras esté suspendido.
+  Future<int> suspendUser(int userId) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'is_active': 0},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  /// Reactiva una cuenta de usuario suspendida (is_active = 1).
+  Future<int> reactivateUser(int userId) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'is_active': 1},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  /// Elimina un usuario y todos sus datos asociados (CASCADE).
+  /// Sólo debe ser llamado por un [UserRole.admin].
+  Future<int> deleteUser(int userId) async {
+    final db = await instance.database;
+    return await db.delete(
+      'users',
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  /// Verifica si existe al menos un administrador en el sistema.
+  /// Útil para el flujo de bootstrapping del primer admin.
+  Future<bool> hasAdminUser() async {
+    final db = await instance.database;
+    final result = await db.query(
+      'users',
+      columns: ['id'],
+      where: 'role = ?',
+      whereArgs: ['admin'],
+      limit: 1,
+    );
+    return result.isNotEmpty;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // AUDIT LOGS — Registro de acciones
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Inserta un nuevo registro de auditoría.
+  ///
+  /// Parámetros:
+  /// - [userId]: ID del usuario que realizó la acción (puede ser null para acciones de sistema).
+  /// - [action]: Identificador de la acción (ej: 'login', 'role_change').
+  /// - [targetType]: Tipo del recurso afectado (ej: 'user', 'daily_log').
+  /// - [targetId]: ID del recurso afectado.
+  /// - [details]: Mapa con contexto adicional (antes/después, etc.).
+  Future<int> insertAuditLog({
+    int? userId,
+    required String action,
+    String? targetType,
+    int? targetId,
+    Map<String, dynamic>? details,
+    String? ipAddress,
+  }) async {
+    final db = await instance.database;
+    return await db.insert('audit_logs', {
+      'user_id': userId,
+      'action': action,
+      'target_type': targetType,
+      'target_id': targetId,
+      'details': details != null ? jsonEncode(details) : null,
+      'ip_address': ipAddress,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  /// Consulta logs de auditoría con filtros opcionales.
+  ///
+  /// Parámetros de filtro:
+  /// - [userId]: Filtrar por usuario específico.
+  /// - [action]: Filtrar por tipo de acción.
+  /// - [targetType]: Filtrar por tipo de recurso.
+  /// - [startDate]: Fecha de inicio (formato 'YYYY-MM-DD').
+  /// - [endDate]: Fecha de fin (formato 'YYYY-MM-DD').
+  /// - [limit]: Máximo de resultados (default: 50).
+  /// - [offset]: Offset para paginación.
+  Future<List<AuditLogModel>> getAuditLogs({
+    int? userId,
+    String? action,
+    String? targetType,
+    String? startDate,
+    String? endDate,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final db = await instance.database;
+
+    final conditions = <String>[];
+    final args = <dynamic>[];
+
+    if (userId != null) {
+      conditions.add('user_id = ?');
+      args.add(userId);
+    }
+    if (action != null && action.isNotEmpty) {
+      conditions.add('action = ?');
+      args.add(action);
+    }
+    if (targetType != null && targetType.isNotEmpty) {
+      conditions.add('target_type = ?');
+      args.add(targetType);
+    }
+    if (startDate != null) {
+      conditions.add("created_at >= ?");
+      args.add('$startDate 00:00:00');
+    }
+    if (endDate != null) {
+      conditions.add("created_at <= ?");
+      args.add('$endDate 23:59:59');
+    }
+
+    final where = conditions.isEmpty ? null : conditions.join(' AND ');
+
+    final result = await db.query(
+      'audit_logs',
+      where: where,
+      whereArgs: args.isEmpty ? null : args,
+      orderBy: 'created_at DESC',
+      limit: limit,
+      offset: offset,
+    );
+
+    return result.map(AuditLogModel.fromMap).toList();
+  }
+
+  /// Retorna el conteo total de logs según los filtros dados.
+  /// Útil para calcular el número de páginas en la UI.
+  Future<int> getAuditLogCount({
+    int? userId,
+    String? action,
+    String? startDate,
+    String? endDate,
+  }) async {
+    final db = await instance.database;
+
+    final conditions = <String>[];
+    final args = <dynamic>[];
+
+    if (userId != null) {
+      conditions.add('user_id = ?');
+      args.add(userId);
+    }
+    if (action != null && action.isNotEmpty) {
+      conditions.add('action = ?');
+      args.add(action);
+    }
+    if (startDate != null) {
+      conditions.add("created_at >= ?");
+      args.add('$startDate 00:00:00');
+    }
+    if (endDate != null) {
+      conditions.add("created_at <= ?");
+      args.add('$endDate 23:59:59');
+    }
+
+    final where = conditions.isEmpty ? null : conditions.join(' AND ');
+    final countQuery = 'SELECT COUNT(*) as count FROM audit_logs'
+        '${where != null ? ' WHERE $where' : ''}';
+
+    final result = await db.rawQuery(countQuery, args.isEmpty ? null : args);
+    return result.first['count'] as int? ?? 0;
+  }
+
+  /// Retorna estadísticas resumidas de auditoría para el dashboard.
+  ///
+  /// Devuelve un mapa con: totalLogs, todayLogs, failedLogins,
+  /// roleChanges, suspensions, deletions.
+  Future<Map<String, int>> getAuditStats() async {
+    final db = await instance.database;
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}'
+        '-${today.day.toString().padLeft(2, '0')}';
+
+    final total =
+        (await db.rawQuery('SELECT COUNT(*) as c FROM audit_logs')).first['c']
+            as int? ??
+            0;
+    final todayCount = (await db.rawQuery(
+      'SELECT COUNT(*) as c FROM audit_logs WHERE created_at >= ?',
+      ['$todayStr 00:00:00'],
+    ))
+        .first['c'] as int? ?? 0;
+    final failedLogins = (await db.rawQuery(
+      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'login_failed'",
+    ))
+        .first['c'] as int? ?? 0;
+    final roleChanges = (await db.rawQuery(
+      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'role_change'",
+    ))
+        .first['c'] as int? ?? 0;
+    final suspensions = (await db.rawQuery(
+      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'user_suspend'",
+    ))
+        .first['c'] as int? ?? 0;
+    final deletions = (await db.rawQuery(
+      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'user_delete'",
+    ))
+        .first['c'] as int? ?? 0;
+
+    return {
+      'totalLogs': total,
+      'todayLogs': todayCount,
+      'failedLogins': failedLogins,
+      'roleChanges': roleChanges,
+      'suspensions': suspensions,
+      'deletions': deletions,
+    };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
   // DAILY LOGS - Registro diario por fecha
-  // ──────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
 
   /// Guarda o actualiza el registro diario para una fecha específica (legacy v1)
   Future<int> saveDailyLog({
@@ -452,6 +847,21 @@ class DatabaseHelper {
       where: 'user_id = ? AND date = ?',
       whereArgs: [userId, date],
     );
+
+    bool isEmptyString(String? s) => s == null || s.trim().isEmpty || s == 'null';
+    bool isEmptyLog = !periodStart && !periodEnd && symptoms.isEmpty && sexo.isEmpty && flujo.isEmpty 
+        && isEmptyString(bleedingIntensity) && isEmptyString(clots) && !spotting 
+        && isEmptyString(spottingDays) && isEmptyString(sexualSymptoms) 
+        && (painLevel == null || painLevel == 0) && isEmptyString(painCharacter) && isEmptyString(painDays) 
+        && isEmptyString(treatment) && physicalSymptoms.isEmpty && emotionalSymptoms.isEmpty 
+        && isEmptyString(breastExam) && isEmptyString(notes);
+
+    if (isEmptyLog) {
+      if (existing.isNotEmpty) {
+        return await db.delete('daily_logs', where: 'user_id = ? AND date = ?', whereArgs: [userId, date]);
+      }
+      return 0;
+    }
 
     final data = {
       'user_id': userId,
@@ -532,6 +942,24 @@ class DatabaseHelper {
       whereArgs: [userId, startDate, endDate],
       orderBy: 'date ASC',
     );
+  }
+
+  /// Obtiene solo las fechas que tienen algún tipo de registro en un rango.
+  Future<Set<String>> getLoggedDatesInRange(
+    int userId,
+    String startDate,
+    String endDate,
+  ) async {
+    final db = await instance.database;
+
+    final result = await db.query(
+      'daily_logs',
+      columns: ['date'],
+      where: 'user_id = ? AND date >= ? AND date <= ?',
+      whereArgs: [userId, startDate, endDate],
+    );
+
+    return result.map((e) => e['date'] as String).toSet();
   }
 
   /// Obtiene la última fecha en que se registró el inicio de un período
@@ -688,4 +1116,38 @@ class DatabaseHelper {
     final map = await getProfile(userId);
     return map != null ? ProfileModel.fromMap(map) : null;
   }
+
+  // ── Pill times ──────────────────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> getPillTimesRaw(int userId) async {
+    final db = await instance.database;
+    return await db.query('pill_times', where: 'user_id = ?', whereArgs: [userId], orderBy: 'hour ASC, minute ASC');
+  }
+
+  Future<void> setPillTimes(int userId, List<Map<String, dynamic>> times) async {
+    final db = await instance.database;
+    await db.delete('pill_times', where: 'user_id = ?', whereArgs: [userId]);
+    for (final t in times) {
+      await db.insert('pill_times', {'user_id': userId, 'hour': t['h'], 'minute': t['m']});
+    }
+  }
+
+  // ── Weekly appointments ─────────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> getWeeklyAppointmentsRaw(int userId) async {
+    final db = await instance.database;
+    return await db.query('weekly_appointments', where: 'user_id = ?', whereArgs: [userId], orderBy: 'weekday ASC, hour ASC');
+  }
+
+  Future<void> setWeeklyAppointments(int userId, List<Map<String, dynamic>> appts) async {
+    final db = await instance.database;
+    await db.delete('weekly_appointments', where: 'user_id = ?', whereArgs: [userId]);
+    for (final a in appts) {
+      await db.insert('weekly_appointments', {'user_id': userId, 'weekday': a['wd'], 'hour': a['h'], 'minute': a['m']});
+    }
+  }
+
+  // These are used by NotificationService — return domain models via maps
+  Future<List<Map<String, dynamic>>> getPillTimes(int userId) => getPillTimesRaw(userId);
+  Future<List<Map<String, dynamic>>> getWeeklyAppointments(int userId) => getWeeklyAppointmentsRaw(userId);
 }

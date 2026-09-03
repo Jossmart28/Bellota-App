@@ -27,6 +27,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime? _firstPeriodStart;
   int _cycleDuration = 28;
   int _periodDuration = 5;
+  List<DateTime> _allPeriodStarts = [];
+  Set<String> _loggedDates = {};
 
   CalendarViewType _currentView = CalendarViewType.monthly;
   final DateTime _currentDate = DateTime.now(); // Fecha real actual
@@ -102,10 +104,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     DateTime? firstPeriodStart;
     int cycleDuration = 28;
     int periodDuration = 5;
+    List<DateTime> allPeriodStarts = [];
+    Set<String> loggedDates = {};
 
     if (userId != null) {
       lastPeriodStart = await DatabaseHelper.instance.getLastPeriodStart(userId);
       firstPeriodStart = await DatabaseHelper.instance.getFirstPeriodStart(userId);
+      allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
       
       // Load cycle configuration from profile
       final profile = await DatabaseHelper.instance.getProfile(userId);
@@ -113,6 +118,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         cycleDuration = profile['cycle_duration'] as int? ?? 28;
         periodDuration = profile['period_duration'] as int? ?? 5;
       }
+
+      // Load logged dates for dots (we fetch +/- 2 years around current date to be safe)
+      final startRange = '${_currentDate.year - 2}-01-01';
+      final endRange = '${_currentDate.year + 2}-12-31';
+      loggedDates = await DatabaseHelper.instance.getLoggedDatesInRange(userId, startRange, endRange);
     }
 
     setState(() {
@@ -123,11 +133,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _firstPeriodStart = firstPeriodStart;
       _cycleDuration = cycleDuration;
       _periodDuration = periodDuration;
+      _allPeriodStarts = allPeriodStarts;
+      _loggedDates = loggedDates;
     });
   }
 
   // ──────────────────────────────────────────
-  // LÓGICA SIMULADA DE FASES (Ciclo 28 días)
+  // LÓGICA DE FASES (Basada en historial)
   // ──────────────────────────────────────────
   Color _getPhaseColorForDay(DateTime date) {
     if (_lastPeriodStart == null) {
@@ -139,6 +151,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       lastPeriodStart: _lastPeriodStart!,
       cycleDuration: _cycleDuration,
       periodDuration: _periodDuration,
+      allPeriodStarts: _allPeriodStarts.isNotEmpty ? _allPeriodStarts : null,
     );
 
     return CycleService.instance.getPhaseColor(phase);
@@ -497,6 +510,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
         date.day == _selectedDate!.day;
 
     Color phaseColor = _getPhaseColorForDay(date);
+    String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    bool hasLog = _loggedDates.contains(dateKey);
 
     return GestureDetector(
       onTap: () {
@@ -521,14 +536,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
           border: isSelected ? Border.all(color: BellotaColors.textoDark, width: 1.5) : null,
           boxShadow: isSelected ? [BoxShadow(color: phaseColor.withValues(alpha: 0.5), blurRadius: 4, offset: Offset(0, 2))] : [],
         ),
-        child: Center(
-          child: Text(
-            '${date.day}',
-            style: TextStyle(
-              color: isSelected ? BellotaColors.blanco : BellotaColors.textoDark,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              '${date.day}',
+              style: TextStyle(
+                color: isSelected ? BellotaColors.blanco : BellotaColors.textoDark,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
             ),
-          ),
+            if (hasLog)
+              Positioned(
+                bottom: _currentView == CalendarViewType.weekly ? 8 : 4,
+                child: Container(
+                  width: 4,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isSelected ? BellotaColors.blanco : BellotaColors.textoDark.withValues(alpha: 0.7),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

@@ -190,6 +190,11 @@ class AppTranslations {
         "es": "Basado en tus últimos ciclos.",
         "en": "Based on your last cycles.",
         "mi": "Man kati luhka lalukani ba kat."
+      },
+      "recent_period_error": {
+        "es": "Ya existe un inicio de periodo reciente. Elimina el registro anterior para agregar este.",
+        "en": "A period start was recently logged. Please delete the previous record to add this one.",
+        "mi": "Kati ta krikani yua ba apu daukaia sa, naha mangkaya dukiara."
       }
     },
     "symptoms": {

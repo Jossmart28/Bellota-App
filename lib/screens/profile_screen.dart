@@ -13,6 +13,13 @@ import 'login_screen.dart';
 import 'medical_report_preview_screen.dart';
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
+import '../core/models/user_model.dart';
+import '../core/services/auth_service.dart';
+import '../core/services/role_guard.dart';
+import '../core/services/user_role.dart';
+import '../core/services/navigation_service.dart';
+import 'admin_panel_screen.dart';
+import 'audit_dashboard_screen.dart';
 
 /// Pantalla de Perfil de usuario — Bellota App
 /// Diseño fiel al mockup de referencia con paleta de colores Bellota.
@@ -24,6 +31,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  UserModel? _currentUser;
   String _userName = 'UsuarioApp';
   String _userEmail = 'correo@ejemplo.com';
   int _cycleDuration = 28;
@@ -40,6 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
+    final user = await AuthService.instance.currentSessionUser();
+    
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString('userEmail') ?? 'correo@ejemplo.com';
     
@@ -48,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final profile = await DatabaseHelper.instance.getProfile(userId);
       if (profile != null) {
         setState(() {
+          _currentUser = user;
           _userId = userId;
           _userName = profile['username'] ?? prefs.getString('userName') ?? 'UsuarioApp';
           _userEmail = email;
@@ -61,6 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     // Fallback
     setState(() {
+      _currentUser = user;
       _userEmail = email;
       _userName = prefs.getString('userName') ?? 'UsuarioApp';
       _cycleDuration = prefs.getInt('cycleDuration') ?? 28;
@@ -865,6 +877,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(height: 20),
             // ── Preferencia de la aplicación ──
             _buildPreferencesSection(),
+            
+            if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
+              SizedBox(height: 28),
+              Container(
+                height: 1,
+                color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
+              ),
+              SizedBox(height: 20),
+              _buildAdminSection(),
+            ],
+
             SizedBox(height: 28),
             // ── Divider ──
             Container(
@@ -878,6 +901,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // ── Admin Section ─────────────────────────────────────────────────────────
+  Widget _buildAdminSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Administración',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: BellotaColors.textoDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 14),
+        if (_currentUser!.isAdmin)
+          _buildHealthRow(
+            title: 'Panel de Administrador',
+            value: 'Gestionar usuarios',
+            onTap: () {
+              NavigationService.goTo(context, const AdminPanelScreen());
+            },
+          ),
+        if (_currentUser!.isAdmin) SizedBox(height: 8),
+        if (_currentUser!.isAdmin || _currentUser!.isAuditor)
+          _buildHealthRow(
+            title: 'Registro de Auditoría',
+            value: 'Ver logs',
+            onTap: () {
+              NavigationService.goTo(context, const AuditDashboardScreen());
+            },
+          ),
+      ],
     );
   }
 
@@ -1047,7 +1111,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: BellotaColors.textoMedio,
           ),
         ),
-
+        if (_currentUser != null && _currentUser!.role != UserRole.usuario) ...[
+          SizedBox(height: 8),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: _currentUser!.isAdmin ? BellotaColors.chilero.withValues(alpha: 0.15) : BellotaColors.asuncion.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _currentUser!.isAdmin ? Icons.admin_panel_settings : Icons.manage_search,
+                  size: 14,
+                  color: _currentUser!.isAdmin ? BellotaColors.chilero : BellotaColors.asuncion,
+                ),
+                SizedBox(width: 4),
+                Text(
+                  RolePermissions.roleName(_currentUser!.role),
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _currentUser!.isAdmin ? BellotaColors.chilero : BellotaColors.asuncion,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]
       ],
     );
   }

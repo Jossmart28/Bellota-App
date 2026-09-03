@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
@@ -107,13 +108,27 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
     if (_userId != null) {
       String dateKey =
           '${_selectedPeriodStart!.year}-${_selectedPeriodStart!.month.toString().padLeft(2, '0')}-${_selectedPeriodStart!.day.toString().padLeft(2, '0')}';
-      await DatabaseHelper.instance.saveDailyLog(
+      final log = await DatabaseHelper.instance.getDailyLog(_userId!, dateKey);
+      await DatabaseHelper.instance.saveDailyLogV2(
         userId: _userId!,
         date: dateKey,
         periodStart: true,
-        symptoms: [],
-        sexo: [],
-        flujo: [],
+        symptoms: log != null && log['symptoms'] != null ? List<String>.from(jsonDecode(log['symptoms'] as String)) : [],
+        sexo: log != null && log['sexo'] != null ? List<String>.from(jsonDecode(log['sexo'] as String)) : [],
+        flujo: log != null && log['flujo'] != null ? List<String>.from(jsonDecode(log['flujo'] as String)) : [],
+        bleedingIntensity: log?['bleeding_intensity'] as String?,
+        clots: log?['clots'] as String?,
+        spotting: (log?['spotting'] as int?) == 1,
+        spottingDays: log?['spotting_days'] as String?,
+        sexualSymptoms: log?['sexual_symptoms'] as String?,
+        painLevel: log?['pain_level'] != null ? (log!['pain_level'] as num).toDouble() : null,
+        painCharacter: log?['pain_character'] as String?,
+        painDays: log?['pain_days'] as String?,
+        treatment: log?['treatment'] as String?,
+        physicalSymptoms: log != null && log['physical_symptoms'] != null ? List<String>.from(jsonDecode(log['physical_symptoms'] as String)) : [],
+        emotionalSymptoms: log != null && log['emotional_symptoms'] != null ? List<String>.from(jsonDecode(log['emotional_symptoms'] as String)) : [],
+        breastExam: log?['breast_exam'] as String?,
+        notes: log?['notes'] as String?,
       );
     }
 

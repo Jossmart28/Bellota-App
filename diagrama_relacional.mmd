@@ -5,6 +5,8 @@ erDiagram
         string name
         string email UK
         string password_hash
+        string role "admin|usuario|auditor"
+        int is_active "1 o 0"
         string created_at
     }
 
@@ -35,10 +37,32 @@ erDiagram
         string flujo
         string created_at
     }
+    
+    AUDIT_LOGS {
+        int id PK
+        int user_id FK
+        string action
+        string target_type
+        int target_id
+        string details
+        string ip_address
+        string created_at
+    }
 
     %% Capa Backend (FastAPI)
-    USER_PROFILES {
+    BACKEND_USERS {
         int id PK
+        string name
+        string email UK
+        string password_hash
+        string role "admin|usuario|auditor"
+        bool is_active
+        datetime created_at
+    }
+
+    BACKEND_USER_PROFILES {
+        int id PK
+        int user_id FK
         int menstrual_cycle_duration
         int menstruation_duration
         string collection_product
@@ -51,7 +75,7 @@ erDiagram
         datetime updated_at
     }
 
-    ADDITIONAL_MEDICATIONS {
+    BACKEND_ADDITIONAL_MEDICATIONS {
         int id PK
         int user_id FK
         string name
@@ -59,7 +83,7 @@ erDiagram
         datetime updated_at
     }
 
-    DAILY_LOGS_BACKEND {
+    BACKEND_DAILY_LOGS {
         int id PK
         int user_id FK
         string date
@@ -70,11 +94,25 @@ erDiagram
         string notes
         datetime updated_at
     }
+    
+    BACKEND_AUDIT_LOGS {
+        int id PK
+        int user_id FK
+        string action
+        string target_type
+        int target_id
+        string details
+        string ip_address
+        datetime created_at
+    }
 
     %% Relaciones Locales
     USERS ||--|| PROFILES : "1:1 tiene perfil"
     USERS ||--o{ DAILY_LOGS : "1:N registra"
+    USERS ||--o{ AUDIT_LOGS : "1:N genera acciones"
 
     %% Relaciones Backend
-    USER_PROFILES ||--o{ ADDITIONAL_MEDICATIONS : "1:N toma"
-    USER_PROFILES ||--o{ DAILY_LOGS_BACKEND : "1:N registra"
+    BACKEND_USERS ||--|| BACKEND_USER_PROFILES : "1:1 tiene perfil"
+    BACKEND_USERS ||--o{ BACKEND_AUDIT_LOGS : "1:N genera acciones"
+    BACKEND_USER_PROFILES ||--o{ BACKEND_ADDITIONAL_MEDICATIONS : "1:N toma"
+    BACKEND_USER_PROFILES ||--o{ BACKEND_DAILY_LOGS : "1:N registra"
