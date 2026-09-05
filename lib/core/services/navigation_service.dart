@@ -9,6 +9,7 @@ import '../../screens/calendar_tour_screen.dart';
 import '../../screens/personal_data_screen.dart';
 import '../../screens/admin_panel_screen.dart';
 import '../../screens/audit_dashboard_screen.dart';
+import '../../screens/privacy_policy_screen.dart';
 
 /// Servicio de navegación que centraliza la lógica de redirección post-login.
 ///
@@ -73,7 +74,9 @@ abstract final class NavigationService {
         final onboardingDone = prefs.getBool(AppKeys.onboardingDone) ?? false;
         final calendarTourDone = prefs.getBool(AppKeys.calendarTourDone) ?? false;
         final setupCompleted = prefs.getBool(AppKeys.setupCompleted) ?? false;
+        final privacyPolicyAccepted = prefs.getBool('privacy_policy_accepted') ?? false;
 
+        if (!privacyPolicyAccepted) return const PrivacyPolicyScreen();
         if (!onboardingDone) return const OnboardingScreen();
         if (!calendarTourDone) return const CalendarTourScreen();
         if (!setupCompleted) return const PersonalDataScreen();

@@ -60,11 +60,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _currentUser = user;
           _userId = userId;
-          _userName = profile['username'] ?? prefs.getString('userName') ?? 'UsuarioApp';
+          _userName = profile['username'] ?? 'UsuarioApp';
           _userEmail = email;
           _cycleDuration = profile['cycle_duration'] ?? 28;
           _periodDuration = profile['period_duration'] ?? 7;
-          _profileImagePath = profile['profile_image_path'] ?? prefs.getString('profileImagePath');
+          _profileImagePath = profile['profile_image_path'];
         });
         return;
       }
@@ -73,11 +73,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Fallback
     setState(() {
       _currentUser = user;
+      _userName = 'UsuarioApp';
       _userEmail = email;
-      _userName = prefs.getString('userName') ?? 'UsuarioApp';
-      _cycleDuration = prefs.getInt('cycleDuration') ?? 28;
-      _periodDuration = prefs.getInt('periodDuration') ?? 7;
-      _profileImagePath = prefs.getString('profileImagePath');
+      _profileImagePath = null;
     });
   }
 
@@ -308,8 +306,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Row(children: [
-          CircularProgressIndicator(),
+          CircularProgressIndicator(color: BellotaColors.chilero),
           SizedBox(width: 20),
           Text(AppTranslations.get('profile_and_report', 'generating_report', languageNotifier.currentLang)),
         ]),
@@ -329,35 +328,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final List<Map<String, dynamic>> allLogs = await DatabaseHelper.instance.getAllDailyLogs(_userId!);
       final List<DateTime> periodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(_userId!);
       final DateTime? lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(_userId!);
-      final DateTime? firstPeriod = await DatabaseHelper.instance.getFirstPeriodStart(_userId!);
       final lang = languageNotifier.currentLang;
       final notSpec = AppTranslations.get('profile_and_report', 'not_specified', lang);
+
+      // ── Promedios REALES desde historial (Bug Fix) ──
+      final cycleStats = await DatabaseHelper.instance.getCycleStatistics(_userId!);
+      final double? promCicloReal = cycleStats['averageCycleLength'] as double?;
+      final double promCiclo = promCicloReal ?? _cycleDuration.toDouble();
+      final double? promSangradoReal = await DatabaseHelper.instance.getRealBleedingAverage(_userId!);
+      final double promSangrado = promSangradoReal ?? _periodDuration.toDouble();
+
+      final String estadoCiclo = (promCiclo >= 21 && promCiclo <= 35)
+          ? AppTranslations.get('profile_and_report', 'normal', lang)
+          : AppTranslations.get('profile_and_report', 'irregular', lang);
+      final String estadoSangrado = promSangrado >= 3 && promSangrado <= 7
+          ? AppTranslations.get('profile_and_report', 'normal', lang)
+          : (promSangrado > 7
+              ? AppTranslations.get('profile_and_report', 'prolonged', lang)
+              : AppTranslations.get('profile_and_report', 'short', lang));
 
       String fum = lastPeriod != null
           ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
           : notSpec;
-      String rangoInicio = lastPeriod != null
-          ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
-          : notSpec;
+      String rangoInicio = fum;
       String rangoFin = lastPeriod != null
           ? () {
-              final end = lastPeriod.add(Duration(days: _cycleDuration));
+              final end = lastPeriod.add(Duration(days: promCiclo.toInt()));
               return '${end.day.toString().padLeft(2, '0')}/${end.month.toString().padLeft(2, '0')}/${end.year}';
             }()
           : fechaHoy;
 
-      // Promedio ciclo
-      double? promCiclo = _cycleDuration.toDouble();
-      String estadoCiclo = (promCiclo >= 21 && promCiclo <= 35) ? AppTranslations.get('profile_and_report', 'normal', lang) : AppTranslations.get('profile_and_report', 'irregular', lang);
-      final sortedPeriods = List<DateTime>.from(periodStarts)..sort();
-
-      double promSangrado = _periodDuration.toDouble();
-      String estadoSangrado = promSangrado >= 3 && promSangrado <= 7 ? AppTranslations.get('profile_and_report', 'normal', lang) : (promSangrado > 7 ? AppTranslations.get('profile_and_report', 'prolonged', lang) : AppTranslations.get('profile_and_report', 'short', lang));
-
-      // Flujo más frecuente en el ciclo actual
+      // ── Flujo más frecuente ──
       Map<String, int> flujoCount = {};
-      DateTime? endOfCycle = lastPeriod?.add(Duration(days: _cycleDuration));
-      
+      final endOfCycle = lastPeriod?.add(Duration(days: promCiclo.toInt()));
       for (final log in allLogs) {
         if (lastPeriod != null && endOfCycle != null) {
           try {
@@ -367,16 +370,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 flujoCount[f.toString()] = (flujoCount[f.toString()] ?? 0) + 1;
               }
             }
-          } catch (e) {
-            // ignore parse errors
-          }
+          } catch (_) {}
         }
       }
       final flujoMasFrecuente = flujoCount.isNotEmpty
           ? flujoCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key
           : null;
 
-      // Síntomas más frecuentes
+      // ── Síntomas más frecuentes ──
       Map<String, int> sympCount = {};
       for (final log in allLogs) {
         for (final s in (jsonDecode(log['symptoms'] as String? ?? '[]') as List)) {
@@ -385,52 +386,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       final topSyms = (sympCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(5).map((e) => e.key).toList();
 
-      // Patrón de sangrado y dolor más recientes
+      // ── FIXED: Leer patrón de sangrado y dolor de SQLite (no SharedPreferences) ──
       Map<String, dynamic> patron = {};
       Map<String, dynamic> dolor = {};
       for (final log in allLogs.reversed) {
-        final dk = log['date'] as String;
-        if (patron.isEmpty) {
-          final p = prefs.getString('patron_sangrado_$dk');
-          if (p != null) patron = jsonDecode(p);
+        if (patron.isEmpty && log['bleeding_intensity'] != null) {
+          patron = {
+            'intensidadFlujo': log['bleeding_intensity'],
+            'coagulos': log['clots'],
+            'manchado': (log['spotting'] as int?) == 1
+                ? AppTranslations.get('registration_form', 'yes', lang)
+                : AppTranslations.get('registration_form', 'no', lang),
+            'manchadoDias': log['spotting_days'],
+            'sintomasSexuales': log['sexual_symptoms'],
+          };
         }
-        if (dolor.isEmpty) {
-          final d = prefs.getString('dolor_sintomatologia_$dk');
-          if (d != null) dolor = jsonDecode(d);
+        if (dolor.isEmpty && log['pain_level'] != null) {
+          final physList = <String>[];
+          try {
+            final decoded = jsonDecode(log['physical_symptoms'] as String? ?? '[]');
+            if (decoded is List) physList.addAll(decoded.map((e) => e.toString()));
+          } catch (_) {}
+          final emoList = <String>[];
+          try {
+            final decoded = jsonDecode(log['emotional_symptoms'] as String? ?? '[]');
+            if (decoded is List) emoList.addAll(decoded.map((e) => e.toString()));
+          } catch (_) {}
+          dolor = {
+            'nivelDolor': log['pain_level'],
+            'caracterDolor': log['pain_character'],
+            'diasDolor': log['pain_days'],
+            'tratamiento': log['treatment'],
+            'sintomasFisicos': physList,
+            'sintomasEmocionales': emoList,
+            'autoexamenMama': log['breast_exam'],
+          };
         }
         if (patron.isNotEmpty && dolor.isNotEmpty) break;
       }
 
-
-      // Alertas automáticas
+      // ── Alertas automáticas usando AppTranslations ──
       List<Map<String, String>> alertas = [];
-      String irregStr = AppTranslations.get('profile_and_report', 'irregular_cycles', lang);
-      if (promCiclo != null && (promCiclo < 21 || promCiclo > 35)) {
-        alertas.add({'tipo': irregStr, 'detalle': lang == 'mi' ? 'Alerta: ${promCiclo.toStringAsFixed(0)} yu (pain 21-35 yu)' : (lang == 'en' ? 'Alert: ${promCiclo.toStringAsFixed(0)} days (normal 21-35 days)' : 'Alerta: ${promCiclo.toStringAsFixed(0)} días (normal 21-35 días)')});
-      } else if (promCiclo != null) {
-        alertas.add({'tipo': irregStr, 'detalle': lang == 'mi' ? 'Luhka pain: ${promCiclo.toStringAsFixed(0)} yu' : (lang == 'en' ? 'Normal duration: ${promCiclo.toStringAsFixed(0)} days' : 'Duración normal: ${promCiclo.toStringAsFixed(0)} días')});
+      final String irregStr = AppTranslations.get('profile_and_report', 'irregular_cycles', lang);
+      if (promCiclo < 21 || promCiclo > 35) {
+        alertas.add({'tipo': irregStr, 'detalle': AppTranslations.get('registration_form', 'alert_irregular_detail', lang).replaceAll('{value}', promCiclo.toStringAsFixed(0))});
+      } else {
+        alertas.add({'tipo': irregStr, 'detalle': AppTranslations.get('registration_form', 'normal_duration_detail', lang).replaceAll('{value}', promCiclo.toStringAsFixed(0))});
       }
-      String prolonStr = AppTranslations.get('profile_and_report', 'prolonged_bleeding', lang);
+      final String prolonStr = AppTranslations.get('profile_and_report', 'prolonged_bleeding', lang);
       if (promSangrado > 7) {
-        alertas.add({'tipo': prolonStr, 'detalle': lang == 'mi' ? 'Alerta: ${promSangrado.toInt()} yu (máx. 7 yu)' : (lang == 'en' ? 'Alert: ${promSangrado.toInt()} consecutive days (max 7 days)' : 'Alerta: ${promSangrado.toInt()} días consecutivos (máx. 7 días)')});
+        alertas.add({'tipo': prolonStr, 'detalle': AppTranslations.get('registration_form', 'alert_bleeding_detail', lang).replaceAll('{value}', promSangrado.toInt().toString())});
       } else {
-        alertas.add({'tipo': prolonStr, 'detalle': lang == 'mi' ? 'Luhka pain: ${promSangrado.toInt()} yu' : (lang == 'en' ? 'Normal duration: ${promSangrado.toInt()} days' : 'Duración normal: ${promSangrado.toInt()} días')});
+        alertas.add({'tipo': prolonStr, 'detalle': AppTranslations.get('registration_form', 'normal_duration_detail', lang).replaceAll('{value}', promSangrado.toInt().toString())});
       }
-      String ameStr = AppTranslations.get('profile_and_report', 'amenorrhea', lang);
+      final String ameStr = AppTranslations.get('profile_and_report', 'amenorrhea', lang);
       if (lastPeriod == null) {
-        alertas.add({'tipo': ameStr, 'detalle': lang == 'mi' ? 'Alerta: ulbanka apia. Kati balras.' : (lang == 'en' ? 'Alert: no log. Possible delay without pregnancy confirmed.' : 'Alerta: sin registro. Posible retraso sin confirmación de embarazo.')});
+        alertas.add({'tipo': ameStr, 'detalle': AppTranslations.get('registration_form', 'alert_amenorrhea_detail', lang)});
       } else {
-        alertas.add({'tipo': ameStr, 'detalle': lang == 'mi' ? 'Alerta apia. Kati ta: $fum' : (lang == 'en' ? 'No alert. Last period logged: $fum' : 'Sin alerta. Última menstruación registrada: $fum')});
+        alertas.add({'tipo': ameStr, 'detalle': AppTranslations.get('registration_form', 'no_alert_amenorrhea', lang).replaceAll('{value}', fum)});
       }
       final nivelD = dolor['nivelDolor'];
-      String alertPStr = AppTranslations.get('profile_and_report', 'alert_pain', lang);
+      final String alertPStr = AppTranslations.get('profile_and_report', 'alert_pain', lang);
       if (nivelD != null && (nivelD as num) >= 8) {
-        alertas.add({'tipo': alertPStr, 'detalle': lang == 'mi' ? 'Alerta: latwan tara ${nivelD.toStringAsFixed(0)}/10' : (lang == 'en' ? 'Alert: severe pain ${nivelD.toStringAsFixed(0)}/10 that does not subside' : 'Alerta: dolor severo ${nivelD.toStringAsFixed(0)}/10 que no cede')});
+        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'alert_severe_pain_detail', lang).replaceAll('{value}', (nivelD as num).toStringAsFixed(0))});
+      } else if (nivelD != null) {
+        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'pain_normal_range', lang).replaceAll('{value}', (nivelD as num).toStringAsFixed(0))});
       } else {
-        alertas.add({'tipo': alertPStr, 'detalle': nivelD != null ? (lang == 'mi' ? 'Latwan pain: ${(nivelD as num).toStringAsFixed(0)}/10' : (lang == 'en' ? 'Pain in normal range: ${(nivelD as num).toStringAsFixed(0)}/10' : 'Dolor dentro del rango: ${(nivelD as num).toStringAsFixed(0)}/10')) : (lang == 'mi' ? 'Latwan ulbanka apia' : (lang == 'en' ? 'No pain logged' : 'Sin registro de dolor'))});
+        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'no_pain_logged', lang)});
       }
 
-      // ─── Construcción del JSON final (sin nulos) ───
+      // ── Construcción del JSON final (sin nulos) ──
       Map<String, dynamic> filterNulls(Map<String, dynamic> m) {
         return Map.fromEntries(m.entries.where((e) => e.value != null && e.value != ''));
       }
@@ -443,11 +468,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'app': 'Bellota - Calendario Menstrual',
           'tipo': 'Reporte de salud menstrual y clínico ginecológico',
           'uso': 'Seguimiento y apoyo para consulta profesional',
-          'aviso': 'Este reporte no sustituye una valoración médica profesional.',
+          'aviso': AppTranslations.get('registration_form', 'report_disclaimer', lang),
         },
         'seccion_1_informacion_general': filterNulls({
           'paciente': _userName,
-          'edad': userAge.isNotEmpty ? '$userAge años' : notSpec,
+          'edad': userAge.isNotEmpty ? '$userAge ${AppTranslations.get('profile_and_report', 'days', lang)}' : notSpec,
           'ubicacion': userLocation.isNotEmpty ? userLocation : notSpec,
           'fecha_generacion': fechaHoy,
           'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : notSpec,
@@ -456,14 +481,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'fum': fum,
         }),
         'seccion_2_resumen_estadistico': filterNulls({
-          'promedio_ciclo': promCiclo != null ? {
-            'valor': '${promCiclo.toStringAsFixed(0)} días',
-            'referencia': '21 a 35 días',
+          'promedio_ciclo': {
+            'valor': '${promCiclo.toStringAsFixed(0)} ${AppTranslations.get('profile_and_report', 'days', lang)}',
+            'referencia': '21-35 ${AppTranslations.get('profile_and_report', 'days', lang)}',
             'estado': estadoCiclo,
-          } : {'valor': notSpec, 'referencia': '21 a 35 días', 'estado': notSpec},
+          },
           'promedio_sangrado': {
-            'valor': '${promSangrado.toInt()} días',
-            'referencia': '3 a 6 días (máx. 7 días)',
+            'valor': '${promSangrado.toInt()} ${AppTranslations.get('profile_and_report', 'days', lang)}',
+            'referencia': '3-7 ${AppTranslations.get('profile_and_report', 'days', lang)}',
             'estado': estadoSangrado,
           },
           'fum': fum,
@@ -474,24 +499,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'intensidad_flujo': patron['intensidadFlujo'],
           'coagulos': patron['coagulos'],
           'manchado_intermenstrual': patron['manchado'],
-          if ((patron['manchadoDias'] as String?)?.isNotEmpty == true)
-            'manchado_dias': patron['manchadoDias'],
+          if ((patron['manchadoDias'] as String?)?.isNotEmpty == true) 'manchado_dias': patron['manchadoDias'],
           'sintomas_relaciones_sexuales': patron['sintomasSexuales'],
         }),
         if (dolor.isNotEmpty) 'seccion_4_dolor_sintomatologia': filterNulls({
           'nivel_dolor_eva': dolor['nivelDolor'] != null ? '${(dolor['nivelDolor'] as num).toStringAsFixed(0)}/10' : null,
           'caracter': dolor['caracterDolor'],
-          if ((dolor['diasDolor'] as String?)?.isNotEmpty == true)
-            'dias_dolor_critico': dolor['diasDolor'],
+          if ((dolor['diasDolor'] as String?)?.isNotEmpty == true) 'dias_dolor_critico': dolor['diasDolor'],
           'tratamiento': dolor['tratamiento'],
           if ((dolor['sintomasFisicos'] as List?)?.isNotEmpty == true)
-            'sintomas_fisicos': dolor['sintomasFisicos'],
+            'sintomas_fisicos': (dolor['sintomasFisicos'] as List).join(', '),
           if ((dolor['sintomasEmocionales'] as List?)?.isNotEmpty == true)
-            'sintomas_emocionales': dolor['sintomasEmocionales'],
+            'sintomas_emocionales': (dolor['sintomasEmocionales'] as List).join(', '),
           'autoexamen_mama': dolor['autoexamenMama'],
         }),
         'seccion_5_alertas_automaticas': alertas,
-
       };
 
       // Guardar en documentos
@@ -507,7 +529,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MedicalReportPreviewScreen(reportData: report, filePath: file.path),
+            builder: (context) => MedicalReportPreviewScreen(reportData: report),
           ),
         );
       }
@@ -515,7 +537,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) Navigator.of(context).pop();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al generar informe: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('${AppTranslations.get('profile_and_report', 'generating_report', languageNotifier.currentLang)} - Error: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }

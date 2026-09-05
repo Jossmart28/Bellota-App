@@ -28,6 +28,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   List<String> _selectedSexo = [];
   Map<String, dynamic> _patronSangrado = {};
   Map<String, dynamic> _dolorSintomatologia = {};
+  String _notes = '';
+  late TextEditingController _notesController;
   late DateTime _date;
   int? _userId;
 
@@ -40,12 +42,30 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   void initState() {
     super.initState();
     _date = widget.selectedDate ?? DateTime.now();
+    _notesController = TextEditingController(text: _notes);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
   }
 
   String get _dateKey => '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}';
 
   String get _formattedDate => '${_date.day} de ${_monthNames[_date.month - 1]} ${_date.year}';
+
+  double get _completionPercent {
+    int filled = 0;
+    if (_selectedSexo.isNotEmpty) filled++;
+    if (_selectedSymptoms.isNotEmpty) filled++;
+    if (_selectedFlujos.isNotEmpty) filled++;
+    if (_patronSangrado.isNotEmpty) filled++;
+    if (_dolorSintomatologia.isNotEmpty) filled++;
+    if (_notes.isNotEmpty) filled++;
+    return filled / 6.0;
+  }
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -69,6 +89,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           _selectedSymptoms = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
           _selectedSexo = List<String>.from(jsonDecode(log['sexo'] as String? ?? '[]'));
           _selectedFlujos = List<String>.from(jsonDecode(log['flujo'] as String? ?? '[]'));
+          _notes = log['notes'] as String? ?? '';
+          _notesController.text = _notes;
           
           // Load bleeding pattern from SQLite (was SharedPreferences)
           _patronSangrado = {};
@@ -99,6 +121,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   }
 
   Future<void> _saveAndAccept() async {
+    final lang = languageNotifier.currentLang;
     if (_userId != null && iniciaPeriodo) {
       final starts = await DatabaseHelper.instance.getAllPeriodStartDates(_userId!);
       bool hasRecentPeriod = false;
@@ -116,17 +139,17 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_title', languageNotifier.currentLang) == 'recent_period_title' ? '¿Periodo reciente?' : AppTranslations.get('symptoms_and_actions', 'recent_period_title', languageNotifier.currentLang)),
-              content: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_error', languageNotifier.currentLang)),
+              title: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang) == 'recent_period_title' ? '¿Periodo reciente?' : AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang)),
+              content: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_error', lang)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: Text(AppTranslations.get('registration_form', 'no', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoMedio)),
+                  child: Text(AppTranslations.get('registration_form', 'no', lang), style: TextStyle(color: BellotaColors.textoMedio)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: Text(AppTranslations.get('registration_form', 'yes', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
+                  child: Text(AppTranslations.get('registration_form', 'yes', lang), style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -139,42 +162,57 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     }
 
     if (_userId != null) {
-      await DatabaseHelper.instance.saveDailyLogV2(
-        userId: _userId!,
-        date: _dateKey,
-        periodStart: iniciaPeriodo,
-        symptoms: _selectedSymptoms,
-        sexo: _selectedSexo,
-        flujo: _selectedFlujos,
-        // Bleeding pattern data
-        bleedingIntensity: _patronSangrado['intensidadFlujo'] as String?,
-        clots: _patronSangrado['coagulos'] as String?,
-        spotting: (_patronSangrado['manchado'] == 'Sí' || _patronSangrado['manchado'] == 'Yes'),
-        spottingDays: _patronSangrado['manchadoDias'] as String?,
-        sexualSymptoms: _patronSangrado['sintomasSexuales'] as String?,
-        // Pain & symptomatology data
-        painLevel: _dolorSintomatologia['nivelDolor']?.toDouble(),
-        painCharacter: _dolorSintomatologia['caracterDolor'] as String?,
-        painDays: _dolorSintomatologia['diasDolor'] as String?,
-        treatment: _dolorSintomatologia['tratamiento'] as String?,
-        physicalSymptoms: _dolorSintomatologia['sintomasFisicos'] != null 
-            ? List<String>.from(_dolorSintomatologia['sintomasFisicos'])
-            : [],
-        emotionalSymptoms: _dolorSintomatologia['sintomasEmocionales'] != null 
-            ? List<String>.from(_dolorSintomatologia['sintomasEmocionales'])
-            : [],
-        breastExam: _dolorSintomatologia['autoexamenMama'] as String?,
-      );
+      try {
+        await DatabaseHelper.instance.saveDailyLogV2(
+          userId: _userId!,
+          date: _dateKey,
+          periodStart: iniciaPeriodo,
+          symptoms: _selectedSymptoms,
+          sexo: _selectedSexo,
+          flujo: _selectedFlujos,
+          notes: _notes.isNotEmpty ? _notes : null,
+          // Bleeding pattern data
+          bleedingIntensity: _patronSangrado['intensidadFlujo'] as String?,
+          clots: _patronSangrado['coagulos'] as String?,
+          spotting: (_patronSangrado['manchado'] == 'Sí' || _patronSangrado['manchado'] == 'Yes'),
+          spottingDays: _patronSangrado['manchadoDias'] as String?,
+          sexualSymptoms: _patronSangrado['sintomasSexuales'] as String?,
+          // Pain & symptomatology data
+          painLevel: _dolorSintomatologia['nivelDolor']?.toDouble(),
+          painCharacter: _dolorSintomatologia['caracterDolor'] as String?,
+          painDays: _dolorSintomatologia['diasDolor'] as String?,
+          treatment: _dolorSintomatologia['tratamiento'] as String?,
+          physicalSymptoms: _dolorSintomatologia['sintomasFisicos'] != null 
+              ? List<String>.from(_dolorSintomatologia['sintomasFisicos'])
+              : [],
+          emotionalSymptoms: _dolorSintomatologia['sintomasEmocionales'] != null 
+              ? List<String>.from(_dolorSintomatologia['sintomasEmocionales'])
+              : [],
+          breastExam: _dolorSintomatologia['autoexamenMama'] as String?,
+        );
 
-      // Reprogramar notificaciones porque puede haber cambiado el inicio del periodo
-      await NotificationService.instance.scheduleAllNotifications(_userId!);
+        // Reprogramar notificaciones porque puede haber cambiado el inicio del periodo
+        try {
+          await NotificationService.instance.scheduleAllNotifications(_userId!);
+        } catch (e) {
+          debugPrint('Error scheduling notifications: $e');
+        }
+      } catch (e) {
+        debugPrint('Error saving daily log: $e');
+      }
     }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Registro guardado para $_formattedDate'),
-          backgroundColor: BellotaColors.chilero,
+          content: Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Expanded(child: Text('Registro guardado para $_formattedDate', style: TextStyle(color: Colors.white))),
+            ],
+          ),
+          backgroundColor: BellotaColors.chiltoma,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -254,87 +292,219 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     }
   }
 
+  String? _getBleedingSummary(String lang) {
+    if (_patronSangrado.isEmpty) return null;
+    final parts = <String>[];
+    if (_patronSangrado['intensidadFlujo'] != null) parts.add(_patronSangrado['intensidadFlujo'].toString());
+    if (_patronSangrado['coagulos'] != null && _patronSangrado['coagulos'] != 'Nunca' && _patronSangrado['coagulos'] != 'never' && _patronSangrado['coagulos'] != 'Never') {
+      parts.add(_patronSangrado['coagulos'].toString());
+    }
+    if (parts.isEmpty) return AppTranslations.get('registration_form', 'saved', lang);
+    return parts.join(' · ');
+  }
+
+  String? _getPainSummary(String lang) {
+    if (_dolorSintomatologia.isEmpty) return null;
+    final parts = <String>[];
+    final nivel = _dolorSintomatologia['nivelDolor'];
+    if (nivel != null) parts.add('EVA ${(nivel as num).toStringAsFixed(0)}/10');
+    final caracter = _dolorSintomatologia['caracterDolor'];
+    if (caracter != null && caracter.toString().isNotEmpty) parts.add(caracter.toString());
+    final trat = _dolorSintomatologia['tratamiento'];
+    if (trat != null && trat.toString().isNotEmpty && trat != 'none' && trat != 'Ninguno') parts.add(trat.toString());
+    if (parts.isEmpty) return AppTranslations.get('registration_form', 'saved', lang);
+    return parts.join(' · ');
+  }
+
+  String? _getListSummary(List<String> list) {
+    if (list.isEmpty) return null;
+    return list.take(3).join(', ') + (list.length > 3 ? ' +${list.length - 3}' : '');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final lang = languageNotifier.currentLang;
+    
     return Scaffold(
       backgroundColor: BellotaColors.basilica,
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, lang),
       body: ListView(
         physics: BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 16),
         children: [
-          _buildDateHeader(context),
-          SizedBox(height: 20),
-          _buildCard(
-            context,
-            icon: Icons.water_drop_outlined,
-            iconColor: BellotaColors.chilero,
-            title: AppTranslations.get('registration_form', 'period_starts', languageNotifier.currentLang),
-            trailing: _buildSiNoToggle(
-              value: iniciaPeriodo,
-              onChanged: (val) => setState(() => iniciaPeriodo = val),
+          Container(
+            padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      AppTranslations.get('registration_form', 'log_progress', lang),
+                      style: TextStyle(fontSize: 12, color: BellotaColors.textoMedio, fontWeight: FontWeight.w500),
+                    ),
+                    Spacer(),
+                    Text(
+                      '${(_completionPercent * 6).toInt()}/6',
+                      style: TextStyle(fontSize: 12, color: BellotaColors.chilero, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: _completionPercent,
+                    minHeight: 6,
+                    backgroundColor: BellotaColors.nancite,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _completionPercent >= 1.0 ? BellotaColors.chiltoma : BellotaColors.chilero,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 12),
-          _buildCard(
-            context,
-            icon: Icons.favorite_border_rounded,
-            iconColor: BellotaColors.melon,
-            title: AppTranslations.get('registration_form', 'sex', languageNotifier.currentLang),
-            subtitle: _selectedSexo.isNotEmpty ? _selectedSexo.join(', ') : null,
-            trailing: _buildAddButton(hasItems: _selectedSexo.isNotEmpty),
-            onTap: _openSexoSelection,
+          SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: _buildDateHeader(context, lang),
           ),
-          SizedBox(height: 12),
-          _buildCard(
-            context,
-            icon: Icons.medical_services_outlined,
-            iconColor: BellotaColors.asuncion,
-            title: AppTranslations.get('registration_form', 'symptoms', languageNotifier.currentLang),
-            subtitle: _selectedSymptoms.isNotEmpty ? _selectedSymptoms.join(', ') : null,
-            trailing: _buildAddButton(hasItems: _selectedSymptoms.isNotEmpty),
-            onTap: _openSymptomsSelection,
-          ),
-          SizedBox(height: 12),
-          _buildCard(
-            context,
-            icon: Icons.opacity_rounded,
-            iconColor: Color(0xFFA566C1),
-            title: AppTranslations.get('registration_form', 'vaginal_flow', languageNotifier.currentLang),
-            subtitle: _selectedFlujos.isNotEmpty ? _selectedFlujos.join(', ') : null,
-            trailing: _buildAddButton(hasItems: _selectedFlujos.isNotEmpty),
-            onTap: _openFlujoSelection,
-          ),
-          SizedBox(height: 12),
-          _buildCard(
-            context,
-            icon: Icons.bloodtype_outlined,
-            iconColor: BellotaColors.chilero,
-            title: AppTranslations.get('registration_form', 'bleeding_pattern', languageNotifier.currentLang),
-            subtitle: _patronSangrado.isNotEmpty ? AppTranslations.get('registration_form', 'saved', languageNotifier.currentLang) : null,
-            trailing: _buildAddButton(hasItems: _patronSangrado.isNotEmpty),
-            onTap: _openPatronSangradoSelection,
-          ),
-          SizedBox(height: 12),
-          _buildCard(
-            context,
-            icon: Icons.healing_outlined,
-            iconColor: BellotaColors.chiltoma,
-            title: AppTranslations.get('registration_form', 'pain_and_symptoms', languageNotifier.currentLang),
-            subtitle: _dolorSintomatologia.isNotEmpty ? AppTranslations.get('registration_form', 'saved', languageNotifier.currentLang) : null,
-            trailing: _buildAddButton(hasItems: _dolorSintomatologia.isNotEmpty),
-            onTap: _openDolorSintomatologiaSelection,
-          ),
-          SizedBox(height: 32),
-          _buildSaveButton(context),
           SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                _buildCard(
+                  context,
+                  icon: Icons.water_drop_outlined,
+                  iconColor: BellotaColors.chilero,
+                  title: AppTranslations.get('registration_form', 'period_starts', lang),
+                  trailing: _buildSiNoToggle(
+                    value: iniciaPeriodo,
+                    onChanged: (val) => setState(() => iniciaPeriodo = val),
+                    lang: lang,
+                  ),
+                ),
+                SizedBox(height: 12),
+                _buildCard(
+                  context,
+                  icon: Icons.favorite_border_rounded,
+                  iconColor: BellotaColors.melon,
+                  title: AppTranslations.get('registration_form', 'sex', lang),
+                  subtitle: _getListSummary(_selectedSexo),
+                  trailing: _buildAddButton(hasItems: _selectedSexo.isNotEmpty),
+                  onTap: _openSexoSelection,
+                ),
+                SizedBox(height: 12),
+                _buildCard(
+                  context,
+                  icon: Icons.medical_services_outlined,
+                  iconColor: BellotaColors.asuncion,
+                  title: AppTranslations.get('registration_form', 'symptoms', lang),
+                  subtitle: _getListSummary(_selectedSymptoms),
+                  trailing: _buildAddButton(hasItems: _selectedSymptoms.isNotEmpty),
+                  onTap: _openSymptomsSelection,
+                ),
+                SizedBox(height: 12),
+                _buildCard(
+                  context,
+                  icon: Icons.opacity_rounded,
+                  iconColor: Color(0xFFA566C1),
+                  title: AppTranslations.get('registration_form', 'vaginal_flow', lang),
+                  subtitle: _getListSummary(_selectedFlujos),
+                  trailing: _buildAddButton(hasItems: _selectedFlujos.isNotEmpty),
+                  onTap: _openFlujoSelection,
+                ),
+                SizedBox(height: 12),
+                _buildCard(
+                  context,
+                  icon: Icons.bloodtype_outlined,
+                  iconColor: BellotaColors.chilero,
+                  title: AppTranslations.get('registration_form', 'bleeding_pattern', lang),
+                  subtitle: _getBleedingSummary(lang),
+                  trailing: _buildAddButton(hasItems: _patronSangrado.isNotEmpty),
+                  onTap: _openPatronSangradoSelection,
+                ),
+                SizedBox(height: 12),
+                _buildCard(
+                  context,
+                  icon: Icons.healing_outlined,
+                  iconColor: BellotaColors.chiltoma,
+                  title: AppTranslations.get('registration_form', 'pain_and_symptoms', lang),
+                  subtitle: _getPainSummary(lang),
+                  trailing: _buildAddButton(hasItems: _dolorSintomatologia.isNotEmpty),
+                  onTap: _openDolorSintomatologiaSelection,
+                ),
+                SizedBox(height: 12),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: BellotaColors.blanco,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: BellotaColors.melon.withValues(alpha: 0.08),
+                        blurRadius: 14,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 42, height: 42,
+                            decoration: BoxDecoration(
+                              color: BellotaColors.asuncion.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(13),
+                            ),
+                            child: Icon(Icons.edit_note_rounded, color: BellotaColors.asuncion, size: 22),
+                          ),
+                          SizedBox(width: 14),
+                          Text(
+                            AppTranslations.get('registration_form', 'notes', lang),
+                            style: TextStyle(fontSize: 15.5, color: BellotaColors.textoDark, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      TextField(
+                        maxLines: 3,
+                        minLines: 1,
+                        onChanged: (v) => setState(() => _notes = v),
+                        controller: _notesController,
+                        style: TextStyle(fontSize: 14, color: BellotaColors.textoDark),
+                        decoration: InputDecoration(
+                          hintText: AppTranslations.get('registration_form', 'notes_hint', lang),
+                          hintStyle: TextStyle(color: BellotaColors.textoMedio.withValues(alpha: 0.6), fontSize: 13),
+                          filled: true,
+                          fillColor: BellotaColors.nancite,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 32),
+                _buildSaveButton(context, lang),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
   // APP BAR
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, String lang) {
     return AppBar(
       backgroundColor: BellotaColors.basilica,
       elevation: 0,
@@ -362,7 +532,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         ),
       ),
       title: Text(
-        AppTranslations.get('navigation', 'log', languageNotifier.currentLang),
+        AppTranslations.get('navigation', 'log', lang),
         style: TextStyle(
           color: BellotaColors.textoDark,
           fontSize: 17,
@@ -383,7 +553,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang),
+                AppTranslations.get('onboarding', 'confirm', lang),
                 style: TextStyle(
                   color: BellotaColors.chilero,
                   fontWeight: FontWeight.w700,
@@ -398,7 +568,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   }
 
   // DATE HEADER
-  Widget _buildDateHeader(BuildContext context) {
+  Widget _buildDateHeader(BuildContext context, String lang) {
     return Row(
       children: [
         Container(
@@ -469,14 +639,33 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         ),
         child: Row(
           children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: Icon(icon, color: iconColor, size: 22),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 22),
+                ),
+                if (subtitle != null)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: BellotaColors.chiltoma,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: BellotaColors.blanco, width: 1.5),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             SizedBox(width: 14),
             Expanded(
@@ -517,7 +706,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   }
 
   // TOGGLE SÍ / NO
-  Widget _buildSiNoToggle({required bool value, required ValueChanged<bool> onChanged}) {
+  Widget _buildSiNoToggle({required bool value, required ValueChanged<bool> onChanged, required String lang}) {
     return Container(
       decoration: BoxDecoration(
         color: BellotaColors.nancite,
@@ -540,7 +729,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     : [],
               ),
               child: Text(
-                AppTranslations.get('registration_form', 'yes', languageNotifier.currentLang),
+                AppTranslations.get('registration_form', 'yes', lang),
                 style: TextStyle(
                   color: value ? Colors.white : BellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
@@ -563,7 +752,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     : [],
               ),
               child: Text(
-                AppTranslations.get('registration_form', 'no', languageNotifier.currentLang),
+                AppTranslations.get('registration_form', 'no', lang),
                 style: TextStyle(
                   color: !value ? Colors.white : BellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
@@ -599,7 +788,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   }
 
   // BOTÓN GUARDAR
-  Widget _buildSaveButton(BuildContext context) {
+  Widget _buildSaveButton(BuildContext context, String lang) {
     return GestureDetector(
       onTap: _saveAndAccept,
       child: Container(
@@ -616,16 +805,21 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             ),
           ],
         ),
-        child: Center(
-          child: Text(
-            AppTranslations.get('registration_form', 'save_log', languageNotifier.currentLang),
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 15.5,
-              letterSpacing: 0.3,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 20),
+            SizedBox(width: 8),
+            Text(
+              AppTranslations.get('registration_form', 'save_log', lang),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 15.5,
+                letterSpacing: 0.3,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

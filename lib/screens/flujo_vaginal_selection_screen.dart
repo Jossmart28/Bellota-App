@@ -6,41 +6,85 @@ import '../theme/bellota_colors.dart';
 class FlujoVaginalSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedFlujos;
 
-  const FlujoVaginalSelectionScreen({super.key, required this.initialSelectedFlujos});
+  FlujoVaginalSelectionScreen({super.key, required this.initialSelectedFlujos});
 
   @override
   State<FlujoVaginalSelectionScreen> createState() => _FlujoVaginalSelectionScreenState();
 }
 
 class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScreen> {
-  late Set<String> _selectedFlujos;
+  late Set<String> _selectedFlujosKeys;
 
-  final List<String> _flujoOptions = [
-    AppTranslations.get('registration_form', 'dry', languageNotifier.currentLang),
-    AppTranslations.get('registration_form', 'thick', languageNotifier.currentLang),
-    AppTranslations.get('registration_form', 'liquid_elastic', languageNotifier.currentLang),
-    AppTranslations.get('registration_form', 'watery', languageNotifier.currentLang),
-    AppTranslations.get('registration_form', 'egg_white', languageNotifier.currentLang),
+  final List<String> _flujoOptionKeys = [
+    'dry',
+    'thick',
+    'liquid_elastic',
+    'watery',
+    'egg_white',
   ];
 
   @override
   void initState() {
     super.initState();
-    _selectedFlujos = Set.from(widget.initialSelectedFlujos);
+    _selectedFlujosKeys = Set.from(widget.initialSelectedFlujos);
   }
 
-  void _toggleFlujo(String flujo) {
+  void _toggleFlujo(String key) {
     setState(() {
-      if (_selectedFlujos.contains(flujo)) {
-        _selectedFlujos.remove(flujo);
+      if (_selectedFlujosKeys.contains(key)) {
+        _selectedFlujosKeys.remove(key);
       } else {
-        _selectedFlujos.add(flujo);
+        _selectedFlujosKeys.add(key);
       }
     });
   }
 
+  Widget _buildFertilityBadge(String key, String lang) {
+    String badgeKey;
+    Color color;
+    Color bgColor;
+
+    switch (key) {
+      case 'dry':
+      case 'thick':
+        badgeKey = 'fertility_low';
+        color = BellotaColors.chiltoma;
+        bgColor = BellotaColors.chiltoma.withValues(alpha: 0.2);
+        break;
+      case 'liquid_elastic':
+        badgeKey = 'fertility_medium';
+        color = BellotaColors.melon;
+        bgColor = BellotaColors.melon.withValues(alpha: 0.2);
+        break;
+      case 'watery':
+      case 'egg_white':
+      default:
+        badgeKey = 'fertility_high';
+        color = BellotaColors.chilero;
+        bgColor = BellotaColors.chilero.withValues(alpha: 0.15);
+        break;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        AppTranslations.get('registration_form', badgeKey, lang),
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final lang = languageNotifier.currentLang;
     return Scaffold(
       backgroundColor: BellotaColors.basilica,
       appBar: AppBar(
@@ -48,17 +92,26 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(AppTranslations.get('registration_form', 'cancel', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text(
+            AppTranslations.get('registration_form', 'cancel', lang),
+            style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+          ),
         ),
         leadingWidth: 80,
-        title: Text(AppTranslations.get('registration_form', 'vaginal_flow', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+        title: Text(
+          AppTranslations.get('registration_form', 'vaginal_flow', lang),
+          style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
+        ),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context, _selectedFlujos.toList());
+              Navigator.pop(context, _selectedFlujosKeys.toList());
             },
-            child: Text(AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text(
+              AppTranslations.get('onboarding', 'confirm', lang),
+              style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+            ),
           ),
         ],
       ),
@@ -68,10 +121,10 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: BellotaColors.melon.withValues(alpha: 0.08),
                   blurRadius: 10,
                   offset: Offset(0, 4),
                 ),
@@ -81,7 +134,11 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 8),
-                ..._flujoOptions.map((flujo) => _buildFlujoRow(flujo)),
+                for (int i = 0; i < _flujoOptionKeys.length; i++) ...[
+                  _buildFlujoRow(_flujoOptionKeys[i], lang),
+                  if (i < _flujoOptionKeys.length - 1)
+                    Divider(height: 1),
+                ],
                 SizedBox(height: 8),
               ],
             ),
@@ -91,31 +148,45 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
     );
   }
 
-  Widget _buildFlujoRow(String flujo) {
-    final isSelected = _selectedFlujos.contains(flujo);
+  Widget _buildFlujoRow(String key, String lang) {
+    final isSelected = _selectedFlujosKeys.contains(key);
     return InkWell(
-      onTap: () => _toggleFlujo(flujo),
+      onTap: () => _toggleFlujo(key),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                flujo,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: BellotaColors.textoDark,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppTranslations.get('registration_form', key, lang),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: BellotaColors.textoDark,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    AppTranslations.get('registration_form', '${key}_info', lang),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: BellotaColors.textoMedio,
+                    ),
+                  ),
+                ],
               ),
             ),
-            // Círculo seleccionable
+            _buildFertilityBadge(key, lang),
+            SizedBox(width: 8),
             Container(
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? BellotaColors.chilero : Colors.grey[400]!,
+                borderRadius: BorderRadius.circular(6),
+                border: isSelected ? null : Border.all(
+                  color: BellotaColors.textoMedio.withValues(alpha: 0.4),
                   width: 2,
                 ),
                 color: isSelected ? BellotaColors.chilero : Colors.transparent,

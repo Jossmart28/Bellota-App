@@ -105,13 +105,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     }
 
-    String? profileImagePath = prefs.getString('profileImagePath');
-
     setState(() {
       _userName = userName;
       _userEmail = userEmail;
       _userId = userId;
-      _profileImagePath ??= profileImagePath;
     });
 
     if (userId != null) {
@@ -133,11 +130,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (profile != null) {
       _cycleDuration = profile['cycle_duration'] as int? ?? 28;
       _periodDuration = profile['period_duration'] as int? ?? 5;
-      if (profile['profile_image_path'] != null) {
-        setState(() {
-          _profileImagePath = profile['profile_image_path'] as String?;
-        });
-      }
+      setState(() {
+        _profileImagePath = profile['profile_image_path'] as String?;
+      });
     }
 
     // 2. Obtener datos de períodos

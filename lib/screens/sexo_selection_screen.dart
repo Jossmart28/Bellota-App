@@ -6,40 +6,51 @@ import '../theme/bellota_colors.dart';
 class SexoSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedSexo;
 
-  const SexoSelectionScreen({super.key, required this.initialSelectedSexo});
+  SexoSelectionScreen({super.key, required this.initialSelectedSexo});
 
   @override
   State<SexoSelectionScreen> createState() => _SexoSelectionScreenState();
 }
 
 class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
-  late Set<String> _selectedSexo;
+  late Set<String> _selectedSexoKeys;
 
-  final List<String> _sexoOptions = [
-    AppTranslations.get('registration_form', 'no_contraception', languageNotifier.currentLang),
-    AppTranslations.get('registration_form', 'condom', languageNotifier.currentLang),
-    AppTranslations.get('registration_form', 'no_ejaculation', languageNotifier.currentLang),
-    AppTranslations.get('registration_form', 'short_pill', languageNotifier.currentLang),
+  final List<String> _sexoOptionKeys = [
+    'no_contraception',
+    'condom',
+    'no_ejaculation',
+    'short_pill',
   ];
 
   @override
   void initState() {
     super.initState();
-    _selectedSexo = Set.from(widget.initialSelectedSexo);
+    _selectedSexoKeys = Set.from(widget.initialSelectedSexo);
   }
 
-  void _toggleSexo(String option) {
+  void _toggleSexo(String key) {
     setState(() {
-      if (_selectedSexo.contains(option)) {
-        _selectedSexo.remove(option);
+      if (key == 'no_contraception') {
+        if (_selectedSexoKeys.contains('no_contraception')) {
+          _selectedSexoKeys.remove('no_contraception');
+        } else {
+          _selectedSexoKeys.clear();
+          _selectedSexoKeys.add('no_contraception');
+        }
       } else {
-        _selectedSexo.add(option);
+        if (_selectedSexoKeys.contains(key)) {
+          _selectedSexoKeys.remove(key);
+        } else {
+          _selectedSexoKeys.remove('no_contraception');
+          _selectedSexoKeys.add(key);
+        }
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final lang = languageNotifier.currentLang;
     return Scaffold(
       backgroundColor: BellotaColors.basilica,
       appBar: AppBar(
@@ -47,17 +58,26 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(AppTranslations.get('registration_form', 'cancel', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontSize: 16)),
+          child: Text(
+            AppTranslations.get('registration_form', 'cancel', lang),
+            style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+          ),
         ),
         leadingWidth: 80,
-        title: Text(AppTranslations.get('registration_form', 'sex', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+        title: Text(
+          AppTranslations.get('registration_form', 'sex', lang),
+          style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
+        ),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context, _selectedSexo.toList());
+              Navigator.pop(context, _selectedSexoKeys.toList());
             },
-            child: Text(AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontSize: 16)),
+            child: Text(
+              AppTranslations.get('onboarding', 'confirm', lang),
+              style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+            ),
           ),
         ],
       ),
@@ -67,10 +87,10 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: BellotaColors.melon.withValues(alpha: 0.08),
                   blurRadius: 10,
                   offset: Offset(0, 4),
                 ),
@@ -80,7 +100,11 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 8),
-                ..._sexoOptions.map((option) => _buildSexoRow(option)),
+                for (int i = 0; i < _sexoOptionKeys.length; i++) ...[
+                  _buildSexoRow(_sexoOptionKeys[i], lang),
+                  if (i < _sexoOptionKeys.length - 1)
+                    Divider(height: 1),
+                ],
                 SizedBox(height: 8),
               ],
             ),
@@ -90,31 +114,69 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
     );
   }
 
-  Widget _buildSexoRow(String option) {
-    final isSelected = _selectedSexo.contains(option);
+  Widget _buildSexoRow(String key, String lang) {
+    final isSelected = _selectedSexoKeys.contains(key);
+
+    IconData iconData;
+    Color iconColor;
+
+    switch (key) {
+      case 'no_contraception':
+        iconData = Icons.do_not_disturb_alt_outlined;
+        iconColor = BellotaColors.chiltoma;
+        break;
+      case 'condom':
+        iconData = Icons.shield_outlined;
+        iconColor = BellotaColors.asuncion;
+        break;
+      case 'no_ejaculation':
+        iconData = Icons.block_outlined;
+        iconColor = BellotaColors.melon;
+        break;
+      case 'short_pill':
+      default:
+        iconData = Icons.medication_outlined;
+        iconColor = BellotaColors.chilero;
+        break;
+    }
+
     return InkWell(
-      onTap: () => _toggleSexo(option),
+      onTap: () => _toggleSexo(key),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
         child: Row(
           children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(iconData, color: iconColor, size: 24),
+            ),
+            SizedBox(width: 12),
             Expanded(
-              child: Text(
-                option,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: BellotaColors.textoDark,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppTranslations.get('registration_form', key, lang),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: BellotaColors.textoDark,
+                    ),
+                  ),
+                ],
               ),
             ),
-            // Círculo seleccionable
             Container(
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? BellotaColors.chilero : Colors.grey[400]!,
+                borderRadius: BorderRadius.circular(6),
+                border: isSelected ? null : Border.all(
+                  color: BellotaColors.textoMedio.withValues(alpha: 0.4),
                   width: 2,
                 ),
                 color: isSelected ? BellotaColors.chilero : Colors.transparent,

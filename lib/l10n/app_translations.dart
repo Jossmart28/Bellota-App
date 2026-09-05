@@ -360,7 +360,115 @@ class AppTranslations {
       "pending": {"es": "Pendiente", "en": "Pending", "mi": "Daukan apia"},
       "period_starts": {"es": "Inicia el período", "en": "Period starts", "mi": "Kati ta krikisa"},
       "saved": {"es": "Registrado ✓", "en": "Saved ✓", "mi": "Mangkan sa ✓"},
-      "save_log": {"es": "Guardar registro", "en": "Save log", "mi": "Ulani mangkaya"}
+      "save_log": {"es": "Guardar registro", "en": "Save log", "mi": "Ulani mangkaya"},
+
+      // ── Síntomas expandidos (Cuerpo) ──
+      "lower_back_pain": {"es": "Dolor lumbar", "en": "Lower back pain", "mi": "Wina latwan nina"},
+      "leg_cramps": {"es": "Calambres en piernas", "en": "Leg cramps", "mi": "Mina ini"},
+      "appetite_changes": {"es": "Cambios de apetito", "en": "Appetite changes", "mi": "Plun piaia klam"},
+      "cravings": {"es": "Antojos", "en": "Cravings", "mi": "Plun want tara"},
+      "water_retention": {"es": "Retención de líquidos", "en": "Water retention", "mi": "Laya takaskaya"},
+      "night_sweats": {"es": "Sudoración nocturna", "en": "Night sweats", "mi": "Tihmia liwa"},
+      "palpitations": {"es": "Palpitaciones", "en": "Palpitations", "mi": "Kupia alki tiski"},
+      "dizziness": {"es": "Mareos", "en": "Dizziness", "mi": "Lal dingki"},
+      "hot_flashes": {"es": "Sofocos", "en": "Hot flashes", "mi": "Pauta tara"},
+      "joint_pain": {"es": "Dolor articular", "en": "Joint pain", "mi": "Raya latwan"},
+      "bloating": {"es": "Hinchazón", "en": "Bloating", "mi": "Sikban"},
+      "nausea": {"es": "Náuseas", "en": "Nausea", "mi": "Kisa takaia"},
+      "pelvic_pain": {"es": "Dolor pélvico", "en": "Pelvic pain", "mi": "Biara mununta latwan"},
+
+      // ── Síntomas expandidos (Emocionales) ──
+      "irritability": {"es": "Irritabilidad", "en": "Irritability", "mi": "Kupia saura"},
+      "sadness": {"es": "Tristeza", "en": "Sadness", "mi": "Sari"},
+      "crying_easily": {"es": "Llanto fácil", "en": "Crying easily", "mi": "Ini alkaia"},
+      "concentration_difficulty": {"es": "Dificultad para concentrarse", "en": "Concentration difficulty", "mi": "Kupia mangkras"},
+      "low_self_esteem": {"es": "Baja autoestima", "en": "Low self-esteem", "mi": "Kupia sirpi"},
+      "mood_swings": {"es": "Cambios de humor", "en": "Mood swings", "mi": "Kupia klam latwan"},
+
+      // ── Color del sangrado ──
+      "blood_color": {"es": "Color del sangrado", "en": "Blood color", "mi": "Tala kala"},
+      "bright_red": {"es": "Rojo brillante", "en": "Bright red", "mi": "Tala pauni ingni"},
+      "dark_red": {"es": "Rojo oscuro", "en": "Dark red", "mi": "Tala pauni tihmia"},
+      "brown": {"es": "Marrón", "en": "Brown", "mi": "Tala klim"},
+      "pink": {"es": "Rosado", "en": "Pink", "mi": "Tala pink"},
+
+      // ── Autoexamen de mama mejorado ──
+      "breast_exam_info": {"es": "Realizar mensualmente, 7-10 días después del inicio del período", "en": "Perform monthly, 7-10 days after period starts", "mi": "Kati bani, 7-10 yu kati ta krikani ba wina"},
+      "breast_normal": {"es": "Normal", "en": "Normal", "mi": "Pain sa"},
+      "breast_lump": {"es": "Bulto detectado", "en": "Lump detected", "mi": "Raya kum sakan"},
+      "breast_localized_pain": {"es": "Dolor localizado", "en": "Localized pain", "mi": "Latwan pliska kum"},
+      "breast_skin_change": {"es": "Cambio en piel", "en": "Skin change", "mi": "Twisa klam"},
+      "breast_discharge": {"es": "Secreción", "en": "Discharge", "mi": "Laya takaskisa"},
+      "breast_pending": {"es": "Pendiente", "en": "Pending", "mi": "Daukan apia"},
+
+      // ── Etiquetas de nivel de dolor (EVA) ──
+      "pain_none": {"es": "Sin dolor", "en": "No pain", "mi": "Latwan apia"},
+      "pain_mild": {"es": "Leve", "en": "Mild", "mi": "Sirpi"},
+      "pain_moderate": {"es": "Moderado", "en": "Moderate", "mi": "Tila"},
+      "pain_severe": {"es": "Severo", "en": "Severe", "mi": "Tara"},
+      "pain_incapacitating": {"es": "Incapacitante", "en": "Incapacitating", "mi": "Sip apia takaya"},
+      "pain_alert_msg": {"es": "Un dolor de esta intensidad amerita consulta médica. Considera agendar una cita.", "en": "Pain at this level warrants medical attention. Consider scheduling an appointment.", "mi": "Latwan tara naha dukia ra, sika watrla ra waia sa."},
+
+      // ── Subtítulos educativos flujo vaginal ──
+      "dry_info": {"es": "Fase post-ovulatoria, baja fertilidad", "en": "Post-ovulatory phase, low fertility", "mi": "Ovulación wina, fertilidad sirpi"},
+      "thick_info": {"es": "Normal, fase lútea", "en": "Normal, luteal phase", "mi": "Pain sa, luteal fase"},
+      "liquid_elastic_info": {"es": "Fertilidad en aumento", "en": "Increasing fertility", "mi": "Fertilidad tara takisa"},
+      "watery_info": {"es": "Fertilidad alta, cerca de ovulación", "en": "High fertility, near ovulation", "mi": "Fertilidad tara, ovulación lamara"},
+      "egg_white_info": {"es": "Fase más fértil, ovulación inminente", "en": "Most fertile phase, ovulation imminent", "mi": "Fertilidad tara pali, ovulación balisa"},
+      "fertility_high": {"es": "Alta fertilidad", "en": "High fertility", "mi": "Fertilidad tara"},
+      "fertility_medium": {"es": "Fertilidad media", "en": "Medium fertility", "mi": "Fertilidad tila"},
+      "fertility_low": {"es": "Baja fertilidad", "en": "Low fertility", "mi": "Fertilidad sirpi"},
+
+      // ── Campo de notas ──
+      "notes": {"es": "Notas personales", "en": "Personal notes", "mi": "Man ulbanka"},
+      "notes_hint": {"es": "Escribe observaciones del día...", "en": "Write observations for the day...", "mi": "Yu naha dukia ulbaia..."},
+
+      // ── Indicador de completitud ──
+      "complete": {"es": "Completo", "en": "Complete", "mi": "Aiskia"},
+      "partial": {"es": "Parcial", "en": "Partial", "mi": "Sirpi"},
+      "log_progress": {"es": "Progreso del registro", "en": "Log progress", "mi": "Ulani kaikaia"},
+
+      // ── Contador de selección ──
+      "selected_count": {"es": "seleccionados", "en": "selected", "mi": "lakan"},
+      "add_symptom": {"es": "Agregar", "en": "Add", "mi": "Mangkaya"},
+
+      // ── Reporte: campos y labels mejorados ──
+      "total_cycles": {"es": "Total de ciclos registrados", "en": "Total registered cycles", "mi": "Kati nani aiskia"},
+      "location": {"es": "Ubicación", "en": "Location", "mi": "Pliska"},
+      "top_symptoms": {"es": "Síntomas más frecuentes", "en": "Most frequent symptoms", "mi": "Sintoma tara nani"},
+      "flow_intensity_label": {"es": "Intensidad del flujo", "en": "Flow intensity", "mi": "Flujo tara"},
+      "clots_label": {"es": "Coágulos", "en": "Clots", "mi": "Coágulos"},
+      "spotting_label": {"es": "Manchado intermenstrual", "en": "Intermenstrual spotting", "mi": "Manchado"},
+      "spotting_days_label": {"es": "Días de manchado", "en": "Spotting days", "mi": "Manchado yu"},
+      "sex_symptoms_label": {"es": "Síntomas en relaciones sexuales", "en": "Symptoms during sex", "mi": "Sexo sintoma"},
+      "pain_eva_label": {"es": "Nivel de dolor (EVA)", "en": "Pain level (VAS)", "mi": "Latwan tara (EVA)"},
+      "pain_character_label": {"es": "Carácter del dolor", "en": "Pain character", "mi": "Latwan kaina"},
+      "pain_days_label": {"es": "Días con dolor crítico", "en": "Critical pain days", "mi": "Latwan yu tara"},
+      "treatment_label": {"es": "Tratamiento", "en": "Treatment", "mi": "Tratamiento"},
+      "physical_symptoms_label": {"es": "Síntomas físicos", "en": "Physical symptoms", "mi": "Wina sintoma"},
+      "emotional_symptoms_label": {"es": "Síntomas emocionales", "en": "Emotional symptoms", "mi": "Kupia sintoma"},
+      "breast_exam_label": {"es": "Autoexamen de mama", "en": "Breast self-exam", "mi": "Twi kaikaia"},
+      "blood_color_label": {"es": "Color del sangrado", "en": "Blood color", "mi": "Tala kala"},
+      "print_pdf": {"es": "Imprimir", "en": "Print", "mi": "Imprimaia"},
+      "share_pdf": {"es": "Compartir PDF", "en": "Share PDF", "mi": "PDF ba blahkaya"},
+      "page_of": {"es": "Página", "en": "Page", "mi": "Página"},
+      "generated_by": {"es": "Generado por", "en": "Generated by", "mi": "Daukanka"},
+      "report_disclaimer": {"es": "Este reporte no sustituye una valoración médica profesional.", "en": "This report does not replace a professional medical evaluation.", "mi": "Naha ulbanka sika watla wina daukanka yui apia sa."},
+
+      // ── Alertas clínicas: detail templates ──
+      "alert_irregular_detail": {"es": "Alerta: {value} días (normal 21-35 días)", "en": "Alert: {value} days (normal 21-35 days)", "mi": "Alerta: {value} yu (pain 21-35 yu)"},
+      "normal_duration_detail": {"es": "Duración normal: {value} días", "en": "Normal duration: {value} days", "mi": "Luhka pain: {value} yu"},
+      "alert_bleeding_detail": {"es": "Alerta: {value} días consecutivos (máx. 7 días)", "en": "Alert: {value} consecutive days (max 7 days)", "mi": "Alerta: {value} yu (máx. 7 yu)"},
+      "alert_amenorrhea_detail": {"es": "Sin registro. Posible retraso sin confirmación de embarazo.", "en": "No log. Possible delay without pregnancy confirmed.", "mi": "Ulbanka apia. Kati balras."},
+      "no_alert_amenorrhea": {"es": "Sin alerta. Última menstruación registrada: {value}", "en": "No alert. Last period logged: {value}", "mi": "Alerta apia. Kati ta: {value}"},
+      "alert_severe_pain_detail": {"es": "Alerta: dolor severo {value}/10 que no cede", "en": "Alert: severe pain {value}/10 that does not subside", "mi": "Alerta: latwan tara {value}/10"},
+      "pain_normal_range": {"es": "Dolor dentro del rango: {value}/10", "en": "Pain in normal range: {value}/10", "mi": "Latwan pain: {value}/10"},
+      "no_pain_logged": {"es": "Sin registro de dolor", "en": "No pain logged", "mi": "Latwan ulbanka apia"},
+
+      // ── Categorías de síntomas ──
+      "emotional": {"es": "Emocional", "en": "Emotional", "mi": "Kupia"},
+      "digestive": {"es": "Digestivo", "en": "Digestive", "mi": "Biara plun"},
+      "confirm": {"es": "Confirmar", "en": "Confirm", "mi": "Kasak"}
     },
     "profile_and_report": {
       "health_profile": {"es": "Perfil de salud", "en": "Health Profile", "mi": "Wina pain kaikaia"},

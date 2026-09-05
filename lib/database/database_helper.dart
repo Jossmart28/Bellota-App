@@ -36,7 +36,7 @@ class DatabaseHelper {
   Future _onOpen(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
     await _createProfilesTable(db);
-    await _createDailyLogsTable(db);
+    await _createDailyLogsTableV2(db);
     await _createAuditLogsTable(db);
     await _seedAdminUser(db);
   }
@@ -1080,6 +1080,80 @@ class DatabaseHelper {
       'cycleLengths': cycleLengths,
       'isRegular': isRegular,
       'count': starts.length,
+    };
+  }
+
+  /// Calcula el promedio real de días de sangrado basándose en los registros consecutivos.
+  Future<double?> getRealBleedingAverage(int userId) async {
+    final logs = await getAllDailyLogs(userId);
+    if (logs.isEmpty) return null;
+
+    List<int> bleedingDurations = [];
+    int currentDuration = 0;
+
+    for (final log in logs) {
+      bool isBleeding = log['period_start'] == 1 || (log['bleeding_intensity'] != null && log['bleeding_intensity'] != 'none');
+      if (isBleeding) {
+        currentDuration++;
+      } else {
+        if (currentDuration > 0) {
+          bleedingDurations.add(currentDuration);
+          currentDuration = 0;
+        }
+      }
+    }
+    if (currentDuration > 0) {
+      bleedingDurations.add(currentDuration);
+    }
+
+    if (bleedingDurations.isEmpty) return null;
+    final sum = bleedingDurations.reduce((a, b) => a + b);
+    return sum / bleedingDurations.length;
+  }
+
+  /// Centraliza la generación de estadísticas y el reporte médico.
+  /// Retorna un mapa con todos los datos necesarios para generar el JSON.
+  Future<Map<String, dynamic>> getMedicalReportSummary(int userId) async {
+    final allLogs = await getAllDailyLogs(userId);
+    final cycleStats = await getCycleStatistics(userId);
+    final realBleedingAvg = await getRealBleedingAverage(userId);
+    
+    // Calcular flujo más frecuente en ciclo actual
+    final lastPeriod = await getLastPeriodStart(userId);
+    Map<String, int> flujoCount = {};
+    if (lastPeriod != null && cycleStats['averageCycleLength'] != null) {
+      final endOfCycle = lastPeriod.add(Duration(days: (cycleStats['averageCycleLength'] as num).toInt()));
+      for (final log in allLogs) {
+        try {
+          final d = DateTime.parse(log['date'] as String);
+          if (d.isAfter(lastPeriod.subtract(Duration(days: 1))) && d.isBefore(endOfCycle.add(Duration(days: 1)))) {
+            for (final f in (jsonDecode(log['flujo'] as String? ?? '[]') as List)) {
+              flujoCount[f.toString()] = (flujoCount[f.toString()] ?? 0) + 1;
+            }
+          }
+        } catch (_) {}
+      }
+    }
+    final flujoMasFrecuente = flujoCount.isNotEmpty
+        ? flujoCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key
+        : null;
+
+    // Síntomas más frecuentes generales
+    Map<String, int> sympCount = {};
+    for (final log in allLogs) {
+      for (final s in (jsonDecode(log['symptoms'] as String? ?? '[]') as List)) {
+        sympCount[s.toString()] = (sympCount[s.toString()] ?? 0) + 1;
+      }
+    }
+    final topSyms = (sympCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(5).map((e) => e.key).toList();
+
+    return {
+      'allLogs': allLogs,
+      'cycleStats': cycleStats,
+      'realBleedingAvg': realBleedingAvg,
+      'lastPeriod': lastPeriod,
+      'flujoMasFrecuente': flujoMasFrecuente,
+      'topSyms': topSyms,
     };
   }
 
