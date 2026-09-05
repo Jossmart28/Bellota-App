@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../core/models/user_model.dart';
 import '../core/services/auth_service.dart';
@@ -25,14 +25,14 @@ class AdminPanelScreen extends StatefulWidget {
 
 class _AdminPanelScreenState extends State<AdminPanelScreen>
     with SingleTickerProviderStateMixin {
-  // â”€â”€ Estado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Estado ─────────────────────────────────────────────────────────────────
   UserModel? _currentUser;
   List<Map<String, dynamic>> _users = [];
   bool _isLoading = true;
   String _searchQuery = '';
   late TabController _tabController;
 
-  // â”€â”€ Ciclo de vida â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Ciclo de vida ──────────────────────────────────────────────────────────
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     }
   }
 
-  // â”€â”€ Filtrado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Filtrado ───────────────────────────────────────────────────────────────
 
   List<Map<String, dynamic>> get _filteredUsers {
     if (_searchQuery.isEmpty) return _users;
@@ -71,7 +71,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     }).toList();
   }
 
-  // â”€â”€ Acciones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Acciones ───────────────────────────────────────────────────────────────
 
   Future<void> _changeRole(Map<String, dynamic> user) async {
     final roles = ['usuario', 'admin', 'auditor'];
@@ -142,8 +142,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         title: Text(isActive ? 'Suspender cuenta' : 'Reactivar cuenta'),
         content: Text(
           isActive
-              ? 'Â¿Suspender la cuenta de $name? No podrÃ¡ iniciar sesiÃ³n.'
-              : 'Â¿Reactivar la cuenta de $name?',
+              ? '¿Suspender la cuenta de $name? No podrá iniciar sesión.'
+              : '¿Reactivar la cuenta de $name?',
         ),
         actions: [
           TextButton(
@@ -201,8 +201,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar usuario'),
         content: Text(
-          'Â¿Eliminar permanentemente la cuenta de $name y todos sus datos? '
-          'Esta acciÃ³n no se puede deshacer.',
+          '¿Eliminar permanentemente la cuenta de $name y todos sus datos? '
+          'Esta acción no se puede deshacer.',
         ),
         actions: [
           TextButton(
@@ -246,11 +246,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     NavigationService.goAndClearStack(context, const LoginScreen());
   }
 
-  // â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    // Mostrar loader mientras se resuelve el usuario de sesiÃ³n
+    // Mostrar loader mientras se resuelve el usuario de sesión
     if (_isLoading || _currentUser == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -278,7 +278,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesiÃ³n',
+            tooltip: 'Cerrar sesión',
             onPressed: _logout,
           ),
         ],
@@ -305,17 +305,17 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     );
   }
 
-  // â”€â”€ Tab: Usuarios â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tab: Usuarios ──────────────────────────────────────────────────────────
 
   Widget _buildUsersTab() {
     return Column(
       children: [
-        // Barra de bÃºsqueda
+        // Barra de búsqueda
         Padding(
           padding: const EdgeInsets.all(16),
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'Buscar por nombre, correo o rolâ€¦',
+              hintText: 'Buscar por nombre, correo o rol…',
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -406,7 +406,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'TÃº',
+                  'Tú',
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.blue.shade800,
@@ -483,13 +483,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     );
   }
 
-  // â”€â”€ Tab: Sistema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tab: Sistema ───────────────────────────────────────────────────────────
 
   Widget _buildSystemTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _SectionHeader(title: 'InformaciÃ³n del sistema'),
+        _SectionHeader(title: 'Información del sistema'),
         _InfoTile(
           icon: Icons.people,
           label: 'Total de usuarios',
@@ -507,7 +507,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         ),
         _InfoTile(
           icon: Icons.person,
-          label: 'Usuarios estÃ¡ndar',
+          label: 'Usuarios estándar',
           value: '${_users.where((u) => u['role'] == 'usuario').length}',
         ),
         _InfoTile(
@@ -519,7 +519,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         _SectionHeader(title: 'Herramientas'),
         ListTile(
           leading: const Icon(Icons.manage_search, color: Colors.purple),
-          title: const Text('Ver logs de auditorÃ­a'),
+          title: const Text('Ver logs de auditoría'),
           subtitle: const Text('Historial completo de acciones del sistema'),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => NavigationService.goTo(
@@ -540,7 +540,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   }
 }
 
-// â”€â”€ Widgets auxiliares â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Widgets auxiliares ─────────────────────────────────────────────────────
 
 class _RoleBadge extends StatelessWidget {
   final String role;

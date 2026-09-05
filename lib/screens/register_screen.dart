@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
@@ -7,7 +8,6 @@ import '../navigation/navigation_service.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_text_field.dart';
 import '../widgets/bellota_top_actions.dart';
-import 'onboarding_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -51,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _nameController.text, email, _passwordController.text,
       );
       await AuthService.instance.saveSession(user);
-      // Registrar el evento de registro en el log de auditorÃ­a
+      // Registrar el evento de registro en el log de auditoría
       await AuthService.instance.logAction(
         action: 'register',
         targetType: 'user',
@@ -59,7 +59,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       _setLoading(false);
       if (!mounted) return;
-      NavigationService.goAndClearStack(context, const OnboardingScreen());
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final destination = NavigationService.resolveHomeScreen(prefs);
+      NavigationService.goAndClearStack(context, destination);
     } catch (_) {
       _setLoading(false);
       _showError('Ocurrio un error al conectar con la base de datos.');

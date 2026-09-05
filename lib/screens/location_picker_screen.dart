@@ -1,12 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/bellota_colors.dart';
 
-/// Pantalla de selecciÃ³n de ubicaciÃ³n con flutter_map.
-/// Devuelve un String con "Ciudad, PaÃ­s" al hacer pop.
+/// Pantalla de selección de ubicación con flutter_map.
+/// Devuelve un String con "Ciudad, País" al hacer pop.
 class LocationPickerScreen extends StatefulWidget {
   final LatLng? initialPosition;
   const LocationPickerScreen({super.key, this.initialPosition});
@@ -18,7 +18,7 @@ class LocationPickerScreen extends StatefulWidget {
 class _LocationPickerScreenState extends State<LocationPickerScreen> {
   late LatLng _selectedPosition;
   final MapController _mapController = MapController();
-  String _locationLabel = 'Mueve el mapa para elegir tu ubicaciÃ³n';
+  String _locationLabel = 'Mueve el mapa para elegir tu ubicación';
   bool _isResolving = false;
 
   @override
@@ -40,10 +40,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         final city = p.locality ?? p.subAdministrativeArea ?? p.administrativeArea ?? '';
         final country = p.country ?? '';
         final label = [city, country].where((s) => s.isNotEmpty).join(', ');
-        setState(() => _locationLabel = label.isNotEmpty ? label : 'UbicaciÃ³n seleccionada');
+        setState(() => _locationLabel = label.isNotEmpty ? label : 'Ubicación seleccionada');
       }
     } catch (_) {
-      if (mounted) setState(() => _locationLabel = 'No se pudo obtener la direcciÃ³n');
+      if (mounted) setState(() => _locationLabel = 'No se pudo obtener la dirección');
     } finally {
       if (mounted) setState(() => _isResolving = false);
     }
@@ -59,7 +59,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Selecciona tu ubicaciÃ³n',
+        title: Text('Selecciona tu ubicación',
             style: GoogleFonts.poppins(
                 color: Theme.of(context).bellotaColors.textoDark,
                 fontWeight: FontWeight.bold,
@@ -70,7 +70,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       ),
       body: Stack(
         children: [
-          // â”€â”€ Mapa â”€â”€
+          // ── Mapa ──
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -96,7 +96,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             ],
           ),
 
-          // â”€â”€ Etiqueta flotante abajo â”€â”€
+          // ── Etiqueta flotante abajo ──
           Positioned(
             left: 16,
             right: 16,
@@ -122,7 +122,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).bellotaColors.chilero),
                             ),
                             SizedBox(width: 10),
-                            Text('Buscando direcciÃ³nâ€¦', style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.textoMedio)),
+                            Text('Buscando dirección…', style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.textoMedio)),
                           ])
                         : Text(
                             _locationLabel,
@@ -134,7 +134,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             ),
           ),
 
-          // â”€â”€ BotÃ³n Confirmar â”€â”€
+          // ── Botón Confirmar ──
           Positioned(
             left: 16,
             right: 16,
@@ -148,7 +148,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       }),
               icon: Icon(Icons.check_circle_outline, color: Colors.white),
               label: Text(
-                'Confirmar ubicaciÃ³n',
+                'Confirmar ubicación',
                 style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
@@ -160,7 +160,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             ),
           ),
 
-          // â”€â”€ Hint â”€â”€
+          // ── Hint ──
           Positioned(
             top: 12,
             left: 0,

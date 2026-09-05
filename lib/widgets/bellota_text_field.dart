@@ -4,13 +4,13 @@ import '../theme/bellota_colors.dart';
 /// Campo de texto estilizado con la paleta visual de Bellota.
 ///
 /// Widget reutilizable que reemplaza las implementaciones duplicadas
-/// que existÃ­an en [LoginScreen] y [RegisterScreen].
+/// que existían en [LoginScreen] y [RegisterScreen].
 ///
 /// Ejemplo de uso:
 /// ```dart
 /// BellotaTextField(
 ///   controller: _emailController,
-///   label: 'Correo electrÃ³nico',
+///   label: 'Correo electrónico',
 ///   hint: 'tu@correo.com',
 ///   prefixIcon: Icons.email_outlined,
 ///   keyboardType: TextInputType.emailAddress,
@@ -24,28 +24,28 @@ class BellotaTextField extends StatelessWidget {
   /// Etiqueta flotante que describe el campo.
   final String label;
 
-  /// Texto de ayuda visible cuando el campo estÃ¡ vacÃ­o.
+  /// Texto de ayuda visible cuando el campo está vacío.
   final String hint;
 
-  /// Ãcono al inicio del campo.
+  /// Ícono al inicio del campo.
   final IconData prefixIcon;
 
-  /// Si `true`, el texto se muestra oculto (para contraseÃ±as).
+  /// Si `true`, el texto se muestra oculto (para contraseñas).
   final bool obscureText;
 
-  /// Widget opcional al final del campo (ej: botÃ³n de visibilidad).
+  /// Widget opcional al final del campo (ej: botón de visibilidad).
   final Widget? suffixIcon;
 
-  /// Tipo de teclado a mostrar (ej: email, numÃ©rico).
+  /// Tipo de teclado a mostrar (ej: email, numérico).
   final TextInputType? keyboardType;
 
-  /// FunciÃ³n de validaciÃ³n. Retorna un mensaje de error o `null` si es vÃ¡lido.
+  /// Función de validación. Retorna un mensaje de error o `null` si es válido.
   final String? Function(String?)? validator;
 
   /// Nodo de foco para control de teclado.
   final FocusNode? focusNode;
 
-  /// Acción del teclado virtual (ej: 'Siguiente', 'Hecho').
+  /// Acci�n del teclado virtual (ej: 'Siguiente', 'Hecho').
   final TextInputAction? textInputAction;
 
   /// Sugerencias de autocompletado del SO.

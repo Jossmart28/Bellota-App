@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../navigation/navigation_service.dart';
@@ -60,7 +60,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   Icon(Icons.privacy_tip_outlined, color: Theme.of(context).bellotaColors.blanco, size: 48),
                   const SizedBox(height: 16),
                   Text(
-                    'PolÃ­tica de Privacidad',
+                    'Política de Privacidad',
                     style: GoogleFonts.poppins(
                       color: Theme.of(context).bellotaColors.blanco,
                       fontSize: 26,
@@ -70,7 +70,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Ãšltima actualizaciÃ³n: 4 de septiembre de 2026',
+                    'Última actualización: 4 de septiembre de 2026',
                     style: GoogleFonts.poppins(
                       color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8),
                       fontSize: 14,
@@ -106,24 +106,24 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildParagraph('En Bellota, nos tomamos muy en serio tu privacidad. Esta polÃ­tica explica de manera clara y directa cÃ³mo manejamos la informaciÃ³n que recopilamos cuando usas nuestra aplicaciÃ³n. Nos regimos bajo el principio de minimizaciÃ³n de datos: solo solicitamos la informaciÃ³n estrictamente necesaria para que la aplicaciÃ³n funcione y te brinde un servicio seguro y personalizado.'),
+                            _buildParagraph('En Bellota, nos tomamos muy en serio tu privacidad. Esta política explica de manera clara y directa cómo manejamos la información que recopilamos cuando usas nuestra aplicación. Nos regimos bajo el principio de minimización de datos: solo solicitamos la información estrictamente necesaria para que la aplicación funcione y te brinde un servicio seguro y personalizado.'),
                             _buildSectionTitle('1. Datos que Recopilamos y Finalidad'),
-                            _buildBulletItem('Correo ElectrÃ³nico', 'Solicitamos tu direcciÃ³n de correo exclusivamente para la creaciÃ³n y gestiÃ³n de tu cuenta, autenticaciÃ³n de seguridad y recuperaciÃ³n de acceso. No compartimos ni vendemos tu correo a terceros para fines publicitarios.'),
-                            _buildBulletItem('Datos de UbicaciÃ³n Precisa (GPS)', 'Solicitamos acceso a la ubicaciÃ³n de tu dispositivo Ãºnicamente para identificar y mostrarte en un mapa interactivo las clÃ­nicas, farmacias y centros de salud mÃ¡s cercanos a ti.'),
-                            _buildSubBulletItem('Uso de la ubicaciÃ³n', 'La ubicaciÃ³n se procesa Ãºnicamente mientras usas esta funciÃ³n especÃ­fica en la aplicaciÃ³n. No rastreamos tu ubicaciÃ³n en segundo plano ni guardamos un historial de tus desplazamientos.'),
+                            _buildBulletItem('Correo Electrónico', 'Solicitamos tu dirección de correo exclusivamente para la creación y gestión de tu cuenta, autenticación de seguridad y recuperación de acceso. No compartimos ni vendemos tu correo a terceros para fines publicitarios.'),
+                            _buildBulletItem('Datos de Ubicación Precisa (GPS)', 'Solicitamos acceso a la ubicación de tu dispositivo únicamente para identificar y mostrarte en un mapa interactivo las clínicas, farmacias y centros de salud más cercanos a ti.'),
+                            _buildSubBulletItem('Uso de la ubicación', 'La ubicación se procesa únicamente mientras usas esta función específica en la aplicación. No rastreamos tu ubicación en segundo plano ni guardamos un historial de tus desplazamientos.'),
                             _buildSectionTitle('2. Datos de Salud y Ciclo Menstrual'),
-                            _buildParagraph('â€¢ Los datos sobre tu ciclo menstrual, sÃ­ntomas o fechas registradas en la aplicaciÃ³n se procesan exclusivamente para brindarte las estimaciones del calendario.\nâ€¢ Priorizamos la privacidad de tus datos de salud: la informaciÃ³n de tu ciclo se almacena localmente en tu dispositivo o de forma cifrada y segura, garantizando que nadie fuera de la aplicaciÃ³n (incluyendo terceros) pueda acceder a tus registros mÃ©dicos o personales.'),
-                            _buildSectionTitle('3. ComparticiÃ³n de Datos con Terceros'),
-                            _buildParagraph('No vendemos, alquilamos ni comercializamos tus datos personales. Solo compartimos informaciÃ³n en el siguiente caso puntual:'),
-                            _buildBulletItem('Proveedores de Mapas', 'Para mostrarte los centros de salud cercanos, la aplicaciÃ³n utiliza servicios de mapas de terceros (como Google Maps o Apple Maps). Estos servicios reciben Ãºnicamente las coordenadas de tu ubicaciÃ³n actual de forma anÃ³nima, exclusivamente para devolver los resultados en el mapa.'),
+                            _buildParagraph('• Los datos sobre tu ciclo menstrual, síntomas o fechas registradas en la aplicación se procesan exclusivamente para brindarte las estimaciones del calendario.\n• Priorizamos la privacidad de tus datos de salud: la información de tu ciclo se almacena localmente en tu dispositivo o de forma cifrada y segura, garantizando que nadie fuera de la aplicación (incluyendo terceros) pueda acceder a tus registros médicos o personales.'),
+                            _buildSectionTitle('3. Compartición de Datos con Terceros'),
+                            _buildParagraph('No vendemos, alquilamos ni comercializamos tus datos personales. Solo compartimos información en el siguiente caso puntual:'),
+                            _buildBulletItem('Proveedores de Mapas', 'Para mostrarte los centros de salud cercanos, la aplicación utiliza servicios de mapas de terceros (como Google Maps o Apple Maps). Estos servicios reciben únicamente las coordenadas de tu ubicación actual de forma anónima, exclusivamente para devolver los resultados en el mapa.'),
                             _buildSectionTitle('4. Almacenamiento y Seguridad'),
-                            _buildParagraph('Implementamos medidas de seguridad tÃ©cnicas y administrativas avanzadas (como cifrado de datos en trÃ¡nsito y en reposo) para proteger tu correo electrÃ³nico y tu informaciÃ³n registrada contra el acceso no autorizado, pÃ©rdida, alteraciÃ³n o divulgaciÃ³n.'),
+                            _buildParagraph('Implementamos medidas de seguridad técnicas y administrativas avanzadas (como cifrado de datos en tránsito y en reposo) para proteger tu correo electrónico y tu información registrada contra el acceso no autorizado, pérdida, alteración o divulgación.'),
                             _buildSectionTitle('5. Tus Derechos'),
                             _buildParagraph('En cualquier momento tienes derecho a:'),
-                            _buildBulletItem('Acceder, Corregir o Eliminar', 'Puedes solicitar la eliminaciÃ³n completa de tu cuenta, tus datos de salud y tu correo electrÃ³nico en cualquier momento desde la configuraciÃ³n de la app o enviÃ¡ndonos un mensaje.'),
-                            _buildBulletItem('Controlar los Permisos de UbicaciÃ³n', 'Puedes activar o desactivar el permiso de ubicaciÃ³n directamente desde la configuraciÃ³n de tu dispositivo mÃ³vil en cualquier momento (aunque esto impedirÃ¡ buscar clÃ­nicas cercanas automÃ¡ticamente).'),
-                            _buildSectionTitle('6. Modificaciones a esta PolÃ­tica'),
-                            _buildParagraph('Podemos actualizar esta polÃ­tica ocasionalmente para reflejar mejoras en la aplicaciÃ³n o cambios legales. Te notificaremos de manera destacada sobre cambios significativos antes de que entren en vigor.'),
+                            _buildBulletItem('Acceder, Corregir o Eliminar', 'Puedes solicitar la eliminación completa de tu cuenta, tus datos de salud y tu correo electrónico en cualquier momento desde la configuración de la app o enviándonos un mensaje.'),
+                            _buildBulletItem('Controlar los Permisos de Ubicación', 'Puedes activar o desactivar el permiso de ubicación directamente desde la configuración de tu dispositivo móvil en cualquier momento (aunque esto impedirá buscar clínicas cercanas automáticamente).'),
+                            _buildSectionTitle('6. Modificaciones a esta Política'),
+                            _buildParagraph('Podemos actualizar esta política ocasionalmente para reflejar mejoras en la aplicación o cambios legales. Te notificaremos de manera destacada sobre cambios significativos antes de que entren en vigor.'),
                             _buildSectionTitle('7. Contacto'),
                             _buildParagraph('Si tienes dudas, comentarios o deseas ejercer tus derechos de privacidad, puedes contactarnos en:'),
                             _buildParagraph('Correo de soporte: usm.unshowmas@gmail.com', isBold: true),
@@ -157,7 +157,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                                     setState(() => _accepted = !_accepted);
                                   },
                                   child: Text(
-                                    'He leÃ­do y acepto la PolÃ­tica de Privacidad de Bellota.',
+                                    'He leído y acepto la Política de Privacidad de Bellota.',
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       color: Colors.black87,
@@ -247,7 +247,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
           ),
           children: [
             TextSpan(
-              text: 'â€¢ $title: ',
+              text: '• $title: ',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             TextSpan(text: description),
@@ -269,7 +269,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
           ),
           children: [
             TextSpan(
-              text: 'â—¦ $title: ',
+              text: '◦ $title: ',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             TextSpan(text: description),

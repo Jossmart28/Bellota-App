@@ -1,9 +1,9 @@
-﻿import '../models/user_role.dart';
+import '../models/user_role.dart';
 
 /// Modelo tipado para los datos del usuario autenticado.
 ///
 /// Reemplaza el uso de `Map<String, dynamic>` retornado por la base de datos,
-/// aportando type-safety, autocompletado y validaciÃ³n en tiempo de compilaciÃ³n.
+/// aportando type-safety, autocompletado y validación en tiempo de compilación.
 class UserModel {
   final int id;
   final String name;
@@ -21,7 +21,7 @@ class UserModel {
     required this.createdAt,
   });
 
-  // â”€â”€ DeserializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Deserialización ────────────────────────────────────────────────────────
 
   /// Crea un [UserModel] a partir de un mapa de SQLite.
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -49,7 +49,7 @@ class UserModel {
     }
   }
 
-  // â”€â”€ SerializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Serialización ──────────────────────────────────────────────────────────
 
   /// Convierte el modelo a un mapa compatible con SQLite.
   Map<String, dynamic> toMap() => {
@@ -61,7 +61,7 @@ class UserModel {
         'created_at': createdAt.toIso8601String(),
       };
 
-  // â”€â”€ Utilidades â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Utilidades ─────────────────────────────────────────────────────────────
 
   /// Retorna el primer nombre del usuario.
   String get firstName => name.trim().isEmpty ? '' : name.trim().split(' ').first;
@@ -72,7 +72,7 @@ class UserModel {
   /// `true` si el usuario es auditor.
   bool get isAuditor => role == UserRole.auditor;
 
-  /// `true` si el usuario es un usuario estÃ¡ndar.
+  /// `true` si el usuario es un usuario estándar.
   bool get isUsuario => role == UserRole.usuario;
 
   /// Crea una copia del modelo con los campos especificados modificados.

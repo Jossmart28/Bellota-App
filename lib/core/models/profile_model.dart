@@ -1,4 +1,4 @@
-﻿/// Modelo tipado para el perfil extendido del usuario.
+/// Modelo tipado para el perfil extendido del usuario.
 ///
 /// Encapsula los datos de la tabla `profiles` con tipos nativos de Dart
 /// (ej: `bool` para notificaciones en lugar de `int 0/1` de SQLite).
@@ -10,7 +10,7 @@ class ProfileModel {
   final int periodDuration;
   final String? profileImagePath;
 
-  // â”€â”€ Notificaciones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Notificaciones ─────────────────────────────────────────────────────────
   final bool notifPeriodo;
   final bool notifOvulacion;
   final bool notifPildora;
@@ -37,10 +37,10 @@ class ProfileModel {
     this.notifCitaMedica = false,
   });
 
-  // â”€â”€ DeserializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Deserialización ────────────────────────────────────────────────────────
 
   /// Crea un [ProfileModel] a partir de un mapa de SQLite.
-  /// Los campos de notificaciÃ³n se convierten de `int` (`0`/`1`) a `bool`.
+  /// Los campos de notificación se convierten de `int` (`0`/`1`) a `bool`.
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
       userId: map['user_id'] as int,
@@ -60,7 +60,7 @@ class ProfileModel {
     );
   }
 
-  // â”€â”€ SerializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Serialización ──────────────────────────────────────────────────────────
 
   /// Convierte el modelo a un mapa compatible con SQLite.
   /// Los `bool` se convierten a `int` (`0`/`1`) para compatibilidad.
@@ -81,7 +81,7 @@ class ProfileModel {
         'notif_cita_medica': notifCitaMedica ? 1 : 0,
       };
 
-  // â”€â”€ Copia con modificaciones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Copia con modificaciones ───────────────────────────────────────────────
 
   /// Retorna una copia del perfil con los campos especificados modificados.
   ProfileModel copyWith({

@@ -633,7 +633,9 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
 
   @override
   Widget build(BuildContext context) {
-    final lang = languageNotifier.currentLang;
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
     return Scaffold(
       backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
@@ -707,6 +709,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           ],
         ),
       ),
+    );
+        },
     );
   }
 }

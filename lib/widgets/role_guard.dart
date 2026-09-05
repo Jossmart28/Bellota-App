@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../core/models/user_model.dart';
 import '../core/models/user_role.dart';
 
-/// Widget guardia que controla el acceso a partes de la UI segÃºn el rol
+/// Widget guardia que controla el acceso a partes de la UI según el rol
 /// y los permisos del usuario autenticado.
 ///
-/// Uso bÃ¡sico (bloqueo por permiso especÃ­fico):
+/// Uso básico (bloqueo por permiso específico):
 /// ```dart
 /// RoleGuard(
 ///   user: currentUser,
@@ -14,7 +14,7 @@ import '../core/models/user_role.dart';
 /// )
 /// ```
 ///
-/// Uso con rol mÃ­nimo requerido:
+/// Uso con rol mínimo requerido:
 /// ```dart
 /// RoleGuard(
 ///   user: currentUser,
@@ -30,13 +30,13 @@ class RoleGuard extends StatelessWidget {
   /// Roles que tienen acceso. Si es `null`, se usa [requiredPermission].
   final List<UserRole>? allowedRoles;
 
-  /// Permiso especÃ­fico requerido. Si es `null`, se usa [allowedRoles].
+  /// Permiso específico requerido. Si es `null`, se usa [allowedRoles].
   final String? requiredPermission;
 
-  /// Widget a mostrar cuando el acceso estÃ¡ permitido.
+  /// Widget a mostrar cuando el acceso está permitido.
   final Widget child;
 
-  /// Widget a mostrar cuando el acceso estÃ¡ denegado.
+  /// Widget a mostrar cuando el acceso está denegado.
   /// Por defecto es `SizedBox.shrink()` (invisible).
   final Widget? fallback;
 
@@ -134,7 +134,7 @@ class RoleGuardBanner extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              deniedMessage ?? 'No tienes permisos para acceder a esta secciÃ³n.',
+              deniedMessage ?? 'No tienes permisos para acceder a esta sección.',
               style: TextStyle(color: Colors.red.shade700, fontSize: 14),
             ),
           ),

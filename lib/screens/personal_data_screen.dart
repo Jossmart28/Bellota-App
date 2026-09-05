@@ -1,4 +1,4 @@
-﻿import '../core/constants/app_keys.dart';
+import '../core/constants/app_keys.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -123,7 +123,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         return Scaffold(
           body: Stack(
             children: [
-              // â”€â”€ Fondo degradado â”€â”€
+              // ── Fondo degradado ──
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -135,7 +135,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 ),
               ),
 
-              // â”€â”€ CÃ­rculos decorativos â”€â”€
+              // ── Círculos decorativos ──
               _buildDecorations(size),
 
               SafeArea(
@@ -145,10 +145,10 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     position: _slideAnim,
                     child: Column(
                       children: [
-                        // â”€â”€ Header â”€â”€
+                        // ── Header ──
                         _buildHeader(lang),
 
-                        // â”€â”€ Contenido â”€â”€
+                        // ── Contenido ──
                         Expanded(
                           child: SingleChildScrollView(
                             physics: BouncingScrollPhysics(),
@@ -190,7 +190,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── HEADER ──────────────────────────────────────────────────────────────────
   Widget _buildHeader(String lang) {
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -231,7 +231,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // â”€â”€ TARJETA SECCIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── TARJETA SECCIÓN ──────────────────────────────────────────────────────────
   Widget _buildCard({
     required IconData icon,
     required String title,
@@ -309,7 +309,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // â”€â”€ SECCIÃ“N DATOS PERSONALES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── SECCIÓN DATOS PERSONALES ───────────────────────────────────────────
   Widget _buildPersonalSection(String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,7 +372,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // â”€â”€ SECCIÃ“N CICLO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── SECCIÓN CICLO ─────────────────────────────────────────────────────────
   Widget _buildCycleSection(String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +419,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${AppTranslations.get('onboarding_and_auth', 'cycle', lang)}: $_cycleDuration ${AppTranslations.get('profile_and_report', 'days', lang)}  â€¢  ${AppTranslations.get('onboarding_and_auth', 'menstruation', lang)}: $_periodDuration ${AppTranslations.get('profile_and_report', 'days', lang)}',
+                  '${AppTranslations.get('onboarding_and_auth', 'cycle', lang)}: $_cycleDuration ${AppTranslations.get('profile_and_report', 'days', lang)}  •  ${AppTranslations.get('onboarding_and_auth', 'menstruation', lang)}: $_periodDuration ${AppTranslations.get('profile_and_report', 'days', lang)}',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: Theme.of(context).bellotaColors.textoMedio,
@@ -434,7 +434,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // â”€â”€ SLIDER BLOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── SLIDER BLOCK ─────────────────────────────────────────────────────────────
   Widget _buildSliderBlock({
     required String label,
     required int value,
@@ -500,7 +500,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // â”€â”€ LOCATION PICKER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── LOCATION PICKER ──────────────────────────────────────────────────────────
   Widget _buildLocationPicker(String lang) {
     final hasLocation = _locationLabel.isNotEmpty;
     return GestureDetector(
@@ -583,7 +583,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   }
 
 
-  // â”€â”€ BOTÃ“N CONTINUAR â”€â”€
+  // ── BOTÓN CONTINUAR ──
   Widget _buildCTAButton(String lang) {
     return GestureDetector(
       onTap: _saveAndContinue,
@@ -627,7 +627,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── HELPERS ──────────────────────────────────────────────────────────────────
   Widget _buildFieldLabel(String text, IconData icon) {
     return Row(
       children: [

@@ -1,4 +1,4 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
+﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -154,6 +154,9 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
     return Scaffold(
       backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
@@ -227,6 +230,8 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
           _buildCustomSymptomCard(),
         ],
       ),
+    );
+        },
     );
   }
 

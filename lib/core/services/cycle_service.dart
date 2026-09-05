@@ -1,16 +1,13 @@
-import 'package:flutter/material.dart';
-import '../../theme/bellota_colors.dart';
-import '../../l10n/app_translations.dart';
 
 /// Fase del ciclo menstrual.
 enum CyclePhase {
-  menstrual,    // DÃ­as de sangrado
-  follicular,   // Post-sangrado hasta pre-ovulaciÃ³n
-  ovulatory,    // Ventana de ovulaciÃ³n (~3 dÃ­as)
-  luteal,       // Post-ovulaciÃ³n hasta el siguiente periodo
+  menstrual,    // Días de sangrado
+  follicular,   // Post-sangrado hasta pre-ovulación
+  ovulatory,    // Ventana de ovulación (~3 días)
+  luteal,       // Post-ovulación hasta el siguiente periodo
 }
 
-/// InformaciÃ³n del ciclo calculada.
+/// Información del ciclo calculada.
 class CycleInfo {
   final int cycleDay;
   final CyclePhase phase;
@@ -37,7 +34,7 @@ class CycleInfo {
   });
 }
 
-/// EstadÃ­sticas del ciclo calculadas a partir del historial.
+/// Estadísticas del ciclo calculadas a partir del historial.
 class CycleStatistics {
   final double averageCycleLength;
   final double? averagePeriodLength;
@@ -56,7 +53,7 @@ class CycleStatistics {
   });
 }
 
-/// Servicio central para el cÃ¡lculo de fases y estimaciones del ciclo menstrual.
+/// Servicio central para el cálculo de fases y estimaciones del ciclo menstrual.
 class CycleService {
   CycleService._();
   static final CycleService instance = CycleService._();
@@ -66,7 +63,7 @@ class CycleService {
     return DateTime(dt.year, dt.month, dt.day);
   }
 
-  /// Calcula la informaciÃ³n del ciclo actual.
+  /// Calcula la información del ciclo actual.
   CycleInfo calculateCycleInfo({
     required DateTime referenceDate,
     required DateTime? lastPeriodStart,
@@ -114,7 +111,7 @@ class CycleService {
       }
     }
 
-    // Calcular dÃ­as pasados desde el Ãºltimo periodo
+    // Calcular días pasados desde el último periodo
     int diffDays = ref.difference(start).inDays;
     
     int cycleDay;
@@ -125,7 +122,7 @@ class CycleService {
       if (cycleDay > effectiveCycleDuration) cycleDay = 1;
     }
 
-    // DÃ­a de ovulaciÃ³n = duraciÃ³n del ciclo - 14
+    // Día de ovulación = duración del ciclo - 14
     int ovulationDay = effectiveCycleDuration - 14;
     if (ovulationDay < 1) ovulationDay = effectiveCycleDuration ~/ 2; // fallback para ciclos muy cortos
 
@@ -221,7 +218,7 @@ class CycleService {
 
 
 
-  /// Calcula estadÃ­sticas histÃ³ricas del ciclo en base a periodos registrados (ordenados de forma descendente).
+  /// Calcula estadísticas históricas del ciclo en base a periodos registrados (ordenados de forma descendente).
   CycleStatistics calculateStatistics(List<DateTime> periodStarts, int configuredCycleDuration) {
     if (periodStarts.isEmpty || periodStarts.length == 1) {
       return CycleStatistics(
@@ -261,7 +258,7 @@ class CycleService {
       }
     }
 
-    // Retorna las duraciones de los ciclos, el mÃ¡s reciente primero para seguir el orden descendente de los periodos
+    // Retorna las duraciones de los ciclos, el más reciente primero para seguir el orden descendente de los periodos
     return CycleStatistics(
       averageCycleLength: avg,
       shortestCycle: minLen,
@@ -271,4 +268,5 @@ class CycleService {
     );
   }
 }
+
 

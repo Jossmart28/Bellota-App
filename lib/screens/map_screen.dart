@@ -1,4 +1,3 @@
-import '../core/constants/app_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -26,85 +25,85 @@ class _MapScreenState extends State<MapScreen> {
   final List<HealthCenter> _healthCenters = [
     HealthCenter(
       id: "MGA-001",
-      name: "Hospital Materno Infantil Bertha CalderÃƒÂ³n Roque",
+      name: "Hospital Materno Infantil Bertha Calderón Roque",
       department: "Managua",
       municipality: "Managua",
-      address: "SemÃƒÂ¡foros del Zumen 200m al sur, Distrito III",
+      address: "Semáforos del Zumen 200m al sur, Distrito III",
       phone: "+505 2265-1020",
       type: "Hospital Especializado Materno Infantil",
       services: [
-        "GinecologÃƒÂ­a",
+        "Ginecología",
         "Obstetricia",
-        "NeonatologÃƒÂ­a",
-        "OncologÃƒÂ­a GinecolÃƒÂ³gica",
-        "MamografÃƒÂ­a",
-        "AtenciÃƒÂ³n al Parto"
+        "Neonatología",
+        "Oncología Ginecológica",
+        "Mamografía",
+        "Atención al Parto"
       ],
       location: LatLng(12.1285, -86.2941),
     ),
     HealthCenter(
       id: "MGA-002",
-      name: "Hospital Infantil Manuel de JesÃƒÂºs Rivera 'La Mascota'",
+      name: "Hospital Infantil Manuel de Jesús Rivera 'La Mascota'",
       department: "Managua",
       municipality: "Managua",
-      address: "Semaforos de la LoterÃƒÂ­a Nacional 2 c. al este, 1 c. al norte",
+      address: "Semaforos de la Lotería Nacional 2 c. al este, 1 c. al norte",
       phone: "+505 2289-7250",
-      type: "Hospital Especializado PediÃƒÂ¡trico",
+      type: "Hospital Especializado Pediátrico",
       services: [
-        "PediatrÃƒÂ­a Especializada",
-        "CirugÃƒÂ­a PediÃƒÂ¡trica",
-        "Onco-HematologÃƒÂ­a PediÃƒÂ¡trica",
-        "UCI PediÃƒÂ¡trica",
-        "Emergencias PediÃƒÂ¡tricas 24/7"
+        "Pediatría Especializada",
+        "Cirugía Pediátrica",
+        "Onco-Hematología Pediátrica",
+        "UCI Pediátrica",
+        "Emergencias Pediátricas 24/7"
       ],
       location: LatLng(12.1158, -86.2621),
     ),
     HealthCenter(
       id: "MGA-003",
-      name: "Hospital Escuela Roberto CalderÃƒÂ³n GutiÃƒÂ©rrez",
+      name: "Hospital Escuela Roberto Calderón Gutiérrez",
       department: "Managua",
       municipality: "Managua",
       address: "Pista de la Solidaridad, frente a Universidad Agraria",
       phone: "+505 2289-4700",
       type: "Hospital Nacional de Referencia",
       services: [
-        "OncologÃƒÂ­a Adultos",
-        "CirugÃƒÂ­a General",
+        "Oncología Adultos",
+        "Cirugía General",
         "Medicina Interna",
         "Urgencias 24/7",
-        "HemodiÃƒÂ¡lisis"
+        "Hemodiálisis"
       ],
       location: LatLng(12.1189, -86.2364),
     ),
     HealthCenter(
       id: "MGA-004",
-      name: "Hospital Occidental Fernando VÃƒÂ©lez Paiz",
+      name: "Hospital Occidental Fernando Vélez Paiz",
       department: "Managua",
       municipality: "Managua",
-      address: "Km 5.5 Carretera Sur, de los SemÃƒÂ¡foros de Belmonte 100m al norte",
+      address: "Km 5.5 Carretera Sur, de los Semáforos de Belmonte 100m al norte",
       phone: "+505 2232-1500",
       type: "Hospital Departamental / General",
       services: [
-        "CirugÃƒÂ­a LaparoscÃƒÂ³pica",
-        "PediatrÃƒÂ­a",
+        "Cirugía Laparoscópica",
+        "Pediatría",
         "Ginecobstetricia",
         "Ortopedia",
-        "ImagenologÃƒÂ­a Avanzada"
+        "Imagenología Avanzada"
       ],
       location: LatLng(12.1231, -86.3075),
     ),
     HealthCenter(
       id: "MGA-005",
-      name: "Hospital Antonio LenÃƒÂ­n Fonseca",
+      name: "Hospital Antonio Lenín Fonseca",
       department: "Managua",
       municipality: "Managua",
       address: "Las Brisas 2 c. al sur, Distrito II",
       phone: "+505 2266-0700",
       type: "Hospital Nacional de Referencia",
       services: [
-        "NeurocirugÃƒÂ­a",
-        "TraumatologÃƒÂ­a",
-        "UrologÃƒÂ­a",
+        "Neurocirugía",
+        "Traumatología",
+        "Urología",
         "Unidad de Cuidados Intensivos",
         "Emergencias 24/7"
       ],
@@ -112,7 +111,7 @@ class _MapScreenState extends State<MapScreen> {
     ),
     HealthCenter(
       id: "MGA-006",
-      name: "Hospital AlemÃƒÂ¡n NicaragÃƒÂ¼ense",
+      name: "Hospital Alemán Nicaragüense",
       department: "Managua",
       municipality: "Managua",
       address: "Semaforos de la Subasta 3 c. al norte, Distrito VI",
@@ -120,10 +119,10 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "GinecologÃƒÂ­a",
-        "PediatrÃƒÂ­a",
-        "CirugÃƒÂ­a General",
-        "AtenciÃƒÂ³n del Parto"
+        "Ginecología",
+        "Pediatría",
+        "Cirugía General",
+        "Atención del Parto"
       ],
       location: LatLng(12.1512, -86.2163),
     ),
@@ -136,26 +135,26 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2249-3310",
       type: "Centro de Salud Familiar",
       services: [
-        "AtenciÃƒÂ³n Primaria",
-        "PlanificaciÃƒÂ³n Familiar",
-        "VacunaciÃƒÂ³n",
+        "Atención Primaria",
+        "Planificación Familiar",
+        "Vacunación",
         "Control Prenatal",
-        "OdontologÃƒÂ­a"
+        "Odontología"
       ],
       location: LatLng(12.1462, -86.2578),
     ),
     HealthCenter(
       id: "MGA-008",
-      name: "Centro de Salud SÃƒÂ³crates Flores",
+      name: "Centro de Salud Sócrates Flores",
       department: "Managua",
       municipality: "Managua",
-      address: "Barrio MonseÃƒÂ±or Lezcano, de la Iglesia 1 c. abajo, Distrito II",
+      address: "Barrio Monseñor Lezcano, de la Iglesia 1 c. abajo, Distrito II",
       phone: "+505 2266-3211",
       type: "Centro de Salud Familiar",
       services: [
         "Medicina General",
-        "PediatrÃƒÂ­a Primaria",
-        "VacunaciÃƒÂ³n",
+        "Pediatría Primaria",
+        "Vacunación",
         "Programa Chagas/Dengue"
       ],
       location: LatLng(12.1491, -86.2915),
@@ -165,71 +164,71 @@ class _MapScreenState extends State<MapScreen> {
       name: "Centro de Salud Pedro Altamirano",
       department: "Managua",
       municipality: "Managua",
-      address: "Colonia CentroamÃƒÂ©rica, de la Gasolinera 1 c. al este, Distrito V",
+      address: "Colonia Centroamérica, de la Gasolinera 1 c. al este, Distrito V",
       phone: "+505 2270-1422",
       type: "Centro de Salud Familiar",
       services: [
-        "AtenciÃƒÂ³n Prenatal",
-        "OdontologÃƒÂ­a",
-        "Laboratorio ClÃƒÂ­nico",
-        "Control de Enfermedades CrÃƒÂ³nicas"
+        "Atención Prenatal",
+        "Odontología",
+        "Laboratorio Clínico",
+        "Control de Enfermedades Crónicas"
       ],
       location: LatLng(12.1123, -86.2511),
     ),
     HealthCenter(
       id: "LEO-001",
-      name: "Hospital Escuela Oscar Danilo Rosales ArgÃƒÂ¼ello (HEODRA)",
-      department: "LeÃƒÂ³n",
-      municipality: "LeÃƒÂ³n",
+      name: "Hospital Escuela Oscar Danilo Rosales Argüello (HEODRA)",
+      department: "León",
+      municipality: "León",
       address: "Frente a la Plaza Central, Calle Real",
       phone: "+505 2311-2222",
       type: "Hospital Regional Escuela",
       services: [
         "Emergencias 24/7",
-        "PediatrÃƒÂ­a",
-        "CirugÃƒÂ­a General",
-        "Maternidad y GinecologÃƒÂ­a",
-        "CardiologÃƒÂ­a"
+        "Pediatría",
+        "Cirugía General",
+        "Maternidad y Ginecología",
+        "Cardiología"
       ],
       location: LatLng(12.43525, -86.87912),
     ),
     HealthCenter(
       id: "LEO-002",
-      name: "Centro de Salud PerifÃƒÂ©rico Subtiava",
-      department: "LeÃƒÂ³n",
-      municipality: "LeÃƒÂ³n",
+      name: "Centro de Salud Periférico Subtiava",
+      department: "León",
+      municipality: "León",
       address: "De la Iglesia San Juan Bautista 2 cuadras al sur",
       phone: "+505 2311-4567",
       type: "Centro de Salud Familiar",
       services: [
         "Consulta Externa",
-        "VacunaciÃƒÂ³n",
-        "OdontologÃƒÂ­a",
+        "Vacunación",
+        "Odontología",
         "Medicina General",
-        "AtenciÃƒÂ³n Prenatal"
+        "Atención Prenatal"
       ],
       location: LatLng(12.4281, -86.8923),
     ),
     HealthCenter(
       id: "LEO-003",
-      name: "Centro de Salud MÃƒÂ¡ntica Berio",
-      department: "LeÃƒÂ³n",
-      municipality: "LeÃƒÂ³n",
-      address: "Barrio LaborÃƒÂ­o, Contiguo a la Cancha San Juan",
+      name: "Centro de Salud Mántica Berio",
+      department: "León",
+      municipality: "León",
+      address: "Barrio Laborío, Contiguo a la Cancha San Juan",
       phone: "+505 2311-8901",
       type: "Centro de Salud Familiar",
       services: [
-        "AtenciÃƒÂ³n Primaria",
+        "Atención Primaria",
         "Control Prenatal",
-        "Laboratorio ClÃƒÂ­nico",
-        "VacunaciÃƒÂ³n"
+        "Laboratorio Clínico",
+        "Vacunación"
       ],
       location: LatLng(12.4398, -86.8815),
     ),
     HealthCenter(
       id: "LEO-004",
-      name: "Hospital Primario Coronel Santos LÃƒÂ³pez",
-      department: "LeÃƒÂ³n",
+      name: "Hospital Primario Coronel Santos López",
+      department: "León",
       municipality: "El Sauce",
       address: "Entrada principal a El Sauce, contiguo al Estadio Municipal",
       phone: "+505 2319-2100",
@@ -239,7 +238,7 @@ class _MapScreenState extends State<MapScreen> {
         "Maternidad",
         "Medicina General",
         "Laboratorio",
-        "UltrasonografÃƒÂ­a"
+        "Ultrasonografía"
       ],
       location: LatLng(12.9861, -86.5382),
     ),
@@ -253,9 +252,9 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Departamental General",
       services: [
         "Emergencias 24/7",
-        "GinecologÃƒÂ­a y Obstetricia",
-        "CirugÃƒÂ­a",
-        "PediatrÃƒÂ­a",
+        "Ginecología y Obstetricia",
+        "Cirugía",
+        "Pediatría",
         "Cuidados Intensivos"
       ],
       location: LatLng(12.6391, -87.1352),
@@ -269,10 +268,10 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2341-3310",
       type: "Centro de Salud Familiar",
       services: [
-        "AtenciÃƒÂ³n Primaria",
-        "GinecologÃƒÂ­a Preventiva",
+        "Atención Primaria",
+        "Ginecología Preventiva",
         "Inmunizaciones",
-        "AtenciÃƒÂ³n Integral a la Mujer"
+        "Atención Integral a la Mujer"
       ],
       location: LatLng(12.6284, -87.1298),
     ),
@@ -281,53 +280,53 @@ class _MapScreenState extends State<MapScreen> {
       name: "Hospital Primario Teodoro King",
       department: "Chinandega",
       municipality: "El Viejo",
-      address: "De la Parroquia Nuestra SeÃƒÂ±ora de los ÃƒÂngeles 3 c. al norte",
+      address: "De la Parroquia Nuestra Señora de los Ángeles 3 c. al norte",
       phone: "+505 2344-2110",
       type: "Hospital Primario",
       services: [
-        "AtenciÃƒÂ³n de Partos",
+        "Atención de Partos",
         "Urgencias 24/7",
-        "PediatrÃƒÂ­a General",
-        "EcografÃƒÂ­a"
+        "Pediatría General",
+        "Ecografía"
       ],
       location: LatLng(12.6631, -87.1685),
     ),
     HealthCenter(
       id: "MAS-001",
-      name: "Hospital Departamental Doctor Humberto Alvarado VÃƒÂ¡squez",
+      name: "Hospital Departamental Doctor Humberto Alvarado Vásquez",
       department: "Masaya",
       municipality: "Masaya",
-      address: "Entrada a Masaya por la Rotonda San JerÃƒÂ³nimo 800m al sur",
+      address: "Entrada a Masaya por la Rotonda San Jerónimo 800m al sur",
       phone: "+505 2522-2580",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
         "Ginecobstetricia",
-        "CirugÃƒÂ­a General",
-        "PediatrÃƒÂ­a",
+        "Cirugía General",
+        "Pediatría",
         "Ortopedia"
       ],
       location: LatLng(11.9792, -86.0981),
     ),
     HealthCenter(
       id: "MAS-002",
-      name: "Centro de Salud MonimbÃƒÂ³",
+      name: "Centro de Salud Monimbó",
       department: "Masaya",
       municipality: "Masaya",
-      address: "Plaza Tiangue MonimbÃƒÂ³ 1 c. al oeste",
+      address: "Plaza Tiangue Monimbó 1 c. al oeste",
       phone: "+505 2522-3100",
       type: "Centro de Salud Familiar",
       services: [
-        "AtenciÃƒÂ³n Preventiva",
-        "PlanificaciÃƒÂ³n Familiar",
-        "PediatrÃƒÂ­a",
+        "Atención Preventiva",
+        "Planificación Familiar",
+        "Pediatría",
         "Salud Materna"
       ],
       location: LatLng(11.9684, -86.0945),
     ),
     HealthCenter(
       id: "GRA-001",
-      name: "Hospital Departamental Amistad JapÃƒÂ³n Nicaragua",
+      name: "Hospital Departamental Amistad Japón Nicaragua",
       department: "Granada",
       municipality: "Granada",
       address: "Carretera Granada - Malacatoya, Km 46",
@@ -336,9 +335,9 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Maternidad",
-        "CirugÃƒÂ­a General",
-        "PediatrÃƒÂ­a",
-        "RadiologÃƒÂ­a"
+        "Cirugía General",
+        "Pediatría",
+        "Radiología"
       ],
       location: LatLng(11.9365, -85.9523),
     ),
@@ -351,10 +350,10 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2552-4112",
       type: "Centro de Salud Familiar",
       services: [
-        "AtenciÃƒÂ³n Prenatal",
-        "VacunaciÃƒÂ³n",
+        "Atención Prenatal",
+        "Vacunación",
         "Medicina General",
-        "OdontologÃƒÂ­a"
+        "Odontología"
       ],
       location: LatLng(11.9298, -85.9681),
     ),
@@ -368,32 +367,32 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Regional",
       services: [
         "Urgencias 24/7",
-        "GinecologÃƒÂ­a",
-        "PediatrÃƒÂ­a",
-        "CirugÃƒÂ­a General",
-        "Laboratorio ClÃƒÂ­nico"
+        "Ginecología",
+        "Pediatría",
+        "Cirugía General",
+        "Laboratorio Clínico"
       ],
       location: LatLng(11.8541, -86.1985),
     ),
     HealthCenter(
       id: "CAR-002",
-      name: "Hospital Primario Maestro San JosÃƒÂ©",
+      name: "Hospital Primario Maestro San José",
       department: "Carazo",
       municipality: "Diriamba",
       address: "Del Reloj de Diriamba 4 c. al sur",
       phone: "+505 2534-2210",
       type: "Hospital Primario",
       services: [
-        "AtenciÃƒÂ³n de Partos",
+        "Atención de Partos",
         "Consulta Externa",
         "Emergencias",
-        "VacunaciÃƒÂ³n"
+        "Vacunación"
       ],
       location: LatLng(11.8562, -86.2391),
     ),
     HealthCenter(
       id: "RIV-001",
-      name: "Hospital Departamental Gaspar GarcÃƒÂ­a Laviana",
+      name: "Hospital Departamental Gaspar García Laviana",
       department: "Rivas",
       municipality: "Rivas",
       address: "Km 112 Carretera Panamericana Sur",
@@ -401,7 +400,7 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "CirugÃƒÂ­a General",
+        "Cirugía General",
         "Ortopedia",
         "Gineco-obstetricia",
         "Consulta Externa"
@@ -417,42 +416,42 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2563-0112",
       type: "Centro de Salud Familiar",
       services: [
-        "AtenciÃƒÂ³n Primaria",
-        "PlanificaciÃƒÂ³n Familiar",
+        "Atención Primaria",
+        "Planificación Familiar",
         "Control Prenatal",
-        "VacunaciÃƒÂ³n"
+        "Vacunación"
       ],
       location: LatLng(11.4421, -85.8295),
     ),
     HealthCenter(
       id: "EST-001",
       name: "Hospital Regional San Juan de Dios",
-      department: "EstelÃƒÂ­",
-      municipality: "EstelÃƒÂ­",
+      department: "Estelí",
+      municipality: "Estelí",
       address: "Salida sur de la ciudad, Carretera Panamericana",
       phone: "+505 2713-2451",
       type: "Hospital Regional",
       services: [
         "Urgencias 24/7",
-        "TraumatologÃƒÂ­a",
-        "PediatrÃƒÂ­a",
-        "RadiologÃƒÂ­a",
-        "GinecologÃƒÂ­a"
+        "Traumatología",
+        "Pediatría",
+        "Radiología",
+        "Ginecología"
       ],
       location: LatLng(13.0833, -86.3538),
     ),
     HealthCenter(
       id: "EST-002",
       name: "Centro de Salud Leonel Rugama Rugama",
-      department: "EstelÃƒÂ­",
-      municipality: "EstelÃƒÂ­",
+      department: "Estelí",
+      municipality: "Estelí",
       address: "Barrio Juana Elena Mendoza, de la ENABAS 2 c. al oeste",
       phone: "+505 2713-3320",
       type: "Centro de Salud Familiar",
       services: [
         "Medicina General",
         "Salud Materna",
-        "OdontologÃƒÂ­a",
+        "Odontología",
         "Laboratorio"
       ],
       location: LatLng(13.0912, -86.3581),
@@ -468,14 +467,14 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Maternidad",
-        "CirugÃƒÂ­a General",
-        "PediatrÃƒÂ­a"
+        "Cirugía General",
+        "Pediatría"
       ],
       location: LatLng(13.4812, -86.5821),
     ),
     HealthCenter(
       id: "NSG-001",
-      name: "Hospital Departamental Alfonso Moncada GuillÃƒÂ©n",
+      name: "Hospital Departamental Alfonso Moncada Guillén",
       department: "Nueva Segovia",
       municipality: "Ocotal",
       address: "Barrio Nicarao, de la Calzada 3 c. al norte",
@@ -484,24 +483,24 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Obstetricia",
-        "PediatrÃƒÂ­a",
-        "CirugÃƒÂ­a General"
+        "Pediatría",
+        "Cirugía General"
       ],
       location: LatLng(13.6321, -86.4782),
     ),
     HealthCenter(
       id: "MAT-001",
-      name: "Hospital Escuela CÃƒÂ©sar Amador Molina",
+      name: "Hospital Escuela César Amador Molina",
       department: "Matagalpa",
       municipality: "Matagalpa",
-      address: "Entrada principal a Matagalpa, Contiguo al RÃƒÂ­o Grande",
+      address: "Entrada principal a Matagalpa, Contiguo al Río Grande",
       phone: "+505 2772-2011",
       type: "Hospital Regional Escuela",
       services: [
         "Medicina Interna",
-        "CirugÃƒÂ­a",
+        "Cirugía",
         "Gineco-obstetricia",
-        "HemodiÃƒÂ¡lisis",
+        "Hemodiálisis",
         "UCI"
       ],
       location: LatLng(12.9261, -85.9182),
@@ -511,36 +510,36 @@ class _MapScreenState extends State<MapScreen> {
       name: "Hospital Departamental Victoria Motta",
       department: "Jinotega",
       municipality: "Jinotega",
-      address: "Barrio San Juan, contiguo al Estadio MoisÃƒÂ©s Palacios",
+      address: "Barrio San Juan, contiguo al Estadio Moisés Palacios",
       phone: "+505 2782-2311",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
         "Maternidad",
-        "PediatrÃƒÂ­a",
-        "CirugÃƒÂ­a General"
+        "Pediatría",
+        "Cirugía General"
       ],
       location: LatLng(13.0982, -85.9981),
     ),
     HealthCenter(
       id: "BOA-001",
-      name: "Hospital Departamental JosÃƒÂ© Nieborowski",
+      name: "Hospital Departamental José Nieborowski",
       department: "Boaco",
       municipality: "Boaco",
-      address: "Salida a Managua, frente a la SubestaciÃƒÂ³n ElÃƒÂ©ctrica",
+      address: "Salida a Managua, frente a la Subestación Eléctrica",
       phone: "+505 2542-2200",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "CirugÃƒÂ­a General",
+        "Cirugía General",
         "Gineco-obstetricia",
-        "PediatrÃƒÂ­a"
+        "Pediatría"
       ],
       location: LatLng(12.4721, -85.6582),
     ),
     HealthCenter(
       id: "CHO-001",
-      name: "Hospital Regional Escuela AsunciÃƒÂ³n de Juigalpa",
+      name: "Hospital Regional Escuela Asunción de Juigalpa",
       department: "Chontales",
       municipality: "Juigalpa",
       address: "Salida a Rama, Km 140",
@@ -548,9 +547,9 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Regional Escuela",
       services: [
         "Emergencias 24/7",
-        "TraumatologÃƒÂ­a",
+        "Traumatología",
         "Maternidad",
-        "CirugÃƒÂ­a",
+        "Cirugía",
         "Cuidados Intensivos"
       ],
       location: LatLng(12.1082, -85.3621),
@@ -558,16 +557,16 @@ class _MapScreenState extends State<MapScreen> {
     HealthCenter(
       id: "RSJ-001",
       name: "Hospital Departamental Luis Felipe Moncada",
-      department: "RÃƒÂ­o San Juan",
+      department: "Río San Juan",
       municipality: "San Carlos",
       address: "Barrio 19 de Julio, San Carlos",
       phone: "+505 2583-0100",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "AtenciÃƒÂ³n al Parto",
-        "PediatrÃƒÂ­a",
-        "CirugÃƒÂ­a General",
+        "Atención al Parto",
+        "Pediatría",
+        "Cirugía General",
         "Laboratorio"
       ],
       location: LatLng(11.1281, -84.7782),
@@ -582,9 +581,9 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Regional",
       services: [
         "Emergencias 24/7",
-        "CirugÃƒÂ­a General",
+        "Cirugía General",
         "Gineco-obstetricia",
-        "PediatrÃƒÂ­a",
+        "Pediatría",
         "Medicina Intercultural"
       ],
       location: LatLng(14.0321, -83.3892),
@@ -600,8 +599,8 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Maternidad e Infancia",
-        "CirugÃƒÂ­a General",
-        "Laboratorio ClÃƒÂ­nico"
+        "Cirugía General",
+        "Laboratorio Clínico"
       ],
       location: LatLng(12.0132, -83.7642),
     ),
@@ -629,7 +628,7 @@ class _MapScreenState extends State<MapScreen> {
           _userLocation = LatLng(lat, lng);
         }
       });
-      // Mover el mapa a la ubicaciÃƒÂ³n del usuario si el mapa ya estÃƒÂ¡ listo
+      // Mover el mapa a la ubicación del usuario si el mapa ya está listo
       try {
         if (_userLocation != null) {
           _mapController.move(_userLocation!, 13.0);
@@ -645,8 +644,8 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  /// Centros que se muestran en el mapa: SIEMPRE todos (sin filtro de ubicaciÃƒÂ³n).
-  /// Solo aplica el filtro de texto de bÃƒÂºsqueda si el usuario escribiÃƒÂ³ algo.
+  /// Centros que se muestran en el mapa: SIEMPRE todos (sin filtro de ubicación).
+  /// Solo aplica el filtro de texto de búsqueda si el usuario escribió algo.
   List<HealthCenter> get _mapCenters {
     final query = _searchController.text.toLowerCase();
     if (query.isEmpty) return _healthCenters;
@@ -695,7 +694,7 @@ class _MapScreenState extends State<MapScreen> {
     return Column(
       children: [
         // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-        // BARRA SUPERIOR Ã¢â‚¬â€ BÃƒÂºsqueda + ÃƒÂ­conos
+        // BARRA SUPERIOR — Búsqueda + íconos
         // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         _buildSearchBar(context),
         
@@ -750,7 +749,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€¢Â
-  // BARRA DE BÃƒÅ¡SQUEDA Y BOTONES GLOBALES
+  // BARRA DE BÚSQUEDA Y BOTONES GLOBALES
   // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildSearchBar(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -760,7 +759,7 @@ class _MapScreenState extends State<MapScreen> {
       color: Theme.of(context).bellotaColors.basilica,
       child: Row(
         children: [
-          // Campo de bÃƒÂºsqueda
+          // Campo de búsqueda
           Expanded(
             child: Container(
               height: 44,
@@ -861,7 +860,7 @@ class _MapScreenState extends State<MapScreen> {
               );
             }),
             
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Pin de la ubicaciÃƒÂ³n del usuario Ã¢â€â‚¬Ã¢â€â‚¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Pin de la ubicación del usuario Ã¢â€â‚¬Ã¢â€â‚¬
             if (_userLocation != null)
               Marker(
                 point: _userLocation!,
@@ -884,7 +883,7 @@ class _MapScreenState extends State<MapScreen> {
                         ],
                       ),
                       child: Text(
-                        'UbicaciÃƒÂ³n',
+                        'Ubicación',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 11,
@@ -926,7 +925,7 @@ class _MapScreenState extends State<MapScreen> {
         ),
         child: Row(
           children: [
-            // InformaciÃƒÂ³n del centro
+            // Información del centro
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1002,6 +1001,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
+
 
 
 

@@ -1,18 +1,18 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/bellota_colors.dart';
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Modelo de artÃ­culo
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────
+// Modelo de artículo
+// ─────────────────────────────────────────────────
 class _ArticleData {
   final String source;
   final String title;
   final String summary;
   final String url;
   final Color accentColor;
-  // Ruta del banner. Coloca tus imÃ¡genes en: assets/images/
+  // Ruta del banner. Coloca tus imágenes en: assets/images/
   // Nombres esperados: banner_minsa.png  banner_el19.png  banner_pddh.png
   final String bannerAsset;
 
@@ -26,15 +26,15 @@ class _ArticleData {
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Datos de los tres artÃ­culos
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────
+// Datos de los tres artículos
+// ─────────────────────────────────────────────────
 final List<_ArticleData> _articles = [
   _ArticleData(
     source: 'MINSA',
-    title: 'Atenciones en el Centro de AtenciÃ³n a la Mujer',
+    title: 'Atenciones en el Centro de Atención a la Mujer',
     summary:
-        'Conoce los servicios de salud que el MINSA brinda gratuitamente a la mujer nicaragÃ¼ense en sus centros especializados de atenciÃ³n integral.',
+        'Conoce los servicios de salud que el MINSA brinda gratuitamente a la mujer nicaragüense en sus centros especializados de atención integral.',
     url:
         'https://www.minsa.gob.ni/centro-de-medios/noticias/estas-son-las-atenciones-brindadas-en-el-centro-de-atencion-la-mujer',
     accentColor: const Color(0xFFD35D53),
@@ -42,9 +42,9 @@ final List<_ArticleData> _articles = [
   ),
   _ArticleData(
     source: 'El 19 Digital',
-    title: 'RestituciÃ³n del derecho en la salud de la mujer',
+    title: 'Restitución del derecho en la salud de la mujer',
     summary:
-        'La revoluciÃ³n tiene rostro de mujer: Nicaragua avanza en la restituciÃ³n de derechos en salud femenina a travÃ©s de polÃ­ticas pÃºblicas.',
+        'La revolución tiene rostro de mujer: Nicaragua avanza en la restitución de derechos en salud femenina a través de políticas públicas.',
     url:
         'https://www.el19digital.com/articulos/ver/149975-restitucion-del-derecho-en-la-salud-de-la-mujer-la-revolucion-tiene-rostro-de-mujer',
     accentColor: const Color(0xFFEE8658),
@@ -52,18 +52,18 @@ final List<_ArticleData> _articles = [
   ),
   _ArticleData(
     source: 'PDDH',
-    title: 'Derechos de la mujer en salud â€” ProcuradurÃ­a',
+    title: 'Derechos de la mujer en salud — Procuraduría',
     summary:
-        'La ProcuradurÃ­a para la Defensa de los Derechos Humanos aborda el marco normativo que garantiza el derecho a la salud integral de la mujer.',
+        'La Procuraduría para la Defensa de los Derechos Humanos aborda el marco normativo que garantiza el derecho a la salud integral de la mujer.',
     url: 'https://www.pddh.gob.ni/?p=4652',
     accentColor: const Color(0xFF7E8F6F),
     bannerAsset: 'assets/images/banner_pddh.png',
   ),
 ];
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────
 // Widget principal: HealthInfoCarousel
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────
 class HealthInfoCarousel extends StatefulWidget {
   const HealthInfoCarousel({super.key});
 
@@ -119,7 +119,7 @@ class _HealthInfoCarouselState extends State<HealthInfoCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // â”€â”€ Carrusel â”€â”€
+        // ── Carrusel ──
         SizedBox(
           height: 240,
           child: PageView.builder(
@@ -134,7 +134,7 @@ class _HealthInfoCarouselState extends State<HealthInfoCarousel> {
         ),
         const SizedBox(height: 12),
 
-        // â”€â”€ Puntos indicadores â”€â”€
+        // ── Puntos indicadores ──
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
@@ -159,9 +159,9 @@ class _HealthInfoCarouselState extends State<HealthInfoCarousel> {
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────
 // Tarjeta individual
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────
 class _ArticleCard extends StatelessWidget {
   final _ArticleData data;
   final VoidCallback onReadPressed;
@@ -190,7 +190,7 @@ class _ArticleCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // â”€â”€ Banner de imagen â”€â”€
+            // ── Banner de imagen ──
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(22)),
@@ -247,7 +247,7 @@ class _ArticleCard extends StatelessWidget {
               ),
             ),
 
-            // â”€â”€ Cuerpo: tÃ­tulo + resumen + botÃ³n â”€â”€
+            // ── Cuerpo: título + resumen + botón ──
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 11),
@@ -278,7 +278,7 @@ class _ArticleCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // BotÃ³n "Leer completo" con Material+InkWell
+                    // Botón "Leer completo" con Material+InkWell
                     Align(
                       alignment: Alignment.centerRight,
                       child: Material(

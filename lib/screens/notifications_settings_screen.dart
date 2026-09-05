@@ -1,4 +1,4 @@
-﻿import '../core/constants/app_keys.dart';
+import '../core/constants/app_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -29,17 +29,17 @@ class _NotificationsSettingsScreenState
   // Hora del registro diario
   TimeOfDay _logTime = const TimeOfDay(hour: 21, minute: 0);
 
-  // Horarios de pÃ­ldora (mÃ¡x 10)
+  // Horarios de píldora (máx 10)
   List<TimeOfDay> _pillTimes = [];
 
-  // Citas mÃ©dicas semanales
+  // Citas médicas semanales
   List<_ApptEntry> _appointments = [];
 
   int? _userId;
   bool _permissionGranted = true;
   bool _permissionChecked = false;
 
-  static const _days = ['', 'Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado', 'Domingo'];
+  static const _days = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
   @override
   void initState() {
@@ -156,7 +156,7 @@ class _NotificationsSettingsScreenState
     return '$h:$m';
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ──────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,7 +186,7 @@ class _NotificationsSettingsScreenState
             if (_permissionChecked && !_permissionGranted) _buildPermissionBanner(),
             if (_permissionChecked && !_permissionGranted) const SizedBox(height: 16),
 
-            // â”€â”€ General â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── General ───────────────────────────────────────────────────
             _sectionTitle('General'),
             const SizedBox(height: 10),
             _buildToggleCard(
@@ -205,8 +205,8 @@ class _NotificationsSettingsScreenState
             _buildToggleCard(
               icon: Icons.volume_up_outlined,
               iconColor: Theme.of(context).bellotaColors.textoMedio,
-              title: 'Sonidos de notificaciÃ³n',
-              subtitle: 'Reproducir sonido con cada notificaciÃ³n',
+              title: 'Sonidos de notificación',
+              subtitle: 'Reproducir sonido con cada notificación',
               value: _sonidosNotificacion,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -217,14 +217,14 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // â”€â”€ Recordatorios de Ciclo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Recordatorios de Ciclo ────────────────────────────────────
             _sectionTitle('Recordatorios de Ciclo'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.water_drop_outlined,
               iconColor: Theme.of(context).bellotaColors.chilero,
               title: 'Recordatorio de periodo',
-              subtitle: '3 dÃ­as antes del inicio estimado de tu periodo',
+              subtitle: '3 días antes del inicio estimado de tu periodo',
               value: _recordatorioPeriodo,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -236,8 +236,8 @@ class _NotificationsSettingsScreenState
             _buildToggleCard(
               icon: Icons.favorite_border_rounded,
               iconColor: Theme.of(context).bellotaColors.melon,
-              title: 'Recordatorio de ovulaciÃ³n',
-              subtitle: '1 dÃ­a antes del inicio de tus dÃ­as fÃ©rtiles',
+              title: 'Recordatorio de ovulación',
+              subtitle: '1 día antes del inicio de tus días fértiles',
               value: _recordatorioOvulacion,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -248,14 +248,14 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // â”€â”€ PÃ­ldora â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            _sectionTitle('PÃ­ldora'),
+            // ── Píldora ───────────────────────────────────────────────────
+            _sectionTitle('Píldora'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.medication_outlined,
               iconColor: Theme.of(context).bellotaColors.chiltoma,
-              title: 'Recordatorio de pÃ­ldora',
-              subtitle: 'RecibirÃ¡s una alarma por cada horario configurado',
+              title: 'Recordatorio de píldora',
+              subtitle: 'Recibirás una alarma por cada horario configurado',
               value: _recordatorioPildora,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -270,14 +270,14 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // â”€â”€ Bienestar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Bienestar ─────────────────────────────────────────────────
             _sectionTitle('Bienestar'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.edit_note_outlined,
               iconColor: Theme.of(context).bellotaColors.asuncion,
               title: 'Registro diario',
-              subtitle: 'Te recordamos registrar cÃ³mo te sentiste',
+              subtitle: 'Te recordamos registrar cómo te sentiste',
               value: _recordatorioDiario,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -306,13 +306,13 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // â”€â”€ Citas MÃ©dicas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            _sectionTitle('Citas MÃ©dicas'),
+            // ── Citas Médicas ─────────────────────────────────────────────
+            _sectionTitle('Citas Médicas'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.calendar_month_outlined,
               iconColor: const Color(0xFF6B9EC7),
-              title: 'Recordatorio de cita mÃ©dica',
+              title: 'Recordatorio de cita médica',
               subtitle: 'Configura uno o varios recordatorios semanales',
               value: _recordatorioCitaMedica,
               enabled: _notificacionesApp,
@@ -328,13 +328,13 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 32),
             
-            // â”€â”€ Probar Notificaciones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // ── Probar Notificaciones ─────────────────────────────────────────
             Center(
               child: TextButton.icon(
                 onPressed: () => NotificationService.instance.sendTestNotification(),
                 icon: Icon(Icons.send_to_mobile_rounded, color: Theme.of(context).bellotaColors.textoMedio),
                 label: Text(
-                  'Enviar notificaciÃ³n de prueba',
+                  'Enviar notificación de prueba',
                   style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio, fontWeight: FontWeight.w500),
                 ),
               ),
@@ -347,7 +347,7 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // â”€â”€ PÃ­ldora panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Píldora panel ──────────────────────────────────────────────────────────
   Widget _buildPillTimesPanel() {
     return _buildExpandableCard(
       child: Column(
@@ -356,7 +356,7 @@ class _NotificationsSettingsScreenState
             final i = entry.key;
             final t = entry.value;
             return _buildTimeRow(
-              label: 'PÃ­ldora ${i + 1}',
+              label: 'Píldora ${i + 1}',
               time: t,
               iconColor: Theme.of(context).bellotaColors.chiltoma,
               onTap: () async {
@@ -381,7 +381,7 @@ class _NotificationsSettingsScreenState
           if (_pillTimes.length < 10) ...[
             const SizedBox(height: 4),
             _buildAddButton(
-              label: 'Agregar hora de pÃ­ldora',
+              label: 'Agregar hora de píldora',
               onTap: () async {
                 final picked = await showTimePicker(
                   context: context,
@@ -400,7 +400,7 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // â”€â”€ Appointments panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Appointments panel ────────────────────────────────────────────────────
   Widget _buildAppointmentsPanel() {
     return _buildExpandableCard(
       child: Column(
@@ -436,7 +436,7 @@ class _NotificationsSettingsScreenState
           }),
           const SizedBox(height: 4),
           _buildAddButton(
-            label: 'Agregar cita mÃ©dica',
+            label: 'Agregar cita médica',
             onTap: () async {
               final picked = await showTimePicker(
                 context: context,
@@ -454,12 +454,12 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // â”€â”€ Day picker dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Day picker dialog ─────────────────────────────────────────────────────
   Future<int?> _showDayPicker(int current) {
     return showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('DÃ­a de la cita', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        title: Text('Día de la cita', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -494,7 +494,7 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // â”€â”€ Reusable widgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Reusable widgets ──────────────────────────────────────────────────────
 
   Widget _buildExpandableCard({required Widget child}) {
     return Container(
@@ -714,7 +714,7 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // â”€â”€ Permission banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Permission banner ─────────────────────────────────────────────────────
   Widget _buildPermissionBanner() {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -738,7 +738,7 @@ class _NotificationsSettingsScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Bellota necesita permiso para enviarte recordatorios. Toca aquÃ­ para activarlos.',
+                  'Bellota necesita permiso para enviarte recordatorios. Toca aquí para activarlos.',
                   style: GoogleFonts.poppins(fontSize: 11, color: Colors.orange.shade800),
                 ),
                 const SizedBox(height: 8),
@@ -833,9 +833,9 @@ class _NotificationsSettingsScreenState
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // Modelo de cita semanal temporal (solo UI)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 class _ApptEntry {
   final int weekday;
   final TimeOfDay time;

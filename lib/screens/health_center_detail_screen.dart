@@ -1,4 +1,4 @@
-﻿import '../core/models/health_center_model.dart';
+import '../core/models/health_center_model.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
@@ -18,14 +18,14 @@ class HealthCenterDetailScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            // BARRA SUPERIOR â€” BÃºsqueda + Ã­conos globales
-            // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+            // ════════════════════════════════════════════
+            // BARRA SUPERIOR — Búsqueda + íconos globales
+            // ════════════════════════════════════════════
             _buildSearchBar(context),
             
-            // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+            // ══════════════════════
             // CONTENIDO SCROLLABLE
-            // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+            // ══════════════════════
             Expanded(
               child: SingleChildScrollView(
                 physics: ClampingScrollPhysics(),
@@ -61,16 +61,16 @@ class HealthCenterDetailScreen extends StatelessWidget {
     );
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // BARRA DE BÃšSQUEDA Y BOTONES GLOBALES
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ────────────────────────────────────────
+  // BARRA DE BÚSQUEDA Y BOTONES GLOBALES
+  // ────────────────────────────────────────
   Widget _buildSearchBar(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: Theme.of(context).bellotaColors.basilica,
       child: Row(
         children: [
-          // BotÃ³n de regreso
+          // Botón de regreso
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(
@@ -92,7 +92,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
           ),
           SizedBox(width: 10),
           
-          // Campo de bÃºsqueda
+          // Campo de búsqueda
           Expanded(
             child: Container(
               height: 44,
@@ -136,9 +136,9 @@ class HealthCenterDetailScreen extends StatelessWidget {
     );
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ───────────────────────────────
   // IMAGEN PLACEHOLDER DEL CENTRO
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ───────────────────────────────
   Widget _buildImagePlaceholder(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -205,9 +205,9 @@ class HealthCenterDetailScreen extends StatelessWidget {
     );
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // INFORMACIÃ“N DETALLADA
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ───────────────────────
+  // INFORMACIÓN DETALLADA
+  // ───────────────────────
   Widget _buildInfoSection(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -228,9 +228,9 @@ class HealthCenterDetailScreen extends StatelessWidget {
         children: [
           _infoRow(context, 'Tipo:', center.type),
           SizedBox(height: 10),
-          _infoRow(context, 'DirecciÃ³n:', center.address),
+          _infoRow(context, 'Dirección:', center.address),
           SizedBox(height: 10),
-          _infoRow(context, 'TelÃ©fono:', center.phone),
+          _infoRow(context, 'Teléfono:', center.phone),
           SizedBox(height: 10),
           _infoRow(context, 'Municipio:', center.municipality),
           SizedBox(height: 10),
@@ -283,9 +283,9 @@ class HealthCenterDetailScreen extends StatelessWidget {
     );
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ────────────────
   // SERVICIOS 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ────────────────
   Widget _buildSpecialtiesSection(BuildContext context) {
     return Column(
       children: [

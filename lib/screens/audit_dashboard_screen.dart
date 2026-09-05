@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../core/models/audit_log_model.dart';
 import '../core/models/user_model.dart';
@@ -12,11 +12,11 @@ import 'login_screen.dart';
 
 /// Dashboard principal del Auditor.
 ///
-/// Permite al [UserRole.auditor] (y tambiÃ©n al [UserRole.admin]) revisar el
-/// historial completo de acciones del sistema, filtrar por usuario/acciÃ³n/fecha,
-/// ver estadÃ­sticas de cumplimiento y detectar anomalÃ­as.
+/// Permite al [UserRole.auditor] (y también al [UserRole.admin]) revisar el
+/// historial completo de acciones del sistema, filtrar por usuario/acción/fecha,
+/// ver estadísticas de cumplimiento y detectar anomalías.
 ///
-/// Acceso: [UserRole.auditor] y [UserRole.admin] (solo lectura, sin ediciÃ³n).
+/// Acceso: [UserRole.auditor] y [UserRole.admin] (solo lectura, sin edición).
 class AuditDashboardScreen extends StatefulWidget {
   const AuditDashboardScreen({super.key});
 
@@ -26,21 +26,21 @@ class AuditDashboardScreen extends StatefulWidget {
 
 class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     with SingleTickerProviderStateMixin {
-  // â”€â”€ Estado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Estado ─────────────────────────────────────────────────────────────────
   UserModel? _currentUser;
   List<AuditLogModel> _logs = [];
   Map<String, int> _stats = {};
   bool _isLoading = true;
   late TabController _tabController;
 
-  // â”€â”€ Filtros â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Filtros ─────────────────────────────────────────────────────────────────
   String? _filterAction;
   String? _filterStartDate;
   String? _filterEndDate;
   int _currentPage = 0;
   static const int _pageSize = 30;
 
-  // Tipos de acciÃ³n disponibles para el filtro
+  // Tipos de acción disponibles para el filtro
   static const List<String> _actionTypes = [
     'login',
     'logout',
@@ -58,7 +58,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     'export_report',
   ];
 
-  // â”€â”€ Ciclo de vida â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Ciclo de vida ──────────────────────────────────────────────────────────
 
   @override
   void initState() {
@@ -126,11 +126,11 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     _loadData();
   }
 
-  // â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Build ──────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    // Mostrar loader mientras se resuelve el usuario de sesiÃ³n
+    // Mostrar loader mientras se resuelve el usuario de sesión
     if (_isLoading || _currentUser == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -150,7 +150,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Dashboard de AuditorÃ­a'),
+        title: const Text('Dashboard de Auditoría'),
         backgroundColor: Theme.of(context).bellotaColors.asuncion,
         foregroundColor: Colors.white,
         actions: [
@@ -161,7 +161,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesiÃ³n',
+            tooltip: 'Cerrar sesión',
             onPressed: _logout,
           ),
         ],
@@ -173,7 +173,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
           tabs: const [
             Tab(icon: Icon(Icons.bar_chart), text: 'Resumen'),
             Tab(icon: Icon(Icons.list_alt), text: 'Logs'),
-            Tab(icon: Icon(Icons.warning_amber), text: 'AnomalÃ­as'),
+            Tab(icon: Icon(Icons.warning_amber), text: 'Anomalías'),
           ],
         ),
       ),
@@ -190,7 +190,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     );
   }
 
-  // â”€â”€ Tab: Resumen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tab: Resumen ────────────────────────────────────────────────────────────
 
   Widget _buildStatsTab() {
     return ListView(
@@ -200,14 +200,14 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
         const SizedBox(height: 12),
         _StatsGrid(stats: _stats),
         const SizedBox(height: 24),
-        _SectionTitle(title: 'InformaciÃ³n del auditor'),
+        _SectionTitle(title: 'Información del auditor'),
         ListTile(
           leading: const CircleAvatar(
             backgroundColor: Color(0xFFE8EAF6),
             child: Icon(Icons.manage_search, color: Colors.indigo),
           ),
-          title: Text(_currentUser?.name ?? 'â€”'),
-          subtitle: Text(_currentUser?.email ?? 'â€”'),
+          title: Text(_currentUser?.name ?? '—'),
+          subtitle: Text(_currentUser?.email ?? '—'),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
@@ -240,7 +240,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     );
   }
 
-  // â”€â”€ Tab: Logs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tab: Logs ───────────────────────────────────────────────────────────────
 
   Widget _buildLogsTab() {
     return Column(
@@ -264,7 +264,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '${_logs.length} registro(s) â€” PÃ¡gina ${_currentPage + 1}',
+              '${_logs.length} registro(s) — Página ${_currentPage + 1}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -284,7 +284,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
                 ),
         ),
 
-        // PaginaciÃ³n
+        // Paginación
         if (_logs.length == _pageSize || _currentPage > 0)
           Padding(
             padding: const EdgeInsets.all(8),
@@ -298,7 +298,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
                           _loadData();
                         }
                       : null,
-                  child: const Text('â† Anterior'),
+                  child: const Text('← Anterior'),
                 ),
                 const SizedBox(width: 16),
                 TextButton(
@@ -308,7 +308,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
                           _loadData();
                         }
                       : null,
-                  child: const Text('Siguiente â†’'),
+                  child: const Text('Siguiente →'),
                 ),
               ],
             ),
@@ -362,7 +362,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     );
   }
 
-  // â”€â”€ Tab: AnomalÃ­as â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tab: Anomalías ──────────────────────────────────────────────────────────
 
   Widget _buildAnomaliesTab() {
     final failedLogins = _stats['failedLogins'] ?? 0;
@@ -373,7 +373,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
       if (failedLogins > 0)
         _AnomalyItem(
           icon: Icons.login,
-          title: 'Intentos de inicio de sesiÃ³n fallidos',
+          title: 'Intentos de inicio de sesión fallidos',
           description: '$failedLogins intento(s) fallido(s) detectado(s).',
           severity: failedLogins > 5 ? _Severity.high : _Severity.medium,
           count: failedLogins,
@@ -383,7 +383,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
           icon: Icons.admin_panel_settings,
           title: 'Cambios de rol',
           description:
-              '$roleChanges cambio(s) de rol registrado(s). Verificar autorizaciÃ³n.',
+              '$roleChanges cambio(s) de rol registrado(s). Verificar autorización.',
           severity: _Severity.medium,
           count: roleChanges,
         ),
@@ -405,12 +405,12 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
             Icon(Icons.verified_user, size: 64, color: Colors.green),
             SizedBox(height: 16),
             Text(
-              'Sin anomalÃ­as detectadas',
+              'Sin anomalías detectadas',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             SizedBox(height: 8),
             Text(
-              'El sistema opera dentro de los parÃ¡metros normales.',
+              'El sistema opera dentro de los parámetros normales.',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -421,14 +421,14 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const _SectionTitle(title: 'AnomalÃ­as detectadas'),
+        const _SectionTitle(title: 'Anomalías detectadas'),
         const SizedBox(height: 12),
         ...anomalies.map((a) => _AnomalyCard(item: a)),
       ],
     );
   }
 
-  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Helpers ────────────────────────────────────────────────────────────────
 
   IconData _iconForAction(String name) {
     const map = {
@@ -458,7 +458,7 @@ class _AuditDashboardScreenState extends State<AuditDashboardScreen>
   }
 }
 
-// â”€â”€ Widgets auxiliares â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Widgets auxiliares ─────────────────────────────────────────────────────
 
 class _SectionTitle extends StatelessWidget {
   final String title;
@@ -602,11 +602,11 @@ class _FiltersPanel extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             children: [
-              // Filtro por acciÃ³n
+              // Filtro por acción
               DropdownButtonFormField<String>(
                 value: selectedAction,
                 decoration: const InputDecoration(
-                  labelText: 'Tipo de acciÃ³n',
+                  labelText: 'Tipo de acción',
                   border: OutlineInputBorder(),
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 12, vertical: 8),

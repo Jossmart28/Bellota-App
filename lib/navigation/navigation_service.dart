@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_keys.dart';
 import '../core/models/user_role.dart';
@@ -11,24 +11,24 @@ import '../screens/admin_panel_screen.dart';
 import '../screens/audit_dashboard_screen.dart';
 import '../screens/privacy_policy_screen.dart';
 
-/// Servicio de navegaciÃƒÂ³n que centraliza la lÃƒÂ³gica de redirecciÃƒÂ³n post-login.
+/// Servicio de navegación que centraliza la lógica de redirección post-login.
 ///
-/// Esta lÃƒÂ³gica estaba duplicada en [SplashScreen] y [LoginScreen].
-/// Ahora existe en un ÃƒÂºnico lugar, eliminando la posibilidad de divergencias.
+/// Esta lógica estaba duplicada en [SplashScreen] y [LoginScreen].
+/// Ahora existe en un único lugar, eliminando la posibilidad de divergencias.
 ///
-/// Orden de verificaciÃƒÂ³n del flujo de incorporaciÃƒÂ³n (usuarios estÃƒÂ¡ndar):
-/// 1. Ã‚Â¿CompletÃƒÂ³ el onboarding? Ã¢â€ â€™ [OnboardingScreen]
-/// 2. Ã‚Â¿CompletÃƒÂ³ el tour del calendario? Ã¢â€ â€™ [CalendarTourScreen]
-/// 3. Ã‚Â¿CompletÃƒÂ³ los datos personales? Ã¢â€ â€™ [PersonalDataScreen]
-/// 4. Todos completados Ã¢â€ â€™ [DashboardScreen]
+/// Orden de verificación del flujo de incorporación (usuarios estándar):
+/// 1. ¿Completó el onboarding? â†’ [OnboardingScreen]
+/// 2. ¿Completó el tour del calendario? â†’ [CalendarTourScreen]
+/// 3. ¿Completó los datos personales? â†’ [PersonalDataScreen]
+/// 4. Todos completados â†’ [DashboardScreen]
 ///
-/// Roles especiales omiten el flujo de incorporaciÃƒÂ³n:
-/// - [UserRole.admin] Ã¢â€ â€™ [AdminPanelScreen] (panel de gestiÃƒÂ³n)
-/// - [UserRole.auditor] Ã¢â€ â€™ [AuditDashboardScreen] (dashboard de auditorÃƒÂ­a)
+/// Roles especiales omiten el flujo de incorporación:
+/// - [UserRole.admin] â†’ [AdminPanelScreen] (panel de gestión)
+/// - [UserRole.auditor] â†’ [AuditDashboardScreen] (dashboard de auditoría)
 abstract final class NavigationService {
   NavigationService._();
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Rutas con nombre Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Rutas con nombre â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
@@ -41,24 +41,24 @@ abstract final class NavigationService {
   static const String map = '/map';
   static const String symptomLog = '/symptom-log';
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Rutas RBAC Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Rutas RBAC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   /// Pantalla principal del administrador.
   static const String adminPanel = '/admin';
 
   /// Dashboard principal del auditor.
   static const String auditDashboard = '/audit';
 
-  /// Visor de logs de auditorÃƒÂ­a.
+  /// Visor de logs de auditoría.
   static const String auditLogs = '/audit/logs';
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ ResoluciÃƒÂ³n de pantalla inicial Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Resolución de pantalla inicial â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Determina la pantalla correcta para un usuario **autenticado**
-  /// segÃƒÂºn su rol y progreso en el flujo de incorporaciÃƒÂ³n.
+  /// según su rol y progreso en el flujo de incorporación.
   ///
-  /// - Admin Ã¢â€ â€™ [AdminPanelScreen] (omite onboarding)
-  /// - Auditor Ã¢â€ â€™ [AuditDashboardScreen] (omite onboarding)
-  /// - Usuario Ã¢â€ â€™ flujo de incorporaciÃƒÂ³n Ã¢â€ â€™ [DashboardScreen]
+  /// - Admin â†’ [AdminPanelScreen] (omite onboarding)
+  /// - Auditor â†’ [AuditDashboardScreen] (omite onboarding)
+  /// - Usuario â†’ flujo de incorporación â†’ [DashboardScreen]
   static Widget resolveHomeScreen(SharedPreferences prefs) {
     final roleStr = prefs.getString(AppKeys.userRole) ?? 'usuario';
 
@@ -84,7 +84,7 @@ abstract final class NavigationService {
     }
   }
 
-  /// Determina la pantalla raÃƒÂ­z basÃƒÂ¡ndose en si hay sesiÃƒÂ³n activa.
+  /// Determina la pantalla raíz basándose en si hay sesión activa.
   ///
   /// Usar en el splash para decidir entre ir a login o al home del usuario.
   static Widget resolveRootScreen(SharedPreferences prefs) {
@@ -93,9 +93,9 @@ abstract final class NavigationService {
     return resolveHomeScreen(prefs);
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Helpers de navegaciÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // â”€â”€ Helpers de navegación â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  /// Navega a la [screen] reemplazando toda la pila de navegaciÃƒÂ³n.
+  /// Navega a la [screen] reemplazando toda la pila de navegación.
   static void goAndClearStack(BuildContext context, Widget screen) {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => screen),

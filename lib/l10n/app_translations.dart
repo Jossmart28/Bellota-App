@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 class AppTranslations {
   static const Map<String, Map<String, Map<String, String>>> translations = {
@@ -617,3 +616,4 @@ class AppTranslations {
     return key;
   }
 }
+

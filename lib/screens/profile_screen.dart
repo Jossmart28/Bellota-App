@@ -1,4 +1,4 @@
-import '../core/constants/app_keys.dart';
+﻿import '../core/constants/app_keys.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -886,6 +886,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
     return SingleChildScrollView(
       physics: ClampingScrollPhysics(),
       child: Padding(
@@ -940,6 +943,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+    );
+        },
     );
   }
 
