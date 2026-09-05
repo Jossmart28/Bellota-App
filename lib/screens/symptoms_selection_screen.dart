@@ -17,12 +17,11 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
   final TextEditingController _customSymptomController = TextEditingController();
   final List<String> _customSymptomsList = [];
 
-  // Define categories, keys, and icons
-  final List<Map<String, dynamic>> _symptomCategories = [
+  List<Map<String, dynamic>> get _symptomCategories => [
     {
       'key': 'whole_body',
       'icon': Icons.accessibility_new_rounded,
-      'color': BellotaColors.chiltoma,
+      'color': Theme.of(context).bellotaColors.chiltoma,
       'symptoms': [
         {'key': 'fever', 'icon': Icons.thermostat_rounded},
         {'key': 'body_ache', 'icon': Icons.sick_outlined},
@@ -39,7 +38,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     {
       'key': 'head',
       'icon': Icons.face_rounded,
-      'color': BellotaColors.asuncion,
+      'color': Theme.of(context).bellotaColors.asuncion,
       'symptoms': [
         {'key': 'headache', 'icon': Icons.psychology_outlined},
         {'key': 'vertigo', 'icon': Icons.swap_horiz_rounded},
@@ -52,7 +51,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     {
       'key': 'abdomen',
       'icon': Icons.favorite_border_rounded,
-      'color': BellotaColors.chilero,
+      'color': Theme.of(context).bellotaColors.chilero,
       'symptoms': [
         {'key': 'abdominal_pain', 'icon': Icons.spa_outlined},
         {'key': 'abdominal_distension', 'icon': Icons.circle_outlined},
@@ -68,7 +67,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     {
       'key': 'other',
       'icon': Icons.more_horiz_rounded,
-      'color': BellotaColors.melon,
+      'color': Theme.of(context).bellotaColors.melon,
       'symptoms': [
         {'key': 'breast_tenderness', 'icon': Icons.favorite_rounded},
         {'key': 'abnormal_discharge', 'icon': Icons.opacity_rounded},
@@ -156,9 +155,9 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BellotaColors.basilica,
+      backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
-        backgroundColor: BellotaColors.blanco,
+        backgroundColor: Theme.of(context).bellotaColors.blanco,
         elevation: 0,
         scrolledUnderElevation: 0,
         leadingWidth: 80,
@@ -166,7 +165,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
           onPressed: () => Navigator.pop(context),
           child: Text(
             _getTranslated('cancel'),
-            style: TextStyle(color: BellotaColors.textoDark, fontSize: 16),
+            style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontSize: 16),
           ),
         ),
         title: Column(
@@ -175,7 +174,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             Text(
               _getTranslated('symptoms'),
               style: TextStyle(
-                color: BellotaColors.textoDark,
+                color: Theme.of(context).bellotaColors.textoDark,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
@@ -185,7 +184,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                 '${_selectedSymptoms.length} ${_getTranslated('selected_count')}',
                 style: TextStyle(
                   fontSize: 11,
-                  color: BellotaColors.textoMedio,
+                  color: Theme.of(context).bellotaColors.textoMedio,
                 ),
               ),
           ],
@@ -197,7 +196,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
               margin: EdgeInsets.symmetric(horizontal: 8),
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: BellotaColors.chilero,
+                color: Theme.of(context).bellotaColors.chilero,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -212,7 +211,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             child: Text(
               _getTranslated('confirm'),
               style: TextStyle(
-                color: BellotaColors.chilero,
+                color: Theme.of(context).bellotaColors.chilero,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -243,11 +242,11 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 12.0),
       decoration: BoxDecoration(
-        color: BellotaColors.blanco,
+        color: Theme.of(context).bellotaColors.blanco,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: BellotaColors.melon.withValues(alpha: 0.07),
+            color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.07),
             blurRadius: 14,
             offset: Offset(0, 4),
           ),
@@ -276,7 +275,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: BellotaColors.textoDark,
+                      color: Theme.of(context).bellotaColors.textoDark,
                     ),
                   ),
                 ),
@@ -284,19 +283,19 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                   '$selectedCount/$totalCount',
                   style: TextStyle(
                     fontSize: 12,
-                    color: BellotaColors.textoMedio,
+                    color: Theme.of(context).bellotaColors.textoMedio,
                   ),
                 ),
               ],
             ),
           ),
-          Divider(color: BellotaColors.nancite, height: 1, thickness: 1),
+          Divider(color: Theme.of(context).bellotaColors.nancite, height: 1, thickness: 1),
           ListView.separated(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemCount: symptoms.length,
             separatorBuilder: (context, index) => Divider(
-              color: BellotaColors.nancite,
+              color: Theme.of(context).bellotaColors.nancite,
               height: 1,
               thickness: 1,
             ),
@@ -346,7 +345,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                 label,
                 style: TextStyle(
                   fontSize: 14,
-                  color: BellotaColors.textoDark,
+                  color: Theme.of(context).bellotaColors.textoDark,
                 ),
               ),
             ),
@@ -354,12 +353,12 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: isSelected ? BellotaColors.chilero : Colors.transparent,
+                color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: isSelected
-                      ? BellotaColors.chilero
-                      : BellotaColors.textoMedio.withValues(alpha: 0.4),
+                      ? Theme.of(context).bellotaColors.chilero
+                      : Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.4),
                   width: 1.5,
                 ),
               ),
@@ -377,11 +376,11 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 32.0),
       decoration: BoxDecoration(
-        color: BellotaColors.blanco,
+        color: Theme.of(context).bellotaColors.blanco,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: BellotaColors.melon.withValues(alpha: 0.07),
+            color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.07),
             blurRadius: 14,
             offset: Offset(0, 4),
           ),
@@ -394,7 +393,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
             child: Row(
               children: [
-                Icon(Icons.add_circle_outline, color: BellotaColors.chilero, size: 24),
+                Icon(Icons.add_circle_outline, color: Theme.of(context).bellotaColors.chilero, size: 24),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -402,14 +401,14 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: BellotaColors.textoDark,
+                      color: Theme.of(context).bellotaColors.textoDark,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          Divider(color: BellotaColors.nancite, height: 1, thickness: 1),
+          Divider(color: Theme.of(context).bellotaColors.nancite, height: 1, thickness: 1),
           Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
@@ -420,15 +419,15 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                   onSubmitted: (_) => _saveCustomSymptom(),
                   decoration: InputDecoration(
                     hintText: _getTranslated('custom_symptoms'),
-                    hintStyle: TextStyle(color: BellotaColors.textoMedio),
+                    hintStyle: TextStyle(color: Theme.of(context).bellotaColors.textoMedio),
                     filled: true,
-                    fillColor: BellotaColors.nancite,
+                    fillColor: Theme.of(context).bellotaColors.nancite,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.add_rounded, color: BellotaColors.chilero),
+                      icon: Icon(Icons.add_rounded, color: Theme.of(context).bellotaColors.chilero),
                       onPressed: _saveCustomSymptom,
                     ),
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -439,7 +438,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                   _getTranslated('press_enter'),
                   style: TextStyle(
                     fontSize: 11,
-                    color: BellotaColors.textoMedio,
+                    color: Theme.of(context).bellotaColors.textoMedio,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -450,7 +449,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                     physics: NeverScrollableScrollPhysics(),
                     itemCount: _customSymptomsList.length,
                     separatorBuilder: (context, index) => Divider(
-                      color: BellotaColors.nancite,
+                      color: Theme.of(context).bellotaColors.nancite,
                       height: 1,
                       thickness: 1,
                     ),
@@ -468,14 +467,14 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                                   text,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: BellotaColors.textoDark,
+                                    color: Theme.of(context).bellotaColors.textoDark,
                                   ),
                                 ),
                               ),
                               IconButton(
                                 constraints: BoxConstraints(),
                                 padding: EdgeInsets.zero,
-                                icon: Icon(Icons.close_rounded, size: 16, color: BellotaColors.textoMedio),
+                                icon: Icon(Icons.close_rounded, size: 16, color: Theme.of(context).bellotaColors.textoMedio),
                                 onPressed: () => _deleteCustomSymptom(text),
                               ),
                               SizedBox(width: 12),
@@ -483,12 +482,12 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                                 width: 22,
                                 height: 22,
                                 decoration: BoxDecoration(
-                                  color: isSelected ? BellotaColors.chilero : Colors.transparent,
+                                  color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
                                     color: isSelected
-                                        ? BellotaColors.chilero
-                                        : BellotaColors.textoMedio.withValues(alpha: 0.4),
+                                        ? Theme.of(context).bellotaColors.chilero
+                                        : Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.4),
                                     width: 1.5,
                                   ),
                                 ),
@@ -511,3 +510,4 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     );
   }
 }
+

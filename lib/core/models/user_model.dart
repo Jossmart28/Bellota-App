@@ -1,9 +1,9 @@
-import '../services/user_role.dart';
+﻿import '../models/user_role.dart';
 
 /// Modelo tipado para los datos del usuario autenticado.
 ///
 /// Reemplaza el uso de `Map<String, dynamic>` retornado por la base de datos,
-/// aportando type-safety, autocompletado y validación en tiempo de compilación.
+/// aportando type-safety, autocompletado y validaciÃ³n en tiempo de compilaciÃ³n.
 class UserModel {
   final int id;
   final String name;
@@ -21,7 +21,7 @@ class UserModel {
     required this.createdAt,
   });
 
-  // ── Deserialización ────────────────────────────────────────────────────────
+  // â”€â”€ DeserializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Crea un [UserModel] a partir de un mapa de SQLite.
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -49,7 +49,7 @@ class UserModel {
     }
   }
 
-  // ── Serialización ──────────────────────────────────────────────────────────
+  // â”€â”€ SerializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Convierte el modelo a un mapa compatible con SQLite.
   Map<String, dynamic> toMap() => {
@@ -61,10 +61,10 @@ class UserModel {
         'created_at': createdAt.toIso8601String(),
       };
 
-  // ── Utilidades ─────────────────────────────────────────────────────────────
+  // â”€â”€ Utilidades â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Retorna el primer nombre del usuario.
-  String get firstName => name.split(' ').first;
+  String get firstName => name.trim().isEmpty ? '' : name.trim().split(' ').first;
 
   /// `true` si el usuario es administrador.
   bool get isAdmin => role == UserRole.admin;
@@ -72,7 +72,7 @@ class UserModel {
   /// `true` si el usuario es auditor.
   bool get isAuditor => role == UserRole.auditor;
 
-  /// `true` si el usuario es un usuario estándar.
+  /// `true` si el usuario es un usuario estÃ¡ndar.
   bool get isUsuario => role == UserRole.usuario;
 
   /// Crea una copia del modelo con los campos especificados modificados.
@@ -99,9 +99,18 @@ class UserModel {
       'UserModel(id: $id, name: $name, email: $email, role: ${role.name})';
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || (other is UserModel && other.id == id);
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is UserModel &&
+        other.id == id &&
+        other.name == name &&
+        other.email == email &&
+        other.role == role &&
+        other.isActive == isActive &&
+        other.createdAt == createdAt;
+  }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => Object.hash(id, name, email, role, isActive, createdAt);
 }
+

@@ -1,3 +1,4 @@
+﻿import '../core/constants/app_keys.dart';
 import 'dart:convert';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
@@ -93,11 +94,11 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
-    int? uid = prefs.getInt('userId');
-    String email = prefs.getString('userEmail') ?? '';
+    int? uid = prefs.getInt(AppKeys.userId);
+    String email = prefs.getString(AppKeys.userEmail) ?? '';
     if (uid == null && email.isNotEmpty) {
       uid = await DatabaseHelper.instance.getUserIdByEmail(email);
-      if (uid != null) await prefs.setInt('userId', uid);
+      if (uid != null) await prefs.setInt(AppKeys.userId, uid);
     }
     setState(() => _userId = uid);
   }
@@ -159,11 +160,11 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
         return Scaffold(
-          backgroundColor: BellotaColors.basilica,
+          backgroundColor: Theme.of(context).bellotaColors.basilica,
           body: SafeArea(
         child: Stack(
           children: [
-            // ── Main Calendar Content ──
+            // â”€â”€ Main Calendar Content â”€â”€
             Positioned.fill(
               child: Column(
                 children: [
@@ -176,7 +177,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               ),
             ),
 
-            // ── Tour Overlay (Step 0) ──
+            // â”€â”€ Tour Overlay (Step 0) â”€â”€
             if (_tourStep == 0)
               FadeTransition(
                 opacity: _overlayFadeAnim,
@@ -194,7 +195,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
       padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Row(
         children: [
-          BellotaIcon(color: BellotaColors.chilero, size: 28),
+          BellotaIcon(color: Theme.of(context).bellotaColors.chilero, size: 28),
           SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -203,7 +204,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 Text(
                   '${_monthNames[_displayDate.month - 1]} ${_displayDate.year}',
                   style: TextStyle(
-                    color: BellotaColors.textoDark,
+                    color: Theme.of(context).bellotaColors.textoDark,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
@@ -211,7 +212,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 Text(
                   _tourStep == 0 ? AppTranslations.get('onboarding', 'lets_start', languageNotifier.currentLang) : AppTranslations.get('onboarding', 'tap_start_day', languageNotifier.currentLang),
                   style: TextStyle(
-                    color: BellotaColors.textoMedio.withValues(alpha: 0.7),
+                    color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.7),
                     fontSize: 13,
                   ),
                 ),
@@ -222,13 +223,13 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
           Row(
             children: [
               IconButton(
-                icon: Icon(Icons.chevron_left, color: BellotaColors.chilero),
+                icon: Icon(Icons.chevron_left, color: Theme.of(context).bellotaColors.chilero),
                 onPressed: () => setState(() {
                   _displayDate = DateTime(_displayDate.year, _displayDate.month - 1, 1);
                 }),
               ),
               IconButton(
-                icon: Icon(Icons.chevron_right, color: BellotaColors.chilero),
+                icon: Icon(Icons.chevron_right, color: Theme.of(context).bellotaColors.chilero),
                 onPressed: () => setState(() {
                   _displayDate = DateTime(_displayDate.year, _displayDate.month + 1, 1);
                 }),
@@ -259,12 +260,12 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 margin: EdgeInsets.symmetric(horizontal: 2),
                 padding: EdgeInsets.symmetric(vertical: 4),
                 decoration: BoxDecoration(
-                  color: BellotaColors.chilero,
+                  color: Theme.of(context).bellotaColors.chilero,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Text(d,
-                    style: TextStyle(color: BellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
+                    style: TextStyle(color: Theme.of(context).bellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
                   ),
                 ),
               ),
@@ -311,21 +312,21 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                   decoration: BoxDecoration(
                     color: isFuture
                         ? Colors.grey[200]
-                        : (isSelected ? BellotaColors.chilero : BellotaColors.blanco),
+                        : (isSelected ? Theme.of(context).bellotaColors.chilero : Theme.of(context).bellotaColors.blanco),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isSelected ? BellotaColors.chilero : Colors.grey[300]!,
+                      color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.grey[300]!,
                       width: isSelected ? 2 : 1,
                     ),
                     boxShadow: isSelected
-                        ? [BoxShadow(color: BellotaColors.chilero.withValues(alpha: 0.4), blurRadius: 4)]
+                        ? [BoxShadow(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.4), blurRadius: 4)]
                         : [],
                   ),
                   child: Center(
                     child: Text(
                       '${date.day}',
                       style: TextStyle(
-                        color: isFuture ? Colors.grey[400] : (isSelected ? BellotaColors.blanco : BellotaColors.textoDark),
+                        color: isFuture ? Colors.grey[400] : (isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.textoDark),
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                         fontSize: 13,
                       ),
@@ -354,19 +355,19 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 width: double.infinity,
                 padding: EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: BellotaColors.chilero.withValues(alpha: 0.1),
+                  color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: BellotaColors.chilero.withValues(alpha: 0.4), width: 1.5),
+                  border: Border.all(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.4), width: 1.5),
                 ),
                 child: Column(
                   children: [
-                    BellotaIcon(color: BellotaColors.chilero, size: 32),
+                    BellotaIcon(color: Theme.of(context).bellotaColors.chilero, size: 32),
                     SizedBox(height: 10),
                     Text(
                       '${_dayNames[_selectedPeriodStart!.weekday == 7 ? 0 : _selectedPeriodStart!.weekday]}, ${_selectedPeriodStart!.day} de ${_monthNames[_selectedPeriodStart!.month - 1]}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: BellotaColors.textoDark,
+                        color: Theme.of(context).bellotaColors.textoDark,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
                         height: 1.4,
@@ -376,7 +377,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                     Text(
                       AppTranslations.get('symptoms_and_actions', 'last_period_start', languageNotifier.currentLang),
                       style: TextStyle(
-                        color: BellotaColors.textoMedio.withValues(alpha: 0.7),
+                        color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -394,8 +395,8 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               child: ElevatedButton(
                 onPressed: _selectedPeriodStart != null ? _confirmPeriodStart : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: BellotaColors.chilero,
-                  foregroundColor: BellotaColors.blanco,
+                  backgroundColor: Theme.of(context).bellotaColors.chilero,
+                  foregroundColor: Theme.of(context).bellotaColors.blanco,
                   padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   elevation: 4,
@@ -412,7 +413,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               AppTranslations.get('onboarding', 'tap_last_period_start', languageNotifier.currentLang),
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: BellotaColors.textoMedio,
+                color: Theme.of(context).bellotaColors.textoMedio,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
@@ -425,7 +426,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
 
   Widget _buildTourOverlay() {
     return Container(
-      color: BellotaColors.textoDark.withValues(alpha: 0.72),
+      color: Theme.of(context).bellotaColors.textoDark.withValues(alpha: 0.72),
       child: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 32),
@@ -435,13 +436,13 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               // Animated bellota
               ScaleTransition(
                 scale: _pulseAnim,
-                child: BellotaIcon(color: BellotaColors.nancite, size: 64),
+                child: BellotaIcon(color: Theme.of(context).bellotaColors.nancite, size: 64),
               ),
               SizedBox(height: 32),
               Text(
                 AppTranslations.get('onboarding', 'welcome', languageNotifier.currentLang),
                 style: TextStyle(
-                  color: BellotaColors.blanco,
+                  color: Theme.of(context).bellotaColors.blanco,
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                 ),
@@ -451,7 +452,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               Text(
                 AppTranslations.get('onboarding', 'instructions', languageNotifier.currentLang),
                 style: TextStyle(
-                  color: BellotaColors.blanco.withValues(alpha: 0.85),
+                  color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.85),
                   fontSize: 15,
                   height: 1.6,
                 ),
@@ -462,12 +463,12 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               Column(
                 children: [
                   Icon(Icons.arrow_downward_rounded,
-                      color: BellotaColors.nancite.withValues(alpha: 0.8), size: 28),
+                      color: Theme.of(context).bellotaColors.nancite.withValues(alpha: 0.8), size: 28),
                   SizedBox(height: 4),
                   Text(
                     AppTranslations.get('onboarding', 'calendar_is_below', languageNotifier.currentLang),
                     style: TextStyle(
-                      color: BellotaColors.nancite.withValues(alpha: 0.7),
+                      color: Theme.of(context).bellotaColors.nancite.withValues(alpha: 0.7),
                       fontSize: 12,
                     ),
                   ),
@@ -479,8 +480,8 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                 child: ElevatedButton(
                   onPressed: _dismissOverlay,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: BellotaColors.chilero,
-                    foregroundColor: BellotaColors.blanco,
+                    backgroundColor: Theme.of(context).bellotaColors.chilero,
+                    foregroundColor: Theme.of(context).bellotaColors.blanco,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     elevation: 6,
@@ -498,3 +499,6 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
     );
   }
 }
+
+
+

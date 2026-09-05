@@ -7,6 +7,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../database/database_helper.dart';
+import '../models/notification_models.dart';
 import 'cycle_service.dart';
 
 /// IDs únicos para cada tipo de notificación.
@@ -22,55 +23,7 @@ class NotifId {
   static const int apptBase = 200;   // 200, 201, 202 …
 }
 
-/// Modelo de un horario de píldora
-class PillTime {
-  final int hour;
-  final int minute;
 
-  const PillTime({required this.hour, required this.minute});
-
-  factory PillTime.fromJson(Map<String, dynamic> j) =>
-      PillTime(hour: j['h'] as int, minute: j['m'] as int);
-
-  Map<String, dynamic> toJson() => {'h': hour, 'm': minute};
-
-  String label() {
-    final h = hour.toString().padLeft(2, '0');
-    final m = minute.toString().padLeft(2, '0');
-    return '$h:$m';
-  }
-}
-
-/// Modelo de una cita médica semanal
-class WeeklyAppointment {
-  /// 1=Lunes … 7=Domingo (conforme DateTime.weekday)
-  final int weekday;
-  final int hour;
-  final int minute;
-
-  const WeeklyAppointment({
-    required this.weekday,
-    required this.hour,
-    required this.minute,
-  });
-
-  factory WeeklyAppointment.fromJson(Map<String, dynamic> j) =>
-      WeeklyAppointment(
-        weekday: j['wd'] as int,
-        hour: j['h'] as int,
-        minute: j['m'] as int,
-      );
-
-  Map<String, dynamic> toJson() => {'wd': weekday, 'h': hour, 'm': minute};
-
-  static const _days = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-
-  String label() {
-    final h = hour.toString().padLeft(2, '0');
-    final m = minute.toString().padLeft(2, '0');
-    return '${_days[weekday]}  $h:$m';
-  }
-}
 
 /// Servicio singleton que gestiona todas las notificaciones locales de Bellota.
 class NotificationService {
@@ -229,6 +182,7 @@ class NotificationService {
       await _schedulePeriodReminder(
         lastPeriodStart: lastPeriodStart,
         cycleDuration: cycleDuration,
+        periodDuration: periodDuration,
         withSound: notifSonidos,
       );
     }
@@ -319,13 +273,14 @@ class NotificationService {
   Future<void> _schedulePeriodReminder({
     required DateTime lastPeriodStart,
     required int cycleDuration,
+    required int periodDuration,
     required bool withSound,
   }) async {
     final cycleInfo = CycleService.instance.calculateCycleInfo(
       referenceDate: DateTime.now(),
       lastPeriodStart: lastPeriodStart,
       cycleDuration: cycleDuration,
-      periodDuration: 5,
+      periodDuration: periodDuration,
     );
 
     final nextPeriod = cycleInfo.nextPeriodDate;
@@ -514,7 +469,14 @@ class NotificationService {
   }) async {
     final now = tz.TZDateTime.now(tz.local);
     int daysUntil = appointment.weekday - now.weekday;
-    if (daysUntil <= 0) daysUntil += 7;
+    if (daysUntil < 0) daysUntil += 7;
+    if (daysUntil == 0) {
+      // If today is appointment day, check if the scheduled time has already passed
+      final scheduledTime = DateTime(now.year, now.month, now.day, appointment.hour, appointment.minute);
+      if (scheduledTime.isBefore(now)) {
+        daysUntil = 7; // Already passed today, schedule for next week
+      }
+    }
 
     final target = now.add(Duration(days: daysUntil));
     final scheduledDate = tz.TZDateTime(

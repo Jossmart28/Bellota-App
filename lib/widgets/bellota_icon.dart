@@ -60,5 +60,5 @@ class _BellotaPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
+  bool shouldRepaint(covariant _BellotaPainter old) => old.color != color;
 }

@@ -4,13 +4,13 @@ import '../theme/bellota_colors.dart';
 /// Campo de texto estilizado con la paleta visual de Bellota.
 ///
 /// Widget reutilizable que reemplaza las implementaciones duplicadas
-/// que existían en [LoginScreen] y [RegisterScreen].
+/// que existÃ­an en [LoginScreen] y [RegisterScreen].
 ///
 /// Ejemplo de uso:
 /// ```dart
 /// BellotaTextField(
 ///   controller: _emailController,
-///   label: 'Correo electrónico',
+///   label: 'Correo electrÃ³nico',
 ///   hint: 'tu@correo.com',
 ///   prefixIcon: Icons.email_outlined,
 ///   keyboardType: TextInputType.emailAddress,
@@ -24,23 +24,32 @@ class BellotaTextField extends StatelessWidget {
   /// Etiqueta flotante que describe el campo.
   final String label;
 
-  /// Texto de ayuda visible cuando el campo está vacío.
+  /// Texto de ayuda visible cuando el campo estÃ¡ vacÃ­o.
   final String hint;
 
-  /// Ícono al inicio del campo.
+  /// Ãcono al inicio del campo.
   final IconData prefixIcon;
 
-  /// Si `true`, el texto se muestra oculto (para contraseñas).
+  /// Si `true`, el texto se muestra oculto (para contraseÃ±as).
   final bool obscureText;
 
-  /// Widget opcional al final del campo (ej: botón de visibilidad).
+  /// Widget opcional al final del campo (ej: botÃ³n de visibilidad).
   final Widget? suffixIcon;
 
-  /// Tipo de teclado a mostrar (ej: email, numérico).
+  /// Tipo de teclado a mostrar (ej: email, numÃ©rico).
   final TextInputType? keyboardType;
 
-  /// Función de validación. Retorna un mensaje de error o `null` si es válido.
+  /// FunciÃ³n de validaciÃ³n. Retorna un mensaje de error o `null` si es vÃ¡lido.
   final String? Function(String?)? validator;
+
+  /// Nodo de foco para control de teclado.
+  final FocusNode? focusNode;
+
+  /// Acción del teclado virtual (ej: 'Siguiente', 'Hecho').
+  final TextInputAction? textInputAction;
+
+  /// Sugerencias de autocompletado del SO.
+  final Iterable<String>? autofillHints;
 
   const BellotaTextField({
     super.key,
@@ -52,29 +61,36 @@ class BellotaTextField extends StatelessWidget {
     this.suffixIcon,
     this.keyboardType,
     this.validator,
+    this.focusNode,
+    this.textInputAction,
+    this.autofillHints,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
+      textInputAction: textInputAction,
+      autofillHints: autofillHints,
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
       style: Theme.of(context)
           .textTheme
           .bodyLarge
-          ?.copyWith(color: BellotaColors.blanco),
-      cursorColor: BellotaColors.blanco,
+          ?.copyWith(color: Theme.of(context).bellotaColors.blanco),
+      cursorColor: Theme.of(context).bellotaColors.blanco,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(
           prefixIcon,
-          color: BellotaColors.blanco.withValues(alpha: 0.75),
+          color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75),
         ),
         suffixIcon: suffixIcon,
       ),
     );
   }
 }
+

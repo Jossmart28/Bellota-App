@@ -1,4 +1,4 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
+﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -52,7 +52,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
   Widget build(BuildContext context) {
     final lang = languageNotifier.currentLang;
     return Scaffold(
-      backgroundColor: BellotaColors.basilica,
+      backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -60,13 +60,13 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
           onPressed: () => Navigator.pop(context),
           child: Text(
             AppTranslations.get('registration_form', 'cancel', lang),
-            style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+            style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
           ),
         ),
         leadingWidth: 80,
         title: Text(
           AppTranslations.get('registration_form', 'sex', lang),
-          style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         centerTitle: true,
         actions: [
@@ -76,7 +76,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
             },
             child: Text(
               AppTranslations.get('onboarding', 'confirm', lang),
-              style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+              style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
             ),
           ),
         ],
@@ -90,7 +90,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: BellotaColors.melon.withValues(alpha: 0.08),
+                  color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.08),
                   blurRadius: 10,
                   offset: Offset(0, 4),
                 ),
@@ -123,20 +123,20 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
     switch (key) {
       case 'no_contraception':
         iconData = Icons.do_not_disturb_alt_outlined;
-        iconColor = BellotaColors.chiltoma;
+        iconColor = Theme.of(context).bellotaColors.chiltoma;
         break;
       case 'condom':
         iconData = Icons.shield_outlined;
-        iconColor = BellotaColors.asuncion;
+        iconColor = Theme.of(context).bellotaColors.asuncion;
         break;
       case 'no_ejaculation':
         iconData = Icons.block_outlined;
-        iconColor = BellotaColors.melon;
+        iconColor = Theme.of(context).bellotaColors.melon;
         break;
       case 'short_pill':
       default:
         iconData = Icons.medication_outlined;
-        iconColor = BellotaColors.chilero;
+        iconColor = Theme.of(context).bellotaColors.chilero;
         break;
     }
 
@@ -164,7 +164,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
                     AppTranslations.get('registration_form', key, lang),
                     style: TextStyle(
                       fontSize: 16,
-                      color: BellotaColors.textoDark,
+                      color: Theme.of(context).bellotaColors.textoDark,
                     ),
                   ),
                 ],
@@ -176,10 +176,10 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),
                 border: isSelected ? null : Border.all(
-                  color: BellotaColors.textoMedio.withValues(alpha: 0.4),
+                  color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.4),
                   width: 2,
                 ),
-                color: isSelected ? BellotaColors.chilero : Colors.transparent,
+                color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
               ),
               child: isSelected
                   ? Icon(Icons.check, size: 16, color: Colors.white)
@@ -191,3 +191,4 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
     );
   }
 }
+

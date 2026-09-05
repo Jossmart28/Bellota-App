@@ -5,81 +5,81 @@ import 'bellota_colors.dart';
 class BellotaTheme {
   BellotaTheme._();
 
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: BellotaColors.chilero,
-        primary: BellotaColors.chilero,
-        secondary: BellotaColors.melon,
-        surface: BellotaColors.basilica,
-        onPrimary: BellotaColors.blanco,
-        onSecondary: BellotaColors.blanco,
-      ),
-      textTheme: TextTheme(
+  static final ThemeData lightTheme = ThemeData(
+    extensions: const [BellotaColors.light],
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: BellotaColors.light.chilero,
+      primary: BellotaColors.light.chilero,
+      secondary: BellotaColors.light.melon,
+      surface: BellotaColors.light.basilica,
+      onPrimary: BellotaColors.light.blanco,
+      onSecondary: BellotaColors.light.blanco,
+    ),
+    textTheme: TextTheme(
         displayLarge: TextStyle(
           fontFamily: 'Estrella',
           fontSize: 32,
           fontWeight: FontWeight.w700,
-          color: BellotaColors.blanco,
+          color: BellotaColors.light.blanco,
           letterSpacing: 1.2,
         ),
         displayMedium: GoogleFonts.poppins(
           fontSize: 26,
           fontWeight: FontWeight.w600,
-          color: BellotaColors.textoDark,
+          color: BellotaColors.light.textoDark,
         ),
         headlineLarge: GoogleFonts.poppins(
           fontSize: 24,
           fontWeight: FontWeight.w700,
-          color: BellotaColors.textoDark,
+          color: BellotaColors.light.textoDark,
         ),
         headlineMedium: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: BellotaColors.textoDark,
+          color: BellotaColors.light.textoDark,
         ),
         titleLarge: GoogleFonts.poppins(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: BellotaColors.textoDark,
+          color: BellotaColors.light.textoDark,
         ),
         titleMedium: GoogleFonts.poppins(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: BellotaColors.textoMedio,
+          color: BellotaColors.light.textoMedio,
         ),
         bodyLarge: GoogleFonts.poppins(
           fontSize: 16,
           fontWeight: FontWeight.w400,
-          color: BellotaColors.textoDark,
+          color: BellotaColors.light.textoDark,
         ),
         bodyMedium: GoogleFonts.poppins(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: BellotaColors.textoMedio,
+          color: BellotaColors.light.textoMedio,
         ),
         bodySmall: GoogleFonts.poppins(
           fontSize: 12,
           fontWeight: FontWeight.w300,
-          color: BellotaColors.textoMedio,
+          color: BellotaColors.light.textoMedio,
         ),
         labelLarge: GoogleFonts.poppins(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: BellotaColors.blanco,
+          color: BellotaColors.light.blanco,
           letterSpacing: 0.5,
         ),
         labelMedium: GoogleFonts.poppins(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: BellotaColors.blanco,
+          color: BellotaColors.light.blanco,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: BellotaColors.chilero,
-          foregroundColor: BellotaColors.blanco,
+          backgroundColor: BellotaColors.light.chilero,
+          foregroundColor: BellotaColors.light.blanco,
           minimumSize: Size(double.infinity, 56),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
@@ -98,113 +98,129 @@ class BellotaTheme {
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.4)),
+          borderSide: BorderSide(color: BellotaColors.light.blanco.withValues(alpha: 0.4)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: BellotaColors.blanco.withValues(alpha: 0.4)),
+          borderSide: BorderSide(color: BellotaColors.light.blanco.withValues(alpha: 0.4)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: BellotaColors.blanco, width: 2),
+          borderSide: BorderSide(color: BellotaColors.light.blanco, width: 2),
         ),
         hintStyle: GoogleFonts.poppins(
-          color: BellotaColors.blanco.withValues(alpha: 0.7),
+          color: BellotaColors.light.blanco.withValues(alpha: 0.7),
           fontSize: 14,
         ),
         labelStyle: GoogleFonts.poppins(
-          color: BellotaColors.blanco.withValues(alpha: 0.8),
+          color: BellotaColors.light.blanco.withValues(alpha: 0.8),
           fontSize: 14,
         ),
-        prefixIconColor: BellotaColors.blanco.withValues(alpha: 0.8),
-        suffixIconColor: BellotaColors.blanco.withValues(alpha: 0.8),
+        prefixIconColor: BellotaColors.light.blanco.withValues(alpha: 0.8),
+        suffixIconColor: BellotaColors.light.blanco.withValues(alpha: 0.8),
       ),
-      scaffoldBackgroundColor: BellotaColors.nancite,
+      scaffoldBackgroundColor: BellotaColors.light.nancite,
       appBarTheme: AppBarTheme(
-        backgroundColor: BellotaColors.chilero,
-        foregroundColor: BellotaColors.blanco,
+        backgroundColor: BellotaColors.light.chilero,
+        foregroundColor: BellotaColors.light.blanco,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: BellotaColors.blanco,
+          color: BellotaColors.light.blanco,
         ),
       ),
     );
-  }
 
-  static ThemeData get darkTheme {
-    Color darkBg = Color(0xFF1A0F0D);
-    Color darkCard = Color(0xFF2C1A17);
-    Color darkTextPrimary = Color(0xFFF2E4D4);
-    Color darkTextSecondary = Color(0xFFBB9A90);
-    Color darkChilero = Color(0xFFC25048);
-    Color darkMelon = Color(0xFFD9754A);
-    Color darkBorder = Color(0xFF3D2420);
-
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.dark(
-        primary: darkChilero,
-        secondary: darkMelon,
-        surface: darkCard,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: darkTextPrimary,
+  static final ThemeData darkTheme = ThemeData(
+    extensions: const [BellotaColors.dark],
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: ColorScheme.dark(
+      primary: BellotaColors.dark.chilero,
+      secondary: BellotaColors.dark.melon,
+      surface: BellotaColors.dark.basilica,
+      onPrimary: BellotaColors.dark.blanco,
+      onSecondary: BellotaColors.dark.blanco,
+      onSurface: BellotaColors.dark.textoDark,
+    ),
+    scaffoldBackgroundColor: BellotaColors.dark.nancite,
+    cardColor: BellotaColors.dark.basilica,
+    dividerColor: BellotaColors.dark.blanco.withValues(alpha: 0.1),
+    textTheme: TextTheme(
+      displayLarge: TextStyle(
+        fontFamily: 'Estrella',
+        fontSize: 32,
+        fontWeight: FontWeight.w700,
+        color: BellotaColors.dark.textoDark,
+        letterSpacing: 1.2,
       ),
-      scaffoldBackgroundColor: darkBg,
-      cardColor: darkCard,
-      dividerColor: darkBorder,
-      textTheme: TextTheme(
-        displayLarge: TextStyle(
-          fontFamily: 'Estrella',
-          fontSize: 32,
-          fontWeight: FontWeight.w700,
-          color: darkTextPrimary,
-          letterSpacing: 1.2,
+      displayMedium: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.w600, color: BellotaColors.dark.textoDark),
+      headlineLarge: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w700, color: BellotaColors.dark.textoDark),
+      headlineMedium: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: BellotaColors.dark.textoDark),
+      titleLarge: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: BellotaColors.dark.textoDark),
+      titleMedium: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500, color: BellotaColors.dark.textoMedio),
+      bodyLarge: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400, color: BellotaColors.dark.textoDark),
+      bodyMedium: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400, color: BellotaColors.dark.textoMedio),
+      bodySmall: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w300, color: BellotaColors.dark.textoMedio),
+      labelLarge: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: BellotaColors.dark.blanco, letterSpacing: 0.5),
+      labelMedium: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: BellotaColors.dark.blanco),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: BellotaColors.dark.chilero,
+        foregroundColor: BellotaColors.dark.blanco,
+        minimumSize: Size(double.infinity, 56),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
         ),
-        displayMedium: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.w600, color: darkTextPrimary),
-        headlineLarge: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w700, color: darkTextPrimary),
-        headlineMedium: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: darkTextPrimary),
-        titleLarge: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: darkTextPrimary),
-        titleMedium: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500, color: darkTextSecondary),
-        bodyLarge: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400, color: darkTextPrimary),
-        bodyMedium: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w400, color: darkTextSecondary),
-        bodySmall: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w300, color: darkTextSecondary),
-        labelLarge: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white, letterSpacing: 0.5),
-        labelMedium: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: darkChilero,
-          foregroundColor: Colors.white,
-          minimumSize: Size(double.infinity, 56),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-          textStyle: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 0.5),
-          elevation: 0,
+        textStyle: GoogleFonts.poppins(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
         ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: darkCard,
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: darkBorder)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: darkBorder)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: darkChilero, width: 2)),
-        hintStyle: GoogleFonts.poppins(color: darkTextSecondary, fontSize: 14),
-        labelStyle: GoogleFonts.poppins(color: darkTextSecondary, fontSize: 14),
-        prefixIconColor: darkTextSecondary,
-        suffixIconColor: darkTextSecondary,
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: darkCard,
-        foregroundColor: darkTextPrimary,
         elevation: 0,
-        centerTitle: true,
-        titleTextStyle: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: darkTextPrimary),
       ),
-    );
-  }
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: BellotaColors.dark.blanco.withValues(alpha: 0.10),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: BellotaColors.dark.blanco.withValues(alpha: 0.2)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: BellotaColors.dark.blanco.withValues(alpha: 0.2)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: BellotaColors.dark.chilero, width: 2),
+      ),
+      hintStyle: GoogleFonts.poppins(
+        color: BellotaColors.dark.textoMedio.withValues(alpha: 0.8),
+        fontSize: 14,
+      ),
+      labelStyle: GoogleFonts.poppins(
+        color: BellotaColors.dark.textoMedio.withValues(alpha: 0.8),
+        fontSize: 14,
+      ),
+      prefixIconColor: BellotaColors.dark.textoMedio.withValues(alpha: 0.8),
+      suffixIconColor: BellotaColors.dark.textoMedio.withValues(alpha: 0.8),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: BellotaColors.dark.basilica,
+      foregroundColor: BellotaColors.dark.blanco,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: GoogleFonts.poppins(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: BellotaColors.dark.textoDark,
+      ),
+      iconTheme: IconThemeData(color: BellotaColors.dark.textoDark),
+    ),
+  );
 }

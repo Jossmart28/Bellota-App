@@ -1,3 +1,4 @@
+﻿import '../core/constants/app_keys.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'dart:convert';
@@ -69,14 +70,14 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
-    _userId = prefs.getInt('userId');
+    _userId = prefs.getInt(AppKeys.userId);
 
     if (_userId == null) {
-      String userEmail = prefs.getString('userEmail') ?? '';
+      String userEmail = prefs.getString(AppKeys.userEmail) ?? '';
       if (userEmail.isNotEmpty) {
         _userId = await DatabaseHelper.instance.getUserIdByEmail(userEmail);
         if (_userId != null) {
-          await prefs.setInt('userId', _userId!);
+          await prefs.setInt(AppKeys.userId, _userId!);
         }
       }
     }
@@ -96,7 +97,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           _patronSangrado = {};
           if (log['bleeding_intensity'] != null) _patronSangrado['intensidadFlujo'] = log['bleeding_intensity'];
           if (log['clots'] != null) _patronSangrado['coagulos'] = log['clots'];
-          if ((log['spotting'] as int?) == 1) _patronSangrado['manchado'] = 'Sí';
+          if ((log['spotting'] as int?) == 1) _patronSangrado['manchado'] = 'SÃ­';
           if (log['spotting_days'] != null) _patronSangrado['manchadoDias'] = log['spotting_days'];
           if (log['sexual_symptoms'] != null) _patronSangrado['sintomasSexuales'] = log['sexual_symptoms'];
           
@@ -139,17 +140,17 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang) == 'recent_period_title' ? '¿Periodo reciente?' : AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang)),
+              title: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang) == 'recent_period_title' ? 'Â¿Periodo reciente?' : AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang)),
               content: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_error', lang)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: Text(AppTranslations.get('registration_form', 'no', lang), style: TextStyle(color: BellotaColors.textoMedio)),
+                  child: Text(AppTranslations.get('registration_form', 'no', lang), style: TextStyle(color: Theme.of(context).bellotaColors.textoMedio)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: Text(AppTranslations.get('registration_form', 'yes', lang), style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
+                  child: Text(AppTranslations.get('registration_form', 'yes', lang), style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -174,7 +175,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           // Bleeding pattern data
           bleedingIntensity: _patronSangrado['intensidadFlujo'] as String?,
           clots: _patronSangrado['coagulos'] as String?,
-          spotting: (_patronSangrado['manchado'] == 'Sí' || _patronSangrado['manchado'] == 'Yes'),
+          spotting: (_patronSangrado['manchado'] == 'SÃ­' || _patronSangrado['manchado'] == 'Yes'),
           spottingDays: _patronSangrado['manchadoDias'] as String?,
           sexualSymptoms: _patronSangrado['sintomasSexuales'] as String?,
           // Pain & symptomatology data
@@ -212,7 +213,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
               Expanded(child: Text('Registro guardado para $_formattedDate', style: TextStyle(color: Colors.white))),
             ],
           ),
-          backgroundColor: BellotaColors.chiltoma,
+          backgroundColor: Theme.of(context).bellotaColors.chiltoma,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -300,7 +301,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
       parts.add(_patronSangrado['coagulos'].toString());
     }
     if (parts.isEmpty) return AppTranslations.get('registration_form', 'saved', lang);
-    return parts.join(' · ');
+    return parts.join(' Â· ');
   }
 
   String? _getPainSummary(String lang) {
@@ -313,7 +314,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     final trat = _dolorSintomatologia['tratamiento'];
     if (trat != null && trat.toString().isNotEmpty && trat != 'none' && trat != 'Ninguno') parts.add(trat.toString());
     if (parts.isEmpty) return AppTranslations.get('registration_form', 'saved', lang);
-    return parts.join(' · ');
+    return parts.join(' Â· ');
   }
 
   String? _getListSummary(List<String> list) {
@@ -326,7 +327,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     final lang = languageNotifier.currentLang;
     
     return Scaffold(
-      backgroundColor: BellotaColors.basilica,
+      backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: _buildAppBar(context, lang),
       body: ListView(
         physics: BouncingScrollPhysics(),
@@ -341,12 +342,12 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   children: [
                     Text(
                       AppTranslations.get('registration_form', 'log_progress', lang),
-                      style: TextStyle(fontSize: 12, color: BellotaColors.textoMedio, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 12, color: Theme.of(context).bellotaColors.textoMedio, fontWeight: FontWeight.w500),
                     ),
                     Spacer(),
                     Text(
                       '${(_completionPercent * 6).toInt()}/6',
-                      style: TextStyle(fontSize: 12, color: BellotaColors.chilero, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 12, color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -356,9 +357,9 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   child: LinearProgressIndicator(
                     value: _completionPercent,
                     minHeight: 6,
-                    backgroundColor: BellotaColors.nancite,
+                    backgroundColor: Theme.of(context).bellotaColors.nancite,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      _completionPercent >= 1.0 ? BellotaColors.chiltoma : BellotaColors.chilero,
+                      _completionPercent >= 1.0 ? Theme.of(context).bellotaColors.chiltoma : Theme.of(context).bellotaColors.chilero,
                     ),
                   ),
                 ),
@@ -378,7 +379,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 _buildCard(
                   context,
                   icon: Icons.water_drop_outlined,
-                  iconColor: BellotaColors.chilero,
+                  iconColor: Theme.of(context).bellotaColors.chilero,
                   title: AppTranslations.get('registration_form', 'period_starts', lang),
                   trailing: _buildSiNoToggle(
                     value: iniciaPeriodo,
@@ -390,7 +391,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 _buildCard(
                   context,
                   icon: Icons.favorite_border_rounded,
-                  iconColor: BellotaColors.melon,
+                  iconColor: Theme.of(context).bellotaColors.melon,
                   title: AppTranslations.get('registration_form', 'sex', lang),
                   subtitle: _getListSummary(_selectedSexo),
                   trailing: _buildAddButton(hasItems: _selectedSexo.isNotEmpty),
@@ -400,7 +401,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 _buildCard(
                   context,
                   icon: Icons.medical_services_outlined,
-                  iconColor: BellotaColors.asuncion,
+                  iconColor: Theme.of(context).bellotaColors.asuncion,
                   title: AppTranslations.get('registration_form', 'symptoms', lang),
                   subtitle: _getListSummary(_selectedSymptoms),
                   trailing: _buildAddButton(hasItems: _selectedSymptoms.isNotEmpty),
@@ -420,7 +421,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 _buildCard(
                   context,
                   icon: Icons.bloodtype_outlined,
-                  iconColor: BellotaColors.chilero,
+                  iconColor: Theme.of(context).bellotaColors.chilero,
                   title: AppTranslations.get('registration_form', 'bleeding_pattern', lang),
                   subtitle: _getBleedingSummary(lang),
                   trailing: _buildAddButton(hasItems: _patronSangrado.isNotEmpty),
@@ -430,7 +431,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 _buildCard(
                   context,
                   icon: Icons.healing_outlined,
-                  iconColor: BellotaColors.chiltoma,
+                  iconColor: Theme.of(context).bellotaColors.chiltoma,
                   title: AppTranslations.get('registration_form', 'pain_and_symptoms', lang),
                   subtitle: _getPainSummary(lang),
                   trailing: _buildAddButton(hasItems: _dolorSintomatologia.isNotEmpty),
@@ -440,11 +441,11 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: BellotaColors.blanco,
+                    color: Theme.of(context).bellotaColors.blanco,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: BellotaColors.melon.withValues(alpha: 0.08),
+                        color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.08),
                         blurRadius: 14,
                         offset: Offset(0, 5),
                       ),
@@ -458,15 +459,15 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                           Container(
                             width: 42, height: 42,
                             decoration: BoxDecoration(
-                              color: BellotaColors.asuncion.withValues(alpha: 0.12),
+                              color: Theme.of(context).bellotaColors.asuncion.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(13),
                             ),
-                            child: Icon(Icons.edit_note_rounded, color: BellotaColors.asuncion, size: 22),
+                            child: Icon(Icons.edit_note_rounded, color: Theme.of(context).bellotaColors.asuncion, size: 22),
                           ),
                           SizedBox(width: 14),
                           Text(
                             AppTranslations.get('registration_form', 'notes', lang),
-                            style: TextStyle(fontSize: 15.5, color: BellotaColors.textoDark, fontWeight: FontWeight.w600),
+                            style: TextStyle(fontSize: 15.5, color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -476,12 +477,12 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                         minLines: 1,
                         onChanged: (v) => setState(() => _notes = v),
                         controller: _notesController,
-                        style: TextStyle(fontSize: 14, color: BellotaColors.textoDark),
+                        style: TextStyle(fontSize: 14, color: Theme.of(context).bellotaColors.textoDark),
                         decoration: InputDecoration(
                           hintText: AppTranslations.get('registration_form', 'notes_hint', lang),
-                          hintStyle: TextStyle(color: BellotaColors.textoMedio.withValues(alpha: 0.6), fontSize: 13),
+                          hintStyle: TextStyle(color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.6), fontSize: 13),
                           filled: true,
-                          fillColor: BellotaColors.nancite,
+                          fillColor: Theme.of(context).bellotaColors.nancite,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
@@ -506,7 +507,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   // APP BAR
   PreferredSizeWidget _buildAppBar(BuildContext context, String lang) {
     return AppBar(
-      backgroundColor: BellotaColors.basilica,
+      backgroundColor: Theme.of(context).bellotaColors.basilica,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: GestureDetector(
@@ -514,11 +515,11 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         child: Container(
           margin: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: BellotaColors.blanco,
+            color: Theme.of(context).bellotaColors.blanco,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: BellotaColors.melon.withValues(alpha: 0.10),
+                color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.10),
                 blurRadius: 8,
                 offset: Offset(0, 2),
               ),
@@ -526,7 +527,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           ),
           child: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: BellotaColors.textoDark,
+            color: Theme.of(context).bellotaColors.textoDark,
             size: 18,
           ),
         ),
@@ -534,7 +535,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
       title: Text(
         AppTranslations.get('navigation', 'log', lang),
         style: TextStyle(
-          color: BellotaColors.textoDark,
+          color: Theme.of(context).bellotaColors.textoDark,
           fontSize: 17,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.1,
@@ -549,13 +550,13 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: BellotaColors.chilero.withValues(alpha: 0.12),
+                color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 AppTranslations.get('onboarding', 'confirm', lang),
                 style: TextStyle(
-                  color: BellotaColors.chilero,
+                  color: Theme.of(context).bellotaColors.chilero,
                   fontWeight: FontWeight.w700,
                   fontSize: 13.5,
                 ),
@@ -574,20 +575,20 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         Container(
           padding: EdgeInsets.all(9),
           decoration: BoxDecoration(
-            color: BellotaColors.chilero.withValues(alpha: 0.10),
+            color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             Icons.calendar_today_rounded,
             size: 16,
-            color: BellotaColors.chilero,
+            color: Theme.of(context).bellotaColors.chilero,
           ),
         ),
         SizedBox(width: 10),
         Text(
           _formattedDate,
           style: TextStyle(
-            color: BellotaColors.textoMedio,
+            color: Theme.of(context).bellotaColors.textoMedio,
             fontSize: 13,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.1,
@@ -600,8 +601,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  BellotaColors.textoMedio.withValues(alpha: 0.20),
-                  BellotaColors.textoMedio.withValues(alpha: 0.0),
+                  Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.20),
+                  Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -611,7 +612,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  // CARD POR ÍTEM
+  // CARD POR ÃTEM
   Widget _buildCard(
     BuildContext context, {
     required IconData icon,
@@ -626,7 +627,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: BellotaColors.blanco,
+          color: Theme.of(context).bellotaColors.blanco,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -659,9 +660,9 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: BellotaColors.chiltoma,
+                        color: Theme.of(context).bellotaColors.chiltoma,
                         shape: BoxShape.circle,
-                        border: Border.all(color: BellotaColors.blanco, width: 1.5),
+                        border: Border.all(color: Theme.of(context).bellotaColors.blanco, width: 1.5),
                       ),
                     ),
                   ),
@@ -676,7 +677,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     title,
                     style: TextStyle(
                       fontSize: 15.5,
-                      color: BellotaColors.textoDark,
+                      color: Theme.of(context).bellotaColors.textoDark,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.05,
                     ),
@@ -687,7 +688,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       subtitle,
                       style: TextStyle(
                         fontSize: 12,
-                        color: BellotaColors.textoMedio.withValues(alpha: 0.85),
+                        color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.85),
                         height: 1.35,
                       ),
                       maxLines: 2,
@@ -705,11 +706,11 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  // TOGGLE SÍ / NO
+  // TOGGLE SÃ / NO
   Widget _buildSiNoToggle({required bool value, required ValueChanged<bool> onChanged, required String lang}) {
     return Container(
       decoration: BoxDecoration(
-        color: BellotaColors.nancite,
+        color: Theme.of(context).bellotaColors.nancite,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -722,16 +723,16 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
               curve: Curves.easeInOut,
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: value ? BellotaColors.chilero : Colors.transparent,
+                color: value ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: value
-                    ? [BoxShadow(color: BellotaColors.chilero.withValues(alpha: 0.25), blurRadius: 8, offset: Offset(0, 2))]
+                    ? [BoxShadow(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.25), blurRadius: 8, offset: Offset(0, 2))]
                     : [],
               ),
               child: Text(
                 AppTranslations.get('registration_form', 'yes', lang),
                 style: TextStyle(
-                  color: value ? Colors.white : BellotaColors.textoMedio,
+                  color: value ? Colors.white : Theme.of(context).bellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
@@ -745,16 +746,16 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
               curve: Curves.easeInOut,
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: !value ? BellotaColors.chilero : Colors.transparent,
+                color: !value ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: !value
-                    ? [BoxShadow(color: BellotaColors.chilero.withValues(alpha: 0.25), blurRadius: 8, offset: Offset(0, 2))]
+                    ? [BoxShadow(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.25), blurRadius: 8, offset: Offset(0, 2))]
                     : [],
               ),
               child: Text(
                 AppTranslations.get('registration_form', 'no', lang),
                 style: TextStyle(
-                  color: !value ? Colors.white : BellotaColors.textoMedio,
+                  color: !value ? Colors.white : Theme.of(context).bellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),
@@ -766,39 +767,39 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  // BOTÓN AÑADIR
+  // BOTÃ“N AÃ‘ADIR
   Widget _buildAddButton({bool hasItems = false}) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 200),
       padding: EdgeInsets.all(7),
       decoration: BoxDecoration(
-        color: hasItems ? BellotaColors.chilero.withValues(alpha: 0.12) : Colors.transparent,
+        color: hasItems ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12) : Colors.transparent,
         shape: BoxShape.circle,
         border: Border.all(
-          color: BellotaColors.chilero.withValues(alpha: hasItems ? 0.0 : 0.6),
+          color: Theme.of(context).bellotaColors.chilero.withValues(alpha: hasItems ? 0.0 : 0.6),
           width: 1.5,
         ),
       ),
       child: Icon(
         hasItems ? Icons.edit_outlined : Icons.add_rounded,
-        color: BellotaColors.chilero,
+        color: Theme.of(context).bellotaColors.chilero,
         size: 18,
       ),
     );
   }
 
-  // BOTÓN GUARDAR
+  // BOTÃ“N GUARDAR
   Widget _buildSaveButton(BuildContext context, String lang) {
     return GestureDetector(
       onTap: _saveAndAccept,
       child: Container(
         height: 54,
         decoration: BoxDecoration(
-          gradient: BellotaColors.buttonGradient,
+          gradient: Theme.of(context).bellotaColors.buttonGradient,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: BellotaColors.chilero.withValues(alpha: 0.30),
+              color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.30),
               blurRadius: 16,
               spreadRadius: 0,
               offset: Offset(0, 6),
@@ -825,3 +826,6 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 }
+
+
+

@@ -1,3 +1,4 @@
+﻿import '../core/constants/app_keys.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,15 +62,15 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   Future<void> _saveAndContinue() async {
     if (_formKey.currentState?.validate() ?? false) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_age', _ageController.text.trim());
-      await prefs.setString('user_location', _locationLabel);
+      await prefs.setString(AppKeys.userAge, _ageController.text.trim());
+      await prefs.setString(AppKeys.userLocation, _locationLabel);
       if (_locationLatLng != null) {
         await prefs.setDouble('user_latitude', _locationLatLng!.latitude);
         await prefs.setDouble('user_longitude', _locationLatLng!.longitude);
       }
       await prefs.setStringList('user_medications', _selectedMedications.toList());
 
-      int? userId = prefs.getInt('userId');
+      int? userId = prefs.getInt(AppKeys.userId);
       if (userId != null) {
         final db = await DatabaseHelper.instance.database;
         await db.update(
@@ -122,7 +123,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         return Scaffold(
           body: Stack(
             children: [
-              // ── Fondo degradado ──
+              // â”€â”€ Fondo degradado â”€â”€
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -134,7 +135,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 ),
               ),
 
-              // ── Círculos decorativos ──
+              // â”€â”€ CÃ­rculos decorativos â”€â”€
               _buildDecorations(size),
 
               SafeArea(
@@ -144,10 +145,10 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     position: _slideAnim,
                     child: Column(
                       children: [
-                        // ── Header ──
+                        // â”€â”€ Header â”€â”€
                         _buildHeader(lang),
 
-                        // ── Contenido ──
+                        // â”€â”€ Contenido â”€â”€
                         Expanded(
                           child: SingleChildScrollView(
                             physics: BouncingScrollPhysics(),
@@ -189,7 +190,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── HEADER ──────────────────────────────────────────────────────────────────
+  // â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildHeader(String lang) {
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -230,7 +231,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── TARJETA SECCIÓN ──────────────────────────────────────────────────────────
+  // â”€â”€ TARJETA SECCIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildCard({
     required IconData icon,
     required String title,
@@ -244,7 +245,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: BellotaColors.chilero.withValues(alpha: 0.12),
+            color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12),
             blurRadius: 24,
             offset: Offset(0, 8),
           ),
@@ -308,7 +309,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── SECCIÓN DATOS PERSONALES ───────────────────────────────────────────
+  // â”€â”€ SECCIÃ“N DATOS PERSONALES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildPersonalSection(String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,7 +319,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         TextFormField(
           controller: _ageController,
           keyboardType: TextInputType.number,
-          style: GoogleFonts.poppins(color: BellotaColors.textoDark, fontSize: 15),
+          style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontSize: 15),
           decoration: _inputDecoration(AppTranslations.get('onboarding_and_auth', 'age_hint', lang), Icons.numbers_rounded),
           validator: (val) {
             if (val != null && val.isNotEmpty && int.tryParse(val) == null) {
@@ -348,18 +349,18 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                 label: Text(medLabel),
                 selected: isSelected,
                 onSelected: (_) => _toggleMedication(med),
-                selectedColor: BellotaColors.chilero,
+                selectedColor: Theme.of(context).bellotaColors.chilero,
                 backgroundColor: Color(0xFFF7EACC),
                 checkmarkColor: Colors.white,
                 labelStyle: GoogleFonts.poppins(
-                  color: isSelected ? Colors.white : BellotaColors.textoDark,
+                  color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                   fontSize: 13,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
-                    color: isSelected ? BellotaColors.chilero : Colors.transparent,
+                    color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
                   ),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -371,7 +372,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── SECCIÓN CICLO ─────────────────────────────────────────────────────────
+  // â”€â”€ SECCIÃ“N CICLO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildCycleSection(String lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,7 +383,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           unit: AppTranslations.get('profile_and_report', 'days', lang),
           min: 20,
           max: 45,
-          color: BellotaColors.chilero,
+          color: Theme.of(context).bellotaColors.chilero,
           icon: Icons.loop_rounded,
           onChanged: (v) => setState(() {
             _cycleDuration = v.round();
@@ -396,7 +397,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           unit: AppTranslations.get('profile_and_report', 'days', lang),
           min: 1,
           max: 10,
-          color: BellotaColors.melon,
+          color: Theme.of(context).bellotaColors.melon,
           icon: Icons.water_drop_rounded,
           onChanged: (v) => setState(() {
             _periodDuration = v.round();
@@ -408,20 +409,20 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: BellotaColors.basilica,
+            color: Theme.of(context).bellotaColors.basilica,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: BellotaColors.nancite),
+            border: Border.all(color: Theme.of(context).bellotaColors.nancite),
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline_rounded, size: 18, color: BellotaColors.textoMedio),
+              Icon(Icons.info_outline_rounded, size: 18, color: Theme.of(context).bellotaColors.textoMedio),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${AppTranslations.get('onboarding_and_auth', 'cycle', lang)}: $_cycleDuration ${AppTranslations.get('profile_and_report', 'days', lang)}  •  ${AppTranslations.get('onboarding_and_auth', 'menstruation', lang)}: $_periodDuration ${AppTranslations.get('profile_and_report', 'days', lang)}',
+                  '${AppTranslations.get('onboarding_and_auth', 'cycle', lang)}: $_cycleDuration ${AppTranslations.get('profile_and_report', 'days', lang)}  â€¢  ${AppTranslations.get('onboarding_and_auth', 'menstruation', lang)}: $_periodDuration ${AppTranslations.get('profile_and_report', 'days', lang)}',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
-                    color: BellotaColors.textoMedio,
+                    color: Theme.of(context).bellotaColors.textoMedio,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -433,7 +434,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── SLIDER BLOCK ─────────────────────────────────────────────────────────────
+  // â”€â”€ SLIDER BLOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildSliderBlock({
     required String label,
     required int value,
@@ -456,7 +457,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: BellotaColors.textoDark,
+                color: Theme.of(context).bellotaColors.textoDark,
               ),
             ),
             Spacer(),
@@ -499,7 +500,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── LOCATION PICKER ──────────────────────────────────────────────────────────
+  // â”€â”€ LOCATION PICKER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildLocationPicker(String lang) {
     final hasLocation = _locationLabel.isNotEmpty;
     return GestureDetector(
@@ -522,11 +523,11 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: hasLocation
-              ? BellotaColors.chilero.withValues(alpha: 0.06)
+              ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.06)
               : Colors.grey.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: hasLocation ? BellotaColors.chilero.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.25),
+            color: hasLocation ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.25),
             width: 1.5,
           ),
         ),
@@ -537,13 +538,13 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
               height: 36,
               decoration: BoxDecoration(
                 color: hasLocation
-                    ? BellotaColors.chilero.withValues(alpha: 0.12)
+                    ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12)
                     : Colors.grey.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 hasLocation ? Icons.place_rounded : Icons.map_outlined,
-                color: hasLocation ? BellotaColors.chilero : Colors.grey,
+                color: hasLocation ? Theme.of(context).bellotaColors.chilero : Colors.grey,
                 size: 20,
               ),
             ),
@@ -556,7 +557,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     hasLocation ? AppTranslations.get('onboarding_and_auth', 'location_selected', lang) : AppTranslations.get('onboarding_and_auth', 'select_on_map', lang),
                     style: GoogleFonts.poppins(
                       fontSize: 11,
-                      color: hasLocation ? BellotaColors.chilero : Colors.grey,
+                      color: hasLocation ? Theme.of(context).bellotaColors.chilero : Colors.grey,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -565,7 +566,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: hasLocation ? FontWeight.w600 : FontWeight.normal,
-                      color: hasLocation ? BellotaColors.textoDark : Colors.grey,
+                      color: hasLocation ? Theme.of(context).bellotaColors.textoDark : Colors.grey,
                     ),
                   ),
                 ],
@@ -573,7 +574,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: hasLocation ? BellotaColors.chilero : Colors.grey,
+              color: hasLocation ? Theme.of(context).bellotaColors.chilero : Colors.grey,
             ),
           ],
         ),
@@ -582,7 +583,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
   }
 
 
-  // ── BOTÓN CONTINUAR ──
+  // â”€â”€ BOTÃ“N CONTINUAR â”€â”€
   Widget _buildCTAButton(String lang) {
     return GestureDetector(
       onTap: _saveAndContinue,
@@ -598,7 +599,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
           borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
-              color: BellotaColors.chilero.withValues(alpha: 0.45),
+              color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.45),
               blurRadius: 20,
               offset: Offset(0, 8),
             ),
@@ -626,16 +627,16 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 
-  // ── HELPERS ──────────────────────────────────────────────────────────────────
+  // â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildFieldLabel(String text, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: BellotaColors.chilero),
+        Icon(icon, size: 16, color: Theme.of(context).bellotaColors.chilero),
         SizedBox(width: 6),
         Text(
           text,
           style: GoogleFonts.poppins(
-            color: BellotaColors.textoDark,
+            color: Theme.of(context).bellotaColors.textoDark,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -648,7 +649,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     return InputDecoration(
       hintText: hint,
       hintStyle: GoogleFonts.poppins(color: Colors.grey.withValues(alpha: 0.5), fontSize: 14),
-      prefixIcon: Icon(icon, color: BellotaColors.chilero.withValues(alpha: 0.6), size: 20),
+      prefixIcon: Icon(icon, color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.6), size: 20),
       filled: true,
       fillColor: Colors.grey.withValues(alpha: 0.06),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -662,7 +663,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: BellotaColors.chilero, width: 1.5),
+        borderSide: BorderSide(color: Theme.of(context).bellotaColors.chilero, width: 1.5),
       ),
     );
   }
@@ -715,3 +716,6 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 }
+
+
+

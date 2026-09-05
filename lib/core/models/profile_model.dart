@@ -1,4 +1,4 @@
-/// Modelo tipado para el perfil extendido del usuario.
+﻿/// Modelo tipado para el perfil extendido del usuario.
 ///
 /// Encapsula los datos de la tabla `profiles` con tipos nativos de Dart
 /// (ej: `bool` para notificaciones en lugar de `int 0/1` de SQLite).
@@ -10,7 +10,7 @@ class ProfileModel {
   final int periodDuration;
   final String? profileImagePath;
 
-  // ── Notificaciones ─────────────────────────────────────────────────────────
+  // â”€â”€ Notificaciones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   final bool notifPeriodo;
   final bool notifOvulacion;
   final bool notifPildora;
@@ -37,17 +37,17 @@ class ProfileModel {
     this.notifCitaMedica = false,
   });
 
-  // ── Deserialización ────────────────────────────────────────────────────────
+  // â”€â”€ DeserializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Crea un [ProfileModel] a partir de un mapa de SQLite.
-  /// Los campos de notificación se convierten de `int` (`0`/`1`) a `bool`.
+  /// Los campos de notificaciÃ³n se convierten de `int` (`0`/`1`) a `bool`.
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
       userId: map['user_id'] as int,
       username: map['username'] as String? ?? 'UsuarioApp',
       gmail: map['gmail'] as String? ?? '',
       cycleDuration: map['cycle_duration'] as int? ?? 28,
-      periodDuration: map['period_duration'] as int? ?? 7,
+      periodDuration: map['period_duration'] as int? ?? 5,
       profileImagePath: map['profile_image_path'] as String?,
       notifPeriodo: (map['notif_periodo'] as int? ?? 1) == 1,
       notifOvulacion: (map['notif_ovulacion'] as int? ?? 1) == 1,
@@ -60,7 +60,7 @@ class ProfileModel {
     );
   }
 
-  // ── Serialización ──────────────────────────────────────────────────────────
+  // â”€â”€ SerializaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Convierte el modelo a un mapa compatible con SQLite.
   /// Los `bool` se convierten a `int` (`0`/`1`) para compatibilidad.
@@ -81,7 +81,7 @@ class ProfileModel {
         'notif_cita_medica': notifCitaMedica ? 1 : 0,
       };
 
-  // ── Copia con modificaciones ───────────────────────────────────────────────
+  // â”€â”€ Copia con modificaciones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Retorna una copia del perfil con los campos especificados modificados.
   ProfileModel copyWith({
@@ -121,3 +121,4 @@ class ProfileModel {
   String toString() =>
       'ProfileModel(userId: $userId, username: $username, cycle: $cycleDuration d)';
 }
+

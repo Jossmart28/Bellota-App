@@ -1,7 +1,9 @@
+﻿import '../core/models/notification_models.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/models/user_model.dart';
@@ -38,6 +40,8 @@ class DatabaseHelper {
     await _createProfilesTable(db);
     await _createDailyLogsTableV2(db);
     await _createAuditLogsTable(db);
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_daily_logs_user_date ON daily_logs(user_id, date)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at, action)');
     await _seedAdminUser(db);
   }
 
@@ -88,11 +92,13 @@ class DatabaseHelper {
     await _createProfilesTable(db);
     await _createDailyLogsTableV2(db);
     await _createAuditLogsTable(db);
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_daily_logs_user_date ON daily_logs(user_id, date)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at, action)');
   }
 
-  /// Migración de v1 a v2: agrega columnas de sangrado, dolor y síntomas
-  /// emocionales/físicos a daily_logs, y migra datos de SharedPreferences.
-  /// Migración de v2 a v3: agrega columnas de rol y estado activo a users,
+  /// MigraciÃ³n de v1 a v2: agrega columnas de sangrado, dolor y sÃ­ntomas
+  /// emocionales/fÃ­sicos a daily_logs, y migra datos de SharedPreferences.
+  /// MigraciÃ³n de v2 a v3: agrega columnas de rol y estado activo a users,
   /// y crea la tabla audit_logs.
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
@@ -118,7 +124,7 @@ class DatabaseHelper {
         try {
           await db.execute(col);
         } catch (_) {
-          // Columna ya existe — ignorar
+          // Columna ya existe â€” ignorar
         }
       }
 
@@ -156,8 +162,8 @@ class DatabaseHelper {
     }
   }
 
-  /// Migra datos de patrón de sangrado y dolor almacenados en SharedPreferences
-  /// a la tabla daily_logs en SQLite (operación única post-upgrade).
+  /// Migra datos de patrÃ³n de sangrado y dolor almacenados en SharedPreferences
+  /// a la tabla daily_logs en SQLite (operaciÃ³n Ãºnica post-upgrade).
   Future<void> _migrateSharedPreferencesData(Database db) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -181,7 +187,7 @@ class DatabaseHelper {
               {
                 'bleeding_intensity': data['intensidadFlujo'],
                 'clots': data['coagulos'],
-                'spotting': (data['manchado'] == 'Sí' || data['manchado'] == 'Yes') ? 1 : 0,
+                'spotting': (data['manchado'] == 'SÃ­' || data['manchado'] == 'Yes') ? 1 : 0,
                 'spotting_days': data['manchadoDias'],
                 'sexual_symptoms': data['sintomasSexuales'],
               },
@@ -210,7 +216,7 @@ class DatabaseHelper {
         }
       }
     } catch (_) {
-      // No interrumpir la app si la migración falla parcialmente
+      // No interrumpir la app si la migraciÃ³n falla parcialmente
     }
   }
 
@@ -266,7 +272,7 @@ class DatabaseHelper {
     ''');
   }
 
-  /// Tabla daily_logs versión 1 (legacy, para compatibilidad con _upgradeDB)
+  /// Tabla daily_logs versiÃ³n 1 (legacy, para compatibilidad con _upgradeDB)
   Future _createDailyLogsTable(Database db) async {
     await db.execute('''
     CREATE TABLE IF NOT EXISTS daily_logs (
@@ -283,7 +289,7 @@ class DatabaseHelper {
     ''');
   }
 
-  /// Tabla daily_logs versión 2 completa (para nuevas instalaciones)
+  /// Tabla daily_logs versiÃ³n 2 completa (para nuevas instalaciones)
   Future _createDailyLogsTableV2(Database db) async {
     await db.execute('''
     CREATE TABLE IF NOT EXISTS daily_logs (
@@ -317,7 +323,7 @@ class DatabaseHelper {
 
   /// Tabla audit_logs para registrar acciones de usuarios (v3+).
   ///
-  /// Almacena quién hizo qué, cuándo y sobre qué recurso,
+  /// Almacena quiÃ©n hizo quÃ©, cuÃ¡ndo y sobre quÃ© recurso,
   /// permitiendo al Auditor revisar el historial de actividad.
   Future _createAuditLogsTable(Database db) async {
     await db.execute('''
@@ -335,9 +341,9 @@ class DatabaseHelper {
     ''');
   }
 
-  // ── Autenticación ──────────────────────────────────────────────────────────
+  // â”€â”€ AutenticaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  // Encriptar contraseña
+  // Encriptar contraseÃ±a
   String _hashPassword(String password) {
     var bytes = utf8.encode(password);
     return sha256.convert(bytes).toString();
@@ -351,7 +357,7 @@ class DatabaseHelper {
     String role = 'usuario',
   }) async {
     if (email.trim().toLowerCase() == 'usm.unshowmas@gmail.com') {
-      throw Exception('Este correo está reservado y no puede ser registrado.');
+      throw Exception('Este correo estÃ¡ reservado y no puede ser registrado.');
     }
 
     final db = await instance.database;
@@ -385,7 +391,7 @@ class DatabaseHelper {
     return userId;
   }
 
-  // Iniciar sesión
+  // Iniciar sesiÃ³n
   Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     final db = await instance.database;
     final hashed = _hashPassword(password);
@@ -413,7 +419,7 @@ class DatabaseHelper {
     return result.isNotEmpty;
   }
 
-  // Obtener el ID de un usuario por su correo electrónico
+  // Obtener el ID de un usuario por su correo electrÃ³nico
   Future<int?> getUserIdByEmail(String email) async {
     final db = await instance.database;
     final result = await db.query(
@@ -429,7 +435,7 @@ class DatabaseHelper {
     return null;
   }
 
-  // Obtener usuario por correo electrónico
+  // Obtener usuario por correo electrÃ³nico
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
     final db = await instance.database;
     final result = await db.query(
@@ -444,7 +450,7 @@ class DatabaseHelper {
     return null;
   }
 
-  // ── Perfil de usuario ──────────────────────────────────────────────────────
+  // â”€â”€ Perfil de usuario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   // Obtener el perfil de un usuario
   Future<Map<String, dynamic>?> getProfile(int userId) async {
@@ -459,7 +465,7 @@ class DatabaseHelper {
       return result.first;
     }
 
-    // Si no existe, lo creamos dinámicamente con los datos de 'users'
+    // Si no existe, lo creamos dinÃ¡micamente con los datos de 'users'
     final userResult = await db.query(
       'users',
       where: 'id = ?',
@@ -491,7 +497,7 @@ class DatabaseHelper {
     return null;
   }
 
-  // Actualizar un campo específico del perfil
+  // Actualizar un campo especÃ­fico del perfil
   Future<int> updateProfileField(int userId, String field, dynamic value) async {
     final db = await instance.database;
     // Asegurar que el perfil exista
@@ -505,11 +511,11 @@ class DatabaseHelper {
     );
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // ADMIN — Gestión de usuarios
-  // ──────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ADMIN â€” GestiÃ³n de usuarios
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  /// Retorna todos los usuarios registrados (sólo para [UserRole.admin]).
+  /// Retorna todos los usuarios registrados (sÃ³lo para [UserRole.admin]).
   ///
   /// Incluye: id, name, email, role, is_active, created_at.
   /// No incluye password_hash por seguridad.
@@ -535,8 +541,8 @@ class DatabaseHelper {
     return result.first['count'] as int? ?? 0;
   }
 
-  /// Cambia el rol de un usuario específico.
-  /// Sólo debe ser llamado por un [UserRole.admin].
+  /// Cambia el rol de un usuario especÃ­fico.
+  /// SÃ³lo debe ser llamado por un [UserRole.admin].
   Future<int> updateUserRole(int userId, String newRole) async {
     final db = await instance.database;
     return await db.update(
@@ -548,7 +554,7 @@ class DatabaseHelper {
   }
 
   /// Suspende una cuenta de usuario (is_active = 0).
-  /// El usuario no podrá iniciar sesión mientras esté suspendido.
+  /// El usuario no podrÃ¡ iniciar sesiÃ³n mientras estÃ© suspendido.
   Future<int> suspendUser(int userId) async {
     final db = await instance.database;
     return await db.update(
@@ -571,7 +577,7 @@ class DatabaseHelper {
   }
 
   /// Elimina un usuario y todos sus datos asociados (CASCADE).
-  /// Sólo debe ser llamado por un [UserRole.admin].
+  /// SÃ³lo debe ser llamado por un [UserRole.admin].
   Future<int> deleteUser(int userId) async {
     final db = await instance.database;
     return await db.delete(
@@ -582,7 +588,7 @@ class DatabaseHelper {
   }
 
   /// Verifica si existe al menos un administrador en el sistema.
-  /// Útil para el flujo de bootstrapping del primer admin.
+  /// Ãštil para el flujo de bootstrapping del primer admin.
   Future<bool> hasAdminUser() async {
     final db = await instance.database;
     final result = await db.query(
@@ -595,18 +601,18 @@ class DatabaseHelper {
     return result.isNotEmpty;
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // AUDIT LOGS — Registro de acciones
-  // ──────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // AUDIT LOGS â€” Registro de acciones
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  /// Inserta un nuevo registro de auditoría.
+  /// Inserta un nuevo registro de auditorÃ­a.
   ///
-  /// Parámetros:
-  /// - [userId]: ID del usuario que realizó la acción (puede ser null para acciones de sistema).
-  /// - [action]: Identificador de la acción (ej: 'login', 'role_change').
+  /// ParÃ¡metros:
+  /// - [userId]: ID del usuario que realizÃ³ la acciÃ³n (puede ser null para acciones de sistema).
+  /// - [action]: Identificador de la acciÃ³n (ej: 'login', 'role_change').
   /// - [targetType]: Tipo del recurso afectado (ej: 'user', 'daily_log').
   /// - [targetId]: ID del recurso afectado.
-  /// - [details]: Mapa con contexto adicional (antes/después, etc.).
+  /// - [details]: Mapa con contexto adicional (antes/despuÃ©s, etc.).
   Future<int> insertAuditLog({
     int? userId,
     required String action,
@@ -627,16 +633,16 @@ class DatabaseHelper {
     });
   }
 
-  /// Consulta logs de auditoría con filtros opcionales.
+  /// Consulta logs de auditorÃ­a con filtros opcionales.
   ///
-  /// Parámetros de filtro:
-  /// - [userId]: Filtrar por usuario específico.
-  /// - [action]: Filtrar por tipo de acción.
+  /// ParÃ¡metros de filtro:
+  /// - [userId]: Filtrar por usuario especÃ­fico.
+  /// - [action]: Filtrar por tipo de acciÃ³n.
   /// - [targetType]: Filtrar por tipo de recurso.
   /// - [startDate]: Fecha de inicio (formato 'YYYY-MM-DD').
   /// - [endDate]: Fecha de fin (formato 'YYYY-MM-DD').
-  /// - [limit]: Máximo de resultados (default: 50).
-  /// - [offset]: Offset para paginación.
+  /// - [limit]: MÃ¡ximo de resultados (default: 50).
+  /// - [offset]: Offset para paginaciÃ³n.
   Future<List<AuditLogModel>> getAuditLogs({
     int? userId,
     String? action,
@@ -686,8 +692,8 @@ class DatabaseHelper {
     return result.map(AuditLogModel.fromMap).toList();
   }
 
-  /// Retorna el conteo total de logs según los filtros dados.
-  /// Útil para calcular el número de páginas en la UI.
+  /// Retorna el conteo total de logs segÃºn los filtros dados.
+  /// Ãštil para calcular el nÃºmero de pÃ¡ginas en la UI.
   Future<int> getAuditLogCount({
     int? userId,
     String? action,
@@ -724,57 +730,43 @@ class DatabaseHelper {
     return result.first['count'] as int? ?? 0;
   }
 
-  /// Retorna estadísticas resumidas de auditoría para el dashboard.
+  /// Retorna estadÃ­sticas resumidas de auditorÃ­a para el dashboard.
   ///
   /// Devuelve un mapa con: totalLogs, todayLogs, failedLogins,
   /// roleChanges, suspensions, deletions.
   Future<Map<String, int>> getAuditStats() async {
     final db = await instance.database;
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}'
-        '-${today.day.toString().padLeft(2, '0')}';
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')} 00:00:00';
 
-    final total =
-        (await db.rawQuery('SELECT COUNT(*) as c FROM audit_logs')).first['c']
-            as int? ??
-            0;
-    final todayCount = (await db.rawQuery(
-      'SELECT COUNT(*) as c FROM audit_logs WHERE created_at >= ?',
-      ['$todayStr 00:00:00'],
-    ))
-        .first['c'] as int? ?? 0;
-    final failedLogins = (await db.rawQuery(
-      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'login_failed'",
-    ))
-        .first['c'] as int? ?? 0;
-    final roleChanges = (await db.rawQuery(
-      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'role_change'",
-    ))
-        .first['c'] as int? ?? 0;
-    final suspensions = (await db.rawQuery(
-      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'user_suspend'",
-    ))
-        .first['c'] as int? ?? 0;
-    final deletions = (await db.rawQuery(
-      "SELECT COUNT(*) as c FROM audit_logs WHERE action = 'user_delete'",
-    ))
-        .first['c'] as int? ?? 0;
+    final result = await db.rawQuery('''
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) as todayCount,
+        SUM(CASE WHEN action = 'login_failed' THEN 1 ELSE 0 END) as failedLogins,
+        SUM(CASE WHEN action = 'role_change' THEN 1 ELSE 0 END) as roleChanges,
+        SUM(CASE WHEN action = 'user_suspend' THEN 1 ELSE 0 END) as suspensions,
+        SUM(CASE WHEN action = 'user_delete' THEN 1 ELSE 0 END) as deletions
+      FROM audit_logs
+    ''', [todayStr]);
+
+    final row = result.first;
 
     return {
-      'totalLogs': total,
-      'todayLogs': todayCount,
-      'failedLogins': failedLogins,
-      'roleChanges': roleChanges,
-      'suspensions': suspensions,
-      'deletions': deletions,
+      'totalLogs': (row['total'] as num?)?.toInt() ?? 0,
+      'todayLogs': (row['todayCount'] as num?)?.toInt() ?? 0,
+      'failedLogins': (row['failedLogins'] as num?)?.toInt() ?? 0,
+      'roleChanges': (row['roleChanges'] as num?)?.toInt() ?? 0,
+      'suspensions': (row['suspensions'] as num?)?.toInt() ?? 0,
+      'deletions': (row['deletions'] as num?)?.toInt() ?? 0,
     };
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // DAILY LOGS - Registro diario por fecha
-  // ──────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  /// Guarda o actualiza el registro diario para una fecha específica (legacy v1)
+  /// Guarda o actualiza el registro diario para una fecha especÃ­fica (legacy v1)
   Future<int> saveDailyLog({
     required int userId,
     required String date,
@@ -815,7 +807,7 @@ class DatabaseHelper {
   }
 
   /// Guarda o actualiza el registro diario completo v2 con todos los campos
-  /// consolidados (patrón de sangrado, dolor, síntomas emocionales/físicos).
+  /// consolidados (patrÃ³n de sangrado, dolor, sÃ­ntomas emocionales/fÃ­sicos).
   Future<int> saveDailyLogV2({
     required int userId,
     required String date,
@@ -824,13 +816,13 @@ class DatabaseHelper {
     required List<String> symptoms,
     required List<String> sexo,
     required List<String> flujo,
-    // Patrón de sangrado
+    // PatrÃ³n de sangrado
     String? bleedingIntensity,
     String? clots,
     bool spotting = false,
     String? spottingDays,
     String? sexualSymptoms,
-    // Dolor y sintomatología
+    // Dolor y sintomatologÃ­a
     double? painLevel,
     String? painCharacter,
     String? painDays,
@@ -899,7 +891,7 @@ class DatabaseHelper {
     }
   }
 
-  /// Obtiene el registro diario para una fecha específica
+  /// Obtiene el registro diario para una fecha especÃ­fica
   Future<Map<String, dynamic>?> getDailyLog(int userId, String date) async {
     final db = await instance.database;
 
@@ -944,7 +936,7 @@ class DatabaseHelper {
     );
   }
 
-  /// Obtiene solo las fechas que tienen algún tipo de registro en un rango.
+  /// Obtiene solo las fechas que tienen algÃºn tipo de registro en un rango.
   Future<Set<String>> getLoggedDatesInRange(
     int userId,
     String startDate,
@@ -962,7 +954,7 @@ class DatabaseHelper {
     return result.map((e) => e['date'] as String).toSet();
   }
 
-  /// Obtiene la última fecha en que se registró el inicio de un período
+  /// Obtiene la Ãºltima fecha en que se registrÃ³ el inicio de un perÃ­odo
   Future<DateTime?> getLastPeriodStart(int userId) async {
     final db = await instance.database;
 
@@ -980,7 +972,7 @@ class DatabaseHelper {
     return null;
   }
 
-  /// Obtiene la primera fecha en que se registró el inicio de un período
+  /// Obtiene la primera fecha en que se registrÃ³ el inicio de un perÃ­odo
   Future<DateTime?> getFirstPeriodStart(int userId) async {
     final db = await instance.database;
 
@@ -1010,7 +1002,7 @@ class DatabaseHelper {
     );
   }
 
-  /// Obtiene todas las fechas de inicio de período ordenadas DESC (más reciente primero)
+  /// Obtiene todas las fechas de inicio de perÃ­odo ordenadas DESC (mÃ¡s reciente primero)
   Future<List<DateTime>> getAllPeriodStartDates(int userId) async {
     final db = await instance.database;
 
@@ -1029,7 +1021,7 @@ class DatabaseHelper {
     return dates;
   }
 
-  /// Calcula estadísticas históricas del ciclo basándose en registros reales.
+  /// Calcula estadÃ­sticas histÃ³ricas del ciclo basÃ¡ndose en registros reales.
   /// Retorna un mapa con: averageCycleLength, shortestCycle, longestCycle,
   /// cycleLengths, isRegular.
   Future<Map<String, dynamic>> getCycleStatistics(int userId) async {
@@ -1046,13 +1038,13 @@ class DatabaseHelper {
       };
     }
 
-    // starts está en orden DESC, así que revertimos para calcular intervalos
+    // starts estÃ¡ en orden DESC, asÃ­ que revertimos para calcular intervalos
     final sorted = starts.reversed.toList();
     List<int> cycleLengths = [];
     for (int i = 0; i < sorted.length - 1; i++) {
       final diff = _dateOnly(sorted[i + 1]).difference(_dateOnly(sorted[i])).inDays;
       if (diff > 0 && diff <= 90) {
-        // Solo contar ciclos razonables (≤ 90 días para evitar datos erróneos)
+        // Solo contar ciclos razonables (â‰¤ 90 dÃ­as para evitar datos errÃ³neos)
         cycleLengths.add(diff);
       }
     }
@@ -1083,7 +1075,7 @@ class DatabaseHelper {
     };
   }
 
-  /// Calcula el promedio real de días de sangrado basándose en los registros consecutivos.
+  /// Calcula el promedio real de dÃ­as de sangrado basÃ¡ndose en los registros consecutivos.
   Future<double?> getRealBleedingAverage(int userId) async {
     final logs = await getAllDailyLogs(userId);
     if (logs.isEmpty) return null;
@@ -1111,22 +1103,19 @@ class DatabaseHelper {
     return sum / bleedingDurations.length;
   }
 
-  /// Centraliza la generación de estadísticas y el reporte médico.
-  /// Retorna un mapa con todos los datos necesarios para generar el JSON.
-  Future<Map<String, dynamic>> getMedicalReportSummary(int userId) async {
-    final allLogs = await getAllDailyLogs(userId);
-    final cycleStats = await getCycleStatistics(userId);
-    final realBleedingAvg = await getRealBleedingAverage(userId);
-    
-    // Calcular flujo más frecuente en ciclo actual
-    final lastPeriod = await getLastPeriodStart(userId);
+  /// FunciÃ³n estÃ¡tica para aislar el procesamiento de reportes mÃ©dicos en otro hilo.
+  static Map<String, dynamic> _computeMedicalReportData(Map<String, dynamic> data) {
+    final allLogs = data['allLogs'] as List<Map<String, dynamic>>;
+    final lastPeriod = data['lastPeriod'] as DateTime?;
+    final avgCycleLength = data['avgCycleLength'] as num?;
+
     Map<String, int> flujoCount = {};
-    if (lastPeriod != null && cycleStats['averageCycleLength'] != null) {
-      final endOfCycle = lastPeriod.add(Duration(days: (cycleStats['averageCycleLength'] as num).toInt()));
+    if (lastPeriod != null && avgCycleLength != null) {
+      final endOfCycle = lastPeriod.add(Duration(days: avgCycleLength.toInt()));
       for (final log in allLogs) {
         try {
           final d = DateTime.parse(log['date'] as String);
-          if (d.isAfter(lastPeriod.subtract(Duration(days: 1))) && d.isBefore(endOfCycle.add(Duration(days: 1)))) {
+          if (d.isAfter(lastPeriod.subtract(const Duration(days: 1))) && d.isBefore(endOfCycle.add(const Duration(days: 1)))) {
             for (final f in (jsonDecode(log['flujo'] as String? ?? '[]') as List)) {
               flujoCount[f.toString()] = (flujoCount[f.toString()] ?? 0) + 1;
             }
@@ -1138,7 +1127,6 @@ class DatabaseHelper {
         ? flujoCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key
         : null;
 
-    // Síntomas más frecuentes generales
     Map<String, int> sympCount = {};
     for (final log in allLogs) {
       for (final s in (jsonDecode(log['symptoms'] as String? ?? '[]') as List)) {
@@ -1148,16 +1136,38 @@ class DatabaseHelper {
     final topSyms = (sympCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(5).map((e) => e.key).toList();
 
     return {
-      'allLogs': allLogs,
-      'cycleStats': cycleStats,
-      'realBleedingAvg': realBleedingAvg,
-      'lastPeriod': lastPeriod,
       'flujoMasFrecuente': flujoMasFrecuente,
       'topSyms': topSyms,
     };
   }
 
-  // ── Helpers de parseo de fecha ──────────────────────────────────────────────
+  /// Centraliza la generaciÃ³n de estadÃ­sticas y el reporte mÃ©dico.
+  /// Retorna un mapa con todos los datos necesarios para generar el JSON.
+  Future<Map<String, dynamic>> getMedicalReportSummary(int userId) async {
+    final allLogs = await getAllDailyLogs(userId);
+    final cycleStats = await getCycleStatistics(userId);
+    final realBleedingAvg = await getRealBleedingAverage(userId);
+    
+    final lastPeriod = await getLastPeriodStart(userId);
+    
+    // Procesar datos pesados (jsonDecode y loops) en un Isolate para no bloquear UI
+    final computedData = await compute(_computeMedicalReportData, {
+      'allLogs': allLogs,
+      'lastPeriod': lastPeriod,
+      'avgCycleLength': cycleStats['averageCycleLength'],
+    });
+
+    return {
+      'allLogs': allLogs,
+      'cycleStats': cycleStats,
+      'realBleedingAvg': realBleedingAvg,
+      'lastPeriod': lastPeriod,
+      'flujoMasFrecuente': computedData['flujoMasFrecuente'],
+      'topSyms': computedData['topSyms'],
+    };
+  }
+
+  // â”€â”€ Helpers de parseo de fecha â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Parsea una fecha en formato 'YYYY-MM-DD' a DateTime normalizado a medianoche.
   DateTime? _parseDateString(String dateString) {
@@ -1175,23 +1185,23 @@ class DatabaseHelper {
   /// Normaliza un DateTime a medianoche (elimina componente de hora).
   DateTime _dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 
-  // ── Métodos con tipos seguros (TypedAPI) ────────────────────────────────────
-  // Los métodos anteriores retornan Map<String,dynamic> para retro-compatibilidad.
-  // Estos nuevos métodos retornan modelos tipados para uso en código nuevo.
+  // â”€â”€ MÃ©todos con tipos seguros (TypedAPI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Los mÃ©todos anteriores retornan Map<String,dynamic> para retro-compatibilidad.
+  // Estos nuevos mÃ©todos retornan modelos tipados para uso en cÃ³digo nuevo.
 
-  /// Versión tipada de [loginUser]. Retorna un [UserModel] o `null`.
+  /// VersiÃ³n tipada de [loginUser]. Retorna un [UserModel] o `null`.
   Future<UserModel?> loginUserTyped(String email, String password) async {
     final map = await loginUser(email, password);
     return map != null ? UserModel.fromMap(map) : null;
   }
 
-  /// Versión tipada de [getProfile]. Retorna un [ProfileModel] o `null`.
+  /// VersiÃ³n tipada de [getProfile]. Retorna un [ProfileModel] o `null`.
   Future<ProfileModel?> getProfileTyped(int userId) async {
     final map = await getProfile(userId);
     return map != null ? ProfileModel.fromMap(map) : null;
   }
 
-  // ── Pill times ──────────────────────────────────────────────────────────────
+  // â”€â”€ Pill times â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Future<List<Map<String, dynamic>>> getPillTimesRaw(int userId) async {
     final db = await instance.database;
@@ -1200,13 +1210,15 @@ class DatabaseHelper {
 
   Future<void> setPillTimes(int userId, List<Map<String, dynamic>> times) async {
     final db = await instance.database;
-    await db.delete('pill_times', where: 'user_id = ?', whereArgs: [userId]);
-    for (final t in times) {
-      await db.insert('pill_times', {'user_id': userId, 'hour': t['h'], 'minute': t['m']});
-    }
+    await db.transaction((txn) async {
+      await txn.delete('pill_times', where: 'user_id = ?', whereArgs: [userId]);
+      for (final t in times) {
+        await txn.insert('pill_times', {'user_id': userId, 'hour': t['h'], 'minute': t['m']});
+      }
+    });
   }
 
-  // ── Weekly appointments ─────────────────────────────────────────────────────
+  // â”€â”€ Weekly appointments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Future<List<Map<String, dynamic>>> getWeeklyAppointmentsRaw(int userId) async {
     final db = await instance.database;
@@ -1215,13 +1227,17 @@ class DatabaseHelper {
 
   Future<void> setWeeklyAppointments(int userId, List<Map<String, dynamic>> appts) async {
     final db = await instance.database;
-    await db.delete('weekly_appointments', where: 'user_id = ?', whereArgs: [userId]);
-    for (final a in appts) {
-      await db.insert('weekly_appointments', {'user_id': userId, 'weekday': a['wd'], 'hour': a['h'], 'minute': a['m']});
-    }
+    await db.transaction((txn) async {
+      await txn.delete('weekly_appointments', where: 'user_id = ?', whereArgs: [userId]);
+      for (final a in appts) {
+        await txn.insert('weekly_appointments', {'user_id': userId, 'weekday': a['wd'], 'hour': a['h'], 'minute': a['m']});
+      }
+    });
   }
 
-  // These are used by NotificationService — return domain models via maps
+  // These are used by NotificationService â€” return domain models via maps
   Future<List<Map<String, dynamic>>> getPillTimes(int userId) => getPillTimesRaw(userId);
   Future<List<Map<String, dynamic>>> getWeeklyAppointments(int userId) => getWeeklyAppointmentsRaw(userId);
 }
+
+

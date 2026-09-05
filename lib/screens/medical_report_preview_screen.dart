@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+﻿import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
@@ -99,7 +99,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       // Mini-header for subsequent pages
       return pw.Column(children: [
         pw.Row(children: [
-          pw.Text('Bellota — Reporte de Salud', style: pw.TextStyle(font: bold, fontSize: 10, color: PdfColor.fromInt(0xFFD35D53))),
+          pw.Text('Bellota â€” Reporte de Salud', style: pw.TextStyle(font: bold, fontSize: 10, color: PdfColor.fromInt(0xFFD35D53))),
           pw.Spacer(),
           pw.Text(widget.reportData['metadata']?['numero_reporte']?.toString() ?? '', style: pw.TextStyle(fontSize: 9, color: PdfColor.fromInt(0xFF8A8A8A))),
         ]),
@@ -118,7 +118,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Text('REPORTE DE SALUD MENSTRUAL', style: pw.TextStyle(font: bold, fontSize: 18, color: PdfColor.fromInt(0xFFD35D53))),
-              pw.Text('Reporte menstrual y clínico ginecológico', style: pw.TextStyle(fontSize: 11, color: PdfColor.fromInt(0xFF8A8A8A))),
+              pw.Text('Reporte menstrual y clÃ­nico ginecolÃ³gico', style: pw.TextStyle(fontSize: 11, color: PdfColor.fromInt(0xFF8A8A8A))),
             ],
           ),
         ],
@@ -136,12 +136,12 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       pw.Row(children: [
         pw.Expanded(
           child: pw.Text(
-            meta['aviso']?.toString() ?? 'Este reporte no sustituye una valoración médica profesional.',
+            meta['aviso']?.toString() ?? 'Este reporte no sustituye una valoraciÃ³n mÃ©dica profesional.',
             style: pw.TextStyle(font: italic, fontSize: 8, color: PdfColor.fromInt(0xFF9E9E9E)),
           ),
         ),
         pw.SizedBox(width: 8),
-        pw.Text('Pág. ${context.pageNumber}/${context.pagesCount}', style: pw.TextStyle(font: regular, fontSize: 9, color: PdfColor.fromInt(0xFF9E9E9E))),
+        pw.Text('PÃ¡g. ${context.pageNumber}/${context.pagesCount}', style: pw.TextStyle(font: regular, fontSize: 9, color: PdfColor.fromInt(0xFF9E9E9E))),
       ]),
     ]);
   }
@@ -156,7 +156,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     final widgets = <pw.Widget>[];
 
     // Section 1
-    widgets.add(_buildPdfSectionTitle('1. INFORMACIÓN GENERAL', bold));
+    widgets.add(_buildPdfSectionTitle('1. INFORMACIÃ“N GENERAL', bold));
     widgets.add(_buildPdfTable({
       'Paciente': gen['paciente'],
       'Edad': gen['edad'],
@@ -164,11 +164,11 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       'Rango analizado': gen['rango_analizado'],
       'Total ciclos': gen['total_ciclos']?.toString(),
       'Anticonceptivos': gen['anticonceptivos_medicamentos'],
-      'Ubicación': gen['ubicacion'],
+      'UbicaciÃ³n': gen['ubicacion'],
     }, regular, bold));
 
     // Section 2
-    widgets.add(_buildPdfSectionTitle('2. RESUMEN ESTADÍSTICO', bold));
+    widgets.add(_buildPdfSectionTitle('2. RESUMEN ESTADÃSTICO', bold));
     if (res['promedio_ciclo'] != null || res['promedio_sangrado'] != null) {
       widgets.add(
         pw.Row(
@@ -186,24 +186,24 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     }
     
     widgets.add(_buildPdfTable({
-      'Flujo más frecuente': res['flujo_mas_frecuente'],
+      'Flujo mÃ¡s frecuente': res['flujo_mas_frecuente'],
       'FUM': res['fum'],
     }, regular, bold));
 
     if (res['sintomas_mas_frecuentes'] != null && (res['sintomas_mas_frecuentes'] as List).isNotEmpty) {
       widgets.add(pw.SizedBox(height: 8));
-      widgets.add(pw.Text('Síntomas frecuentes: ${(res['sintomas_mas_frecuentes'] as List).join(', ')}', style: pw.TextStyle(font: regular, fontSize: 10, color: PdfColor.fromInt(0xFF5A2D2D))));
+      widgets.add(pw.Text('SÃ­ntomas frecuentes: ${(res['sintomas_mas_frecuentes'] as List).join(', ')}', style: pw.TextStyle(font: regular, fontSize: 10, color: PdfColor.fromInt(0xFF5A2D2D))));
     }
 
     // Section 3
     if (pat.isNotEmpty) {
-      widgets.add(_buildPdfSectionTitle('3. PATRÓN DE SANGRADO Y FLUJO', bold));
+      widgets.add(_buildPdfSectionTitle('3. PATRÃ“N DE SANGRADO Y FLUJO', bold));
       widgets.add(_buildPdfTable(pat.map((k, v) => MapEntry(k.toString(), v)), regular, bold));
     }
 
     // Section 4
     if (dol.isNotEmpty) {
-      widgets.add(_buildPdfSectionTitle('4. DOLOR Y SINTOMATOLOGÍA', bold));
+      widgets.add(_buildPdfSectionTitle('4. DOLOR Y SINTOMATOLOGÃA', bold));
       if (dol['nivel_dolor_eva'] != null) {
         widgets.add(_buildPdfEvaBar(dol['nivel_dolor_eva'].toString(), bold, regular));
       }
@@ -215,7 +215,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
 
     // Section 5
     if (alertas.isNotEmpty) {
-      widgets.add(_buildPdfSectionTitle('5. ALERTAS CLÍNICAS', bold));
+      widgets.add(_buildPdfSectionTitle('5. ALERTAS CLÃNICAS', bold));
       for (final a in alertas) {
         final tipo = a['tipo']?.toString() ?? '';
         final detalle = a['detalle']?.toString() ?? '';
@@ -378,18 +378,18 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
         // Header
         Row(
           children: [
-            Image.asset('assets/images/logo_color.png', height: 50, errorBuilder: (_, _, _) => Icon(Icons.favorite_rounded, color: BellotaColors.chilero, size: 36)),
+            Image.asset('assets/images/logo_color.png', height: 50, errorBuilder: (_, _, _) => Icon(Icons.favorite_rounded, color: Theme.of(context).bellotaColors.chilero, size: 36)),
             SizedBox(width: 14),
             Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppTranslations.get('profile_and_report','health_report_title',lang), style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: BellotaColors.chilero)),
-                Text(AppTranslations.get('profile_and_report','health_report_subtitle',lang), style: GoogleFonts.poppins(fontSize: 11, color: BellotaColors.textoMedio)),
+                Text(AppTranslations.get('profile_and_report','health_report_title',lang), style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.chilero)),
+                Text(AppTranslations.get('profile_and_report','health_report_subtitle',lang), style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
               ],
             )),
           ],
         ),
-        Divider(color: BellotaColors.chilero, thickness: 1.5, height: 24),
+        Divider(color: Theme.of(context).bellotaColors.chilero, thickness: 1.5, height: 24),
 
         // Section 1
         _buildScreenSectionHeader(AppTranslations.get('profile_and_report','sec_general',lang)),
@@ -437,11 +437,11 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             child: Wrap(
               spacing: 6, runSpacing: 6,
               children: [
-                Text(AppTranslations.get('registration_form','top_symptoms',lang) + ':', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: BellotaColors.textoDark)),
+                Text(AppTranslations.get('registration_form','top_symptoms',lang) + ':', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.textoDark)),
                 ...(res['sintomas_mas_frecuentes'] as List).map((s) => Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: BellotaColors.chilero.withValues(alpha:0.10), borderRadius: BorderRadius.circular(20)),
-                  child: Text(s.toString(), style: GoogleFonts.poppins(fontSize: 11, color: BellotaColors.chilero)),
+                  decoration: BoxDecoration(color: Theme.of(context).bellotaColors.chilero.withValues(alpha:0.10), borderRadius: BorderRadius.circular(20)),
+                  child: Text(s.toString(), style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.chilero)),
                 )),
               ],
             ),
@@ -484,7 +484,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
         ],
 
         SizedBox(height: 24),
-        Text(meta['aviso']?.toString() ?? '', style: GoogleFonts.poppins(fontSize: 10, fontStyle: FontStyle.italic, color: BellotaColors.textoMedio)),
+        Text(meta['aviso']?.toString() ?? '', style: GoogleFonts.poppins(fontSize: 10, fontStyle: FontStyle.italic, color: Theme.of(context).bellotaColors.textoMedio)),
       ],
     );
   }
@@ -495,11 +495,11 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       margin: EdgeInsets.only(bottom: 8),
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: BellotaColors.chilero.withValues(alpha: 0.10),
+        color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(8),
-        border: Border(left: BorderSide(color: BellotaColors.chilero, width: 3)),
+        border: Border(left: BorderSide(color: Theme.of(context).bellotaColors.chilero, width: 3)),
       ),
-      child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: BellotaColors.textoDark, fontSize: 13)),
+      child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.textoDark, fontSize: 13)),
     );
   }
 
@@ -508,7 +508,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     if (entries.isEmpty) return SizedBox.shrink();
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: BellotaColors.nancite),
+        border: Border.all(color: Theme.of(context).bellotaColors.nancite),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -516,7 +516,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           final isEven = entry.key % 2 == 0;
           return Container(
             decoration: BoxDecoration(
-              color: isEven ? BellotaColors.nancite.withValues(alpha: 0.5) : Colors.white,
+              color: isEven ? Theme.of(context).bellotaColors.nancite.withValues(alpha: 0.5) : Colors.white,
               borderRadius: entry.key == 0
                   ? BorderRadius.vertical(top: Radius.circular(8))
                   : entry.key == entries.length - 1
@@ -527,8 +527,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(flex: 2, child: Text(entry.value.key, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11, color: BellotaColors.textoDark))),
-                Expanded(flex: 3, child: Text(entry.value.value?.toString() ?? '-', style: GoogleFonts.poppins(fontSize: 11, color: BellotaColors.textoMedio))),
+                Expanded(flex: 2, child: Text(entry.value.key, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 11, color: Theme.of(context).bellotaColors.textoDark))),
+                Expanded(flex: 3, child: Text(entry.value.value?.toString() ?? '-', style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio))),
               ],
             ),
           );
@@ -539,7 +539,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
 
   Widget _buildScreenMetricCard(String title, String valor, String referencia, String estado) {
     final isNormal = estado.toLowerCase().contains('normal');
-    final color = isNormal ? BellotaColors.chiltoma : BellotaColors.chilero;
+    final color = isNormal ? Theme.of(context).bellotaColors.chiltoma : Theme.of(context).bellotaColors.chilero;
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -549,10 +549,10 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.poppins(fontSize: 10, color: BellotaColors.textoMedio)),
+          Text(title, style: GoogleFonts.poppins(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
           SizedBox(height: 4),
           Text(valor, style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-          Text(referencia, style: GoogleFonts.poppins(fontSize: 9, color: BellotaColors.textoMedio)),
+          Text(referencia, style: GoogleFonts.poppins(fontSize: 9, color: Theme.of(context).bellotaColors.textoMedio)),
           SizedBox(height: 6),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -570,7 +570,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       value = double.parse(evaString.split('/')[0]);
     } catch (_) {}
     final pct = value / 10.0;
-    final color = pct >= 0.8 ? BellotaColors.chilero : pct >= 0.5 ? BellotaColors.melon : BellotaColors.chiltoma;
+    final color = pct >= 0.8 ? Theme.of(context).bellotaColors.chilero : pct >= 0.5 ? Theme.of(context).bellotaColors.melon : Theme.of(context).bellotaColors.chiltoma;
     return Container(
       margin: EdgeInsets.only(bottom: 8),
       padding: EdgeInsets.all(12),
@@ -583,7 +583,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
         children: [
           Row(
             children: [
-              Text('EVA', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.bold, color: BellotaColors.textoDark)),
+              Text('EVA', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.textoDark)),
               Spacer(),
               Text(evaString, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
             ],
@@ -594,7 +594,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             child: LinearProgressIndicator(
               value: pct,
               minHeight: 8,
-              backgroundColor: BellotaColors.nancite,
+              backgroundColor: Theme.of(context).bellotaColors.nancite,
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
@@ -605,7 +605,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
 
   Widget _buildScreenAlertRow(String tipo, String detalle) {
     final isAlert = detalle.contains('Alerta') || detalle.contains('Alert') || tipo.contains('Alerta');
-    final color = isAlert ? BellotaColors.chilero : BellotaColors.chiltoma;
+    final color = isAlert ? Theme.of(context).bellotaColors.chilero : Theme.of(context).bellotaColors.chiltoma;
     return Container(
       margin: EdgeInsets.only(bottom: 6),
       padding: EdgeInsets.all(10),
@@ -622,8 +622,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           Expanded(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(tipo, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.bold, color: BellotaColors.textoDark)),
-              Text(detalle, style: GoogleFonts.poppins(fontSize: 11, color: BellotaColors.textoMedio, height: 1.4)),
+              Text(tipo, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.textoDark)),
+              Text(detalle, style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio, height: 1.4)),
             ],
           )),
         ],
@@ -635,13 +635,13 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
   Widget build(BuildContext context) {
     final lang = languageNotifier.currentLang;
     return Scaffold(
-      backgroundColor: BellotaColors.basilica,
+      backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
-        title: Text(AppTranslations.get('profile_and_report','preview',lang), style: GoogleFonts.poppins(color: BellotaColors.textoDark, fontSize: 17, fontWeight: FontWeight.bold)),
-        backgroundColor: BellotaColors.blanco,
+        title: Text(AppTranslations.get('profile_and_report','preview',lang), style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontSize: 17, fontWeight: FontWeight.bold)),
+        backgroundColor: Theme.of(context).bellotaColors.blanco,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(color: BellotaColors.textoDark),
+        iconTheme: IconThemeData(color: Theme.of(context).bellotaColors.textoDark),
       ),
       body: Stack(
         children: [
@@ -654,7 +654,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(color: BellotaColors.melon.withValues(alpha:0.10), blurRadius: 20, offset: Offset(0, 6)),
+                  BoxShadow(color: Theme.of(context).bellotaColors.melon.withValues(alpha:0.10), blurRadius: 20, offset: Offset(0, 6)),
                 ],
               ),
               child: _buildReportContent(),
@@ -663,14 +663,14 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           if (_isExporting || _isPrinting)
             Container(
               color: Colors.black.withValues(alpha: 0.3),
-              child: Center(child: CircularProgressIndicator(color: BellotaColors.chilero)),
+              child: Center(child: CircularProgressIndicator(color: Theme.of(context).bellotaColors.chilero)),
             ),
         ],
       ),
       bottomNavigationBar: Container(
         padding: EdgeInsets.fromLTRB(16, 12, 16, 16),
         decoration: BoxDecoration(
-          color: BellotaColors.blanco,
+          color: Theme.of(context).bellotaColors.blanco,
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.06), blurRadius: 12, offset: Offset(0,-4))],
         ),
         child: Row(
@@ -681,8 +681,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
                 icon: Icon(Icons.print_rounded, size: 18),
                 label: Text(AppTranslations.get('registration_form','print_pdf',lang)),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: BellotaColors.chilero,
-                  side: BorderSide(color: BellotaColors.chilero),
+                  foregroundColor: Theme.of(context).bellotaColors.chilero,
+                  side: BorderSide(color: Theme.of(context).bellotaColors.chilero),
                   padding: EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
@@ -696,7 +696,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
                 icon: Icon(Icons.picture_as_pdf_rounded, size: 18),
                 label: Text(AppTranslations.get('registration_form','share_pdf',lang)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: BellotaColors.chilero,
+                  backgroundColor: Theme.of(context).bellotaColors.chilero,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -710,3 +710,4 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     );
   }
 }
+

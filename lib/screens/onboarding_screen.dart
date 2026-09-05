@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
-import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import 'calendar_tour_screen.dart';
 
@@ -131,17 +130,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             child: SafeArea(
               child: Stack(
                 children: [
-                  // ── Fondo Cottagecore decorativo ──
+                  // â”€â”€ Fondo Cottagecore decorativo â”€â”€
                   _buildCottagecoreBg(size, slide),
 
                   Column(
                     children: [
-                      // ── Header ──
+                      // â”€â”€ Header â”€â”€
                       Padding(
                         padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
                         child: Row(
                           children: [
-                            // Logo pequeño
+                            // Logo pequeÃ±o
                             Image.asset('assets/images/logo_white.png', height: 32,
                                 errorBuilder: (_, _, _) => Icon(Icons.circle, color: Colors.white30, size: 32)),
                             Spacer(),
@@ -164,7 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         ),
                       ),
 
-                      // ── Slides ──
+                      // â”€â”€ Slides â”€â”€
                       Expanded(
                         child: PageView.builder(
                           controller: _pageController,
@@ -185,7 +184,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         ),
                       ),
 
-                      // ── Dots + Botón ──
+                      // â”€â”€ Dots + BotÃ³n â”€â”€
                       Padding(
                         padding: EdgeInsets.fromLTRB(28, 0, 28, 36),
                         child: Column(
@@ -212,7 +211,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             ),
                             SizedBox(height: 28),
 
-                            // Botón CTA
+                            // BotÃ³n CTA
                             GestureDetector(
                               onTap: _goToNext,
                               child: AnimatedContainer(
@@ -278,7 +277,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // ── Imagen directa (sin cuadrado) ──
+          // â”€â”€ Imagen directa (sin cuadrado) â”€â”€
           Image.asset(
             slide.imagePath,
             height: size.width * 0.6,
@@ -292,7 +291,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
           SizedBox(height: 50),
 
-          // ── Título ──
+          // â”€â”€ TÃ­tulo â”€â”€
           Text(
             slide.title,
             style: GoogleFonts.poppins(
@@ -306,7 +305,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ),
           SizedBox(height: 14),
 
-          // ── Subtítulo ──
+          // â”€â”€ SubtÃ­tulo â”€â”€
           Text(
             slide.subtitle,
             style: GoogleFonts.poppins(
@@ -322,20 +321,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  // ── Fondo de Flores Cottagecore ──
+  // â”€â”€ Fondo de Flores Cottagecore â”€â”€
   Widget _buildCottagecoreBg(Size size, _SlideData slide) {
     return IgnorePointer(
       child: Stack(
         children: [
-          _buildFloatingFlower(size, '🌸', 0.05, 0.08, 0.2, 50),
-          _buildFloatingFlower(size, '🌿', 0.8, 0.12, -0.3, 60),
-          _buildFloatingFlower(size, '🌼', 0.15, 0.65, 0.15, 45),
-          _buildFloatingFlower(size, '🍄', 0.85, 0.55, -0.2, 40),
-          _buildFloatingFlower(size, '🌷', -0.05, 0.35, 0.4, 70),
-          _buildFloatingFlower(size, '🌿', 0.9, 0.3, -0.4, 55),
-          _buildFloatingFlower(size, '🌻', 0.45, -0.05, 0.1, 80),
-          _buildFloatingFlower(size, '🦋', 0.25, 0.85, -0.1, 35),
-          _buildFloatingFlower(size, '🌾', 0.75, 0.8, 0.2, 50),
+          _buildFloatingFlower(size, 'ðŸŒ¸', 0.05, 0.08, 0.2, 50),
+          _buildFloatingFlower(size, 'ðŸŒ¿', 0.8, 0.12, -0.3, 60),
+          _buildFloatingFlower(size, 'ðŸŒ¼', 0.15, 0.65, 0.15, 45),
+          _buildFloatingFlower(size, 'ðŸ„', 0.85, 0.55, -0.2, 40),
+          _buildFloatingFlower(size, 'ðŸŒ·', -0.05, 0.35, 0.4, 70),
+          _buildFloatingFlower(size, 'ðŸŒ¿', 0.9, 0.3, -0.4, 55),
+          _buildFloatingFlower(size, 'ðŸŒ»', 0.45, -0.05, 0.1, 80),
+          _buildFloatingFlower(size, 'ðŸ¦‹', 0.25, 0.85, -0.1, 35),
+          _buildFloatingFlower(size, 'ðŸŒ¾', 0.75, 0.8, 0.2, 50),
         ],
       ),
     );
@@ -348,7 +347,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Transform.rotate(
         angle: angle,
         child: Opacity(
-          opacity: 0.2, // translúcido para que sea un fondo sutil
+          opacity: 0.2, // translÃºcido para que sea un fondo sutil
           child: Text(
             emoji,
             style: TextStyle(fontSize: iconSize),
@@ -376,3 +375,4 @@ class _SlideData {
     required this.decoration2,
   });
 }
+

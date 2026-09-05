@@ -152,7 +152,7 @@ class AuditLogModel {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is AuditLogModel && other.id == id);
+      identical(this, other) || (other is AuditLogModel && id != null && id == other.id);
 
   @override
   int get hashCode => id.hashCode;

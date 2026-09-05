@@ -1,4 +1,4 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
+﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -66,7 +66,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: BellotaColors.chilero,
+            color: Theme.of(context).bellotaColors.chilero,
             shape: BoxShape.circle,
           ),
         ),
@@ -74,7 +74,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
         Text(
           text,
           style: TextStyle(
-            color: BellotaColors.textoDark,
+            color: Theme.of(context).bellotaColors.textoDark,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
@@ -109,15 +109,15 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
               : Text(label),
           selected: isSelected,
           onSelected: (_) => onSelected(key),
-          selectedColor: BellotaColors.chilero,
-          backgroundColor: BellotaColors.nancite,
+          selectedColor: Theme.of(context).bellotaColors.chilero,
+          backgroundColor: Theme.of(context).bellotaColors.nancite,
           showCheckmark: false,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide.none,
           ),
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : BellotaColors.textoDark,
+            color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         );
@@ -141,15 +141,15 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
           label: Text(label),
           selected: isSelected,
           onSelected: (_) => onSelected(key),
-          selectedColor: BellotaColors.chilero,
-          backgroundColor: BellotaColors.nancite,
+          selectedColor: Theme.of(context).bellotaColors.chilero,
+          backgroundColor: Theme.of(context).bellotaColors.nancite,
           showCheckmark: false,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide.none,
           ),
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : BellotaColors.textoDark,
+            color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         );
@@ -161,7 +161,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
   Widget build(BuildContext context) {
     final lang = languageNotifier.currentLang;
     return Scaffold(
-      backgroundColor: BellotaColors.basilica,
+      backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -169,13 +169,13 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
           onPressed: () => Navigator.pop(context),
           child: Text(
             AppTranslations.get('registration_form', 'cancel', lang),
-            style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+            style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
           ),
         ),
         leadingWidth: 80,
         title: Text(
           AppTranslations.get('registration_form', 'bleeding_pattern', lang),
-          style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         centerTitle: true,
         actions: [
@@ -183,7 +183,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
             onPressed: _save,
             child: Text(
               AppTranslations.get('onboarding', 'confirm', lang),
-              style: TextStyle(color: BellotaColors.chilero, fontSize: 16),
+              style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
             ),
           ),
         ],
@@ -198,7 +198,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: BellotaColors.chilero.withValues(alpha: 0.08),
+                  color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.08),
                   blurRadius: 10,
                   offset: Offset(0, 4),
                 ),
@@ -214,9 +214,9 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                   selectedKey: _intensidadFlujoKey,
                   onSelected: (val) => setState(() => _intensidadFlujoKey = val),
                   prefixes: {
-                    'light_flow': '💧',
-                    'moderate_flow': '💧💧',
-                    'heavy_flow': '💧💧💧',
+                    'light_flow': 'ðŸ’§',
+                    'moderate_flow': 'ðŸ’§ðŸ’§',
+                    'heavy_flow': 'ðŸ’§ðŸ’§ðŸ’§',
                   },
                 ),
                 SizedBox(height: 24),
@@ -254,7 +254,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                     decoration: InputDecoration(
                       hintText: AppTranslations.get('registration_form', 'cycle_days', lang),
                       filled: true,
-                      fillColor: BellotaColors.nancite,
+                      fillColor: Theme.of(context).bellotaColors.nancite,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     ),
                   ),
@@ -292,3 +292,4 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
     );
   }
 }
+

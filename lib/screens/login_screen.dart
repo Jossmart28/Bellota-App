@@ -1,20 +1,20 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../core/services/auth_service.dart';
-import '../core/services/navigation_service.dart';
+import '../navigation/navigation_service.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_text_field.dart';
 import '../widgets/bellota_top_actions.dart';
 import 'register_screen.dart';
 
-/// Pantalla de Inicio de Sesión de Bellota.
+/// Pantalla de Inicio de SesiÃƒÂ³n de Bellota.
 ///
 /// Valida las credenciales locales del usuario y redirige al flujo
-/// de incorporación correcto usando [NavigationService.resolveHomeScreen].
+/// de incorporaciÃƒÂ³n correcto usando [NavigationService.resolveHomeScreen].
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -24,21 +24,21 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  // ── Formulario ─────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Formulario Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  // ── Estado local ───────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Estado local Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   bool _passwordVisible = false;
   bool _isLoading = false;
 
-  // ── Animaciones ────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Animaciones Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   late AnimationController _animController;
   late Animation<Offset> _formSlide;
   late Animation<double> _formFade;
 
-  // ── Ciclo de vida ──────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Ciclo de vida Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   @override
   void initState() {
@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  // ── Lógica de negocio ──────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ LÃƒÂ³gica de negocio Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Future<void> _handleLogin() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen>
 
       if (user != null) {
         await AuthService.instance.saveSession(user);
-        // Registrar login exitoso en el log de auditoría
+        // Registrar login exitoso en el log de auditorÃƒÂ­a
         await AuthService.instance.logAction(
           action: 'login',
           targetType: 'user',
@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen>
         );
         if (!mounted) return;
 
-        // Resolución de pantalla sin gaps asíncronos tras el mounted check
+        // ResoluciÃƒÂ³n de pantalla sin gaps asÃƒÂ­ncronos tras el mounted check
         final prefs = await SharedPreferences.getInstance();
         if (!mounted) return;
         final destination = NavigationService.resolveHomeScreen(prefs);
@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesión.');
+      _showError('Error al iniciar sesiÃƒÂ³n.');
     }
   }
 
@@ -146,11 +146,11 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesión con Google.');
+      _showError('Error al iniciar sesiÃƒÂ³n con Google.');
     }
   }
 
-  // ── Helpers de UI ──────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Helpers de UI Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   void _setLoading(bool value) {
     if (mounted) setState(() => _isLoading = value);
@@ -165,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen>
           style: Theme.of(context)
               .textTheme
               .bodyMedium
-              ?.copyWith(color: BellotaColors.blanco),
+              ?.copyWith(color: Theme.of(context).bellotaColors.blanco),
         ),
         backgroundColor: Colors.redAccent,
         behavior: SnackBarBehavior.floating,
@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Build Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   @override
   Widget build(BuildContext context) {
@@ -187,12 +187,12 @@ class _LoginScreenState extends State<LoginScreen>
           body: Container(
             width: double.infinity,
             height: double.infinity,
-            color: BellotaColors.chilero,
+            color: Theme.of(context).bellotaColors.chilero,
             child: Stack(
               children: [
                 // Fondo decorativo
-                const Positioned.fill(
-                  child: CustomPaint(painter: _LoginBackgroundPainter()),
+                Positioned.fill(
+                  child: CustomPaint(painter: _LoginBackgroundPainter(Theme.of(context).bellotaColors.blanco)),
                 ),
 
                 // Botones globales (idioma / accesibilidad)
@@ -248,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  // ── Secciones de UI ────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Secciones de UI Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Widget _buildLogoSection() {
     return const Padding(
@@ -272,15 +272,15 @@ class _LoginScreenState extends State<LoginScreen>
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.fromLTRB(28, 36, 28, 32),
       decoration: BoxDecoration(
-        color: BellotaColors.blanco.withValues(alpha: 0.12),
+        color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.12),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
         border: Border(
           top: BorderSide(
-              color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
           left: BorderSide(
-              color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
           right: BorderSide(
-              color: BellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
         ),
       ),
       child: Form(
@@ -291,13 +291,13 @@ class _LoginScreenState extends State<LoginScreen>
             Text(
               AppTranslations.get('onboarding_and_auth', 'login_title', lang),
               style: textTheme.displayMedium
-                  ?.copyWith(color: BellotaColors.blanco),
+                  ?.copyWith(color: Theme.of(context).bellotaColors.blanco),
             ),
             const SizedBox(height: 4),
             Text(
               AppTranslations.get('onboarding_and_auth', 'welcome_back', lang),
               style: textTheme.bodyMedium?.copyWith(
-                  color: BellotaColors.blanco.withValues(alpha: 0.75)),
+                  color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75)),
             ),
             const SizedBox(height: 28),
 
@@ -316,11 +316,11 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 16),
 
-            // Campo de contraseña
+            // Campo de contraseÃƒÂ±a
             BellotaTextField(
               controller: _passwordController,
               label: AppTranslations.get('onboarding_and_auth', 'password_label', lang),
-              hint: '••••••••',
+              hint: 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢',
               prefixIcon: Icons.lock_outline,
               obscureText: !_passwordVisible,
               suffixIcon: IconButton(
@@ -328,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen>
                   _passwordVisible
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: BellotaColors.blanco.withValues(alpha: 0.7),
+                  color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7),
                 ),
                 onPressed: () =>
                     setState(() => _passwordVisible = !_passwordVisible),
@@ -341,30 +341,30 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 12),
 
-            // Olvidé mi contraseña
+            // OlvidÃƒÂ© mi contraseÃƒÂ±a
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
-                  foregroundColor: BellotaColors.blanco,
+                  foregroundColor: Theme.of(context).bellotaColors.blanco,
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(10, 36),
                 ),
                 child: Text(
                   AppTranslations.get('onboarding_and_auth', 'forgot_pass', lang),
                   style: textTheme.bodySmall?.copyWith(
-                    color: BellotaColors.blanco.withValues(alpha: 0.85),
+                    color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.85),
                     decoration: TextDecoration.underline,
                     decorationColor:
-                        BellotaColors.blanco.withValues(alpha: 0.6),
+                        Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.6),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // Botón de ingreso
+            // BotÃƒÂ³n de ingreso
             _BellotaButton(
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
@@ -372,30 +372,30 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 20),
 
-            // Separador "o continúa con"
+            // Separador "o continÃƒÂºa con"
             Row(
               children: [
                 Expanded(
                     child: Divider(
-                        color: BellotaColors.blanco.withValues(alpha: 0.3),
+                        color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.3),
                         height: 1)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     AppTranslations.get('onboarding_and_auth', 'or_continue_with', lang),
                     style: textTheme.bodySmall?.copyWith(
-                        color: BellotaColors.blanco.withValues(alpha: 0.65)),
+                        color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.65)),
                   ),
                 ),
                 Expanded(
                     child: Divider(
-                        color: BellotaColors.blanco.withValues(alpha: 0.3),
+                        color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.3),
                         height: 1)),
               ],
             ),
             const SizedBox(height: 20),
 
-            // Botón de Google
+            // BotÃƒÂ³n de Google
             _SocialButton(
               label: AppTranslations.get('onboarding_and_auth', 'continue_google', lang),
               icon: Icons.g_mobiledata_rounded,
@@ -408,7 +408,7 @@ class _LoginScreenState extends State<LoginScreen>
               child: RichText(
                 text: TextSpan(
                   style: textTheme.bodySmall?.copyWith(
-                      color: BellotaColors.blanco.withValues(alpha: 0.75)),
+                      color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75)),
                   children: [
                     TextSpan(text: AppTranslations.get('onboarding_and_auth', 'no_account', lang)),
                     WidgetSpan(
@@ -420,10 +420,10 @@ class _LoginScreenState extends State<LoginScreen>
                         child: Text(
                           AppTranslations.get('onboarding_and_auth', 'register_now', lang),
                           style: textTheme.bodySmall?.copyWith(
-                            color: BellotaColors.blanco,
+                            color: Theme.of(context).bellotaColors.blanco,
                             fontWeight: FontWeight.w700,
                             decoration: TextDecoration.underline,
-                            decorationColor: BellotaColors.blanco,
+                            decorationColor: Theme.of(context).bellotaColors.blanco,
                           ),
                         ),
                       ),
@@ -439,9 +439,9 @@ class _LoginScreenState extends State<LoginScreen>
   }
 }
 
-// ── Componentes locales de UI ──────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬ Componentes locales de UI Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
-/// Botón principal con gradiente Bellota.
+/// BotÃƒÂ³n principal con gradiente Bellota.
 class _BellotaButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
@@ -460,11 +460,11 @@ class _BellotaButton extends StatelessWidget {
       height: 56,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: BellotaColors.buttonGradient,
+          gradient: Theme.of(context).bellotaColors.buttonGradient,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: BellotaColors.chilero.withValues(alpha: 0.5),
+              color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.5),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -475,14 +475,14 @@ class _BellotaButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
-            foregroundColor: BellotaColors.blanco,
+            foregroundColor: Theme.of(context).bellotaColors.blanco,
           ),
           child: isLoading
               ? SizedBox(
                   width: 24,
                   height: 24,
                   child: CircularProgressIndicator(
-                      color: BellotaColors.blanco, strokeWidth: 2.5),
+                      color: Theme.of(context).bellotaColors.blanco, strokeWidth: 2.5),
                 )
               : Text(label),
         ),
@@ -491,7 +491,7 @@ class _BellotaButton extends StatelessWidget {
   }
 }
 
-/// Botón de proveedor externo (Google, Apple, etc.).
+/// BotÃƒÂ³n de proveedor externo (Google, Apple, etc.).
 class _SocialButton extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -510,29 +510,29 @@ class _SocialButton extends StatelessWidget {
       height: 52,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon, color: BellotaColors.blanco, size: 24),
+        icon: Icon(icon, color: Theme.of(context).bellotaColors.blanco, size: 24),
         label: Text(label),
         style: OutlinedButton.styleFrom(
-          foregroundColor: BellotaColors.blanco,
+          foregroundColor: Theme.of(context).bellotaColors.blanco,
           side: BorderSide(
-              color: BellotaColors.blanco.withValues(alpha: 0.45), width: 1.2),
+              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.45), width: 1.2),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          backgroundColor: BellotaColors.blanco.withValues(alpha: 0.08),
+          backgroundColor: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.08),
         ),
       ),
     );
   }
 }
 
-/// Fondo decorativo de la pantalla de login con curvas y círculos sutiles.
 class _LoginBackgroundPainter extends CustomPainter {
-  const _LoginBackgroundPainter();
+  final Color overlayColor;
+  const _LoginBackgroundPainter(this.overlayColor);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = BellotaColors.blanco.withValues(alpha: 0.05)
+      ..color = overlayColor.withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
 
     final path1 = Path()
@@ -549,20 +549,21 @@ class _LoginBackgroundPainter extends CustomPainter {
           size.width * 0.3, size.height * 0.9, 0, size.height)
       ..close();
     canvas.drawPath(
-        path2, paint..color = BellotaColors.blanco.withValues(alpha: 0.04));
+        path2, paint..color = overlayColor.withValues(alpha: 0.04));
 
     canvas.drawCircle(
       Offset(size.width * 0.85, size.height * 0.12),
       size.width * 0.18,
-      paint..color = BellotaColors.blanco.withValues(alpha: 0.04),
+      paint..color = overlayColor.withValues(alpha: 0.04),
     );
     canvas.drawCircle(
       Offset(size.width * 0.1, size.height * 0.85),
       size.width * 0.12,
-      paint..color = BellotaColors.blanco.withValues(alpha: 0.03),
+      paint..color = overlayColor.withValues(alpha: 0.03),
     );
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
+

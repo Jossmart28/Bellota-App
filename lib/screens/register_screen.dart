@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../core/services/auth_service.dart';
-import '../core/services/navigation_service.dart';
+import '../navigation/navigation_service.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_text_field.dart';
 import '../widgets/bellota_top_actions.dart';
@@ -51,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _nameController.text, email, _passwordController.text,
       );
       await AuthService.instance.saveSession(user);
-      // Registrar el evento de registro en el log de auditoría
+      // Registrar el evento de registro en el log de auditorÃ­a
       await AuthService.instance.logAction(
         action: 'register',
         targetType: 'user',
@@ -74,7 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(message,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: BellotaColors.blanco)),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).bellotaColors.blanco)),
       backgroundColor: Colors.redAccent,
       behavior: SnackBarBehavior.floating,
     ));
@@ -88,12 +88,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
         return Scaffold(
-          backgroundColor: BellotaColors.chilero,
+          backgroundColor: Theme.of(context).bellotaColors.chilero,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios, color: BellotaColors.blanco),
+              icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).bellotaColors.blanco),
               onPressed: () => Navigator.of(context).pop(),
             ),
             actions: [
@@ -115,20 +115,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Text(
                       AppTranslations.get('onboarding_and_auth', 'create_account', lang),
-                      style: textTheme.displayMedium?.copyWith(color: BellotaColors.blanco),
+                      style: textTheme.displayMedium?.copyWith(color: Theme.of(context).bellotaColors.blanco),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppTranslations.get('onboarding_and_auth', 'join_bellota', lang),
-                      style: textTheme.bodyLarge?.copyWith(color: BellotaColors.blanco.withValues(alpha: 0.8)),
+                      style: textTheme.bodyLarge?.copyWith(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8)),
                     ),
                     const SizedBox(height: 32),
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: BellotaColors.blanco.withValues(alpha: 0.12),
+                        color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: BellotaColors.blanco.withValues(alpha: 0.25)),
+                        border: Border.all(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25)),
                       ),
                       child: Form(
                         key: _formKey,
@@ -163,7 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               obscureText: !_passwordVisible,
                               suffixIcon: IconButton(
                                 icon: Icon(_passwordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                    color: BellotaColors.blanco.withValues(alpha: 0.7)),
+                                    color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7)),
                                 onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
                               ),
                               validator: (v) {
@@ -181,7 +181,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               obscureText: !_confirmVisible,
                               suffixIcon: IconButton(
                                 icon: Icon(_confirmVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                    color: BellotaColors.blanco.withValues(alpha: 0.7)),
+                                    color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7)),
                                 onPressed: () => setState(() => _confirmVisible = !_confirmVisible),
                               ),
                               validator: (v) {
@@ -197,12 +197,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _handleRegister,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: BellotaColors.melon,
-                                  foregroundColor: BellotaColors.blanco,
+                                  backgroundColor: Theme.of(context).bellotaColors.melon,
+                                  foregroundColor: Theme.of(context).bellotaColors.blanco,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                                 ),
                                 child: _isLoading
-                                    ? CircularProgressIndicator(color: BellotaColors.blanco)
+                                    ? CircularProgressIndicator(color: Theme.of(context).bellotaColors.blanco)
                                     : Text(AppTranslations.get('onboarding_and_auth', 'register_btn', lang)),
                               ),
                             ),
@@ -220,3 +220,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
+

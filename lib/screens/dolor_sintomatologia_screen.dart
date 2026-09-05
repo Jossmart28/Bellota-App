@@ -1,4 +1,4 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
+﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -151,22 +151,22 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
   }
 
   String _getPainEmoji(double value) {
-    if (value == 0) return '😌';
-    if (value <= 3) return '😐';
-    if (value <= 6) return '😣';
-    if (value <= 8) return '😖';
-    return '😭';
+    if (value == 0) return 'ðŸ˜Œ';
+    if (value <= 3) return 'ðŸ˜';
+    if (value <= 6) return 'ðŸ˜£';
+    if (value <= 8) return 'ðŸ˜–';
+    return 'ðŸ˜­';
   }
 
   Widget _buildSectionLabel(String text, IconData iconData) {
     return Row(
       children: [
-        Icon(iconData, color: BellotaColors.chilero, size: 18),
+        Icon(iconData, color: Theme.of(context).bellotaColors.chilero, size: 18),
         SizedBox(width: 8),
         Expanded(
           child: Text(
             text, 
-            style: TextStyle(color: BellotaColors.textoDark, fontSize: 14, fontWeight: FontWeight.bold)
+            style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontSize: 14, fontWeight: FontWeight.bold)
           ),
         ),
       ],
@@ -176,7 +176,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
   Widget _buildDivider() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8),
-      child: Divider(color: BellotaColors.nancite, thickness: 1),
+      child: Divider(color: Theme.of(context).bellotaColors.nancite, thickness: 1),
     );
   }
 
@@ -192,13 +192,13 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
           label: Text(AppTranslations.get('registration_form', opt, lang)),
           selected: isSelected,
           onSelected: (_) => onSelected(opt),
-          selectedColor: BellotaColors.chilero,
-          backgroundColor: BellotaColors.nancite,
+          selectedColor: Theme.of(context).bellotaColors.chilero,
+          backgroundColor: Theme.of(context).bellotaColors.nancite,
           side: BorderSide.none,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : BellotaColors.textoDark,
+            color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         );
@@ -218,13 +218,13 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
           label: Text(AppTranslations.get('registration_form', opt, lang)),
           selected: isSelected,
           onSelected: (_) => onToggle(opt),
-          selectedColor: BellotaColors.chilero,
-          backgroundColor: BellotaColors.nancite,
+          selectedColor: Theme.of(context).bellotaColors.chilero,
+          backgroundColor: Theme.of(context).bellotaColors.nancite,
           side: BorderSide.none,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : BellotaColors.textoDark,
+            color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         );
@@ -237,24 +237,24 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     final lang = languageNotifier.currentLang;
     
     return Scaffold(
-      backgroundColor: BellotaColors.basilica,
+      backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
-        backgroundColor: BellotaColors.blanco,
+        backgroundColor: Theme.of(context).bellotaColors.blanco,
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(AppTranslations.get('registration_form', 'cancel', lang), style: TextStyle(color: BellotaColors.textoDark)),
+          child: Text(AppTranslations.get('registration_form', 'cancel', lang), style: TextStyle(color: Theme.of(context).bellotaColors.textoDark)),
         ),
         leadingWidth: 80,
         title: Text(
           AppTranslations.get('registration_form', 'pain_and_symptoms', lang), 
-          style: TextStyle(color: BellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16)
+          style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16)
         ),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _save,
-            child: Text(AppTranslations.get('onboarding', 'confirm', lang), style: TextStyle(color: BellotaColors.chilero)),
+            child: Text(AppTranslations.get('onboarding', 'confirm', lang), style: TextStyle(color: Theme.of(context).bellotaColors.chilero)),
           ),
         ],
       ),
@@ -264,11 +264,11 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
           Container(
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: BellotaColors.blanco,
+              color: Theme.of(context).bellotaColors.blanco,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: BellotaColors.chilero.withValues(alpha: 0.07), 
+                  color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.07), 
                   blurRadius: 16, 
                   offset: Offset(0, 4)
                 ),
@@ -284,11 +284,11 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(AppTranslations.get('registration_form', 'pain_none', lang), style: TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_mild', lang), style: TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_moderate', lang), style: TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_severe', lang), style: TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_incapacitating', lang), style: TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
+                    Text(AppTranslations.get('registration_form', 'pain_none', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
+                    Text(AppTranslations.get('registration_form', 'pain_mild', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
+                    Text(AppTranslations.get('registration_form', 'pain_moderate', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
+                    Text(AppTranslations.get('registration_form', 'pain_severe', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
+                    Text(AppTranslations.get('registration_form', 'pain_incapacitating', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
                   ],
                 ),
                 
@@ -296,10 +296,10 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 SliderTheme(
                   data: SliderThemeData(
                     trackHeight: 8,
-                    activeTrackColor: BellotaColors.chilero,
-                    inactiveTrackColor: BellotaColors.nancite,
-                    thumbColor: BellotaColors.chilero,
-                    overlayColor: BellotaColors.chilero.withValues(alpha: 0.2),
+                    activeTrackColor: Theme.of(context).bellotaColors.chilero,
+                    inactiveTrackColor: Theme.of(context).bellotaColors.nancite,
+                    thumbColor: Theme.of(context).bellotaColors.chilero,
+                    overlayColor: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.2),
                     thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12),
                   ),
                   child: Slider(
@@ -318,7 +318,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                     style: TextStyle(
                       fontSize: 20, 
                       fontWeight: FontWeight.bold, 
-                      color: BellotaColors.chilero
+                      color: Theme.of(context).bellotaColors.chilero
                     ),
                   ),
                 ),
@@ -331,18 +331,18 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                     margin: EdgeInsets.symmetric(vertical: 12),
                     padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: BellotaColors.chilero.withValues(alpha: 0.08),
+                      color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: BellotaColors.chilero.withValues(alpha: 0.3)),
+                      border: Border.all(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: BellotaColors.chilero, size: 20),
+                        Icon(Icons.warning_amber_rounded, color: Theme.of(context).bellotaColors.chilero, size: 20),
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             AppTranslations.get('registration_form', 'pain_alert_msg', lang), 
-                            style: TextStyle(fontSize: 12, color: BellotaColors.chilero, height: 1.4)
+                            style: TextStyle(fontSize: 12, color: Theme.of(context).bellotaColors.chilero, height: 1.4)
                           ),
                         ),
                       ],
@@ -369,7 +369,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                   decoration: InputDecoration(
                     hintText: AppTranslations.get('registration_form', 'phase_days', lang),
                     filled: true,
-                    fillColor: BellotaColors.basilica,
+                    fillColor: Theme.of(context).bellotaColors.basilica,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                 ),
@@ -412,17 +412,17 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                   padding: EdgeInsets.all(10),
                   margin: EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: BellotaColors.asuncion.withValues(alpha: 0.10),
+                    color: Theme.of(context).bellotaColors.asuncion.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: BellotaColors.asuncion, size: 16),
+                      Icon(Icons.info_outline, color: Theme.of(context).bellotaColors.asuncion, size: 16),
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           AppTranslations.get('registration_form', 'breast_exam_info', lang), 
-                          style: TextStyle(fontSize: 11, color: BellotaColors.asuncion)
+                          style: TextStyle(fontSize: 11, color: Theme.of(context).bellotaColors.asuncion)
                         ),
                       ),
                     ],
@@ -441,3 +441,4 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     );
   }
 }
+

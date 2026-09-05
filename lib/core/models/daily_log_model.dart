@@ -137,8 +137,8 @@ class DailyLogModel {
         final decoded = jsonDecode(value);
         if (decoded is List) return List<String>.from(decoded.map((e) => e.toString()));
       } catch (e) {
-        // En caso de error de decodificación, retornar la cadena original en una lista
-        return [value];
+        // En caso de error de decodificación, retornar lista vacía
+        return [];
       }
     } else if (value is List) {
       return List<String>.from(value.map((e) => e.toString()));
@@ -257,5 +257,22 @@ class DailyLogModel {
       notes != null;
 
   /// Parsea la cadena de fecha a un objeto DateTime (a medianoche).
-  DateTime get dateTime => DateTime.parse(date);
+  DateTime get dateTime => DateTime.tryParse(date) ?? DateTime.now();
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is DailyLogModel &&
+        other.id == id &&
+        other.userId == userId &&
+        other.date == date;
+  }
+
+  @override
+  int get hashCode => Object.hash(id, userId, date);
+
+  @override
+  String toString() {
+    return 'DailyLogModel(id: $id, userId: $userId, date: $date)';
+  }
 }

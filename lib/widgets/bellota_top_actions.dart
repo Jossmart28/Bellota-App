@@ -29,8 +29,9 @@ class BellotaTopActions extends StatelessWidget {
         if (showSettings) ...[
           _buildCircleButton(
             icon: Icons.settings_outlined,
-            backgroundColor: BellotaColors.blanco,
-            iconColor: BellotaColors.textoDark,
+            tooltip: 'Configuración',
+            backgroundColor: Theme.of(context).bellotaColors.blanco,
+            iconColor: Theme.of(context).bellotaColors.textoDark,
             onPressed: onSettingsPressed ?? () {},
           ),
           SizedBox(width: 6),
@@ -38,6 +39,7 @@ class BellotaTopActions extends StatelessWidget {
 
         // 2. Botón de Idioma (Va en todas)
         _buildCircleButton(
+          tooltip: 'Cambiar idioma',
           child: ValueListenableBuilder<String>(
             valueListenable: languageNotifier,
             builder: (context, lang, _) {
@@ -46,12 +48,12 @@ class BellotaTopActions extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: BellotaColors.textoDark,
+                  color: Theme.of(context).bellotaColors.textoDark,
                 ),
               );
             }
           ),
-          backgroundColor: BellotaColors.blanco,
+          backgroundColor: Theme.of(context).bellotaColors.blanco,
           onPressed: () {
             languageNotifier.toggle();
             if (onLanguagePressed != null) {
@@ -64,8 +66,9 @@ class BellotaTopActions extends StatelessWidget {
         // 3. Botón de TalkBack / Audio (Va en todas)
         _buildCircleButton(
           icon: Icons.volume_up_rounded,
-          backgroundColor: BellotaColors.chilero,
-          iconColor: BellotaColors.blanco,
+          tooltip: 'Audio y Accesibilidad',
+          backgroundColor: Theme.of(context).bellotaColors.chilero,
+          iconColor: Theme.of(context).bellotaColors.blanco,
           onPressed: onTalkBackPressed ?? () {},
         ),
 
@@ -74,8 +77,9 @@ class BellotaTopActions extends StatelessWidget {
           SizedBox(width: 6),
           _buildCircleButton(
             icon: Icons.notifications_outlined,
-            backgroundColor: BellotaColors.blanco,
-            iconColor: BellotaColors.textoDark,
+            tooltip: 'Notificaciones',
+            backgroundColor: Theme.of(context).bellotaColors.blanco,
+            iconColor: Theme.of(context).bellotaColors.textoDark,
             onPressed: onNotificationPressed ?? () {},
           ),
         ],
@@ -87,12 +91,13 @@ class BellotaTopActions extends StatelessWidget {
     IconData? icon,
     Widget? child,
     required Color backgroundColor,
+    String? tooltip,
     Color? iconColor,
     required VoidCallback onPressed,
   }) {
-    return Container(
-      width: 36,
-      height: 36,
+    Widget button = Container(
+      width: 48,
+      height: 48,
       decoration: BoxDecoration(
         color: backgroundColor,
         shape: BoxShape.circle,
@@ -106,9 +111,14 @@ class BellotaTopActions extends StatelessWidget {
       ),
       child: IconButton(
         padding: EdgeInsets.zero,
-        icon: child ?? Icon(icon, color: iconColor, size: 18),
+        icon: child ?? Icon(icon, color: iconColor, size: 24),
         onPressed: onPressed,
       ),
     );
+
+    if (tooltip != null) {
+      return Tooltip(message: tooltip, child: button);
+    }
+    return button;
   }
 }

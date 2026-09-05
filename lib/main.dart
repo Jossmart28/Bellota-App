@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'theme/bellota_theme.dart';
 import 'theme/theme_notifier.dart';
@@ -8,21 +9,25 @@ import 'l10n/language_notifier.dart';
 import 'core/services/notification_service.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
-  // Cargar preferencia de tema y lenguaje guardada antes de mostrar la app
-  await themeNotifier.load();
-  await languageNotifier.load();
+    // Ejecutar inicializaciones en paralelo para optimizar startup
+    await Future.wait([
+      themeNotifier.load(),
+      languageNotifier.load(),
+      NotificationService.instance.initialize(),
+    ]);
 
-  // Inicializar el servicio de notificaciones
-  await NotificationService.instance.initialize();
-
-  runApp(BellotaApp());
+    runApp(const BellotaApp());
+  } catch (e) {
+    debugPrint('Fatal error during startup: $e');
+  }
 }
 
 class BellotaApp extends StatelessWidget {
@@ -42,7 +47,16 @@ class BellotaApp extends StatelessWidget {
               theme: BellotaTheme.lightTheme,
               darkTheme: BellotaTheme.darkTheme,
               themeMode: mode,
-              home: SplashScreen(),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('es'),
+                Locale('en'),
+              ],
+              home: const SplashScreen(),
             );
           },
         );

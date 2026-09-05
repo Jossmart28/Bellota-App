@@ -5,9 +5,11 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <!-- Reprogramar notificaciones al reiniciar el dispositivo -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="bellotadevolpment"
+        android:allowBackup="false"
+        android:label="Bellota"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

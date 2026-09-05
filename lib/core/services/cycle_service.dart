@@ -4,13 +4,13 @@ import '../../l10n/app_translations.dart';
 
 /// Fase del ciclo menstrual.
 enum CyclePhase {
-  menstrual,    // Días de sangrado
-  follicular,   // Post-sangrado hasta pre-ovulación
-  ovulatory,    // Ventana de ovulación (~3 días)
-  luteal,       // Post-ovulación hasta el siguiente periodo
+  menstrual,    // DÃ­as de sangrado
+  follicular,   // Post-sangrado hasta pre-ovulaciÃ³n
+  ovulatory,    // Ventana de ovulaciÃ³n (~3 dÃ­as)
+  luteal,       // Post-ovulaciÃ³n hasta el siguiente periodo
 }
 
-/// Información del ciclo calculada.
+/// InformaciÃ³n del ciclo calculada.
 class CycleInfo {
   final int cycleDay;
   final CyclePhase phase;
@@ -37,7 +37,7 @@ class CycleInfo {
   });
 }
 
-/// Estadísticas del ciclo calculadas a partir del historial.
+/// EstadÃ­sticas del ciclo calculadas a partir del historial.
 class CycleStatistics {
   final double averageCycleLength;
   final double? averagePeriodLength;
@@ -56,7 +56,7 @@ class CycleStatistics {
   });
 }
 
-/// Servicio central para el cálculo de fases y estimaciones del ciclo menstrual.
+/// Servicio central para el cÃ¡lculo de fases y estimaciones del ciclo menstrual.
 class CycleService {
   CycleService._();
   static final CycleService instance = CycleService._();
@@ -66,7 +66,7 @@ class CycleService {
     return DateTime(dt.year, dt.month, dt.day);
   }
 
-  /// Calcula la información del ciclo actual.
+  /// Calcula la informaciÃ³n del ciclo actual.
   CycleInfo calculateCycleInfo({
     required DateTime referenceDate,
     required DateTime? lastPeriodStart,
@@ -114,7 +114,7 @@ class CycleService {
       }
     }
 
-    // Calcular días pasados desde el último periodo
+    // Calcular dÃ­as pasados desde el Ãºltimo periodo
     int diffDays = ref.difference(start).inDays;
     
     int cycleDay;
@@ -125,7 +125,7 @@ class CycleService {
       if (cycleDay > effectiveCycleDuration) cycleDay = 1;
     }
 
-    // Día de ovulación = duración del ciclo - 14
+    // DÃ­a de ovulaciÃ³n = duraciÃ³n del ciclo - 14
     int ovulationDay = effectiveCycleDuration - 14;
     if (ovulationDay < 1) ovulationDay = effectiveCycleDuration ~/ 2; // fallback para ciclos muy cortos
 
@@ -172,15 +172,9 @@ class CycleService {
     }
   }
 
-  /// Retorna la fase para una fecha dada.
-  CyclePhase getPhaseForDate({
-    required DateTime date,
-    required DateTime lastPeriodStart,
-    required int cycleDuration,
-    required int periodDuration,
-    List<DateTime>? allPeriodStarts,
-  }) {
-    int effectiveCycleDuration = cycleDuration;
+  /// Calcula la duración efectiva del ciclo basada en el historial de periodos.
+  int getEffectiveCycleDuration(int defaultDuration, List<DateTime>? allPeriodStarts) {
+    int effectiveCycleDuration = defaultDuration;
 
     if (allPeriodStarts != null && allPeriodStarts.length >= 2) {
       List<int> lengths = [];
@@ -192,9 +186,20 @@ class CycleService {
       double avgLength = lengths.map((e) => e.toDouble()).reduce((a, b) => a + b) / lengths.length;
       effectiveCycleDuration = avgLength.round();
       if (effectiveCycleDuration < 15) {
-        effectiveCycleDuration = cycleDuration;
+        effectiveCycleDuration = defaultDuration;
       }
     }
+    
+    return effectiveCycleDuration;
+  }
+
+  /// Retorna la fase para una fecha dada asumiendo que ya se calculó la duración efectiva.
+  CyclePhase getPhaseForDate({
+    required DateTime date,
+    required DateTime lastPeriodStart,
+    required int effectiveCycleDuration,
+    required int periodDuration,
+  }) {
 
     final d = _dateOnly(date);
     final start = _dateOnly(lastPeriodStart);
@@ -214,35 +219,9 @@ class CycleService {
     return _determinePhase(cycleDay, periodDuration, ovulationDay, effectiveCycleDuration);
   }
 
-  /// Obtiene el color correspondiente a la fase del ciclo.
-  Color getPhaseColor(CyclePhase phase) {
-    switch (phase) {
-      case CyclePhase.menstrual:
-        return BellotaColors.chilero;
-      case CyclePhase.follicular:
-        return BellotaColors.chiltoma;
-      case CyclePhase.ovulatory:
-        return BellotaColors.melon;
-      case CyclePhase.luteal:
-        return BellotaColors.asuncion;
-    }
-  }
 
-  /// Retorna el nombre traducido de la fase del ciclo.
-  String getPhaseName(CyclePhase phase, String lang) {
-    switch (phase) {
-      case CyclePhase.menstrual:
-        return AppTranslations.get('cycle', 'phase_menstrual', lang);
-      case CyclePhase.follicular:
-        return AppTranslations.get('cycle', 'phase_follicular', lang);
-      case CyclePhase.ovulatory:
-        return AppTranslations.get('cycle', 'phase_ovulatory', lang);
-      case CyclePhase.luteal:
-        return AppTranslations.get('cycle', 'phase_luteal', lang);
-    }
-  }
 
-  /// Calcula estadísticas históricas del ciclo en base a periodos registrados (ordenados de forma descendente).
+  /// Calcula estadÃ­sticas histÃ³ricas del ciclo en base a periodos registrados (ordenados de forma descendente).
   CycleStatistics calculateStatistics(List<DateTime> periodStarts, int configuredCycleDuration) {
     if (periodStarts.isEmpty || periodStarts.length == 1) {
       return CycleStatistics(
@@ -282,7 +261,7 @@ class CycleService {
       }
     }
 
-    // Retorna las duraciones de los ciclos, el más reciente primero para seguir el orden descendente de los periodos
+    // Retorna las duraciones de los ciclos, el mÃ¡s reciente primero para seguir el orden descendente de los periodos
     return CycleStatistics(
       averageCycleLength: avg,
       shortestCycle: minLen,
@@ -292,3 +271,4 @@ class CycleService {
     );
   }
 }
+

@@ -1,3 +1,4 @@
+﻿import '../core/constants/app_keys.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'dart:convert';
@@ -27,13 +28,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime? _firstPeriodStart;
   int _cycleDuration = 28;
   int _periodDuration = 5;
+  int _effectiveCycleDuration = 28;
   List<DateTime> _allPeriodStarts = [];
   Set<String> _loggedDates = {};
 
   CalendarViewType _currentView = CalendarViewType.monthly;
   final DateTime _currentDate = DateTime.now(); // Fecha real actual
-  DateTime _displayDate = DateTime.now(); // Fecha del mes/semana que se está viendo
-  DateTime? _selectedDate; // Día seleccionado por la usuaria
+  DateTime _displayDate = DateTime.now(); // Fecha del mes/semana que se estÃƒÂ¡ viendo
+  DateTime? _selectedDate; // DÃƒÂ­a seleccionado por la usuaria
 
   // Controlador para el scroll en la vista de mes
   late PageController _monthPageController;
@@ -41,6 +43,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // Estado para la Subventana de la vista anual
   DateTime? _annualDetailMonth;
+
+  Future<Map<String, dynamic>?>? _selectedDayLogFuture;
+
+  void _loadSelectedDayLog() {
+    if (_selectedDate != null && _userId != null) {
+      _selectedDayLogFuture = DatabaseHelper.instance.getDailyLog(_userId!, '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}');
+    }
+  }
 
   List<String> get _dayNames {
     final lang = languageNotifier.currentLang;
@@ -76,9 +86,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUser();
-    _monthPageController = PageController(initialPage: _initialPage);
     _selectedDate = _currentDate;
+    _monthPageController = PageController(initialPage: _initialPage);
+    _loadInitialData();
   }
 
   @override
@@ -87,18 +97,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUser() async {
+  Future<void> _loadInitialData() async {
     final prefs = await SharedPreferences.getInstance();
-    String userName = prefs.getString('userName') ?? 'UsuarioApp';
-    String userEmail = prefs.getString('userEmail') ?? 'correo@ejemplo.com';
-    int? userId = prefs.getInt('userId');
-
-    if (userId == null && userEmail != 'correo@ejemplo.com') {
-      userId = await DatabaseHelper.instance.getUserIdByEmail(userEmail);
-      if (userId != null) {
-        await prefs.setInt('userId', userId);
-      }
-    }
+    final String userName = prefs.getString(AppKeys.userName) ?? 'UsuarioApp';
+    final String userEmail = prefs.getString(AppKeys.userEmail) ?? 'correo@ejemplo.com';
+    final int? userId = prefs.getInt(AppKeys.userId);
 
     DateTime? lastPeriodStart;
     DateTime? firstPeriodStart;
@@ -106,23 +109,31 @@ class _CalendarScreenState extends State<CalendarScreen> {
     int periodDuration = 5;
     List<DateTime> allPeriodStarts = [];
     Set<String> loggedDates = {};
+    int effectiveDuration = 28;
 
     if (userId != null) {
       lastPeriodStart = await DatabaseHelper.instance.getLastPeriodStart(userId);
+      if (!mounted) return;
       firstPeriodStart = await DatabaseHelper.instance.getFirstPeriodStart(userId);
+      if (!mounted) return;
       allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
+      if (!mounted) return;
       
       // Load cycle configuration from profile
       final profile = await DatabaseHelper.instance.getProfile(userId);
+      if (!mounted) return;
       if (profile != null) {
         cycleDuration = profile['cycle_duration'] as int? ?? 28;
         periodDuration = profile['period_duration'] as int? ?? 5;
       }
+      
+      effectiveDuration = CycleService.instance.getEffectiveCycleDuration(cycleDuration, allPeriodStarts.isNotEmpty ? allPeriodStarts : null);
 
       // Load logged dates for dots (we fetch +/- 2 years around current date to be safe)
       final startRange = '${_currentDate.year - 2}-01-01';
       final endRange = '${_currentDate.year + 2}-12-31';
       loggedDates = await DatabaseHelper.instance.getLoggedDatesInRange(userId, startRange, endRange);
+      if (!mounted) return;
     }
 
     setState(() {
@@ -133,14 +144,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _firstPeriodStart = firstPeriodStart;
       _cycleDuration = cycleDuration;
       _periodDuration = periodDuration;
+      _effectiveCycleDuration = effectiveDuration;
       _allPeriodStarts = allPeriodStarts;
       _loggedDates = loggedDates;
+      _loadSelectedDayLog();
     });
   }
 
-  // ──────────────────────────────────────────
-  // LÓGICA DE FASES (Basada en historial)
-  // ──────────────────────────────────────────
+  // â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
+  // LÃ“GICA DE FASES (Basada en historial)
+  // â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
   Color _getPhaseColorForDay(DateTime date) {
     if (_lastPeriodStart == null) {
       return Colors.grey[300]!; // Color neutral si no hay registro
@@ -149,29 +162,37 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final phase = CycleService.instance.getPhaseForDate(
       date: date,
       lastPeriodStart: _lastPeriodStart!,
-      cycleDuration: _cycleDuration,
+      effectiveCycleDuration: _effectiveCycleDuration,
       periodDuration: _periodDuration,
-      allPeriodStarts: _allPeriodStarts.isNotEmpty ? _allPeriodStarts : null,
     );
 
-    return CycleService.instance.getPhaseColor(phase);
+    switch (phase) {
+      case CyclePhase.menstrual:
+        return Theme.of(context).bellotaColors.chilero;
+      case CyclePhase.follicular:
+        return Theme.of(context).bellotaColors.chiltoma;
+      case CyclePhase.ovulatory:
+        return Theme.of(context).bellotaColors.melon;
+      case CyclePhase.luteal:
+        return Theme.of(context).bellotaColors.asuncion;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ══════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // HEADER GLOBAL
-        // ══════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         Padding(
           padding: EdgeInsets.fromLTRB(20, 12, 20, 10),
           child: _buildHeader(context),
         ),
 
-        // ════════════════════════════
-        // CONTROLES DE VISTA Y TÍTULO
-        // ════════════════════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // CONTROLES DE VISTA Y TÃƒÂTULO
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: _buildViewSelectorRow(),
@@ -185,9 +206,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: _buildPhaseLegend(),
           ),
 
-        // ═════════════════════════════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // CONTENIDO DEL CALENDARIO SCROLLABLE
-        // ═════════════════════════════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         Expanded(
           child: _buildCalendarBody(),
         ),
@@ -229,9 +250,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  // ───────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // HEADER Y CONTROLES
-  // ───────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
@@ -265,7 +286,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           child: Text(
             title,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              color: BellotaColors.textoDark,
+              color: Theme.of(context).bellotaColors.textoDark,
               fontWeight: FontWeight.w800,
               fontSize: 22,
             ),
@@ -298,26 +319,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: BellotaColors.chilero,
+          color: Theme.of(context).bellotaColors.chilero,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(AppTranslations.get('calendar_views', 'view', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.blanco.withValues(alpha: 0.8), fontSize: 12)),
+            Text(AppTranslations.get('calendar_views', 'view', languageNotifier.currentLang), style: TextStyle(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8), fontSize: 12)),
             SizedBox(width: 6),
-            Container(width: 1, height: 12, color: BellotaColors.blanco.withValues(alpha: 0.5)),
+            Container(width: 1, height: 12, color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5)),
             SizedBox(width: 6),
-            Text(currentLabel, style: TextStyle(color: BellotaColors.blanco, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(currentLabel, style: TextStyle(color: Theme.of(context).bellotaColors.blanco, fontSize: 12, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
 
-  // ─────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // LEYENDA DE FASES
-  // ─────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildPhaseLegend() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16),
@@ -326,10 +347,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
         runSpacing: 6,
         alignment: WrapAlignment.center,
         children: [
-          _legendItem(BellotaColors.chilero, AppTranslations.get('cycle_phases', 'menstrual', languageNotifier.currentLang)),
-          _legendItem(BellotaColors.chiltoma, AppTranslations.get('cycle_phases', 'follicular', languageNotifier.currentLang)),
-          _legendItem(BellotaColors.melon, AppTranslations.get('cycle_phases', 'ovulatory', languageNotifier.currentLang)),
-          _legendItem(BellotaColors.asuncion, AppTranslations.get('cycle_phases', 'luteal', languageNotifier.currentLang)),
+          _legendItem(Theme.of(context).bellotaColors.chilero, AppTranslations.get('cycle_phases', 'menstrual', languageNotifier.currentLang)),
+          _legendItem(Theme.of(context).bellotaColors.chiltoma, AppTranslations.get('cycle_phases', 'follicular', languageNotifier.currentLang)),
+          _legendItem(Theme.of(context).bellotaColors.melon, AppTranslations.get('cycle_phases', 'ovulatory', languageNotifier.currentLang)),
+          _legendItem(Theme.of(context).bellotaColors.asuncion, AppTranslations.get('cycle_phases', 'luteal', languageNotifier.currentLang)),
         ],
       ),
     );
@@ -341,14 +362,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
       children: [
         Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         SizedBox(width: 4),
-        Text(label, style: TextStyle(fontSize: 10, color: BellotaColors.textoMedio)),
+        Text(label, style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
       ],
     );
   }
 
-  // ────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // DISTRIBUIDOR DE VISTAS
-  // ────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildCalendarContent() {
     switch (_currentView) {
       case CalendarViewType.weekly:
@@ -360,7 +381,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  // ── VISTA SEMANAL ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ VISTA SEMANAL Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildWeeklyView() {
     int weekday = _displayDate.weekday == 7 ? 0 : _displayDate.weekday;
     DateTime startOfWeek = _displayDate.subtract(Duration(days: weekday));
@@ -383,7 +404,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-// ── VISTA MENSUAL (SWIPEABLE) ──
+// Ã¢â€â‚¬Ã¢â€â‚¬ VISTA MENSUAL (SWIPEABLE) Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildMonthlySwipeable() {
     return SizedBox(
       height: 440,
@@ -392,7 +413,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         onPageChanged: (index) {
           setState(() {
             int offset = index - _initialPage;
-            // Actualiza el mes en pantalla sin perder la selección del día
+            // Actualiza el mes en pantalla sin perder la selecciÃƒÂ³n del dÃƒÂ­a
             _displayDate = DateTime(_currentDate.year, _currentDate.month + offset, 1);
           });
         },
@@ -416,7 +437,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (_currentView == CalendarViewType.annual && _annualDetailMonth == null) ...[
-            Text(_monthNames[month - 1], style: Theme.of(context).textTheme.titleMedium?.copyWith(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
+            Text(_monthNames[month - 1], style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
           ],
           _buildDaysHeader(),
@@ -442,7 +463,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  // ── VISTA ANUAL ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ VISTA ANUAL Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildAnnualView() {
     return ListView.builder(
       shrinkWrap: true,
@@ -467,20 +488,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _annualDetailMonth = null;
             _selectedDate = null;
           }),
-          icon: Icon(Icons.arrow_back_ios_rounded, size: 16, color: BellotaColors.chilero),
-          label: Text(AppTranslations.get('calendar_views', 'back_to_year', languageNotifier.currentLang), style: TextStyle(color: BellotaColors.chilero, fontWeight: FontWeight.bold)),
+          icon: Icon(Icons.arrow_back_ios_rounded, size: 16, color: Theme.of(context).bellotaColors.chilero),
+          label: Text(AppTranslations.get('calendar_views', 'back_to_year', languageNotifier.currentLang), style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold)),
           style: TextButton.styleFrom(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            backgroundColor: BellotaColors.chilero.withValues(alpha: 0.1),
+            backgroundColor: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.1),
           ),
         ),
       ),
     );
   }
 
-  // ───────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // COMPONENTES DEL CALENDARIO
-  // ───────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildDaysHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -489,11 +510,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 2),
             padding: EdgeInsets.symmetric(vertical: 4),
-            decoration: BoxDecoration(color: BellotaColors.chilero, borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: Theme.of(context).bellotaColors.chilero, borderRadius: BorderRadius.circular(8)),
             child: Center(
               child: Text(
                 day,
-                style: TextStyle(color: BellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
+                style: TextStyle(color: Theme.of(context).bellotaColors.blanco, fontWeight: FontWeight.bold, fontSize: 10),
                 maxLines: 1,
               ),
             ),
@@ -517,6 +538,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       onTap: () {
         setState(() {
           _selectedDate = date;
+          _loadSelectedDayLog();
 
           if (_currentView == CalendarViewType.annual && _annualDetailMonth == null) {
             _annualDetailMonth = DateTime(date.year, date.month, 1);
@@ -533,7 +555,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         decoration: BoxDecoration(
           color: phaseColor.withValues(alpha: isSelected ? 1.0 : 0.6),
           borderRadius: BorderRadius.circular(10),
-          border: isSelected ? Border.all(color: BellotaColors.textoDark, width: 1.5) : null,
+          border: isSelected ? Border.all(color: Theme.of(context).bellotaColors.textoDark, width: 1.5) : null,
           boxShadow: isSelected ? [BoxShadow(color: phaseColor.withValues(alpha: 0.5), blurRadius: 4, offset: Offset(0, 2))] : [],
         ),
         child: Stack(
@@ -542,7 +564,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             Text(
               '${date.day}',
               style: TextStyle(
-                color: isSelected ? BellotaColors.blanco : BellotaColors.textoDark,
+                color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.textoDark,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
@@ -553,7 +575,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   width: 4,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isSelected ? BellotaColors.blanco : BellotaColors.textoDark.withValues(alpha: 0.7),
+                    color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.textoDark.withValues(alpha: 0.7),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -564,9 +586,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  // ───────────────────────────
-  // CAJA DE SÍNTOMAS Y BELLOTAS
-  // ───────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // CAJA DE SÃƒÂNTOMAS Y BELLOTAS
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildSymptomsBox() {
     if (_selectedDate == null) return SizedBox();
     final textTheme = Theme.of(context).textTheme;
@@ -584,7 +606,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     bool canRegister = !isFuture;
 
     return FutureBuilder<Map<String, dynamic>?>(
-      future: _userId != null ? DatabaseHelper.instance.getDailyLog(_userId!, dateKey) : Future.value(null),
+      future: _selectedDayLogFuture,
       builder: (context, snapshot) {
         final log = snapshot.data;
         List<String> symptoms = [];
@@ -593,9 +615,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
         bool periodStart = false;
 
         if (log != null) {
-          symptoms = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
-          sexo = List<String>.from(jsonDecode(log['sexo'] as String? ?? '[]'));
-          flujo = List<String>.from(jsonDecode(log['flujo'] as String? ?? '[]'));
+          try {
+            symptoms = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
+          } catch (_) {
+            symptoms = [];
+          }
+          try {
+            sexo = List<String>.from(jsonDecode(log['sexo'] as String? ?? '[]'));
+          } catch (_) {
+            sexo = [];
+          }
+          try {
+            flujo = List<String>.from(jsonDecode(log['flujo'] as String? ?? '[]'));
+          } catch (_) {
+            flujo = [];
+          }
           periodStart = (log['period_start'] as int?) == 1;
         }
 
@@ -605,7 +639,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           margin: EdgeInsets.fromLTRB(20, 24, 20, 0),
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: BellotaColors.blanco,
+            color: Theme.of(context).bellotaColors.blanco,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: Offset(0, 2)),
@@ -614,10 +648,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(dateStr, style: textTheme.titleMedium?.copyWith(color: BellotaColors.textoDark, fontWeight: FontWeight.bold)),
+              Text(dateStr, style: textTheme.titleMedium?.copyWith(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold)),
               SizedBox(height: 12),
 
-              // Botón de Registro
+              // BotÃƒÂ³n de Registro
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -630,13 +664,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     );
                     if (result == true) {
                       setState(() {
-                         _loadUser(); // Recargar fechas importantes por si cambió el inicio de periodo
+                         _loadInitialData(); // Recargar fechas importantes por si cambiÃ³ el inicio de periodo
                       });
                     }
                   } : null,
                   child: Text(AppTranslations.get('symptoms_and_actions', 'log_symptoms', languageNotifier.currentLang), style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: BellotaColors.chilero,
+                    backgroundColor: Theme.of(context).bellotaColors.chilero,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[300],
                     disabledForegroundColor: Colors.grey[500],
@@ -650,13 +684,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
               if (!hasData)
                 Text(
                   AppTranslations.get('calendar_screen', 'no_entries_day', languageNotifier.currentLang),
-                  style: textTheme.bodyMedium?.copyWith(color: BellotaColors.textoMedio),
+                  style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).bellotaColors.textoMedio),
                 ),
 
               if (periodStart)
-                _buildSymptomItem(BellotaColors.chilero, AppTranslations.get('calendar_screen', 'period_start', languageNotifier.currentLang)),
-              ...symptoms.map((s) => _buildSymptomItem(BellotaColors.asuncion, s)),
-              ...sexo.map((s) => _buildSymptomItem(BellotaColors.melon, s)),
+                _buildSymptomItem(Theme.of(context).bellotaColors.chilero, AppTranslations.get('calendar_screen', 'period_start', languageNotifier.currentLang)),
+              ...symptoms.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.asuncion, s)),
+              ...sexo.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.melon, s)),
               ...flujo.map((s) => _buildSymptomItem(Color(0xFFA566C1), s)),
             ],
           ),
@@ -681,3 +715,5 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 }
+
+

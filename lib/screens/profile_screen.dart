@@ -1,3 +1,4 @@
+import '../core/constants/app_keys.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -15,14 +16,13 @@ import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../core/models/user_model.dart';
 import '../core/services/auth_service.dart';
-import '../core/services/role_guard.dart';
-import '../core/services/user_role.dart';
-import '../core/services/navigation_service.dart';
+import '../core/models/user_role.dart';
+import '../navigation/navigation_service.dart';
 import 'admin_panel_screen.dart';
 import 'audit_dashboard_screen.dart';
 
-/// Pantalla de Perfil de usuario — Bellota App
-/// Diseño fiel al mockup de referencia con paleta de colores Bellota.
+/// Pantalla de Perfil de usuario Ã¢â‚¬â€ Bellota App
+/// DiseÃƒÂ±o fiel al mockup de referencia con paleta de colores Bellota.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -37,6 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _cycleDuration = 28;
   int _periodDuration = 7;
   String? _profileImagePath;
+  bool _profileImageExists = false;
   int? _userId;
 
   final ImagePicker _picker = ImagePicker();
@@ -51,12 +52,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = await AuthService.instance.currentSessionUser();
     
     final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('userEmail') ?? 'correo@ejemplo.com';
+    final email = prefs.getString(AppKeys.userEmail) ?? 'correo@ejemplo.com';
     
     final userId = await DatabaseHelper.instance.getUserIdByEmail(email);
     if (userId != null) {
       final profile = await DatabaseHelper.instance.getProfile(userId);
       if (profile != null) {
+        bool imageExists = false;
+        if (profile['profile_image_path'] != null) {
+          imageExists = File(profile['profile_image_path']).existsSync();
+        }
         setState(() {
           _currentUser = user;
           _userId = userId;
@@ -65,6 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _cycleDuration = profile['cycle_duration'] ?? 28;
           _periodDuration = profile['period_duration'] ?? 7;
           _profileImagePath = profile['profile_image_path'];
+          _profileImageExists = imageExists;
         });
         return;
       }
@@ -76,6 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _userName = 'UsuarioApp';
       _userEmail = email;
       _profileImagePath = null;
+      _profileImageExists = false;
     });
   }
 
@@ -101,21 +108,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w700,
                 fontSize: 17,
-                color: BellotaColors.textoDark,
+                color: Theme.of(context).bellotaColors.textoDark,
               ),
             ),
           ],
         ),
         content: Text(
           AppTranslations.get('profile_and_report', 'logout_confirm', languageNotifier.currentLang).replaceAll('\\n', '\n'),
-          style: GoogleFonts.poppins(fontSize: 13, color: BellotaColors.textoMedio),
+          style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.textoMedio),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               AppTranslations.get('profile_and_report', 'cancel', languageNotifier.currentLang),
-              style: GoogleFonts.poppins(color: BellotaColors.textoMedio, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio, fontWeight: FontWeight.w500),
             ),
           ),
           ElevatedButton(
@@ -135,9 +142,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirmed == true && mounted) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', false);
-      // Mantenemos datos médicos en la BD; solo limpiamos sesión activa
-      await prefs.remove('userEmail');
-      await prefs.remove('userId');
+      // Mantenemos datos mÃƒÂ©dicos en la BD; solo limpiamos sesiÃƒÂ³n activa
+      await prefs.remove(AppKeys.userEmail);
+      await prefs.remove(AppKeys.userId);
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -196,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  color: BellotaColors.textoDark,
+                  color: Theme.of(context).bellotaColors.textoDark,
                 ),
               ),
               SizedBox(height: 16),
@@ -205,16 +212,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: BellotaColors.melon.withValues(alpha: 0.12),
+                    color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(Icons.photo_library_outlined,
-                      color: BellotaColors.melon),
+                      color: Theme.of(context).bellotaColors.melon),
                 ),
                 title: Text(AppTranslations.get('profile_and_report', 'gallery', languageNotifier.currentLang),
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
-                        color: BellotaColors.textoDark)),
+                        color: Theme.of(context).bellotaColors.textoDark)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _getImage(ImageSource.gallery);
@@ -225,16 +232,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: BellotaColors.chilero.withValues(alpha: 0.12),
+                    color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(Icons.camera_alt_outlined,
-                      color: BellotaColors.chilero),
+                      color: Theme.of(context).bellotaColors.chilero),
                 ),
                 title: Text(AppTranslations.get('profile_and_report', 'camera', languageNotifier.currentLang),
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
-                        color: BellotaColors.textoDark)),
+                        color: Theme.of(context).bellotaColors.textoDark)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _getImage(ImageSource.camera);
@@ -262,7 +269,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (_userId != null) {
                       await DatabaseHelper.instance.updateProfileField(_userId!, 'profile_image_path', null);
                     }
-                    setState(() => _profileImagePath = null);
+                    setState(() {
+                      _profileImagePath = null;
+                      _profileImageExists = false;
+                    });
                   },
                 ),
             ],
@@ -286,18 +296,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (_userId != null) {
           await DatabaseHelper.instance.updateProfileField(_userId!, 'profile_image_path', image.path);
         }
-        setState(() => _profileImagePath = image.path);
+        bool exists = File(image.path).existsSync();
+        setState(() {
+          _profileImagePath = image.path;
+          _profileImageExists = exists;
+        });
       }
     } catch (e) {
       // Error silencioso si el usuario cancela
     }
   }
 
-  // ── Generar Informe Médico en JSON ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Generar Informe MÃƒÂ©dico en JSON Ã¢â€â‚¬Ã¢â€â‚¬
   Future<void> _generateMedicalReport() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se encontró usuario.'), backgroundColor: Colors.red),
+        SnackBar(content: Text('No se encontrÃƒÂ³ usuario.'), backgroundColor: Colors.red),
       );
       return;
     }
@@ -308,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Row(children: [
-          CircularProgressIndicator(color: BellotaColors.chilero),
+          CircularProgressIndicator(color: Theme.of(context).bellotaColors.chilero),
           SizedBox(width: 20),
           Text(AppTranslations.get('profile_and_report', 'generating_report', languageNotifier.currentLang)),
         ]),
@@ -321,8 +335,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final String fechaHoy = '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
       final String reportId = (now.millisecondsSinceEpoch % 1000000).toString().padLeft(6, '0');
 
-      final String userAge = prefs.getString('user_age') ?? '';
-      final String userLocation = prefs.getString('user_location') ?? '';
+      final String userAge = prefs.getString(AppKeys.userAge) ?? '';
+      final String userLocation = prefs.getString(AppKeys.userLocation) ?? '';
       final List<String> medications = prefs.getStringList('user_medications') ?? [];
 
       final List<Map<String, dynamic>> allLogs = await DatabaseHelper.instance.getAllDailyLogs(_userId!);
@@ -331,7 +345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final lang = languageNotifier.currentLang;
       final notSpec = AppTranslations.get('profile_and_report', 'not_specified', lang);
 
-      // ── Promedios REALES desde historial (Bug Fix) ──
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Promedios REALES desde historial (Bug Fix) Ã¢â€â‚¬Ã¢â€â‚¬
       final cycleStats = await DatabaseHelper.instance.getCycleStatistics(_userId!);
       final double? promCicloReal = cycleStats['averageCycleLength'] as double?;
       final double promCiclo = promCicloReal ?? _cycleDuration.toDouble();
@@ -358,7 +372,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }()
           : fechaHoy;
 
-      // ── Flujo más frecuente ──
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Flujo mÃƒÂ¡s frecuente Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, int> flujoCount = {};
       final endOfCycle = lastPeriod?.add(Duration(days: promCiclo.toInt()));
       for (final log in allLogs) {
@@ -377,7 +391,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? flujoCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key
           : null;
 
-      // ── Síntomas más frecuentes ──
+      // Ã¢â€â‚¬Ã¢â€â‚¬ SÃƒÂ­ntomas mÃƒÂ¡s frecuentes Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, int> sympCount = {};
       for (final log in allLogs) {
         for (final s in (jsonDecode(log['symptoms'] as String? ?? '[]') as List)) {
@@ -386,7 +400,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       final topSyms = (sympCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(5).map((e) => e.key).toList();
 
-      // ── FIXED: Leer patrón de sangrado y dolor de SQLite (no SharedPreferences) ──
+      // Ã¢â€â‚¬Ã¢â€â‚¬ FIXED: Leer patrÃƒÂ³n de sangrado y dolor de SQLite (no SharedPreferences) Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, dynamic> patron = {};
       Map<String, dynamic> dolor = {};
       for (final log in allLogs.reversed) {
@@ -425,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (patron.isNotEmpty && dolor.isNotEmpty) break;
       }
 
-      // ── Alertas automáticas usando AppTranslations ──
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Alertas automÃƒÂ¡ticas usando AppTranslations Ã¢â€â‚¬Ã¢â€â‚¬
       List<Map<String, String>> alertas = [];
       final String irregStr = AppTranslations.get('profile_and_report', 'irregular_cycles', lang);
       if (promCiclo < 21 || promCiclo > 35) {
@@ -448,14 +462,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final nivelD = dolor['nivelDolor'];
       final String alertPStr = AppTranslations.get('profile_and_report', 'alert_pain', lang);
       if (nivelD != null && (nivelD as num) >= 8) {
-        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'alert_severe_pain_detail', lang).replaceAll('{value}', (nivelD as num).toStringAsFixed(0))});
+        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'alert_severe_pain_detail', lang).replaceAll('{value}', (nivelD).toStringAsFixed(0))});
       } else if (nivelD != null) {
-        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'pain_normal_range', lang).replaceAll('{value}', (nivelD as num).toStringAsFixed(0))});
+        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'pain_normal_range', lang).replaceAll('{value}', (nivelD).toStringAsFixed(0))});
       } else {
         alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'no_pain_logged', lang)});
       }
 
-      // ── Construcción del JSON final (sin nulos) ──
+      // Ã¢â€â‚¬Ã¢â€â‚¬ ConstrucciÃƒÂ³n del JSON final (sin nulos) Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, dynamic> filterNulls(Map<String, dynamic> m) {
         return Map.fromEntries(m.entries.where((e) => e.value != null && e.value != ''));
       }
@@ -466,13 +480,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'fecha_generacion': fechaHoy,
           'version': '1.0',
           'app': 'Bellota - Calendario Menstrual',
-          'tipo': 'Reporte de salud menstrual y clínico ginecológico',
+          'tipo': 'Reporte de salud menstrual y clÃƒÂ­nico ginecolÃƒÂ³gico',
           'uso': 'Seguimiento y apoyo para consulta profesional',
           'aviso': AppTranslations.get('registration_form', 'report_disclaimer', lang),
         },
         'seccion_1_informacion_general': filterNulls({
           'paciente': _userName,
-          'edad': userAge.isNotEmpty ? '$userAge ${AppTranslations.get('profile_and_report', 'days', lang)}' : notSpec,
+          'edad': userAge.isNotEmpty ? '$userAge ${lang == 'en' ? 'years' : 'aÃƒÂ±os'}' : notSpec,
           'ubicacion': userLocation.isNotEmpty ? userLocation : notSpec,
           'fecha_generacion': fechaHoy,
           'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : notSpec,
@@ -577,7 +591,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: BellotaColors.textoDark,
+                    color: Theme.of(context).bellotaColors.textoDark,
                   ),
                 ),
                 SizedBox(height: 8),
@@ -586,7 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: BellotaColors.textoMedio,
+                    color: Theme.of(context).bellotaColors.textoMedio,
                   ),
                 ),
                 SizedBox(height: 30),
@@ -600,12 +614,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        BellotaColors.melon.withValues(alpha: 0.15),
-                        BellotaColors.chilero.withValues(alpha: 0.10),
+                        Theme.of(context).bellotaColors.melon.withValues(alpha: 0.15),
+                        Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.10),
                       ],
                     ),
                     border: Border.all(
-                      color: BellotaColors.melon.withValues(alpha: 0.3),
+                      color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -617,7 +631,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 36,
                           fontWeight: FontWeight.w800,
-                          color: BellotaColors.melon,
+                          color: Theme.of(context).bellotaColors.melon,
                         ),
                       ),
                       Text(
@@ -625,7 +639,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: BellotaColors.textoMedio,
+                          color: Theme.of(context).bellotaColors.textoMedio,
                         ),
                       ),
                     ],
@@ -635,13 +649,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Slider
                 SliderTheme(
                   data: SliderThemeData(
-                    activeTrackColor: BellotaColors.melon,
+                    activeTrackColor: Theme.of(context).bellotaColors.melon,
                     inactiveTrackColor:
-                        BellotaColors.melon.withValues(alpha: 0.15),
+                        Theme.of(context).bellotaColors.melon.withValues(alpha: 0.15),
                     thumbColor: Colors.white,
                     overlayColor:
-                        BellotaColors.melon.withValues(alpha: 0.15),
-                    thumbShape: _CustomThumbShape(),
+                        Theme.of(context).bellotaColors.melon.withValues(alpha: 0.15),
+                    thumbShape: _CustomThumbShape(thumbColor: Theme.of(context).bellotaColors.melon),
                     trackHeight: 6,
                     trackShape: RoundedRectSliderTrackShape(),
                   ),
@@ -664,11 +678,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text('20 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
-                              color: BellotaColors.textoMedio)),
+                              color: Theme.of(context).bellotaColors.textoMedio)),
                       Text('45 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
-                              color: BellotaColors.textoMedio)),
+                              color: Theme.of(context).bellotaColors.textoMedio)),
                     ],
                   ),
                 ),
@@ -684,7 +698,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pop(ctx);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: BellotaColors.chilero,
+                      backgroundColor: Theme.of(context).bellotaColors.chilero,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -739,7 +753,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: BellotaColors.textoDark,
+                    color: Theme.of(context).bellotaColors.textoDark,
                   ),
                 ),
                 SizedBox(height: 8),
@@ -748,7 +762,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: BellotaColors.textoMedio,
+                    color: Theme.of(context).bellotaColors.textoMedio,
                   ),
                 ),
                 SizedBox(height: 30),
@@ -762,12 +776,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        BellotaColors.chilero.withValues(alpha: 0.15),
-                        BellotaColors.melon.withValues(alpha: 0.10),
+                        Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.15),
+                        Theme.of(context).bellotaColors.melon.withValues(alpha: 0.10),
                       ],
                     ),
                     border: Border.all(
-                      color: BellotaColors.chilero.withValues(alpha: 0.3),
+                      color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -779,7 +793,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 36,
                           fontWeight: FontWeight.w800,
-                          color: BellotaColors.chilero,
+                          color: Theme.of(context).bellotaColors.chilero,
                         ),
                       ),
                       Text(
@@ -787,7 +801,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: BellotaColors.textoMedio,
+                          color: Theme.of(context).bellotaColors.textoMedio,
                         ),
                       ),
                     ],
@@ -797,13 +811,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Slider
                 SliderTheme(
                   data: SliderThemeData(
-                    activeTrackColor: BellotaColors.chilero,
+                    activeTrackColor: Theme.of(context).bellotaColors.chilero,
                     inactiveTrackColor:
-                        BellotaColors.chilero.withValues(alpha: 0.15),
+                        Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.15),
                     thumbColor: Colors.white,
                     overlayColor:
-                        BellotaColors.chilero.withValues(alpha: 0.15),
-                    thumbShape: _CustomThumbShape(),
+                        Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.15),
+                    thumbShape: _CustomThumbShape(thumbColor: Theme.of(context).bellotaColors.melon),
                     trackHeight: 6,
                     trackShape: RoundedRectSliderTrackShape(),
                   ),
@@ -826,11 +840,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text('1 ${AppTranslations.get('profile_and_report', 'day', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
-                              color: BellotaColors.textoMedio)),
+                              color: Theme.of(context).bellotaColors.textoMedio)),
                       Text('10 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
-                              color: BellotaColors.textoMedio)),
+                              color: Theme.of(context).bellotaColors.textoMedio)),
                     ],
                   ),
                 ),
@@ -846,7 +860,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Navigator.pop(ctx);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: BellotaColors.chilero,
+                      backgroundColor: Theme.of(context).bellotaColors.chilero,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -879,28 +893,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             SizedBox(height: 12),
-            // ── Header icons (top right) ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Header icons (top right) Ã¢â€â‚¬Ã¢â€â‚¬
             _buildTopIcons(),
             SizedBox(height: 8),
-            // ── Avatar + Name + Email ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Avatar + Name + Email Ã¢â€â‚¬Ã¢â€â‚¬
             _buildAvatarSection(),
             SizedBox(height: 28),
-            // ── Divider ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Divider Ã¢â€â‚¬Ã¢â€â‚¬
             Container(
               height: 1,
               color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
             ),
             SizedBox(height: 20),
-            // ── Perfil de salud ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Perfil de salud Ã¢â€â‚¬Ã¢â€â‚¬
             _buildHealthSection(),
             SizedBox(height: 28),
-            // ── Divider ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Divider Ã¢â€â‚¬Ã¢â€â‚¬
             Container(
               height: 1,
               color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
             ),
             SizedBox(height: 20),
-            // ── Preferencia de la aplicación ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicaciÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬
             _buildPreferencesSection(),
             
             if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
@@ -914,13 +928,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
 
             SizedBox(height: 28),
-            // ── Divider ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Divider Ã¢â€â‚¬Ã¢â€â‚¬
             Container(
               height: 1,
               color: Colors.red.withValues(alpha: 0.15),
             ),
             SizedBox(height: 20),
-            // ── Botón Cerrar Sesión ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ³n Cerrar SesiÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬
             _buildLogoutButton(),
             SizedBox(height: 36),
           ],
@@ -929,7 +943,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Admin Section ─────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Admin Section Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildAdminSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -938,11 +952,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Expanded(
               child: Text(
-                'Administración',
+                'AdministraciÃƒÂ³n',
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: BellotaColors.textoDark,
+                  color: Theme.of(context).bellotaColors.textoDark,
                 ),
               ),
             ),
@@ -960,7 +974,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (_currentUser!.isAdmin) SizedBox(height: 8),
         if (_currentUser!.isAdmin || _currentUser!.isAuditor)
           _buildHealthRow(
-            title: 'Registro de Auditoría',
+            title: 'Registro de AuditorÃƒÂ­a',
             value: 'Ver logs',
             onTap: () {
               NavigationService.goTo(context, const AuditDashboardScreen());
@@ -970,7 +984,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Logout Button ─────────────────────────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Logout Button Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildLogoutButton() {
     return GestureDetector(
       onTap: _handleLogout,
@@ -1001,13 +1015,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Top Icons (traducción + sonido) ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Top Icons (traducciÃƒÂ³n + sonido) Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildTopIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         GestureDetector(
-          onTap: () {}, // Sin función
+          onTap: () {}, // Sin funciÃƒÂ³n
           child: Container(
             width: 36,
             height: 36,
@@ -1023,21 +1037,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             child: Icon(Icons.translate_rounded,
-                size: 18, color: BellotaColors.textoDark),
+                size: 18, color: Theme.of(context).bellotaColors.textoDark),
           ),
         ),
         SizedBox(width: 10),
         GestureDetector(
-          onTap: () {}, // Sin función
+          onTap: () {}, // Sin funciÃƒÂ³n
           child: Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: BellotaColors.chilero,
+              color: Theme.of(context).bellotaColors.chilero,
               boxShadow: [
                 BoxShadow(
-                  color: BellotaColors.chilero.withValues(alpha: 0.3),
+                  color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.3),
                   blurRadius: 6,
                   offset: Offset(0, 2),
                 ),
@@ -1051,7 +1065,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Avatar circular + nombre + email ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Avatar circular + nombre + email Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildAvatarSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1068,20 +1082,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: BellotaColors.melon.withValues(alpha: 0.4),
+                    color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.4),
                     width: 3,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: BellotaColors.melon.withValues(alpha: 0.15),
+                      color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.15),
                       blurRadius: 12,
                       offset: Offset(0, 4),
                     ),
                   ],
                 ),
                 child: ClipOval(
-                  child: _profileImagePath != null &&
-                          File(_profileImagePath!).existsSync()
+                  child: _profileImageExists && _profileImagePath != null
                       ? Image.file(
                           File(_profileImagePath!),
                           fit: BoxFit.cover,
@@ -1105,7 +1118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 32,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: BellotaColors.chilero,
+                    color: Theme.of(context).bellotaColors.chilero,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
                   child: Icon(Icons.camera_alt_rounded,
@@ -1123,7 +1136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: BellotaColors.textoDark,
+            color: Theme.of(context).bellotaColors.textoDark,
           ),
         ),
         SizedBox(height: 2),
@@ -1133,7 +1146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.poppins(
             fontSize: 13,
             fontWeight: FontWeight.w400,
-            color: BellotaColors.textoMedio,
+            color: Theme.of(context).bellotaColors.textoMedio,
           ),
         ),
         if (_currentUser != null && _currentUser!.role != UserRole.usuario) ...[
@@ -1141,7 +1154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: _currentUser!.isAdmin ? BellotaColors.chilero.withValues(alpha: 0.15) : BellotaColors.asuncion.withValues(alpha: 0.15),
+              color: _currentUser!.isAdmin ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.15) : Theme.of(context).bellotaColors.asuncion.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -1150,7 +1163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Icon(
                   _currentUser!.isAdmin ? Icons.admin_panel_settings : Icons.manage_search,
                   size: 14,
-                  color: _currentUser!.isAdmin ? BellotaColors.chilero : BellotaColors.asuncion,
+                  color: _currentUser!.isAdmin ? Theme.of(context).bellotaColors.chilero : Theme.of(context).bellotaColors.asuncion,
                 ),
                 SizedBox(width: 4),
                 Text(
@@ -1158,7 +1171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: _currentUser!.isAdmin ? BellotaColors.chilero : BellotaColors.asuncion,
+                    color: _currentUser!.isAdmin ? Theme.of(context).bellotaColors.chilero : Theme.of(context).bellotaColors.asuncion,
                   ),
                 ),
               ],
@@ -1169,7 +1182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Perfil de salud ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Perfil de salud Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildHealthSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1183,28 +1196,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: BellotaColors.textoDark,
+                  color: Theme.of(context).bellotaColors.textoDark,
                 ),
               ),
             ),
           ],
         ),
         SizedBox(height: 14),
-        // Duración del ciclo
+        // DuraciÃƒÂ³n del ciclo
         _buildHealthRow(
           title: AppTranslations.get('profile_and_report', 'cycle_duration', languageNotifier.currentLang),
           value: '$_cycleDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showCycleDurationPicker,
         ),
         SizedBox(height: 8),
-        // Duración de la menstruación
+        // DuraciÃƒÂ³n de la menstruaciÃƒÂ³n
         _buildHealthRow(
           title: AppTranslations.get('profile_and_report', 'period_duration', languageNotifier.currentLang),
           value: '$_periodDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showPeriodDurationPicker,
         ),
         SizedBox(height: 8),
-        // Informe médico
+        // Informe mÃƒÂ©dico
         _buildHealthRow(
           title: AppTranslations.get('profile_and_report', 'medical_report', languageNotifier.currentLang),
           value: AppTranslations.get('profile_and_report', 'generate', languageNotifier.currentLang),
@@ -1242,7 +1255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: BellotaColors.textoDark,
+                  color: Theme.of(context).bellotaColors.textoDark,
                 ),
               ),
             ),
@@ -1251,13 +1264,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: BellotaColors.melon,
+                color: Theme.of(context).bellotaColors.melon,
               ),
             ),
             SizedBox(width: 4),
             Icon(
               Icons.chevron_right_rounded,
-              color: BellotaColors.melon.withValues(alpha: 0.6),
+              color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.6),
               size: 20,
             ),
           ],
@@ -1266,7 +1279,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Preferencia de la aplicación ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicaciÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildPreferencesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1276,7 +1289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: BellotaColors.textoDark,
+            color: Theme.of(context).bellotaColors.textoDark,
           ),
         ),
         SizedBox(height: 14),
@@ -1294,21 +1307,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         ),
         SizedBox(height: 8),
-        // Política de privacidad
+        // PolÃƒÂ­tica de privacidad
         _buildPreferenceRow(
           title: AppTranslations.get('profile_and_report', 'privacy_policy', languageNotifier.currentLang),
           value: null,
-          onTap: () {}, // Sin función
+          onTap: () {}, // Sin funciÃƒÂ³n
         ),
         SizedBox(height: 8),
         // Idioma
         _buildPreferenceRow(
           title: AppTranslations.get('profile_and_report', 'language', languageNotifier.currentLang),
-          value: languageNotifier.currentLang == 'es' ? 'Español' : (languageNotifier.currentLang == 'mi' ? 'Miskito' : 'English'),
-          onTap: () {}, // Sin función
+          value: languageNotifier.currentLang == 'es' ? 'EspaÃƒÂ±ol' : (languageNotifier.currentLang == 'mi' ? 'Miskito' : 'English'),
+          onTap: () {}, // Sin funciÃƒÂ³n
         ),
         SizedBox(height: 8),
-        // Apariencia — Toggle Modo Oscuro
+        // Apariencia Ã¢â‚¬â€ Toggle Modo Oscuro
         ValueListenableBuilder<ThemeMode>(
           valueListenable: themeNotifier,
           builder: (_, mode, _) {
@@ -1337,14 +1350,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: BellotaColors.textoDark,
+                            color: Theme.of(context).bellotaColors.textoDark,
                           ),
                         ),
                         Text(
-                          isDark ? AppTranslations.get('profile_and_report', 'dark_mode', languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'light_mode', languageNotifier.currentLang),
+                          isDark ? AppTranslations.get('profile_and_report', AppKeys.darkMode, languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'light_mode', languageNotifier.currentLang),
                           style: GoogleFonts.poppins(
                             fontSize: 11,
-                            color: BellotaColors.textoMedio,
+                            color: Theme.of(context).bellotaColors.textoMedio,
                           ),
                         ),
                       ],
@@ -1355,7 +1368,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icon(
                         isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
                         size: 18,
-                        color: isDark ? Color(0xFF9B7FD4) : BellotaColors.melon,
+                        color: isDark ? Color(0xFF9B7FD4) : Theme.of(context).bellotaColors.melon,
                       ),
                       SizedBox(width: 8),
                       Switch(
@@ -1363,8 +1376,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onChanged: (_) => themeNotifier.toggle(),
                         activeThumbColor: Color(0xFF9B7FD4),
                         activeTrackColor: Color(0xFF9B7FD4).withValues(alpha: 0.3),
-                        inactiveThumbColor: BellotaColors.melon,
-                        inactiveTrackColor: BellotaColors.melon.withValues(alpha: 0.3),
+                        inactiveThumbColor: Theme.of(context).bellotaColors.melon,
+                        inactiveTrackColor: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.3),
                       ),
                     ],
                   ),
@@ -1405,7 +1418,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: BellotaColors.textoDark,
+                  color: Theme.of(context).bellotaColors.textoDark,
                 ),
               ),
             ),
@@ -1415,13 +1428,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: BellotaColors.melon,
+                  color: Theme.of(context).bellotaColors.melon,
                 ),
               ),
             SizedBox(width: 4),
             Icon(
               Icons.chevron_right_rounded,
-              color: BellotaColors.textoMedio.withValues(alpha: 0.4),
+              color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.4),
               size: 20,
             ),
           ],
@@ -1431,8 +1444,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// ── Custom Slider Thumb ──
+// Ã¢â€â‚¬Ã¢â€â‚¬ Custom Slider Thumb Ã¢â€â‚¬Ã¢â€â‚¬
 class _CustomThumbShape extends SliderComponentShape {
+  final Color thumbColor;
+  
+  const _CustomThumbShape({required this.thumbColor});
+
   @override
   Size getPreferredSize(bool isEnabled, bool isDiscrete) =>
       Size(24, 24);
@@ -1475,7 +1492,7 @@ class _CustomThumbShape extends SliderComponentShape {
       center,
       12,
       Paint()
-        ..color = sliderTheme.activeTrackColor ?? BellotaColors.melon
+        ..color = sliderTheme.activeTrackColor ?? thumbColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.5,
     );
@@ -1484,8 +1501,14 @@ class _CustomThumbShape extends SliderComponentShape {
     canvas.drawCircle(
       center,
       5,
-      Paint()..color = sliderTheme.activeTrackColor ?? BellotaColors.melon,
+      Paint()..color = sliderTheme.activeTrackColor ?? thumbColor,
     );
   }
 }
+
+
+
+
+
+
 

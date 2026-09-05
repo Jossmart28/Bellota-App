@@ -1,18 +1,18 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/bellota_colors.dart';
 
-// ─────────────────────────────────────────────────
-// Modelo de artículo
-// ─────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Modelo de artÃ­culo
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _ArticleData {
   final String source;
   final String title;
   final String summary;
   final String url;
   final Color accentColor;
-  // Ruta del banner. Coloca tus imágenes en: assets/images/
+  // Ruta del banner. Coloca tus imÃ¡genes en: assets/images/
   // Nombres esperados: banner_minsa.png  banner_el19.png  banner_pddh.png
   final String bannerAsset;
 
@@ -26,15 +26,15 @@ class _ArticleData {
   });
 }
 
-// ─────────────────────────────────────────────────
-// Datos de los tres artículos
-// ─────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Datos de los tres artÃ­culos
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 final List<_ArticleData> _articles = [
   _ArticleData(
     source: 'MINSA',
-    title: 'Atenciones en el Centro de Atención a la Mujer',
+    title: 'Atenciones en el Centro de AtenciÃ³n a la Mujer',
     summary:
-        'Conoce los servicios de salud que el MINSA brinda gratuitamente a la mujer nicaragüense en sus centros especializados de atención integral.',
+        'Conoce los servicios de salud que el MINSA brinda gratuitamente a la mujer nicaragÃ¼ense en sus centros especializados de atenciÃ³n integral.',
     url:
         'https://www.minsa.gob.ni/centro-de-medios/noticias/estas-son-las-atenciones-brindadas-en-el-centro-de-atencion-la-mujer',
     accentColor: const Color(0xFFD35D53),
@@ -42,28 +42,28 @@ final List<_ArticleData> _articles = [
   ),
   _ArticleData(
     source: 'El 19 Digital',
-    title: 'Restitución del derecho en la salud de la mujer',
+    title: 'RestituciÃ³n del derecho en la salud de la mujer',
     summary:
-        'La revolución tiene rostro de mujer: Nicaragua avanza en la restitución de derechos en salud femenina a través de políticas públicas.',
+        'La revoluciÃ³n tiene rostro de mujer: Nicaragua avanza en la restituciÃ³n de derechos en salud femenina a travÃ©s de polÃ­ticas pÃºblicas.',
     url:
         'https://www.el19digital.com/articulos/ver/149975-restitucion-del-derecho-en-la-salud-de-la-mujer-la-revolucion-tiene-rostro-de-mujer',
     accentColor: const Color(0xFFEE8658),
-    bannerAsset: 'assets/images/banner_el19.png',
+    bannerAsset: 'assets/images/banner_minsa.png',
   ),
   _ArticleData(
     source: 'PDDH',
-    title: 'Derechos de la mujer en salud — Procuraduría',
+    title: 'Derechos de la mujer en salud â€” ProcuradurÃ­a',
     summary:
-        'La Procuraduría para la Defensa de los Derechos Humanos aborda el marco normativo que garantiza el derecho a la salud integral de la mujer.',
+        'La ProcuradurÃ­a para la Defensa de los Derechos Humanos aborda el marco normativo que garantiza el derecho a la salud integral de la mujer.',
     url: 'https://www.pddh.gob.ni/?p=4652',
     accentColor: const Color(0xFF7E8F6F),
     bannerAsset: 'assets/images/banner_pddh.png',
   ),
 ];
 
-// ─────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Widget principal: HealthInfoCarousel
-// ─────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class HealthInfoCarousel extends StatefulWidget {
   const HealthInfoCarousel({super.key});
 
@@ -119,7 +119,7 @@ class _HealthInfoCarouselState extends State<HealthInfoCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Carrusel ──
+        // â”€â”€ Carrusel â”€â”€
         SizedBox(
           height: 240,
           child: PageView.builder(
@@ -134,7 +134,7 @@ class _HealthInfoCarouselState extends State<HealthInfoCarousel> {
         ),
         const SizedBox(height: 12),
 
-        // ── Puntos indicadores ──
+        // â”€â”€ Puntos indicadores â”€â”€
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
@@ -147,8 +147,8 @@ class _HealthInfoCarouselState extends State<HealthInfoCarousel> {
               height: 7,
               decoration: BoxDecoration(
                 color: i == _currentPage
-                    ? BellotaColors.chilero
-                    : BellotaColors.textoMedio.withValues(alpha: 0.25),
+                    ? Theme.of(context).bellotaColors.chilero
+                    : Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -159,9 +159,9 @@ class _HealthInfoCarouselState extends State<HealthInfoCarousel> {
   }
 }
 
-// ─────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Tarjeta individual
-// ─────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _ArticleCard extends StatelessWidget {
   final _ArticleData data;
   final VoidCallback onReadPressed;
@@ -176,7 +176,7 @@ class _ArticleCard extends StatelessWidget {
       padding: const EdgeInsets.only(right: 14, left: 2, top: 2, bottom: 2),
       child: Container(
         decoration: BoxDecoration(
-          color: BellotaColors.blanco,
+          color: Theme.of(context).bellotaColors.blanco,
           borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
@@ -190,7 +190,7 @@ class _ArticleCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Banner de imagen ──
+            // â”€â”€ Banner de imagen â”€â”€
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(22)),
@@ -247,7 +247,7 @@ class _ArticleCard extends StatelessWidget {
               ),
             ),
 
-            // ── Cuerpo: título + resumen + botón ──
+            // â”€â”€ Cuerpo: tÃ­tulo + resumen + botÃ³n â”€â”€
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(14, 10, 14, 11),
@@ -257,7 +257,7 @@ class _ArticleCard extends StatelessWidget {
                     Text(
                       data.title,
                       style: textTheme.titleMedium?.copyWith(
-                        color: BellotaColors.textoDark,
+                        color: Theme.of(context).bellotaColors.textoDark,
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
                         height: 1.3,
@@ -272,13 +272,13 @@ class _ArticleCard extends StatelessWidget {
                         style: textTheme.bodySmall?.copyWith(
                           fontSize: 10.5,
                           height: 1.5,
-                          color: BellotaColors.textoMedio,
+                          color: Theme.of(context).bellotaColors.textoMedio,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // Botón "Leer completo" con Material+InkWell
+                    // BotÃ³n "Leer completo" con Material+InkWell
                     Align(
                       alignment: Alignment.centerRight,
                       child: Material(
@@ -291,14 +291,14 @@ class _ArticleCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  BellotaColors.melon,
-                                  BellotaColors.chilero,
+                                  Theme.of(context).bellotaColors.melon,
+                                  Theme.of(context).bellotaColors.chilero,
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: BellotaColors.chilero
+                                  color: Theme.of(context).bellotaColors.chilero
                                       .withValues(alpha: 0.30),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
@@ -342,3 +342,4 @@ class _ArticleCard extends StatelessWidget {
     );
   }
 }
+

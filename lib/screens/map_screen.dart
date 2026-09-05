@@ -1,3 +1,4 @@
+import '../core/constants/app_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -6,33 +7,8 @@ import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../widgets/bellota_icon.dart';
 import 'health_center_detail_screen.dart';
+import '../core/models/health_center_model.dart';
 
-/// Modelo de datos para un centro de salud
-class HealthCenter {
-  final String id;
-  final String name;
-  final String type;
-  final String address;
-  final String phone;
-  final String municipality;
-  final String department;
-  final List<String> services;
-  final LatLng location;
-
-  HealthCenter({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.address,
-    required this.phone,
-    required this.municipality,
-    required this.department,
-    required this.services,
-    required this.location,
-  });
-}
-
-/// Pantalla de mapa con centros de salud
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
@@ -45,92 +21,90 @@ class _MapScreenState extends State<MapScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isListVisible = true;
   LatLng? _userLocation;
-  String? _userDepartment;
-  String? _userMunicipality;
 
-  // ── Centros de salud ──
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Centros de salud Ã¢â€â‚¬Ã¢â€â‚¬
   final List<HealthCenter> _healthCenters = [
     HealthCenter(
       id: "MGA-001",
-      name: "Hospital Materno Infantil Bertha Calderón Roque",
+      name: "Hospital Materno Infantil Bertha CalderÃƒÂ³n Roque",
       department: "Managua",
       municipality: "Managua",
-      address: "Semáforos del Zumen 200m al sur, Distrito III",
+      address: "SemÃƒÂ¡foros del Zumen 200m al sur, Distrito III",
       phone: "+505 2265-1020",
       type: "Hospital Especializado Materno Infantil",
       services: [
-        "Ginecología",
+        "GinecologÃƒÂ­a",
         "Obstetricia",
-        "Neonatología",
-        "Oncología Ginecológica",
-        "Mamografía",
-        "Atención al Parto"
+        "NeonatologÃƒÂ­a",
+        "OncologÃƒÂ­a GinecolÃƒÂ³gica",
+        "MamografÃƒÂ­a",
+        "AtenciÃƒÂ³n al Parto"
       ],
       location: LatLng(12.1285, -86.2941),
     ),
     HealthCenter(
       id: "MGA-002",
-      name: "Hospital Infantil Manuel de Jesús Rivera 'La Mascota'",
+      name: "Hospital Infantil Manuel de JesÃƒÂºs Rivera 'La Mascota'",
       department: "Managua",
       municipality: "Managua",
-      address: "Semaforos de la Lotería Nacional 2 c. al este, 1 c. al norte",
+      address: "Semaforos de la LoterÃƒÂ­a Nacional 2 c. al este, 1 c. al norte",
       phone: "+505 2289-7250",
-      type: "Hospital Especializado Pediátrico",
+      type: "Hospital Especializado PediÃƒÂ¡trico",
       services: [
-        "Pediatría Especializada",
-        "Cirugía Pediátrica",
-        "Onco-Hematología Pediátrica",
-        "UCI Pediátrica",
-        "Emergencias Pediátricas 24/7"
+        "PediatrÃƒÂ­a Especializada",
+        "CirugÃƒÂ­a PediÃƒÂ¡trica",
+        "Onco-HematologÃƒÂ­a PediÃƒÂ¡trica",
+        "UCI PediÃƒÂ¡trica",
+        "Emergencias PediÃƒÂ¡tricas 24/7"
       ],
       location: LatLng(12.1158, -86.2621),
     ),
     HealthCenter(
       id: "MGA-003",
-      name: "Hospital Escuela Roberto Calderón Gutiérrez",
+      name: "Hospital Escuela Roberto CalderÃƒÂ³n GutiÃƒÂ©rrez",
       department: "Managua",
       municipality: "Managua",
       address: "Pista de la Solidaridad, frente a Universidad Agraria",
       phone: "+505 2289-4700",
       type: "Hospital Nacional de Referencia",
       services: [
-        "Oncología Adultos",
-        "Cirugía General",
+        "OncologÃƒÂ­a Adultos",
+        "CirugÃƒÂ­a General",
         "Medicina Interna",
         "Urgencias 24/7",
-        "Hemodiálisis"
+        "HemodiÃƒÂ¡lisis"
       ],
       location: LatLng(12.1189, -86.2364),
     ),
     HealthCenter(
       id: "MGA-004",
-      name: "Hospital Occidental Fernando Vélez Paiz",
+      name: "Hospital Occidental Fernando VÃƒÂ©lez Paiz",
       department: "Managua",
       municipality: "Managua",
-      address: "Km 5.5 Carretera Sur, de los Semáforos de Belmonte 100m al norte",
+      address: "Km 5.5 Carretera Sur, de los SemÃƒÂ¡foros de Belmonte 100m al norte",
       phone: "+505 2232-1500",
       type: "Hospital Departamental / General",
       services: [
-        "Cirugía Laparoscópica",
-        "Pediatría",
+        "CirugÃƒÂ­a LaparoscÃƒÂ³pica",
+        "PediatrÃƒÂ­a",
         "Ginecobstetricia",
         "Ortopedia",
-        "Imagenología Avanzada"
+        "ImagenologÃƒÂ­a Avanzada"
       ],
       location: LatLng(12.1231, -86.3075),
     ),
     HealthCenter(
       id: "MGA-005",
-      name: "Hospital Antonio Lenín Fonseca",
+      name: "Hospital Antonio LenÃƒÂ­n Fonseca",
       department: "Managua",
       municipality: "Managua",
       address: "Las Brisas 2 c. al sur, Distrito II",
       phone: "+505 2266-0700",
       type: "Hospital Nacional de Referencia",
       services: [
-        "Neurocirugía",
-        "Traumatología",
-        "Urología",
+        "NeurocirugÃƒÂ­a",
+        "TraumatologÃƒÂ­a",
+        "UrologÃƒÂ­a",
         "Unidad de Cuidados Intensivos",
         "Emergencias 24/7"
       ],
@@ -138,7 +112,7 @@ class _MapScreenState extends State<MapScreen> {
     ),
     HealthCenter(
       id: "MGA-006",
-      name: "Hospital Alemán Nicaragüense",
+      name: "Hospital AlemÃƒÂ¡n NicaragÃƒÂ¼ense",
       department: "Managua",
       municipality: "Managua",
       address: "Semaforos de la Subasta 3 c. al norte, Distrito VI",
@@ -146,10 +120,10 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "Ginecología",
-        "Pediatría",
-        "Cirugía General",
-        "Atención del Parto"
+        "GinecologÃƒÂ­a",
+        "PediatrÃƒÂ­a",
+        "CirugÃƒÂ­a General",
+        "AtenciÃƒÂ³n del Parto"
       ],
       location: LatLng(12.1512, -86.2163),
     ),
@@ -162,26 +136,26 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2249-3310",
       type: "Centro de Salud Familiar",
       services: [
-        "Atención Primaria",
-        "Planificación Familiar",
-        "Vacunación",
+        "AtenciÃƒÂ³n Primaria",
+        "PlanificaciÃƒÂ³n Familiar",
+        "VacunaciÃƒÂ³n",
         "Control Prenatal",
-        "Odontología"
+        "OdontologÃƒÂ­a"
       ],
       location: LatLng(12.1462, -86.2578),
     ),
     HealthCenter(
       id: "MGA-008",
-      name: "Centro de Salud Sócrates Flores",
+      name: "Centro de Salud SÃƒÂ³crates Flores",
       department: "Managua",
       municipality: "Managua",
-      address: "Barrio Monseñor Lezcano, de la Iglesia 1 c. abajo, Distrito II",
+      address: "Barrio MonseÃƒÂ±or Lezcano, de la Iglesia 1 c. abajo, Distrito II",
       phone: "+505 2266-3211",
       type: "Centro de Salud Familiar",
       services: [
         "Medicina General",
-        "Pediatría Primaria",
-        "Vacunación",
+        "PediatrÃƒÂ­a Primaria",
+        "VacunaciÃƒÂ³n",
         "Programa Chagas/Dengue"
       ],
       location: LatLng(12.1491, -86.2915),
@@ -191,71 +165,71 @@ class _MapScreenState extends State<MapScreen> {
       name: "Centro de Salud Pedro Altamirano",
       department: "Managua",
       municipality: "Managua",
-      address: "Colonia Centroamérica, de la Gasolinera 1 c. al este, Distrito V",
+      address: "Colonia CentroamÃƒÂ©rica, de la Gasolinera 1 c. al este, Distrito V",
       phone: "+505 2270-1422",
       type: "Centro de Salud Familiar",
       services: [
-        "Atención Prenatal",
-        "Odontología",
-        "Laboratorio Clínico",
-        "Control de Enfermedades Crónicas"
+        "AtenciÃƒÂ³n Prenatal",
+        "OdontologÃƒÂ­a",
+        "Laboratorio ClÃƒÂ­nico",
+        "Control de Enfermedades CrÃƒÂ³nicas"
       ],
       location: LatLng(12.1123, -86.2511),
     ),
     HealthCenter(
       id: "LEO-001",
-      name: "Hospital Escuela Oscar Danilo Rosales Argüello (HEODRA)",
-      department: "León",
-      municipality: "León",
+      name: "Hospital Escuela Oscar Danilo Rosales ArgÃƒÂ¼ello (HEODRA)",
+      department: "LeÃƒÂ³n",
+      municipality: "LeÃƒÂ³n",
       address: "Frente a la Plaza Central, Calle Real",
       phone: "+505 2311-2222",
       type: "Hospital Regional Escuela",
       services: [
         "Emergencias 24/7",
-        "Pediatría",
-        "Cirugía General",
-        "Maternidad y Ginecología",
-        "Cardiología"
+        "PediatrÃƒÂ­a",
+        "CirugÃƒÂ­a General",
+        "Maternidad y GinecologÃƒÂ­a",
+        "CardiologÃƒÂ­a"
       ],
       location: LatLng(12.43525, -86.87912),
     ),
     HealthCenter(
       id: "LEO-002",
-      name: "Centro de Salud Periférico Subtiava",
-      department: "León",
-      municipality: "León",
+      name: "Centro de Salud PerifÃƒÂ©rico Subtiava",
+      department: "LeÃƒÂ³n",
+      municipality: "LeÃƒÂ³n",
       address: "De la Iglesia San Juan Bautista 2 cuadras al sur",
       phone: "+505 2311-4567",
       type: "Centro de Salud Familiar",
       services: [
         "Consulta Externa",
-        "Vacunación",
-        "Odontología",
+        "VacunaciÃƒÂ³n",
+        "OdontologÃƒÂ­a",
         "Medicina General",
-        "Atención Prenatal"
+        "AtenciÃƒÂ³n Prenatal"
       ],
       location: LatLng(12.4281, -86.8923),
     ),
     HealthCenter(
       id: "LEO-003",
-      name: "Centro de Salud Mántica Berio",
-      department: "León",
-      municipality: "León",
-      address: "Barrio Laborío, Contiguo a la Cancha San Juan",
+      name: "Centro de Salud MÃƒÂ¡ntica Berio",
+      department: "LeÃƒÂ³n",
+      municipality: "LeÃƒÂ³n",
+      address: "Barrio LaborÃƒÂ­o, Contiguo a la Cancha San Juan",
       phone: "+505 2311-8901",
       type: "Centro de Salud Familiar",
       services: [
-        "Atención Primaria",
+        "AtenciÃƒÂ³n Primaria",
         "Control Prenatal",
-        "Laboratorio Clínico",
-        "Vacunación"
+        "Laboratorio ClÃƒÂ­nico",
+        "VacunaciÃƒÂ³n"
       ],
       location: LatLng(12.4398, -86.8815),
     ),
     HealthCenter(
       id: "LEO-004",
-      name: "Hospital Primario Coronel Santos López",
-      department: "León",
+      name: "Hospital Primario Coronel Santos LÃƒÂ³pez",
+      department: "LeÃƒÂ³n",
       municipality: "El Sauce",
       address: "Entrada principal a El Sauce, contiguo al Estadio Municipal",
       phone: "+505 2319-2100",
@@ -265,7 +239,7 @@ class _MapScreenState extends State<MapScreen> {
         "Maternidad",
         "Medicina General",
         "Laboratorio",
-        "Ultrasonografía"
+        "UltrasonografÃƒÂ­a"
       ],
       location: LatLng(12.9861, -86.5382),
     ),
@@ -279,9 +253,9 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Departamental General",
       services: [
         "Emergencias 24/7",
-        "Ginecología y Obstetricia",
-        "Cirugía",
-        "Pediatría",
+        "GinecologÃƒÂ­a y Obstetricia",
+        "CirugÃƒÂ­a",
+        "PediatrÃƒÂ­a",
         "Cuidados Intensivos"
       ],
       location: LatLng(12.6391, -87.1352),
@@ -295,10 +269,10 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2341-3310",
       type: "Centro de Salud Familiar",
       services: [
-        "Atención Primaria",
-        "Ginecología Preventiva",
+        "AtenciÃƒÂ³n Primaria",
+        "GinecologÃƒÂ­a Preventiva",
         "Inmunizaciones",
-        "Atención Integral a la Mujer"
+        "AtenciÃƒÂ³n Integral a la Mujer"
       ],
       location: LatLng(12.6284, -87.1298),
     ),
@@ -307,53 +281,53 @@ class _MapScreenState extends State<MapScreen> {
       name: "Hospital Primario Teodoro King",
       department: "Chinandega",
       municipality: "El Viejo",
-      address: "De la Parroquia Nuestra Señora de los Ángeles 3 c. al norte",
+      address: "De la Parroquia Nuestra SeÃƒÂ±ora de los ÃƒÂngeles 3 c. al norte",
       phone: "+505 2344-2110",
       type: "Hospital Primario",
       services: [
-        "Atención de Partos",
+        "AtenciÃƒÂ³n de Partos",
         "Urgencias 24/7",
-        "Pediatría General",
-        "Ecografía"
+        "PediatrÃƒÂ­a General",
+        "EcografÃƒÂ­a"
       ],
       location: LatLng(12.6631, -87.1685),
     ),
     HealthCenter(
       id: "MAS-001",
-      name: "Hospital Departamental Doctor Humberto Alvarado Vásquez",
+      name: "Hospital Departamental Doctor Humberto Alvarado VÃƒÂ¡squez",
       department: "Masaya",
       municipality: "Masaya",
-      address: "Entrada a Masaya por la Rotonda San Jerónimo 800m al sur",
+      address: "Entrada a Masaya por la Rotonda San JerÃƒÂ³nimo 800m al sur",
       phone: "+505 2522-2580",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
         "Ginecobstetricia",
-        "Cirugía General",
-        "Pediatría",
+        "CirugÃƒÂ­a General",
+        "PediatrÃƒÂ­a",
         "Ortopedia"
       ],
       location: LatLng(11.9792, -86.0981),
     ),
     HealthCenter(
       id: "MAS-002",
-      name: "Centro de Salud Monimbó",
+      name: "Centro de Salud MonimbÃƒÂ³",
       department: "Masaya",
       municipality: "Masaya",
-      address: "Plaza Tiangue Monimbó 1 c. al oeste",
+      address: "Plaza Tiangue MonimbÃƒÂ³ 1 c. al oeste",
       phone: "+505 2522-3100",
       type: "Centro de Salud Familiar",
       services: [
-        "Atención Preventiva",
-        "Planificación Familiar",
-        "Pediatría",
+        "AtenciÃƒÂ³n Preventiva",
+        "PlanificaciÃƒÂ³n Familiar",
+        "PediatrÃƒÂ­a",
         "Salud Materna"
       ],
       location: LatLng(11.9684, -86.0945),
     ),
     HealthCenter(
       id: "GRA-001",
-      name: "Hospital Departamental Amistad Japón Nicaragua",
+      name: "Hospital Departamental Amistad JapÃƒÂ³n Nicaragua",
       department: "Granada",
       municipality: "Granada",
       address: "Carretera Granada - Malacatoya, Km 46",
@@ -362,9 +336,9 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Maternidad",
-        "Cirugía General",
-        "Pediatría",
-        "Radiología"
+        "CirugÃƒÂ­a General",
+        "PediatrÃƒÂ­a",
+        "RadiologÃƒÂ­a"
       ],
       location: LatLng(11.9365, -85.9523),
     ),
@@ -377,10 +351,10 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2552-4112",
       type: "Centro de Salud Familiar",
       services: [
-        "Atención Prenatal",
-        "Vacunación",
+        "AtenciÃƒÂ³n Prenatal",
+        "VacunaciÃƒÂ³n",
         "Medicina General",
-        "Odontología"
+        "OdontologÃƒÂ­a"
       ],
       location: LatLng(11.9298, -85.9681),
     ),
@@ -394,32 +368,32 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Regional",
       services: [
         "Urgencias 24/7",
-        "Ginecología",
-        "Pediatría",
-        "Cirugía General",
-        "Laboratorio Clínico"
+        "GinecologÃƒÂ­a",
+        "PediatrÃƒÂ­a",
+        "CirugÃƒÂ­a General",
+        "Laboratorio ClÃƒÂ­nico"
       ],
       location: LatLng(11.8541, -86.1985),
     ),
     HealthCenter(
       id: "CAR-002",
-      name: "Hospital Primario Maestro San José",
+      name: "Hospital Primario Maestro San JosÃƒÂ©",
       department: "Carazo",
       municipality: "Diriamba",
       address: "Del Reloj de Diriamba 4 c. al sur",
       phone: "+505 2534-2210",
       type: "Hospital Primario",
       services: [
-        "Atención de Partos",
+        "AtenciÃƒÂ³n de Partos",
         "Consulta Externa",
         "Emergencias",
-        "Vacunación"
+        "VacunaciÃƒÂ³n"
       ],
       location: LatLng(11.8562, -86.2391),
     ),
     HealthCenter(
       id: "RIV-001",
-      name: "Hospital Departamental Gaspar García Laviana",
+      name: "Hospital Departamental Gaspar GarcÃƒÂ­a Laviana",
       department: "Rivas",
       municipality: "Rivas",
       address: "Km 112 Carretera Panamericana Sur",
@@ -427,7 +401,7 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "Cirugía General",
+        "CirugÃƒÂ­a General",
         "Ortopedia",
         "Gineco-obstetricia",
         "Consulta Externa"
@@ -443,42 +417,42 @@ class _MapScreenState extends State<MapScreen> {
       phone: "+505 2563-0112",
       type: "Centro de Salud Familiar",
       services: [
-        "Atención Primaria",
-        "Planificación Familiar",
+        "AtenciÃƒÂ³n Primaria",
+        "PlanificaciÃƒÂ³n Familiar",
         "Control Prenatal",
-        "Vacunación"
+        "VacunaciÃƒÂ³n"
       ],
       location: LatLng(11.4421, -85.8295),
     ),
     HealthCenter(
       id: "EST-001",
       name: "Hospital Regional San Juan de Dios",
-      department: "Estelí",
-      municipality: "Estelí",
+      department: "EstelÃƒÂ­",
+      municipality: "EstelÃƒÂ­",
       address: "Salida sur de la ciudad, Carretera Panamericana",
       phone: "+505 2713-2451",
       type: "Hospital Regional",
       services: [
         "Urgencias 24/7",
-        "Traumatología",
-        "Pediatría",
-        "Radiología",
-        "Ginecología"
+        "TraumatologÃƒÂ­a",
+        "PediatrÃƒÂ­a",
+        "RadiologÃƒÂ­a",
+        "GinecologÃƒÂ­a"
       ],
       location: LatLng(13.0833, -86.3538),
     ),
     HealthCenter(
       id: "EST-002",
       name: "Centro de Salud Leonel Rugama Rugama",
-      department: "Estelí",
-      municipality: "Estelí",
+      department: "EstelÃƒÂ­",
+      municipality: "EstelÃƒÂ­",
       address: "Barrio Juana Elena Mendoza, de la ENABAS 2 c. al oeste",
       phone: "+505 2713-3320",
       type: "Centro de Salud Familiar",
       services: [
         "Medicina General",
         "Salud Materna",
-        "Odontología",
+        "OdontologÃƒÂ­a",
         "Laboratorio"
       ],
       location: LatLng(13.0912, -86.3581),
@@ -494,14 +468,14 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Maternidad",
-        "Cirugía General",
-        "Pediatría"
+        "CirugÃƒÂ­a General",
+        "PediatrÃƒÂ­a"
       ],
       location: LatLng(13.4812, -86.5821),
     ),
     HealthCenter(
       id: "NSG-001",
-      name: "Hospital Departamental Alfonso Moncada Guillén",
+      name: "Hospital Departamental Alfonso Moncada GuillÃƒÂ©n",
       department: "Nueva Segovia",
       municipality: "Ocotal",
       address: "Barrio Nicarao, de la Calzada 3 c. al norte",
@@ -510,24 +484,24 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Obstetricia",
-        "Pediatría",
-        "Cirugía General"
+        "PediatrÃƒÂ­a",
+        "CirugÃƒÂ­a General"
       ],
       location: LatLng(13.6321, -86.4782),
     ),
     HealthCenter(
       id: "MAT-001",
-      name: "Hospital Escuela César Amador Molina",
+      name: "Hospital Escuela CÃƒÂ©sar Amador Molina",
       department: "Matagalpa",
       municipality: "Matagalpa",
-      address: "Entrada principal a Matagalpa, Contiguo al Río Grande",
+      address: "Entrada principal a Matagalpa, Contiguo al RÃƒÂ­o Grande",
       phone: "+505 2772-2011",
       type: "Hospital Regional Escuela",
       services: [
         "Medicina Interna",
-        "Cirugía",
+        "CirugÃƒÂ­a",
         "Gineco-obstetricia",
-        "Hemodiálisis",
+        "HemodiÃƒÂ¡lisis",
         "UCI"
       ],
       location: LatLng(12.9261, -85.9182),
@@ -537,36 +511,36 @@ class _MapScreenState extends State<MapScreen> {
       name: "Hospital Departamental Victoria Motta",
       department: "Jinotega",
       municipality: "Jinotega",
-      address: "Barrio San Juan, contiguo al Estadio Moisés Palacios",
+      address: "Barrio San Juan, contiguo al Estadio MoisÃƒÂ©s Palacios",
       phone: "+505 2782-2311",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
         "Maternidad",
-        "Pediatría",
-        "Cirugía General"
+        "PediatrÃƒÂ­a",
+        "CirugÃƒÂ­a General"
       ],
       location: LatLng(13.0982, -85.9981),
     ),
     HealthCenter(
       id: "BOA-001",
-      name: "Hospital Departamental José Nieborowski",
+      name: "Hospital Departamental JosÃƒÂ© Nieborowski",
       department: "Boaco",
       municipality: "Boaco",
-      address: "Salida a Managua, frente a la Subestación Eléctrica",
+      address: "Salida a Managua, frente a la SubestaciÃƒÂ³n ElÃƒÂ©ctrica",
       phone: "+505 2542-2200",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "Cirugía General",
+        "CirugÃƒÂ­a General",
         "Gineco-obstetricia",
-        "Pediatría"
+        "PediatrÃƒÂ­a"
       ],
       location: LatLng(12.4721, -85.6582),
     ),
     HealthCenter(
       id: "CHO-001",
-      name: "Hospital Regional Escuela Asunción de Juigalpa",
+      name: "Hospital Regional Escuela AsunciÃƒÂ³n de Juigalpa",
       department: "Chontales",
       municipality: "Juigalpa",
       address: "Salida a Rama, Km 140",
@@ -574,9 +548,9 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Regional Escuela",
       services: [
         "Emergencias 24/7",
-        "Traumatología",
+        "TraumatologÃƒÂ­a",
         "Maternidad",
-        "Cirugía",
+        "CirugÃƒÂ­a",
         "Cuidados Intensivos"
       ],
       location: LatLng(12.1082, -85.3621),
@@ -584,16 +558,16 @@ class _MapScreenState extends State<MapScreen> {
     HealthCenter(
       id: "RSJ-001",
       name: "Hospital Departamental Luis Felipe Moncada",
-      department: "Río San Juan",
+      department: "RÃƒÂ­o San Juan",
       municipality: "San Carlos",
       address: "Barrio 19 de Julio, San Carlos",
       phone: "+505 2583-0100",
       type: "Hospital Departamental",
       services: [
         "Emergencias 24/7",
-        "Atención al Parto",
-        "Pediatría",
-        "Cirugía General",
+        "AtenciÃƒÂ³n al Parto",
+        "PediatrÃƒÂ­a",
+        "CirugÃƒÂ­a General",
         "Laboratorio"
       ],
       location: LatLng(11.1281, -84.7782),
@@ -608,9 +582,9 @@ class _MapScreenState extends State<MapScreen> {
       type: "Hospital Regional",
       services: [
         "Emergencias 24/7",
-        "Cirugía General",
+        "CirugÃƒÂ­a General",
         "Gineco-obstetricia",
-        "Pediatría",
+        "PediatrÃƒÂ­a",
         "Medicina Intercultural"
       ],
       location: LatLng(14.0321, -83.3892),
@@ -626,19 +600,21 @@ class _MapScreenState extends State<MapScreen> {
       services: [
         "Emergencias 24/7",
         "Maternidad e Infancia",
-        "Cirugía General",
-        "Laboratorio Clínico"
+        "CirugÃƒÂ­a General",
+        "Laboratorio ClÃƒÂ­nico"
       ],
       location: LatLng(12.0132, -83.7642),
     ),
   ];
 
+  void _onSearchChanged() {
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() {
-      setState(() {});
-    });
+    _searchController.addListener(_onSearchChanged);
     _loadPreferences();
   }
 
@@ -646,18 +622,14 @@ class _MapScreenState extends State<MapScreen> {
     final prefs = await SharedPreferences.getInstance();
     final lat = prefs.getDouble('user_latitude');
     final lng = prefs.getDouble('user_longitude');
-    final dept = prefs.getString('user_department');
-    final muni = prefs.getString('user_municipality');
 
     if (mounted) {
       setState(() {
         if (lat != null && lng != null) {
           _userLocation = LatLng(lat, lng);
         }
-        _userDepartment = dept;
-        _userMunicipality = muni;
       });
-      // Mover el mapa a la ubicación del usuario si el mapa ya está listo
+      // Mover el mapa a la ubicaciÃƒÂ³n del usuario si el mapa ya estÃƒÂ¡ listo
       try {
         if (_userLocation != null) {
           _mapController.move(_userLocation!, 13.0);
@@ -668,12 +640,13 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
 
-  /// Centros que se muestran en el mapa: SIEMPRE todos (sin filtro de ubicación).
-  /// Solo aplica el filtro de texto de búsqueda si el usuario escribió algo.
+  /// Centros que se muestran en el mapa: SIEMPRE todos (sin filtro de ubicaciÃƒÂ³n).
+  /// Solo aplica el filtro de texto de bÃƒÂºsqueda si el usuario escribiÃƒÂ³ algo.
   List<HealthCenter> get _mapCenters {
     final query = _searchController.text.toLowerCase();
     if (query.isEmpty) return _healthCenters;
@@ -721,14 +694,14 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ═══════════════════════════════════
-        // BARRA SUPERIOR — Búsqueda + íconos
-        // ═══════════════════════════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // BARRA SUPERIOR Ã¢â‚¬â€ BÃƒÂºsqueda + ÃƒÂ­conos
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         _buildSearchBar(context),
         
-        // ══════════════════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         // MAPA + LISTA (scrollable)
-        // ══════════════════════════
+        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
         Expanded(
           child: Column(
             children: [
@@ -742,14 +715,14 @@ class _MapScreenState extends State<MapScreen> {
                 onTap: () => setState(() => _isListVisible = !_isListVisible),
                 child: Container(
                   width: double.infinity,
-                  color: BellotaColors.blanco,
+                  color: Theme.of(context).bellotaColors.blanco,
                   padding: EdgeInsets.symmetric(vertical: 12),
                   child: Center(
                     child: Container(
                       width: 48,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: BellotaColors.textoMedio.withValues(alpha: 0.3),
+                        color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(2.5),
                       ),
                     ),
@@ -758,15 +731,15 @@ class _MapScreenState extends State<MapScreen> {
               ),
               if (_isListVisible)
                 Expanded(
-                  child: SingleChildScrollView(
-                    physics: ClampingScrollPhysics(),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 8),
-                        _buildHealthCenterList(context),
-                        SizedBox(height: 16),
-                      ],
-                    ),
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: _filteredCenters.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: 12),
+                        child: _buildHealthCenterCard(context, _filteredCenters[index]),
+                      );
+                    },
                   ),
                 ),
             ],
@@ -776,23 +749,23 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ────────────────────────────────────═
-  // BARRA DE BÚSQUEDA Y BOTONES GLOBALES
-  // ─────────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€¢Â
+  // BARRA DE BÃƒÅ¡SQUEDA Y BOTONES GLOBALES
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildSearchBar(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: BellotaColors.basilica,
+      color: Theme.of(context).bellotaColors.basilica,
       child: Row(
         children: [
-          // Campo de búsqueda
+          // Campo de bÃƒÂºsqueda
           Expanded(
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: BellotaColors.blanco,
+                color: Theme.of(context).bellotaColors.blanco,
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
@@ -805,15 +778,15 @@ class _MapScreenState extends State<MapScreen> {
               child: Row(
                 children: [
                   SizedBox(width: 14),
-                  Icon(Icons.search, color: BellotaColors.textoMedio, size: 22),
+                  Icon(Icons.search, color: Theme.of(context).bellotaColors.textoMedio, size: 22),
                   SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
-                      style: textTheme.bodyMedium?.copyWith(color: BellotaColors.textoDark),
+                      style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).bellotaColors.textoDark),
                       decoration: InputDecoration(
                         hintText: 'Buscar centro de salud...',
-                        hintStyle: textTheme.bodyMedium?.copyWith(color: BellotaColors.textoMedio.withValues(alpha: 0.6)),
+                        hintStyle: textTheme.bodyMedium?.copyWith(color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.6)),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -839,9 +812,9 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ─────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // MAPA FLUTTER MAP
-  // ─────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildMap() {
     return FlutterMap(
       mapController: _mapController,
@@ -863,8 +836,8 @@ class _MapScreenState extends State<MapScreen> {
               final index = entry.key;
               final center = entry.value;
               final colors = [
-                BellotaColors.chilero,
-                BellotaColors.melon,
+                Theme.of(context).bellotaColors.chilero,
+                Theme.of(context).bellotaColors.melon,
                 Color(0xFF4CAF50),
                 Color(0xFF2196F3),
                 Color(0xFF9C27B0),
@@ -888,7 +861,7 @@ class _MapScreenState extends State<MapScreen> {
               );
             }),
             
-            // ── Pin de la ubicación del usuario ──
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Pin de la ubicaciÃƒÂ³n del usuario Ã¢â€â‚¬Ã¢â€â‚¬
             if (_userLocation != null)
               Marker(
                 point: _userLocation!,
@@ -900,7 +873,7 @@ class _MapScreenState extends State<MapScreen> {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: BellotaColors.textoDark,
+                        color: Theme.of(context).bellotaColors.textoDark,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
@@ -911,7 +884,7 @@ class _MapScreenState extends State<MapScreen> {
                         ],
                       ),
                       child: Text(
-                        'Ubicación',
+                        'UbicaciÃƒÂ³n',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 11,
@@ -919,7 +892,7 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       ),
                     ),
-                    Icon(Icons.location_pin, color: BellotaColors.textoDark, size: 32),
+                    Icon(Icons.location_pin, color: Theme.of(context).bellotaColors.textoDark, size: 32),
                   ],
                 ),
               ),
@@ -929,22 +902,9 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // ──────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // LISTA DE CENTROS DE SALUD
-  // ──────────────────────────
-  Widget _buildHealthCenterList(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: _filteredCenters.map((center) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: 12),
-            child: _buildHealthCenterCard(context, center),
-          );
-        }).toList(),
-      ),
-    );
-  }
+  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
   Widget _buildHealthCenterCard(BuildContext context, HealthCenter center) {
     final textTheme = Theme.of(context).textTheme;
@@ -954,7 +914,7 @@ class _MapScreenState extends State<MapScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: BellotaColors.blanco,
+          color: Theme.of(context).bellotaColors.blanco,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -966,7 +926,7 @@ class _MapScreenState extends State<MapScreen> {
         ),
         child: Row(
           children: [
-            // Información del centro
+            // InformaciÃƒÂ³n del centro
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -976,7 +936,7 @@ class _MapScreenState extends State<MapScreen> {
                     style: textTheme.titleMedium?.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: BellotaColors.textoDark,
+                      color: Theme.of(context).bellotaColors.textoDark,
                     ),
                   ),
                   SizedBox(height: 4),
@@ -991,11 +951,11 @@ class _MapScreenState extends State<MapScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: BellotaColors.melon,
+                color: Theme.of(context).bellotaColors.melon,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: BellotaColors.melon.withValues(alpha: 0.3),
+                    color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.3),
                     blurRadius: 6,
                     offset: Offset(0, 2),
                   ),
@@ -1003,7 +963,7 @@ class _MapScreenState extends State<MapScreen> {
               ),
               child: Icon(
                 Icons.arrow_forward_rounded,
-                color: BellotaColors.blanco,
+                color: Theme.of(context).bellotaColors.blanco,
                 size: 22,
               ),
             ),
@@ -1025,7 +985,7 @@ class _MapScreenState extends State<MapScreen> {
               width: 4,
               height: 4,
               decoration: BoxDecoration(
-                color: BellotaColors.textoMedio,
+                color: Theme.of(context).bellotaColors.textoMedio,
                 shape: BoxShape.circle,
               ),
             ),
@@ -1042,3 +1002,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
+
+
+
+

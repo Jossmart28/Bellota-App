@@ -1,3 +1,4 @@
+﻿import '../core/constants/app_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -28,17 +29,17 @@ class _NotificationsSettingsScreenState
   // Hora del registro diario
   TimeOfDay _logTime = const TimeOfDay(hour: 21, minute: 0);
 
-  // Horarios de píldora (máx 10)
+  // Horarios de pÃ­ldora (mÃ¡x 10)
   List<TimeOfDay> _pillTimes = [];
 
-  // Citas médicas semanales
+  // Citas mÃ©dicas semanales
   List<_ApptEntry> _appointments = [];
 
   int? _userId;
   bool _permissionGranted = true;
   bool _permissionChecked = false;
 
-  static const _days = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  static const _days = ['', 'Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado', 'Domingo'];
 
   @override
   void initState() {
@@ -59,7 +60,7 @@ class _NotificationsSettingsScreenState
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('userEmail') ?? '';
+    final email = prefs.getString(AppKeys.userEmail) ?? '';
     final userId = await DatabaseHelper.instance.getUserIdByEmail(email);
 
     if (userId != null) {
@@ -155,7 +156,7 @@ class _NotificationsSettingsScreenState
     return '$h:$m';
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +165,7 @@ class _NotificationsSettingsScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, color: BellotaColors.textoDark),
+          icon: Icon(Icons.arrow_back_ios_rounded, color: Theme.of(context).bellotaColors.textoDark),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -172,7 +173,7 @@ class _NotificationsSettingsScreenState
           style: GoogleFonts.poppins(
             fontSize: 17,
             fontWeight: FontWeight.w600,
-            color: BellotaColors.textoDark,
+            color: Theme.of(context).bellotaColors.textoDark,
           ),
         ),
         centerTitle: true,
@@ -185,12 +186,12 @@ class _NotificationsSettingsScreenState
             if (_permissionChecked && !_permissionGranted) _buildPermissionBanner(),
             if (_permissionChecked && !_permissionGranted) const SizedBox(height: 16),
 
-            // ── General ───────────────────────────────────────────────────
+            // â”€â”€ General â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _sectionTitle('General'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.notifications_outlined,
-              iconColor: BellotaColors.textoDark,
+              iconColor: Theme.of(context).bellotaColors.textoDark,
               title: 'Notificaciones de la app',
               subtitle: 'Activar o desactivar todas las notificaciones',
               value: _notificacionesApp,
@@ -203,9 +204,9 @@ class _NotificationsSettingsScreenState
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.volume_up_outlined,
-              iconColor: BellotaColors.textoMedio,
-              title: 'Sonidos de notificación',
-              subtitle: 'Reproducir sonido con cada notificación',
+              iconColor: Theme.of(context).bellotaColors.textoMedio,
+              title: 'Sonidos de notificaciÃ³n',
+              subtitle: 'Reproducir sonido con cada notificaciÃ³n',
               value: _sonidosNotificacion,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -216,14 +217,14 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // ── Recordatorios de Ciclo ────────────────────────────────────
+            // â”€â”€ Recordatorios de Ciclo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _sectionTitle('Recordatorios de Ciclo'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.water_drop_outlined,
-              iconColor: BellotaColors.chilero,
+              iconColor: Theme.of(context).bellotaColors.chilero,
               title: 'Recordatorio de periodo',
-              subtitle: '3 días antes del inicio estimado de tu periodo',
+              subtitle: '3 dÃ­as antes del inicio estimado de tu periodo',
               value: _recordatorioPeriodo,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -234,9 +235,9 @@ class _NotificationsSettingsScreenState
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.favorite_border_rounded,
-              iconColor: BellotaColors.melon,
-              title: 'Recordatorio de ovulación',
-              subtitle: '1 día antes del inicio de tus días fértiles',
+              iconColor: Theme.of(context).bellotaColors.melon,
+              title: 'Recordatorio de ovulaciÃ³n',
+              subtitle: '1 dÃ­a antes del inicio de tus dÃ­as fÃ©rtiles',
               value: _recordatorioOvulacion,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -247,14 +248,14 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // ── Píldora ───────────────────────────────────────────────────
-            _sectionTitle('Píldora'),
+            // â”€â”€ PÃ­ldora â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            _sectionTitle('PÃ­ldora'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.medication_outlined,
-              iconColor: BellotaColors.chiltoma,
-              title: 'Recordatorio de píldora',
-              subtitle: 'Recibirás una alarma por cada horario configurado',
+              iconColor: Theme.of(context).bellotaColors.chiltoma,
+              title: 'Recordatorio de pÃ­ldora',
+              subtitle: 'RecibirÃ¡s una alarma por cada horario configurado',
               value: _recordatorioPildora,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -269,14 +270,14 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // ── Bienestar ─────────────────────────────────────────────────
+            // â”€â”€ Bienestar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             _sectionTitle('Bienestar'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.edit_note_outlined,
-              iconColor: BellotaColors.asuncion,
+              iconColor: Theme.of(context).bellotaColors.asuncion,
               title: 'Registro diario',
-              subtitle: 'Te recordamos registrar cómo te sentiste',
+              subtitle: 'Te recordamos registrar cÃ³mo te sentiste',
               value: _recordatorioDiario,
               enabled: _notificacionesApp,
               onChanged: (val) {
@@ -305,13 +306,13 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 24),
 
-            // ── Citas Médicas ─────────────────────────────────────────────
-            _sectionTitle('Citas Médicas'),
+            // â”€â”€ Citas MÃ©dicas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            _sectionTitle('Citas MÃ©dicas'),
             const SizedBox(height: 10),
             _buildToggleCard(
               icon: Icons.calendar_month_outlined,
               iconColor: const Color(0xFF6B9EC7),
-              title: 'Recordatorio de cita médica',
+              title: 'Recordatorio de cita mÃ©dica',
               subtitle: 'Configura uno o varios recordatorios semanales',
               value: _recordatorioCitaMedica,
               enabled: _notificacionesApp,
@@ -327,14 +328,14 @@ class _NotificationsSettingsScreenState
 
             const SizedBox(height: 32),
             
-            // ── Probar Notificaciones ─────────────────────────────────────────
+            // â”€â”€ Probar Notificaciones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             Center(
               child: TextButton.icon(
                 onPressed: () => NotificationService.instance.sendTestNotification(),
-                icon: Icon(Icons.send_to_mobile_rounded, color: BellotaColors.textoMedio),
+                icon: Icon(Icons.send_to_mobile_rounded, color: Theme.of(context).bellotaColors.textoMedio),
                 label: Text(
-                  'Enviar notificación de prueba',
-                  style: GoogleFonts.poppins(color: BellotaColors.textoMedio, fontWeight: FontWeight.w500),
+                  'Enviar notificaciÃ³n de prueba',
+                  style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
@@ -346,7 +347,7 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // ── Píldora panel ──────────────────────────────────────────────────────────
+  // â”€â”€ PÃ­ldora panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildPillTimesPanel() {
     return _buildExpandableCard(
       child: Column(
@@ -355,9 +356,9 @@ class _NotificationsSettingsScreenState
             final i = entry.key;
             final t = entry.value;
             return _buildTimeRow(
-              label: 'Píldora ${i + 1}',
+              label: 'PÃ­ldora ${i + 1}',
               time: t,
-              iconColor: BellotaColors.chiltoma,
+              iconColor: Theme.of(context).bellotaColors.chiltoma,
               onTap: () async {
                 final picked = await showTimePicker(
                   context: context,
@@ -380,7 +381,7 @@ class _NotificationsSettingsScreenState
           if (_pillTimes.length < 10) ...[
             const SizedBox(height: 4),
             _buildAddButton(
-              label: 'Agregar hora de píldora',
+              label: 'Agregar hora de pÃ­ldora',
               onTap: () async {
                 final picked = await showTimePicker(
                   context: context,
@@ -399,7 +400,7 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // ── Appointments panel ────────────────────────────────────────────────────
+  // â”€â”€ Appointments panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildAppointmentsPanel() {
     return _buildExpandableCard(
       child: Column(
@@ -435,7 +436,7 @@ class _NotificationsSettingsScreenState
           }),
           const SizedBox(height: 4),
           _buildAddButton(
-            label: 'Agregar cita médica',
+            label: 'Agregar cita mÃ©dica',
             onTap: () async {
               final picked = await showTimePicker(
                 context: context,
@@ -453,12 +454,12 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // ── Day picker dialog ─────────────────────────────────────────────────────
+  // â”€â”€ Day picker dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Future<int?> _showDayPicker(int current) {
     return showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Día de la cita', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        title: Text('DÃ­a de la cita', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -474,14 +475,14 @@ class _NotificationsSettingsScreenState
                   children: [
                     Icon(
                       isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                      color: isSelected ? BellotaColors.chilero : BellotaColors.textoMedio,
+                      color: isSelected ? Theme.of(context).bellotaColors.chilero : Theme.of(context).bellotaColors.textoMedio,
                       size: 20,
                     ),
                     const SizedBox(width: 12),
                     Text(_days[wd], style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                      color: isSelected ? BellotaColors.chilero : BellotaColors.textoDark,
+                      color: isSelected ? Theme.of(context).bellotaColors.chilero : Theme.of(context).bellotaColors.textoDark,
                     )),
                   ],
                 ),
@@ -493,7 +494,7 @@ class _NotificationsSettingsScreenState
     );
   }
 
-  // ── Reusable widgets ──────────────────────────────────────────────────────
+  // â”€â”€ Reusable widgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildExpandableCard({required Widget child}) {
     return Container(
@@ -533,14 +534,14 @@ class _NotificationsSettingsScreenState
           const SizedBox(width: 12),
           Expanded(
             child: Text(label,
-                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: BellotaColors.textoDark)),
+                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: Theme.of(context).bellotaColors.textoDark)),
           ),
           GestureDetector(
             onTap: onTap,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: BellotaColors.chilero.withValues(alpha: 0.12),
+                color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -548,7 +549,7 @@ class _NotificationsSettingsScreenState
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: BellotaColors.chilero,
+                  color: Theme.of(context).bellotaColors.chilero,
                 ),
               ),
             ),
@@ -607,12 +608,12 @@ class _NotificationsSettingsScreenState
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: BellotaColors.chilero.withValues(alpha: 0.12),
+                color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 _fmtTime(entry.time),
-                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: BellotaColors.chilero),
+                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: Theme.of(context).bellotaColors.chilero),
               ),
             ),
           ),
@@ -638,27 +639,27 @@ class _NotificationsSettingsScreenState
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: BellotaColors.asuncion.withValues(alpha: 0.12),
+              color: Theme.of(context).bellotaColors.asuncion.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.access_time_rounded, color: BellotaColors.asuncion, size: 18),
+            child: Icon(Icons.access_time_rounded, color: Theme.of(context).bellotaColors.asuncion, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(label,
-                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: BellotaColors.textoDark)),
+                style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: Theme.of(context).bellotaColors.textoDark)),
           ),
           GestureDetector(
             onTap: onTap,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: BellotaColors.chilero.withValues(alpha: 0.12),
+                color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 _fmtTime(time),
-                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: BellotaColors.chilero),
+                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).bellotaColors.chilero),
               ),
             ),
           ),
@@ -674,21 +675,21 @@ class _NotificationsSettingsScreenState
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: BellotaColors.chilero.withValues(alpha: 0.5)),
+          border: Border.all(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(12),
-          color: BellotaColors.chilero.withValues(alpha: 0.06),
+          color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.06),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_circle_outline, color: BellotaColors.chilero, size: 18),
+            Icon(Icons.add_circle_outline, color: Theme.of(context).bellotaColors.chilero, size: 18),
             const SizedBox(width: 6),
             Text(
               label,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: BellotaColors.chilero,
+                color: Theme.of(context).bellotaColors.chilero,
               ),
             ),
           ],
@@ -701,19 +702,19 @@ class _NotificationsSettingsScreenState
     return Theme(
       data: Theme.of(ctx).copyWith(
         colorScheme: ColorScheme.light(
-          primary: BellotaColors.chilero,
+          primary: Theme.of(context).bellotaColors.chilero,
           onPrimary: Colors.white,
           surface: Colors.white,
         ),
         textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(foregroundColor: BellotaColors.chilero),
+          style: TextButton.styleFrom(foregroundColor: Theme.of(context).bellotaColors.chilero),
         ),
       ),
       child: child!,
     );
   }
 
-  // ── Permission banner ─────────────────────────────────────────────────────
+  // â”€â”€ Permission banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildPermissionBanner() {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -737,7 +738,7 @@ class _NotificationsSettingsScreenState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Bellota necesita permiso para enviarte recordatorios. Toca aquí para activarlos.',
+                  'Bellota necesita permiso para enviarte recordatorios. Toca aquÃ­ para activarlos.',
                   style: GoogleFonts.poppins(fontSize: 11, color: Colors.orange.shade800),
                 ),
                 const SizedBox(height: 8),
@@ -766,7 +767,7 @@ class _NotificationsSettingsScreenState
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: BellotaColors.textoDark),
+      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: Theme.of(context).bellotaColors.textoDark),
     );
   }
 
@@ -808,9 +809,9 @@ class _NotificationsSettingsScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: BellotaColors.textoDark)),
+                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).bellotaColors.textoDark)),
                   Text(subtitle,
-                      style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w400, color: BellotaColors.textoMedio)),
+                      style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w400, color: Theme.of(context).bellotaColors.textoMedio)),
                 ],
               ),
             ),
@@ -820,7 +821,7 @@ class _NotificationsSettingsScreenState
                 value: value && enabled,
                 onChanged: enabled ? onChanged : null,
                 activeThumbColor: Colors.white,
-                activeTrackColor: BellotaColors.chilero,
+                activeTrackColor: Theme.of(context).bellotaColors.chilero,
                 inactiveThumbColor: Colors.white,
                 inactiveTrackColor: const Color(0xFFD4C4B0),
               ),
@@ -832,12 +833,17 @@ class _NotificationsSettingsScreenState
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Modelo de cita semanal temporal (solo UI)
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _ApptEntry {
   final int weekday;
   final TimeOfDay time;
 
   const _ApptEntry({required this.weekday, required this.time});
 }
+
+
+
+
+

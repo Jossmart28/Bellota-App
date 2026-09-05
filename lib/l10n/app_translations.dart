@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 class AppTranslations {
   static const Map<String, Map<String, Map<String, String>>> translations = {
     "app_title": {
-      "es": {"t": "Bellota · Calendario Menstrual"},
-      "en": {"t": "Bellota · Menstrual Calendar"},
-      "mi": {"t": "Bellota · Kati Kalendar"}
+      "title": {
+        "es": "Bellota · Calendario Menstrual",
+        "en": "Bellota · Menstrual Calendar",
+        "mi": "Bellota · Kati Kalendar"
+      }
     },
     "navigation": {
       "home": {
@@ -602,8 +604,14 @@ class AppTranslations {
   }
 
   static String get(String category, String key, String lang) {
-    if (translations.containsKey(category) && translations[category]!.containsKey(key)) {
-      return translations[category]![key]![lang] ?? translations[category]![key]!["es"]!;
+    if (translations.containsKey(category)) {
+      final categoryMap = translations[category];
+      if (categoryMap != null && categoryMap.containsKey(key)) {
+        final keyMap = categoryMap[key];
+        if (keyMap != null) {
+          return keyMap[lang] ?? keyMap['es'] ?? key;
+        }
+      }
     }
     // Fallback if not found (returns the key or you can log an error)
     return key;
