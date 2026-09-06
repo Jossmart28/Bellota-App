@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../constants/app_keys.dart';
@@ -98,6 +98,13 @@ class AuthService {
     await prefs.remove(AppKeys.onboardingDone);
     await prefs.remove(AppKeys.calendarTourDone);
     await prefs.remove(AppKeys.setupCompleted);
+  }
+  Future<void> completeOnboardingFlags() async {
+    final prefs = await _sharedPrefs;
+    await prefs.setBool('privacy_policy_accepted', true);
+    await prefs.setBool(AppKeys.onboardingDone, true);
+    await prefs.setBool(AppKeys.calendarTourDone, true);
+    await prefs.setBool(AppKeys.setupCompleted, true);
   }
 
   Future<void> saveSession(UserModel user) async {
@@ -224,10 +231,9 @@ class AuthService {
         return UserModel.fromMap(userMap);
       } else {
         // Usuario nuevo → registrar en la BD.
-        // El flujo de incorporación (Privacidad → Onboarding → Datos Personales)
-        // se maneja automáticamente por NavigationService.resolveHomeScreen()
-        // gracias a las banderas en SharedPreferences.
-        await resetOnboardingFlags();
+        // Para Google OAuth saltaremos el flujo de incorporación para que
+        // la experiencia sea directa.
+        await completeOnboardingFlags();
 
         final userId = await DatabaseHelper.instance.registerUser(
           name,
