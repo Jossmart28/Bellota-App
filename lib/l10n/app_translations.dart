@@ -104,6 +104,27 @@ class AppTranslations {
         "mi": "Luteal"
       }
     },
+    "calendar": {
+      "jan": {"es": "ene", "en": "jan", "mi": "ene"},
+      "feb": {"es": "feb", "en": "feb", "mi": "feb"},
+      "mar": {"es": "mar", "en": "mar", "mi": "mar"},
+      "apr": {"es": "abr", "en": "apr", "mi": "abr"},
+      "may": {"es": "may", "en": "may", "mi": "may"},
+      "jun": {"es": "jun", "en": "jun", "mi": "jun"},
+      "jul": {"es": "jul", "en": "jul", "mi": "jul"},
+      "aug": {"es": "ago", "en": "aug", "mi": "ago"},
+      "sep": {"es": "sep", "en": "sep", "mi": "sep"},
+      "oct": {"es": "oct", "en": "oct", "mi": "oct"},
+      "nov": {"es": "nov", "en": "nov", "mi": "nov"},
+      "dec": {"es": "dic", "en": "dec", "mi": "dic"},
+      "sun": {"es": "dom", "en": "sun", "mi": "dom"},
+      "mon": {"es": "lun", "en": "mon", "mi": "lun"},
+      "tue": {"es": "mar", "en": "tue", "mi": "mar"},
+      "wed": {"es": "mié", "en": "wed", "mi": "mié"},
+      "thu": {"es": "jue", "en": "thu", "mi": "jue"},
+      "fri": {"es": "vie", "en": "fri", "mi": "vie"},
+      "sat": {"es": "sáb", "en": "sat", "mi": "sáb"}
+    },
     "calendar_views": {
       "year": {
         "es": "Año",
@@ -514,7 +535,7 @@ class AppTranslations {
       "cycle_average": {"es": "Promedio del ciclo", "en": "Cycle average", "mi": "Kati luhka prom"},
       "bleeding_average": {"es": "Promedio de sangrado", "en": "Bleeding average", "mi": "Tala prom"},
       "most_frequent_flow": {"es": "Flujo más frecuente", "en": "Most frequent flow", "mi": "Flujo tara"},
-      "logout_confirm": {"es": "¿Estás segura de que deseas cerrar sesión?\\nTus datos quedarán guardados para cuando vuelvas.", "en": "Are you sure you want to log out?\\nYour data will be saved.", "mi": "Takaya walisma?\\nMan dukiak ban kaikaia."},
+      "logout_confirm": {"es": "¿Estás segura de que deseas cerrar sesión?\nTus datos quedarán guardados para cuando vuelvas.", "en": "Are you sure you want to log out?\nYour data will be saved.", "mi": "Takaya walisma?\nMan dukiak ban kaikaia."},
       "cancel": {"es": "Cancelar", "en": "Cancel", "mi": "Swiaia"},
       "save": {"es": "Guardar", "en": "Save", "mi": "Mangkaya"},
       "adjust_cycle": {"es": "Ajusta la duración promedio de tu ciclo menstrual", "en": "Adjust average cycle duration", "mi": "Man kati luhka pusa"},

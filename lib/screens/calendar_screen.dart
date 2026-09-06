@@ -1,4 +1,4 @@
-﻿import '../core/constants/app_keys.dart';
+import '../core/constants/app_keys.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'dart:convert';
@@ -34,8 +34,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   CalendarViewType _currentView = CalendarViewType.monthly;
   final DateTime _currentDate = DateTime.now(); // Fecha real actual
-  DateTime _displayDate = DateTime.now(); // Fecha del mes/semana que se estÃƒÂ¡ viendo
-  DateTime? _selectedDate; // DÃƒÂ­a seleccionado por la usuaria
+  DateTime _displayDate = DateTime.now(); // Fecha del mes/semana que se está viendo
+  DateTime? _selectedDate; // Día seleccionado por la usuaria
 
   // Controlador para el scroll en la vista de mes
   late PageController _monthPageController;
@@ -185,17 +185,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
       builder: (context, lang, _) {
     return Column(
       children: [
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ●●●●●●●●●●●●●●
         // HEADER GLOBAL
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ●●●●●●●●●●●●●●
         Padding(
           padding: EdgeInsets.fromLTRB(20, 12, 20, 10),
           child: _buildHeader(context),
         ),
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ●●●●●●●●●●●●●●●●●●●●●●●●●●●●
         // CONTROLES DE VISTA Y TÃƒÂTULO
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ●●●●●●●●●●●●●●●●●●●●●●●●●●●●
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: _buildViewSelectorRow(),
@@ -209,9 +209,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: _buildPhaseLegend(),
           ),
 
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
         // CONTENIDO DEL CALENDARIO SCROLLABLE
-        // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+        // ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
         Expanded(
           child: _buildCalendarBody(),
         ),
@@ -418,7 +418,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         onPageChanged: (index) {
           setState(() {
             int offset = index - _initialPage;
-            // Actualiza el mes en pantalla sin perder la selecciÃƒÂ³n del dÃƒÂ­a
+            // Actualiza el mes en pantalla sin perder la selección del día
             _displayDate = DateTime(_currentDate.year, _currentDate.month + offset, 1);
           });
         },
@@ -591,9 +591,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-  // CAJA DE SÃƒÂNTOMAS Y BELLOTAS
-  // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+  // Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬Ã¢â€ â‚¬
+  // Traduce una clave de síntoma/flujo/sexo al idioma actual
+  String _translateKey(String key) {
+    final lang = languageNotifier.currentLang;
+    // Intentar en registration_form primero (contiene la mayoría de claves)
+    final translated = AppTranslations.get('registration_form', key, lang);
+    // Si devuelve la misma key, intentar en symptoms
+    if (translated == key) {
+      return AppTranslations.get('symptoms', key, lang);
+    }
+    return translated;
+  }
+
+  // ———————————————————————————
+  // CAJA DE SÍNTOMAS Y BELLOTAS
+  // ———————————————————————————
   Widget _buildSymptomsBox() {
     if (_selectedDate == null) return SizedBox();
     final textTheme = Theme.of(context).textTheme;
@@ -656,7 +669,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               Text(dateStr, style: textTheme.titleMedium?.copyWith(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold)),
               SizedBox(height: 12),
 
-              // BotÃƒÂ³n de Registro
+              // Botón de Registro
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -668,8 +681,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       ),
                     );
                     if (result == true) {
+                      _loadInitialData(); // Recargar fechas importantes
                       setState(() {
-                         _loadInitialData(); // Recargar fechas importantes por si cambiÃ³ el inicio de periodo
+                        _loadSelectedDayLog(); // Refrescar síntomas del día seleccionado
                       });
                     }
                   } : null,
@@ -688,15 +702,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
               if (!hasData)
                 Text(
-                  AppTranslations.get('calendar_screen', 'no_entries_day', languageNotifier.currentLang),
+                  AppTranslations.get('symptoms_and_actions', 'no_entries_day', languageNotifier.currentLang),
                   style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).bellotaColors.textoMedio),
                 ),
 
               if (periodStart)
-                _buildSymptomItem(Theme.of(context).bellotaColors.chilero, AppTranslations.get('calendar_screen', 'period_start', languageNotifier.currentLang)),
-              ...symptoms.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.asuncion, s)),
-              ...sexo.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.melon, s)),
-              ...flujo.map((s) => _buildSymptomItem(Color(0xFFA566C1), s)),
+                _buildSymptomItem(Theme.of(context).bellotaColors.chilero, AppTranslations.get('symptoms_and_actions', 'period_start', languageNotifier.currentLang)),
+              ...symptoms.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.asuncion, _translateKey(s))),
+              ...sexo.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.melon, _translateKey(s))),
+              ...flujo.map((s) => _buildSymptomItem(Color(0xFFA566C1), _translateKey(s))),
             ],
           ),
         );

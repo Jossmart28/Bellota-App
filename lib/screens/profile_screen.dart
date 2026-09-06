@@ -1,4 +1,4 @@
-﻿import '../core/constants/app_keys.dart';
+import '../core/constants/app_keys.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ import 'admin_panel_screen.dart';
 import 'audit_dashboard_screen.dart';
 
 /// Pantalla de Perfil de usuario Ã¢â‚¬â€ Bellota App
-/// DiseÃƒÂ±o fiel al mockup de referencia con paleta de colores Bellota.
+/// Diseño fiel al mockup de referencia con paleta de colores Bellota.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -114,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         content: Text(
-          AppTranslations.get('profile_and_report', 'logout_confirm', languageNotifier.currentLang).replaceAll('\\n', '\n'),
+          AppTranslations.get('profile_and_report', 'logout_confirm', languageNotifier.currentLang),
           style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.textoMedio),
         ),
         actions: [
@@ -142,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirmed == true && mounted) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', false);
-      // Mantenemos datos mÃƒÂ©dicos en la BD; solo limpiamos sesiÃƒÂ³n activa
+      // Mantenemos datos médicos en la BD; solo limpiamos sesión activa
       await prefs.remove(AppKeys.userEmail);
       await prefs.remove(AppKeys.userId);
 
@@ -307,11 +307,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Generar Informe MÃƒÂ©dico en JSON Ã¢â€â‚¬Ã¢â€â‚¬
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Generar Informe Médico en JSON Ã¢â€â‚¬Ã¢â€â‚¬
   Future<void> _generateMedicalReport() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se encontrÃƒÂ³ usuario.'), backgroundColor: Colors.red),
+        SnackBar(content: Text('No se encontró usuario.'), backgroundColor: Colors.red),
       );
       return;
     }
@@ -372,7 +372,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }()
           : fechaHoy;
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ Flujo mÃƒÂ¡s frecuente Ã¢â€â‚¬Ã¢â€â‚¬
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Flujo más frecuente Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, int> flujoCount = {};
       final endOfCycle = lastPeriod?.add(Duration(days: promCiclo.toInt()));
       for (final log in allLogs) {
@@ -391,7 +391,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? flujoCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key
           : null;
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ SÃƒÂ­ntomas mÃƒÂ¡s frecuentes Ã¢â€â‚¬Ã¢â€â‚¬
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Síntomas más frecuentes Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, int> sympCount = {};
       for (final log in allLogs) {
         for (final s in (jsonDecode(log['symptoms'] as String? ?? '[]') as List)) {
@@ -400,7 +400,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       final topSyms = (sympCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(5).map((e) => e.key).toList();
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ FIXED: Leer patrÃƒÂ³n de sangrado y dolor de SQLite (no SharedPreferences) Ã¢â€â‚¬Ã¢â€â‚¬
+      // Ã¢â€â‚¬Ã¢â€â‚¬ FIXED: Leer patrón de sangrado y dolor de SQLite (no SharedPreferences) Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, dynamic> patron = {};
       Map<String, dynamic> dolor = {};
       for (final log in allLogs.reversed) {
@@ -439,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (patron.isNotEmpty && dolor.isNotEmpty) break;
       }
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ Alertas automÃƒÂ¡ticas usando AppTranslations Ã¢â€â‚¬Ã¢â€â‚¬
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Alertas automáticas usando AppTranslations Ã¢â€â‚¬Ã¢â€â‚¬
       List<Map<String, String>> alertas = [];
       final String irregStr = AppTranslations.get('profile_and_report', 'irregular_cycles', lang);
       if (promCiclo < 21 || promCiclo > 35) {
@@ -469,7 +469,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'no_pain_logged', lang)});
       }
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ ConstrucciÃƒÂ³n del JSON final (sin nulos) Ã¢â€â‚¬Ã¢â€â‚¬
+      // Ã¢â€â‚¬Ã¢â€â‚¬ Construcción del JSON final (sin nulos) Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, dynamic> filterNulls(Map<String, dynamic> m) {
         return Map.fromEntries(m.entries.where((e) => e.value != null && e.value != ''));
       }
@@ -480,13 +480,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'fecha_generacion': fechaHoy,
           'version': '1.0',
           'app': 'Bellota - Calendario Menstrual',
-          'tipo': 'Reporte de salud menstrual y clÃƒÂ­nico ginecolÃƒÂ³gico',
+          'tipo': 'Reporte de salud menstrual y clínico ginecológico',
           'uso': 'Seguimiento y apoyo para consulta profesional',
           'aviso': AppTranslations.get('registration_form', 'report_disclaimer', lang),
         },
         'seccion_1_informacion_general': filterNulls({
           'paciente': _userName,
-          'edad': userAge.isNotEmpty ? '$userAge ${lang == 'en' ? 'years' : 'aÃƒÂ±os'}' : notSpec,
+          'edad': userAge.isNotEmpty ? '$userAge ${lang == 'en' ? 'years' : 'años'}' : notSpec,
           'ubicacion': userLocation.isNotEmpty ? userLocation : notSpec,
           'fecha_generacion': fechaHoy,
           'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : notSpec,
@@ -917,7 +917,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
             ),
             SizedBox(height: 20),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicaciÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicación Ã¢â€â‚¬Ã¢â€â‚¬
             _buildPreferencesSection(),
             
             if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
@@ -937,7 +937,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.red.withValues(alpha: 0.15),
             ),
             SizedBox(height: 20),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ³n Cerrar SesiÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Botón Cerrar Sesión Ã¢â€â‚¬Ã¢â€â‚¬
             _buildLogoutButton(),
             SizedBox(height: 36),
           ],
@@ -957,7 +957,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Expanded(
               child: Text(
-                'AdministraciÃƒÂ³n',
+                'Administración',
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -979,7 +979,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (_currentUser!.isAdmin) SizedBox(height: 8),
         if (_currentUser!.isAdmin || _currentUser!.isAuditor)
           _buildHealthRow(
-            title: 'Registro de AuditorÃƒÂ­a',
+            title: 'Registro de Auditoría',
             value: 'Ver logs',
             onTap: () {
               NavigationService.goTo(context, const AuditDashboardScreen());
@@ -1020,13 +1020,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Top Icons (traducciÃƒÂ³n + sonido) Ã¢â€â‚¬Ã¢â€â‚¬
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Top Icons (traducción + sonido) Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildTopIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         GestureDetector(
-          onTap: () {}, // Sin funciÃƒÂ³n
+          onTap: () {}, // Sin función
           child: Container(
             width: 36,
             height: 36,
@@ -1047,7 +1047,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         SizedBox(width: 10),
         GestureDetector(
-          onTap: () {}, // Sin funciÃƒÂ³n
+          onTap: () {}, // Sin función
           child: Container(
             width: 36,
             height: 36,
@@ -1208,21 +1208,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         SizedBox(height: 14),
-        // DuraciÃƒÂ³n del ciclo
+        // Duración del ciclo
         _buildHealthRow(
           title: AppTranslations.get('profile_and_report', 'cycle_duration', languageNotifier.currentLang),
           value: '$_cycleDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showCycleDurationPicker,
         ),
         SizedBox(height: 8),
-        // DuraciÃƒÂ³n de la menstruaciÃƒÂ³n
+        // Duración de la menstruación
         _buildHealthRow(
           title: AppTranslations.get('profile_and_report', 'period_duration', languageNotifier.currentLang),
           value: '$_periodDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showPeriodDurationPicker,
         ),
         SizedBox(height: 8),
-        // Informe mÃƒÂ©dico
+        // Informe médico
         _buildHealthRow(
           title: AppTranslations.get('profile_and_report', 'medical_report', languageNotifier.currentLang),
           value: AppTranslations.get('profile_and_report', 'generate', languageNotifier.currentLang),
@@ -1284,7 +1284,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicaciÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicación Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildPreferencesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1312,18 +1312,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         ),
         SizedBox(height: 8),
-        // PolÃƒÂ­tica de privacidad
+        // Política de privacidad
         _buildPreferenceRow(
           title: AppTranslations.get('profile_and_report', 'privacy_policy', languageNotifier.currentLang),
           value: null,
-          onTap: () {}, // Sin funciÃƒÂ³n
+          onTap: () {}, // Sin función
         ),
         SizedBox(height: 8),
         // Idioma
         _buildPreferenceRow(
           title: AppTranslations.get('profile_and_report', 'language', languageNotifier.currentLang),
-          value: languageNotifier.currentLang == 'es' ? 'EspaÃƒÂ±ol' : (languageNotifier.currentLang == 'mi' ? 'Miskito' : 'English'),
-          onTap: () {}, // Sin funciÃƒÂ³n
+          value: languageNotifier.currentLang == 'es' ? 'Español' : (languageNotifier.currentLang == 'mi' ? 'Miskito' : 'English'),
+          onTap: () {}, // Sin función
         ),
         SizedBox(height: 8),
         // Apariencia Ã¢â‚¬â€ Toggle Modo Oscuro

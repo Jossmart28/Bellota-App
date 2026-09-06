@@ -1,4 +1,4 @@
-﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -17,7 +17,16 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
   final TextEditingController _customSymptomController = TextEditingController();
   final List<String> _customSymptomsList = [];
 
-  List<Map<String, dynamic>> get _symptomCategories => [
+  // Keys predefinidos (no requieren context, seguros para initState)
+  static const List<List<String>> _predefinedSymptomKeys = [
+    ['fever', 'body_ache', 'general_distension', 'extreme_fatigue', 'water_retention', 'night_sweats', 'hot_flashes', 'palpitations', 'dizziness', 'joint_pain'],
+    ['headache', 'vertigo', 'insomnia', 'vomiting', 'acne', 'concentration_difficulty'],
+    ['abdominal_pain', 'abdominal_distension', 'bloating', 'diarrhea', 'constipation', 'nausea', 'pelvic_pain', 'lower_back_pain', 'leg_cramps'],
+    ['breast_tenderness', 'abnormal_discharge', 'spotting', 'appetite_changes', 'cravings'],
+    ['irritability', 'sadness', 'crying_easily', 'mood_swings', 'anxiety', 'low_self_esteem'],
+  ];
+
+  List<Map<String, dynamic>> _buildSymptomCategories(BuildContext context) => [
     {
       'key': 'whole_body',
       'icon': Icons.accessibility_new_rounded,
@@ -96,10 +105,8 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     super.initState();
     _selectedSymptoms = Set.from(widget.initialSelectedSymptoms);
     
-    // Extract custom symptoms (those not present in the predefined categories)
-    final allPredefinedKeys = _symptomCategories
-        .expand((cat) => (cat['symptoms'] as List).map((s) => s['key'] as String))
-        .toSet();
+    // Extract custom symptoms using the static keys list (no context needed)
+    final allPredefinedKeys = _predefinedSymptomKeys.expand((list) => list).toSet();
     
     for (var symptom in widget.initialSelectedSymptoms) {
       if (!allPredefinedKeys.contains(symptom)) {
@@ -226,7 +233,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         physics: BouncingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
-          ..._symptomCategories.map((category) => _buildCategoryCard(category)),
+          ..._buildSymptomCategories(context).map((category) => _buildCategoryCard(category)),
           _buildCustomSymptomCard(),
         ],
       ),

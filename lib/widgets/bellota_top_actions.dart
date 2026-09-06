@@ -96,8 +96,8 @@ class BellotaTopActions extends StatelessWidget {
     required VoidCallback onPressed,
   }) {
     Widget button = Container(
-      width: 48,
-      height: 48,
+      width: 36,
+      height: 36,
       decoration: BoxDecoration(
         color: backgroundColor,
         shape: BoxShape.circle,
@@ -111,7 +111,7 @@ class BellotaTopActions extends StatelessWidget {
       ),
       child: IconButton(
         padding: EdgeInsets.zero,
-        icon: child ?? Icon(icon, color: iconColor, size: 24),
+        icon: child ?? Icon(icon, color: iconColor, size: 20),
         onPressed: onPressed,
       ),
     );
