@@ -1,4 +1,4 @@
-﻿import 'dart:typed_data';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
@@ -99,7 +99,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       // Mini-header for subsequent pages
       return pw.Column(children: [
         pw.Row(children: [
-          pw.Text('Bellota â€” Reporte de Salud', style: pw.TextStyle(font: bold, fontSize: 10, color: PdfColor.fromInt(0xFFD35D53))),
+          pw.Text('Bellota — Reporte de Salud', style: pw.TextStyle(font: bold, fontSize: 10, color: PdfColor.fromInt(0xFFD35D53))),
           pw.Spacer(),
           pw.Text(widget.reportData['metadata']?['numero_reporte']?.toString() ?? '', style: pw.TextStyle(fontSize: 9, color: PdfColor.fromInt(0xFF8A8A8A))),
         ]),
@@ -118,7 +118,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Text('REPORTE DE SALUD MENSTRUAL', style: pw.TextStyle(font: bold, fontSize: 18, color: PdfColor.fromInt(0xFFD35D53))),
-              pw.Text('Reporte menstrual y clÃ­nico ginecolÃ³gico', style: pw.TextStyle(fontSize: 11, color: PdfColor.fromInt(0xFF8A8A8A))),
+              pw.Text('Reporte menstrual y clínico ginecológico', style: pw.TextStyle(fontSize: 11, color: PdfColor.fromInt(0xFF8A8A8A))),
             ],
           ),
         ],
@@ -136,12 +136,12 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       pw.Row(children: [
         pw.Expanded(
           child: pw.Text(
-            meta['aviso']?.toString() ?? 'Este reporte no sustituye una valoraciÃ³n mÃ©dica profesional.',
+            meta['aviso']?.toString() ?? 'Este reporte no sustituye una valoración médica profesional.',
             style: pw.TextStyle(font: italic, fontSize: 8, color: PdfColor.fromInt(0xFF9E9E9E)),
           ),
         ),
         pw.SizedBox(width: 8),
-        pw.Text('PÃ¡g. ${context.pageNumber}/${context.pagesCount}', style: pw.TextStyle(font: regular, fontSize: 9, color: PdfColor.fromInt(0xFF9E9E9E))),
+        pw.Text('Pág. ${context.pageNumber}/${context.pagesCount}', style: pw.TextStyle(font: regular, fontSize: 9, color: PdfColor.fromInt(0xFF9E9E9E))),
       ]),
     ]);
   }
@@ -156,7 +156,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     final widgets = <pw.Widget>[];
 
     // Section 1
-    widgets.add(_buildPdfSectionTitle('1. INFORMACIÃ“N GENERAL', bold));
+    widgets.add(_buildPdfSectionTitle('1. INFORMACIÓN GENERAL', bold));
     widgets.add(_buildPdfTable({
       'Paciente': gen['paciente'],
       'Edad': gen['edad'],
@@ -164,11 +164,11 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
       'Rango analizado': gen['rango_analizado'],
       'Total ciclos': gen['total_ciclos']?.toString(),
       'Anticonceptivos': gen['anticonceptivos_medicamentos'],
-      'UbicaciÃ³n': gen['ubicacion'],
+      'Ubicación': gen['ubicacion'],
     }, regular, bold));
 
     // Section 2
-    widgets.add(_buildPdfSectionTitle('2. RESUMEN ESTADÃSTICO', bold));
+    widgets.add(_buildPdfSectionTitle('2. RESUMEN ESTADÍSTICO', bold));
     if (res['promedio_ciclo'] != null || res['promedio_sangrado'] != null) {
       widgets.add(
         pw.Row(
@@ -186,24 +186,24 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     }
     
     widgets.add(_buildPdfTable({
-      'Flujo mÃ¡s frecuente': res['flujo_mas_frecuente'],
+      'Flujo más frecuente': res['flujo_mas_frecuente'],
       'FUM': res['fum'],
     }, regular, bold));
 
     if (res['sintomas_mas_frecuentes'] != null && (res['sintomas_mas_frecuentes'] as List).isNotEmpty) {
       widgets.add(pw.SizedBox(height: 8));
-      widgets.add(pw.Text('SÃ­ntomas frecuentes: ${(res['sintomas_mas_frecuentes'] as List).join(', ')}', style: pw.TextStyle(font: regular, fontSize: 10, color: PdfColor.fromInt(0xFF5A2D2D))));
+      widgets.add(pw.Text('Síntomas frecuentes: ${(res['sintomas_mas_frecuentes'] as List).join(', ')}', style: pw.TextStyle(font: regular, fontSize: 10, color: PdfColor.fromInt(0xFF5A2D2D))));
     }
 
     // Section 3
     if (pat.isNotEmpty) {
-      widgets.add(_buildPdfSectionTitle('3. PATRÃ“N DE SANGRADO Y FLUJO', bold));
+      widgets.add(_buildPdfSectionTitle('3. PATRÓN DE SANGRADO Y FLUJO', bold));
       widgets.add(_buildPdfTable(pat.map((k, v) => MapEntry(k.toString(), v)), regular, bold));
     }
 
     // Section 4
     if (dol.isNotEmpty) {
-      widgets.add(_buildPdfSectionTitle('4. DOLOR Y SINTOMATOLOGÃA', bold));
+      widgets.add(_buildPdfSectionTitle('4. DOLOR Y SINTOMATOLOGÍA', bold));
       if (dol['nivel_dolor_eva'] != null) {
         widgets.add(_buildPdfEvaBar(dol['nivel_dolor_eva'].toString(), bold, regular));
       }
@@ -215,7 +215,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
 
     // Section 5
     if (alertas.isNotEmpty) {
-      widgets.add(_buildPdfSectionTitle('5. ALERTAS CLÃNICAS', bold));
+      widgets.add(_buildPdfSectionTitle('5. ALERTAS CLÍNICAS', bold));
       for (final a in alertas) {
         final tipo = a['tipo']?.toString() ?? '';
         final detalle = a['detalle']?.toString() ?? '';

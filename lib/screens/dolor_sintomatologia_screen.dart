@@ -1,4 +1,4 @@
-﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -151,11 +151,11 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
   }
 
   String _getPainEmoji(double value) {
-    if (value == 0) return 'ðŸ˜Œ';
-    if (value <= 3) return 'ðŸ˜';
-    if (value <= 6) return 'ðŸ˜£';
-    if (value <= 8) return 'ðŸ˜–';
-    return 'ðŸ˜­';
+    if (value == 0) return '😌';
+    if (value <= 3) return '😕';
+    if (value <= 6) return '😣';
+    if (value <= 8) return '😖';
+    return '😭';
   }
 
   Widget _buildSectionLabel(String text, IconData iconData) {

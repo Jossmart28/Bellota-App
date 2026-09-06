@@ -500,6 +500,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  /// Traduce una clave de síntoma al idioma actual
+  String _translateSymptomKey(String key) {
+    final lang = languageNotifier.currentLang;
+    // Buscar en registration_form (donde están fever, headache, etc.)
+    final categories = ['registration_form', 'symptoms_and_actions', 'symptoms'];
+    for (final cat in categories) {
+      final val = AppTranslations.get(cat, key, lang);
+      if (val != key) return val;
+    }
+    // Si no se encuentra, retornar la clave formateada
+    return key.replaceAll('_', ' ');
+  }
+
   Widget _bulletItem(BuildContext context, String text) {
     return Padding(
       padding: EdgeInsets.only(bottom: 5),
@@ -600,7 +613,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 if (_todaySymptoms.isNotEmpty)
-                  ..._todaySymptoms.take(4).map((s) => _bulletItem(context, s)),
+                  ..._todaySymptoms.take(4).map((s) => _bulletItem(context, _translateSymptomKey(s))),
                 if (_todaySymptoms.length > 4)
                   Padding(
                     padding: EdgeInsets.only(top: 2),

@@ -1,4 +1,4 @@
-﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -216,9 +216,9 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                   selectedKey: _intensidadFlujoKey,
                   onSelected: (val) => setState(() => _intensidadFlujoKey = val),
                   prefixes: {
-                    'light_flow': 'ðŸ’§',
-                    'moderate_flow': 'ðŸ’§ðŸ’§',
-                    'heavy_flow': 'ðŸ’§ðŸ’§ðŸ’§',
+                    'light_flow': '💧',
+                    'moderate_flow': '💧💧',
+                    'heavy_flow': '💧💧💧',
                   },
                 ),
                 SizedBox(height: 24),
