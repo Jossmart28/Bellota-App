@@ -231,9 +231,10 @@ class AuthService {
         return UserModel.fromMap(userMap);
       } else {
         // Usuario nuevo → registrar en la BD.
-        // Para Google OAuth saltaremos el flujo de incorporación para que
-        // la experiencia sea directa.
-        await completeOnboardingFlags();
+        // El flujo de incorporación (Privacidad → Onboarding → Datos Personales)
+        // se maneja automáticamente por NavigationService.resolveHomeScreen()
+        // gracias a las banderas en SharedPreferences.
+        await resetOnboardingFlags();
 
         final userId = await DatabaseHelper.instance.registerUser(
           name,

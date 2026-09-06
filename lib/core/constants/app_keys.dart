@@ -5,7 +5,6 @@
 abstract final class AppKeys {
   AppKeys._();
 
-  // â”€â”€ Sesión â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   /// Indica si el usuario está autenticado.
   static const String isLoggedIn = 'isLoggedIn';
 

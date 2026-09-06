@@ -1,4 +1,4 @@
-﻿import '../core/constants/app_keys.dart';
+import '../core/constants/app_keys.dart';
 import 'dart:convert';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
@@ -164,7 +164,6 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
           body: SafeArea(
         child: Stack(
           children: [
-            // â”€â”€ Main Calendar Content â”€â”€
             Positioned.fill(
               child: Column(
                 children: [
@@ -177,7 +176,6 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               ),
             ),
 
-            // â”€â”€ Tour Overlay (Step 0) â”€â”€
             if (_tourStep == 0)
               FadeTransition(
                 opacity: _overlayFadeAnim,

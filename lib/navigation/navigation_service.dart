@@ -17,18 +17,11 @@ import '../screens/privacy_policy_screen.dart';
 /// Ahora existe en un único lugar, eliminando la posibilidad de divergencias.
 ///
 /// Orden de verificación del flujo de incorporación (usuarios estándar):
-/// 1. ¿Completó el onboarding? â†’ [OnboardingScreen]
-/// 2. ¿Completó el tour del calendario? â†’ [CalendarTourScreen]
-/// 3. ¿Completó los datos personales? â†’ [PersonalDataScreen]
-/// 4. Todos completados â†’ [DashboardScreen]
 ///
 /// Roles especiales omiten el flujo de incorporación:
-/// - [UserRole.admin] â†’ [AdminPanelScreen] (panel de gestión)
-/// - [UserRole.auditor] â†’ [AuditDashboardScreen] (dashboard de auditoría)
 abstract final class NavigationService {
   NavigationService._();
 
-  // â”€â”€ Rutas con nombre â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
@@ -41,7 +34,6 @@ abstract final class NavigationService {
   static const String map = '/map';
   static const String symptomLog = '/symptom-log';
 
-  // â”€â”€ Rutas RBAC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   /// Pantalla principal del administrador.
   static const String adminPanel = '/admin';
 
@@ -51,14 +43,10 @@ abstract final class NavigationService {
   /// Visor de logs de auditoría.
   static const String auditLogs = '/audit/logs';
 
-  // â”€â”€ Resolución de pantalla inicial â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Determina la pantalla correcta para un usuario **autenticado**
   /// según su rol y progreso en el flujo de incorporación.
   ///
-  /// - Admin â†’ [AdminPanelScreen] (omite onboarding)
-  /// - Auditor â†’ [AuditDashboardScreen] (omite onboarding)
-  /// - Usuario â†’ flujo de incorporación â†’ [DashboardScreen]
   static Widget resolveHomeScreen(SharedPreferences prefs) {
     final roleStr = prefs.getString(AppKeys.userRole) ?? 'usuario';
 
@@ -93,7 +81,6 @@ abstract final class NavigationService {
     return resolveHomeScreen(prefs);
   }
 
-  // â”€â”€ Helpers de navegación â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Navega a la [screen] reemplazando toda la pila de navegación.
   static void goAndClearStack(BuildContext context, Widget screen) {

@@ -21,7 +21,6 @@ import '../navigation/navigation_service.dart';
 import 'admin_panel_screen.dart';
 import 'audit_dashboard_screen.dart';
 
-/// Pantalla de Perfil de usuario Ã¢â‚¬â€ Bellota App
 /// Diseño fiel al mockup de referencia con paleta de colores Bellota.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -307,7 +306,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Generar Informe Médico en JSON Ã¢â€â‚¬Ã¢â€â‚¬
   Future<void> _generateMedicalReport() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -345,7 +343,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final lang = languageNotifier.currentLang;
       final notSpec = AppTranslations.get('profile_and_report', 'not_specified', lang);
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ Promedios REALES desde historial (Bug Fix) Ã¢â€â‚¬Ã¢â€â‚¬
       final cycleStats = await DatabaseHelper.instance.getCycleStatistics(_userId!);
       final double? promCicloReal = cycleStats['averageCycleLength'] as double?;
       final double promCiclo = promCicloReal ?? _cycleDuration.toDouble();
@@ -372,7 +369,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }()
           : fechaHoy;
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ Flujo más frecuente Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, int> flujoCount = {};
       final endOfCycle = lastPeriod?.add(Duration(days: promCiclo.toInt()));
       for (final log in allLogs) {
@@ -391,7 +387,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? flujoCount.entries.reduce((a, b) => a.value >= b.value ? a : b).key
           : null;
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ Síntomas más frecuentes Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, int> sympCount = {};
       for (final log in allLogs) {
         for (final s in (jsonDecode(log['symptoms'] as String? ?? '[]') as List)) {
@@ -400,7 +395,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       final topSyms = (sympCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(5).map((e) => e.key).toList();
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ FIXED: Leer patrón de sangrado y dolor de SQLite (no SharedPreferences) Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, dynamic> patron = {};
       Map<String, dynamic> dolor = {};
       for (final log in allLogs.reversed) {
@@ -439,7 +433,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (patron.isNotEmpty && dolor.isNotEmpty) break;
       }
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ Alertas automáticas usando AppTranslations Ã¢â€â‚¬Ã¢â€â‚¬
       List<Map<String, String>> alertas = [];
       final String irregStr = AppTranslations.get('profile_and_report', 'irregular_cycles', lang);
       if (promCiclo < 21 || promCiclo > 35) {
@@ -469,7 +462,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'no_pain_logged', lang)});
       }
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ Construcción del JSON final (sin nulos) Ã¢â€â‚¬Ã¢â€â‚¬
       Map<String, dynamic> filterNulls(Map<String, dynamic> m) {
         return Map.fromEntries(m.entries.where((e) => e.value != null && e.value != ''));
       }
@@ -896,28 +888,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             SizedBox(height: 12),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Header icons (top right) Ã¢â€â‚¬Ã¢â€â‚¬
             _buildTopIcons(),
             SizedBox(height: 8),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Avatar + Name + Email Ã¢â€â‚¬Ã¢â€â‚¬
             _buildAvatarSection(),
             SizedBox(height: 28),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Divider Ã¢â€â‚¬Ã¢â€â‚¬
             Container(
               height: 1,
               color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
             ),
             SizedBox(height: 20),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Perfil de salud Ã¢â€â‚¬Ã¢â€â‚¬
             _buildHealthSection(),
             SizedBox(height: 28),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Divider Ã¢â€â‚¬Ã¢â€â‚¬
             Container(
               height: 1,
               color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
             ),
             SizedBox(height: 20),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicación Ã¢â€â‚¬Ã¢â€â‚¬
             _buildPreferencesSection(),
             
             if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
@@ -931,13 +917,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
 
             SizedBox(height: 28),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Divider Ã¢â€â‚¬Ã¢â€â‚¬
             Container(
               height: 1,
               color: Colors.red.withValues(alpha: 0.15),
             ),
             SizedBox(height: 20),
-            // Ã¢â€â‚¬Ã¢â€â‚¬ Botón Cerrar Sesión Ã¢â€â‚¬Ã¢â€â‚¬
             _buildLogoutButton(),
             SizedBox(height: 36),
           ],
@@ -948,7 +932,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Admin Section Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildAdminSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -989,7 +972,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Logout Button Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildLogoutButton() {
     return GestureDetector(
       onTap: _handleLogout,
@@ -1020,7 +1002,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Top Icons (traducción + sonido) Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildTopIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -1070,7 +1051,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Avatar circular + nombre + email Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildAvatarSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1187,7 +1167,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Perfil de salud Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildHealthSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1284,7 +1263,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Preferencia de la aplicación Ã¢â€â‚¬Ã¢â€â‚¬
   Widget _buildPreferencesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1326,7 +1304,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onTap: () {}, // Sin función
         ),
         SizedBox(height: 8),
-        // Apariencia Ã¢â‚¬â€ Toggle Modo Oscuro
         ValueListenableBuilder<ThemeMode>(
           valueListenable: themeNotifier,
           builder: (_, mode, _) {
@@ -1449,7 +1426,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬ Custom Slider Thumb Ã¢â€â‚¬Ã¢â€â‚¬
 class _CustomThumbShape extends SliderComponentShape {
   final Color thumbColor;
   

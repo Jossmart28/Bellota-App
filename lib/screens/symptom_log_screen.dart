@@ -1,4 +1,4 @@
-﻿import '../core/constants/app_keys.dart';
+import '../core/constants/app_keys.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'dart:convert';
@@ -615,7 +615,6 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  // CARD POR ÃTEM
   Widget _buildCard(
     BuildContext context, {
     required IconData icon,
@@ -709,7 +708,6 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  // TOGGLE SÃ / NO
   Widget _buildSiNoToggle({required bool value, required ValueChanged<bool> onChanged, required String lang}) {
     return Container(
       decoration: BoxDecoration(
@@ -770,7 +768,6 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  // BOTÃ“N AÃ‘ADIR
   Widget _buildAddButton({bool hasItems = false}) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 200),
@@ -791,7 +788,6 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     );
   }
 
-  // BOTÃ“N GUARDAR
   Widget _buildSaveButton(BuildContext context, String lang) {
     return GestureDetector(
       onTap: _saveAndAccept,
