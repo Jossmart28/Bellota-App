@@ -25,6 +25,9 @@ erDiagram
         int notif_app
         int notif_sonidos
         int notif_cita_medica
+        int notif_daily_log
+        int notif_log_hour
+        int notif_log_minute
     }
 
     DAILY_LOGS {
@@ -32,9 +35,23 @@ erDiagram
         int user_id FK
         string date
         int period_start
+        int period_end
         string symptoms
         string sexo
         string flujo
+        string bleeding_intensity
+        string clots
+        int spotting
+        string spotting_days
+        string sexual_symptoms
+        float pain_level
+        string pain_character
+        string pain_days
+        string treatment
+        string physical_symptoms
+        string emotional_symptoms
+        string breast_exam
+        string notes
         string created_at
     }
     
@@ -47,6 +64,21 @@ erDiagram
         string details
         string ip_address
         string created_at
+    }
+
+    PILL_TIMES {
+        int id PK
+        int user_id FK
+        int hour
+        int minute
+    }
+
+    WEEKLY_APPOINTMENTS {
+        int id PK
+        int user_id FK
+        int weekday
+        int hour
+        int minute
     }
 
     %% Capa Backend (FastAPI)
@@ -110,6 +142,8 @@ erDiagram
     USERS ||--|| PROFILES : "1:1 tiene perfil"
     USERS ||--o{ DAILY_LOGS : "1:N registra"
     USERS ||--o{ AUDIT_LOGS : "1:N genera acciones"
+    USERS ||--o{ PILL_TIMES : "1:N configura"
+    USERS ||--o{ WEEKLY_APPOINTMENTS : "1:N agenda"
 
     %% Relaciones Backend
     BACKEND_USERS ||--|| BACKEND_USER_PROFILES : "1:1 tiene perfil"

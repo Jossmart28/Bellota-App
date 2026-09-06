@@ -220,24 +220,33 @@ UPDATE users SET role = 'auditor' WHERE email = 'correo_del_usuario@ejemplo.com'
 
 ```mermaid
 flowchart TD
-    A[Login / Google OAuth] --> B{¿Usuario existe?}
-    B -->|Sí| C{¿Qué rol tiene?}
-    B -->|No| D[Registro nuevo]
-    D --> E[Política de Privacidad]
-    E --> F[Onboarding]
-    F --> G[Tour del Calendario]
-    G --> H[Datos Personales]
-    H --> I[Dashboard Usuario]
+    A[Login] --> B{¿Método?}
+    B -->|Correo/Pass| C{¿Usuario existe?}
+    B -->|Google OAuth| G_Auth{¿Usuario existe?}
 
-    C -->|admin| J[🛡️ Panel Admin]
-    C -->|auditor| K[🔍 Dashboard Auditoría]
-    C -->|usuario| L{¿Completó onboarding?}
-    L -->|No| E
-    L -->|Sí| I[📱 Dashboard Usuario]
+    C -->|Sí| D{¿Qué rol tiene?}
+    C -->|No| E[Registro manual]
+    
+    E --> F[Política de Privacidad]
+    F --> G[Onboarding]
+    G --> H[Tour del Calendario]
+    H --> I[Datos Personales]
+    I --> J[📱 Dashboard Usuario]
 
-    style J fill:#e74c3c,color:#fff
-    style K fill:#3498db,color:#fff
-    style I fill:#2ecc71,color:#fff
+    G_Auth -->|Sí| D
+    G_Auth -->|No| K[Registro Google]
+    K --> J
+
+    D -->|admin| L[🛡️ Panel Admin]
+    D -->|auditor| M[🔍 Dashboard Auditoría]
+    D -->|usuario| N{¿Completó onboarding?}
+    
+    N -->|No| F
+    N -->|Sí| J
+
+    style L fill:#e74c3c,color:#fff
+    style M fill:#3498db,color:#fff
+    style J fill:#2ecc71,color:#fff
 ```
 
 ---
