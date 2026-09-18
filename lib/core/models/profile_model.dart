@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// Modelo tipado para el perfil extendido del usuario.
 ///
 /// Encapsula los datos de la tabla `profiles` con tipos nativos de Dart
@@ -8,6 +10,8 @@ class ProfileModel {
   final String gmail;
   final int cycleDuration;
   final int periodDuration;
+  final List<String> medicalConditions;
+  final String? contraceptive;
   final String? profileImagePath;
 
   // ── Notificaciones ─────────────────────────────────────────────────────────
@@ -26,6 +30,8 @@ class ProfileModel {
     this.gmail = '',
     this.cycleDuration = 28,
     this.periodDuration = 5,
+    this.medicalConditions = const [],
+    this.contraceptive,
     this.profileImagePath,
     this.notifPeriodo = true,
     this.notifOvulacion = true,
@@ -39,6 +45,20 @@ class ProfileModel {
 
   // ── Deserialización ────────────────────────────────────────────────────────
 
+  static List<String> _parseConditions(dynamic value) {
+    if (value == null) return [];
+    if (value is String) {
+      if (value.isEmpty) return [];
+      try {
+        final decoded = jsonDecode(value);
+        if (decoded is List) return List<String>.from(decoded);
+      } catch (_) {
+        return [];
+      }
+    }
+    return [];
+  }
+
   /// Crea un [ProfileModel] a partir de un mapa de SQLite.
   /// Los campos de notificación se convierten de `int` (`0`/`1`) a `bool`.
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
@@ -48,6 +68,8 @@ class ProfileModel {
       gmail: map['gmail'] as String? ?? '',
       cycleDuration: map['cycle_duration'] as int? ?? 28,
       periodDuration: map['period_duration'] as int? ?? 5,
+      medicalConditions: _parseConditions(map['medical_conditions']),
+      contraceptive: map['contraceptive'] as String?,
       profileImagePath: map['profile_image_path'] as String?,
       notifPeriodo: (map['notif_periodo'] as int? ?? 1) == 1,
       notifOvulacion: (map['notif_ovulacion'] as int? ?? 1) == 1,
@@ -70,6 +92,8 @@ class ProfileModel {
         'gmail': gmail,
         'cycle_duration': cycleDuration,
         'period_duration': periodDuration,
+        'medical_conditions': jsonEncode(medicalConditions),
+        'contraceptive': contraceptive,
         'profile_image_path': profileImagePath,
         'notif_periodo': notifPeriodo ? 1 : 0,
         'notif_ovulacion': notifOvulacion ? 1 : 0,
@@ -89,6 +113,8 @@ class ProfileModel {
     String? gmail,
     int? cycleDuration,
     int? periodDuration,
+    List<String>? medicalConditions,
+    String? contraceptive,
     String? profileImagePath,
     bool? notifPeriodo,
     bool? notifOvulacion,
@@ -105,6 +131,8 @@ class ProfileModel {
       gmail: gmail ?? this.gmail,
       cycleDuration: cycleDuration ?? this.cycleDuration,
       periodDuration: periodDuration ?? this.periodDuration,
+      medicalConditions: medicalConditions ?? this.medicalConditions,
+      contraceptive: contraceptive ?? this.contraceptive,
       profileImagePath: profileImagePath ?? this.profileImagePath,
       notifPeriodo: notifPeriodo ?? this.notifPeriodo,
       notifOvulacion: notifOvulacion ?? this.notifOvulacion,

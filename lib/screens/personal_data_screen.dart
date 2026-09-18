@@ -1,16 +1,22 @@
-import '../core/constants/app_keys.dart';
-import 'dart:math' as math;
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math' as math;
+
+import 'package:flutter_map/flutter_map.dart';
+import 'package:geocoding/geocoding.dart';
+import '../core/constants/nicaragua_data.dart';
+import '../core/constants/app_keys.dart';
+import '../database/database_helper.dart';
 import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
-import '../database/database_helper.dart';
 import 'dashboard_screen.dart';
-import 'location_picker_screen.dart';
 
 class PersonalDataScreen extends StatefulWidget {
   const PersonalDataScreen({super.key});
@@ -19,696 +25,946 @@ class PersonalDataScreen extends StatefulWidget {
   State<PersonalDataScreen> createState() => _PersonalDataScreenState();
 }
 
-class _PersonalDataScreenState extends State<PersonalDataScreen>
-    with SingleTickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
+class _PersonalDataScreenState extends State<PersonalDataScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  final int _totalPages = 7;
 
-  // 1. Datos Personales
-  final _ageController = TextEditingController();
+  // Step 1: Ubicación
+  String? _selectedDepartment;
+  String? _selectedMunicipality;
   String _locationLabel = '';
   LatLng? _locationLatLng;
+  final MapController _mapController = MapController();
+  bool _isLoadingMap = false;
 
+  // Step 2: Duración del ciclo
+  int _cycleDuration = 28;
+
+  // Step 3: Duración del periodo
+  int _periodDuration = 5;
+
+  // Step 4: Medicamentos
   final List<String> _medications = AppTranslations.medicationKeys;
   final Set<String> _selectedMedications = {'none'};
 
-  // 2. Ciclo Menstrual
-  int _cycleDuration = 28;
-  int _periodDuration = 5;
+  // Step 5: Condiciones médicas
+  final List<String> _selectedConditions = ['none'];
+  final Map<String, String> _conditionsMap = {
+    'none': 'Ninguna',
+    'pcos': 'SOP (Ovarios Poliquísticos)',
+    'endometriosis': 'Endometriosis',
+    'hypothyroidism': 'Hipotiroidismo',
+    'other': 'Otra'
+  };
+  final Map<String, IconData> _conditionsIcons = {
+    'none': Icons.check_circle_outline,
+    'pcos': Icons.sync_problem_outlined,
+    'endometriosis': Icons.bloodtype_outlined,
+    'hypothyroidism': Icons.medication_liquid_outlined,
+    'other': Icons.add_circle_outline,
+  };
+  final Map<String, Color> _conditionsColors = {
+    'none': Colors.green,
+    'pcos': Colors.orange,
+    'endometriosis': Colors.red,
+    'hypothyroidism': Colors.blue,
+    'other': Colors.grey,
+  };
 
-  late AnimationController _animController;
-  late Animation<double> _fadeAnim;
-  late Animation<Offset> _slideAnim;
+  // Step 6: Método anticonceptivo
+  String? _selectedContraceptive = 'none';
+  final Map<String, String> _contraceptivesMap = {
+    'none': 'Ninguno',
+    'combined_pill': 'Píldora combinada',
+    'mini_pill': 'Minipíldora',
+    'copper_iud': 'DIU de cobre',
+    'hormonal_iud': 'DIU hormonal',
+    'implant': 'Implante',
+    'ring': 'Anillo',
+    'patch': 'Parche',
+    'injection': 'Inyección'
+  };
+  final Map<String, IconData> _contraceptivesIcons = {
+    'none': Icons.block_outlined,
+    'combined_pill': Icons.medication_outlined,
+    'mini_pill': Icons.medication_outlined,
+    'copper_iud': Icons.circle_outlined,
+    'hormonal_iud': Icons.circle_outlined,
+    'implant': Icons.linear_scale_outlined,
+    'ring': Icons.radio_button_unchecked,
+    'patch': Icons.crop_square_outlined,
+    'injection': Icons.vaccines_outlined,
+  };
+
+  // Step 7: Objetivo
+  String? _selectedGoal = 'track_period';
+  final Map<String, Map<String, dynamic>> _goalsMap = {
+    'track_period': {'title': 'Seguir mi ciclo', 'desc': 'Conocer mis días fértiles y predicciones', 'icon': Icons.calendar_month_outlined},
+    'understand_body': {'title': 'Entender mi cuerpo', 'desc': 'Aprender sobre mis patrones de salud', 'icon': Icons.search_rounded},
+    'manage_symptoms': {'title': 'Manejar síntomas', 'desc': 'Registrar dolor, humor y flujo', 'icon': Icons.healing_outlined},
+  };
 
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 900),
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
     );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(begin: Offset(0, 0.1), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
-    _animController.forward();
+  }
+
+  Future<void> _updateMapLocation() async {
+    if (_selectedDepartment == null || _selectedMunicipality == null) return;
+    
+    setState(() => _isLoadingMap = true);
+    final address = '$_selectedMunicipality, $_selectedDepartment, Nicaragua';
+    
+    try {
+      final List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        final loc = locations.first;
+        setState(() {
+          _locationLatLng = LatLng(loc.latitude, loc.longitude);
+          _locationLabel = address;
+        });
+      }
+    } catch (_) {
+      // Fallback a coordenadas genéricas de Managua si falla
+      setState(() {
+        _locationLatLng = const LatLng(12.115, -86.236);
+        _locationLabel = address;
+      });
+    } finally {
+      if (mounted) setState(() => _isLoadingMap = false);
+    }
   }
 
   @override
   void dispose() {
-    _ageController.dispose();
-    _animController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
-  Future<void> _saveAndContinue() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(AppKeys.userAge, _ageController.text.trim());
-      await prefs.setString(AppKeys.userLocation, _locationLabel);
-      if (_locationLatLng != null) {
-        await prefs.setDouble('user_latitude', _locationLatLng!.latitude);
-        await prefs.setDouble('user_longitude', _locationLatLng!.longitude);
-      }
-      await prefs.setStringList('user_medications', _selectedMedications.toList());
-
-      int? userId = prefs.getInt(AppKeys.userId);
-      if (userId != null) {
-        final db = await DatabaseHelper.instance.database;
-        await db.update(
-          'profiles',
-          {'cycle_duration': _cycleDuration, 'period_duration': _periodDuration},
-          where: 'user_id = ?',
-          whereArgs: [userId],
-        );
-      }
-
-      await prefs.setBool('setup_completed', true);
-
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (_, _, _) => DashboardScreen(),
-            transitionsBuilder: (_, anim, _, child) =>
-                FadeTransition(opacity: anim, child: child),
-            transitionDuration: Duration(milliseconds: 600),
-          ),
-        );
-      }
+  void _nextPage() {
+    if (_currentPage < _totalPages - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      );
+    } else {
+      _saveAndContinue();
     }
   }
 
-  void _toggleMedication(String med) {
-    setState(() {
-      if (med == 'none') {
-        _selectedMedications.clear();
-        _selectedMedications.add('none');
-      } else {
-        _selectedMedications.remove('none');
-        if (_selectedMedications.contains(med)) {
-          _selectedMedications.remove(med);
-          if (_selectedMedications.isEmpty) _selectedMedications.add('none');
-        } else {
-          _selectedMedications.add(med);
-        }
-      }
-    });
+  void _prevPage() {
+    if (_currentPage > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+  }
+
+  Future<void> _saveAndContinue() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppKeys.userLocation, _locationLabel);
+    if (_locationLatLng != null) {
+      await prefs.setDouble('user_latitude', _locationLatLng!.latitude);
+      await prefs.setDouble('user_longitude', _locationLatLng!.longitude);
+    }
+    await prefs.setStringList('user_medications', _selectedMedications.toList());
+
+    int? userId = prefs.getInt(AppKeys.userId);
+    if (userId != null) {
+      final db = await DatabaseHelper.instance.database;
+      await db.update(
+        'profiles',
+        {
+          'cycle_duration': _cycleDuration,
+          'period_duration': _periodDuration,
+          'medical_conditions': jsonEncode(_selectedConditions),
+          'contraceptive': _selectedContraceptive == 'none' ? null : _selectedContraceptive,
+        },
+        where: 'user_id = ?',
+        whereArgs: [userId],
+      );
+    }
+
+    if (_selectedGoal != null) {
+      await prefs.setString('app_goal', _selectedGoal!);
+    }
+
+    await prefs.setBool('setup_completed', true);
+
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => const DashboardScreen(),
+          transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 600),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFD35D53), Color(0xFFEE8658), Color(0xFFFFF3E0)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Decoraciones
+            _buildDecorations(),
 
-    return ValueListenableBuilder<String>(
-      valueListenable: languageNotifier,
-      builder: (context, lang, _) {
-        return Scaffold(
-          body: Stack(
-            children: [
-              // ── Fondo degradado ──
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFFD35D53), Color(0xFFEE8658), Color(0xFFFFF3E0)],
-                    stops: [0.0, 0.45, 1.0],
-                  ),
+            // Top Actions
+            Positioned(
+              top: 16,
+              right: 16,
+              child: SafeArea(
+                child: BellotaTopActions(
+                  showSettings: false,
+                  onLanguagePressed: () => languageNotifier.toggle(),
+                  onTalkBackPressed: () {},
                 ),
               ),
+            ),
 
-              // ── Círculos decorativos ──
-              _buildDecorations(size),
-
-              SafeArea(
-                child: FadeTransition(
-                  opacity: _fadeAnim,
-                  child: SlideTransition(
-                    position: _slideAnim,
-                    child: Column(
-                      children: [
-                        // ── Header ──
-                        _buildHeader(lang),
-
-                        // ── Contenido ──
-                        Expanded(
-                          child: SingleChildScrollView(
-                            physics: BouncingScrollPhysics(),
-                            padding: EdgeInsets.fromLTRB(20, 8, 20, 32),
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  _buildCard(
-                                    icon: Icons.person_outline_rounded,
-                                    title: AppTranslations.get('onboarding_and_auth', 'personal_data', lang),
-                                    number: '1',
-                                    child: _buildPersonalSection(lang),
-                                  ),
-                                  SizedBox(height: 16),
-                                  _buildCard(
-                                    icon: Icons.calendar_today_rounded,
-                                    title: AppTranslations.get('onboarding_and_auth', 'your_cycle', lang),
-                                    number: '2',
-                                    child: _buildCycleSection(lang),
-                                  ),
-                                  SizedBox(height: 28),
-                                  _buildCTAButton(lang),
-                                  SizedBox(height: 16),
-                                ],
-                              ),
+            SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  _buildProgressBar(),
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.12),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
+                        border: Border(
+                          top: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+                          left: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+                          right: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: PageView(
+                              controller: _pageController,
+                              physics: const NeverScrollableScrollPhysics(),
+                              onPageChanged: (idx) {
+                                setState(() => _currentPage = idx);
+                              },
+                              children: [
+                                _buildStep1Location(),
+                                _buildStep2Cycle(),
+                                _buildStep3Period(),
+                                _buildStep4Medications(),
+                                _buildStep5Conditions(),
+                                _buildStep6Contraceptive(),
+                                _buildStep7Goal(),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // ── HEADER ──────────────────────────────────────────────────────────────────
-  Widget _buildHeader(String lang) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
-      child: Row(
-        children: [
-          Image.asset('assets/images/logo_white.png', height: 30,
-              errorBuilder: (_, _, _) => Icon(Icons.circle, color: Colors.white54, size: 30)),
-          SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppTranslations.get('onboarding_and_auth', 'tell_us', lang),
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    height: 1.1,
-                  ),
-                ),
-                Text(
-                  AppTranslations.get('onboarding_and_auth', 'only_once', lang),
-                  style: GoogleFonts.poppins(
-                    color: Colors.white.withValues(alpha: 0.75),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          BellotaTopActions(
-            showSettings: false,
-            onTalkBackPressed: () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── TARJETA SECCIÓN ──────────────────────────────────────────────────────────
-  Widget _buildCard({
-    required IconData icon,
-    required String title,
-    required String number,
-    required Widget child,
-  }) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12),
-            blurRadius: 24,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Cabecera de la tarjeta
-          Container(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 14),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFD35D53), Color(0xFFEE8658)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.25),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      number,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
+                          _buildBottomNav(),
+                        ],
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Icon(icon, color: Colors.white, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Contenido
-          Padding(
-            padding: EdgeInsets.fromLTRB(20, 20, 20, 24),
-            child: child,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── SECCIÓN DATOS PERSONALES ───────────────────────────────────────────
-  Widget _buildPersonalSection(String lang) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'age', lang), Icons.cake_rounded),
-        SizedBox(height: 8),
-        TextFormField(
-          controller: _ageController,
-          keyboardType: TextInputType.number,
-          style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontSize: 15),
-          decoration: _inputDecoration(AppTranslations.get('onboarding_and_auth', 'age_hint', lang), Icons.numbers_rounded),
-          validator: (val) {
-            if (val != null && val.isNotEmpty && int.tryParse(val) == null) {
-              return AppTranslations.get('onboarding_and_auth', 'invalid_number', lang);
-            }
-            return null;
-          },
-        ),
-
-        SizedBox(height: 20),
-        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'location', lang), Icons.place_rounded),
-        SizedBox(height: 8),
-        _buildLocationPicker(lang),
-
-        SizedBox(height: 20),
-        _buildFieldLabel(AppTranslations.get('onboarding_and_auth', 'medications', lang), Icons.medication_rounded),
-        SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _medications.map((med) {
-            final isSelected = _selectedMedications.contains(med);
-            final medLabel = AppTranslations.getMedLabel(med, lang);
-            return AnimatedContainer(
-              duration: Duration(milliseconds: 200),
-              child: FilterChip(
-                label: Text(medLabel),
-                selected: isSelected,
-                onSelected: (_) => _toggleMedication(med),
-                selectedColor: Theme.of(context).bellotaColors.chilero,
-                backgroundColor: Color(0xFFF7EACC),
-                checkmarkColor: Colors.white,
-                labelStyle: GoogleFonts.poppins(
-                  color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  fontSize: 13,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(
-                    color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
-                  ),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  // ── SECCIÓN CICLO ─────────────────────────────────────────────────────────
-  Widget _buildCycleSection(String lang) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSliderBlock(
-          label: AppTranslations.get('onboarding_and_auth', 'cycle_duration', lang),
-          value: _cycleDuration,
-          unit: AppTranslations.get('profile_and_report', 'days', lang),
-          min: 20,
-          max: 45,
-          color: Theme.of(context).bellotaColors.chilero,
-          icon: Icons.loop_rounded,
-          onChanged: (v) => setState(() {
-            _cycleDuration = v.round();
-            if (_periodDuration > _cycleDuration) _periodDuration = _cycleDuration;
-          }),
-        ),
-        SizedBox(height: 20),
-        _buildSliderBlock(
-          label: AppTranslations.get('onboarding_and_auth', 'period_duration', lang),
-          value: _periodDuration,
-          unit: AppTranslations.get('profile_and_report', 'days', lang),
-          min: 1,
-          max: 10,
-          color: Theme.of(context).bellotaColors.melon,
-          icon: Icons.water_drop_rounded,
-          onChanged: (v) => setState(() {
-            _periodDuration = v.round();
-            if (_periodDuration > _cycleDuration) _cycleDuration = _periodDuration;
-          }),
-        ),
-        SizedBox(height: 16),
-        // Info chip
-        Container(
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Theme.of(context).bellotaColors.basilica,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Theme.of(context).bellotaColors.nancite),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline_rounded, size: 18, color: Theme.of(context).bellotaColors.textoMedio),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '${AppTranslations.get('onboarding_and_auth', 'cycle', lang)}: $_cycleDuration ${AppTranslations.get('profile_and_report', 'days', lang)}  •  ${AppTranslations.get('onboarding_and_auth', 'menstruation', lang)}: $_periodDuration ${AppTranslations.get('profile_and_report', 'days', lang)}',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Theme.of(context).bellotaColors.textoMedio,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── SLIDER BLOCK ─────────────────────────────────────────────────────────────
-  Widget _buildSliderBlock({
-    required String label,
-    required int value,
-    required String unit,
-    required double min,
-    required double max,
-    required Color color,
-    required IconData icon,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: color, size: 18),
-            SizedBox(width: 6),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).bellotaColors.textoDark,
-              ),
-            ),
-            Spacer(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '$value $unit',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 6),
-        SliderTheme(
-          data: SliderThemeData(
-            activeTrackColor: color,
-            inactiveTrackColor: color.withValues(alpha: 0.15),
-            thumbColor: color,
-            overlayColor: color.withValues(alpha: 0.15),
-            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10),
-            trackHeight: 5,
-          ),
-          child: Slider(
-            value: value.toDouble(),
-            min: min,
-            max: max,
-            divisions: (max - min).round(),
-            onChanged: onChanged,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── LOCATION PICKER ──────────────────────────────────────────────────────────
-  Widget _buildLocationPicker(String lang) {
-    final hasLocation = _locationLabel.isNotEmpty;
-    return GestureDetector(
-      onTap: () async {
-        final result = await Navigator.push<Map<String, dynamic>>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => LocationPickerScreen(initialPosition: _locationLatLng),
-          ),
-        );
-        if (result != null && mounted) {
-          setState(() {
-            _locationLabel = result['label'] as String;
-            _locationLatLng = result['position'] as LatLng;
-          });
-        }
-      },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: hasLocation
-              ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.06)
-              : Colors.grey.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: hasLocation ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.5) : Colors.grey.withValues(alpha: 0.25),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: hasLocation
-                    ? Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.12)
-                    : Colors.grey.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                hasLocation ? Icons.place_rounded : Icons.map_outlined,
-                color: hasLocation ? Theme.of(context).bellotaColors.chilero : Colors.grey,
-                size: 20,
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    hasLocation ? AppTranslations.get('onboarding_and_auth', 'location_selected', lang) : AppTranslations.get('onboarding_and_auth', 'select_on_map', lang),
-                    style: GoogleFonts.poppins(
-                      fontSize: 11,
-                      color: hasLocation ? Theme.of(context).bellotaColors.chilero : Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    hasLocation ? _locationLabel : AppTranslations.get('onboarding_and_auth', 'tap_to_open_map', lang),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: hasLocation ? FontWeight.w600 : FontWeight.normal,
-                      color: hasLocation ? Theme.of(context).bellotaColors.textoDark : Colors.grey,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: hasLocation ? Theme.of(context).bellotaColors.chilero : Colors.grey,
-            ),
           ],
         ),
       ),
     );
   }
 
-
-  // ── BOTÓN CONTINUAR ──
-  Widget _buildCTAButton(String lang) {
-    return GestureDetector(
-      onTap: _saveAndContinue,
-      child: Container(
-        width: double.infinity,
-        height: 58,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFD35D53), Color(0xFFEE8658)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+  Widget _buildProgressBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        children: [
+          Row(
+            children: List.generate(_totalPages, (index) {
+              final isActive = index == _currentPage;
+              final isPast = index < _currentPage;
+              return Expanded(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: isActive || isPast 
+                        ? Theme.of(context).bellotaColors.blanco 
+                        : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              );
+            }),
           ),
-          borderRadius: BorderRadius.circular(32),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.45),
-              blurRadius: 20,
-              offset: Offset(0, 8),
+          const SizedBox(height: 12),
+          Text(
+            "Paso ${_currentPage + 1} de $_totalPages",
+            style: GoogleFonts.poppins(
+              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             ),
-          ],
-        ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                AppTranslations.get('onboarding_and_auth', 'finish_registration', lang),
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.3,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNav() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (_currentPage > 0)
+            TextButton(
+              onPressed: _prevPage,
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8),
+              ),
+              child: Text(
+                "← Anterior",
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+            )
+          else
+            const SizedBox(width: 80),
+            
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Theme.of(context).bellotaColors.melon, Theme.of(context).bellotaColors.chilero],
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: _nextPage,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: Text(
+                    _currentPage == _totalPages - 1 ? "Listo ✓" : "Siguiente →",
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).bellotaColors.blanco,
+                    ),
+                  ),
                 ),
               ),
-              SizedBox(width: 8),
-              Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 22),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  // ── HELPERS ──────────────────────────────────────────────────────────────────
-  Widget _buildFieldLabel(String text, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Theme.of(context).bellotaColors.chilero),
-        SizedBox(width: 6),
-        Text(
-          text,
-          style: GoogleFonts.poppins(
-            color: Theme.of(context).bellotaColors.textoDark,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+  Widget _stepWrapper(Widget child) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: child,
+    );
+  }
+
+  // --- STEPS ---
+
+  Widget _buildStep1Location() {
+    final depts = NicaraguaData.departments.keys.toList()..sort();
+    List<String> munis = [];
+    if (_selectedDepartment != null) {
+      munis = List<String>.from(NicaraguaData.departments[_selectedDepartment!] ?? []);
+      munis.sort();
+    }
+
+    return _stepWrapper(
+      Column(
+        children: [
+          Icon(Icons.location_on_rounded, size: 48, color: Theme.of(context).bellotaColors.blanco),
+          const SizedBox(height: 12),
+          Text(
+            "¿Dónde vives?",
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          
+          // Dropdown Departamento
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.3)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedDepartment,
+                hint: Text("Departamento", style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7))),
+                isExpanded: true,
+                dropdownColor: Theme.of(context).bellotaColors.chilero,
+                icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).bellotaColors.blanco),
+                style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.blanco, fontSize: 16),
+                items: depts.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                onChanged: (val) {
+                  setState(() {
+                    _selectedDepartment = val;
+                    _selectedMunicipality = null;
+                    _locationLatLng = null;
+                  });
+                },
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+
+          // Dropdown Municipio
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.3)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedMunicipality,
+                hint: Text("Municipio", style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7))),
+                isExpanded: true,
+                dropdownColor: Theme.of(context).bellotaColors.chilero,
+                icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).bellotaColors.blanco),
+                style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.blanco, fontSize: 16),
+                items: munis.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+                onChanged: _selectedDepartment == null ? null : (val) {
+                  setState(() {
+                    _selectedMunicipality = val;
+                  });
+                  _updateMapLocation();
+                },
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Mapa Integrado (solo se muestra cuando _locationLatLng está listo)
+          Expanded(
+            child: _locationLatLng == null
+                ? Center(
+                    child: _isLoadingMap
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            "Selecciona tu ubicación para ver el mapa",
+                            style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7)),
+                            textAlign: TextAlign.center,
+                          ),
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: FlutterMap(
+                      key: ValueKey(_locationLatLng), // fuerza rebuild para centrar
+                      mapController: _mapController,
+                      options: MapOptions(
+                        initialCenter: _locationLatLng!,
+                        initialZoom: 13,
+                        interactionOptions: const InteractionOptions(
+                          flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                        ),
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'com.bellota.app',
+                        ),
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: _locationLatLng!,
+                              width: 48,
+                              height: 48,
+                              child: Icon(Icons.location_pin, color: Theme.of(context).bellotaColors.chilero, size: 48),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.poppins(color: Colors.grey.withValues(alpha: 0.5), fontSize: 14),
-      prefixIcon: Icon(icon, color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.6), size: 20),
-      filled: true,
-      fillColor: Colors.grey.withValues(alpha: 0.06),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Theme.of(context).bellotaColors.chilero, width: 1.5),
+  Widget _buildStep2Cycle() {
+    return _stepWrapper(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.loop_rounded, size: 64, color: Theme.of(context).bellotaColors.blanco),
+          const SizedBox(height: 24),
+          Text(
+            "¿Cuánto dura tu ciclo?",
+            style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 40),
+          Text(
+            "$_cycleDuration",
+            style: GoogleFonts.poppins(fontSize: 56, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco, height: 1.0),
+          ),
+          Text(
+            "días",
+            style: GoogleFonts.poppins(fontSize: 20, color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8)),
+          ),
+          const SizedBox(height: 40),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: Theme.of(context).bellotaColors.blanco,
+              inactiveTrackColor: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.3),
+              thumbColor: Theme.of(context).bellotaColors.blanco,
+              trackHeight: 8,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14),
+            ),
+            child: Slider(
+              value: _cycleDuration.toDouble(),
+              min: 20,
+              max: 45,
+              divisions: 25,
+              onChanged: (val) => setState(() => _cycleDuration = val.toInt()),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Promedio normal: 28 días",
+            style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.6)),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDecorations(Size size) {
+  Widget _buildStep3Period() {
+    return _stepWrapper(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.water_drop_rounded, size: 64, color: Theme.of(context).bellotaColors.melon),
+          const SizedBox(height: 24),
+          Text(
+            "¿Cuánto dura tu menstruación?",
+            style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 40),
+          Text(
+            "$_periodDuration",
+            style: GoogleFonts.poppins(fontSize: 56, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.melon, height: 1.0),
+          ),
+          Text(
+            "días",
+            style: GoogleFonts.poppins(fontSize: 20, color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8)),
+          ),
+          const SizedBox(height: 40),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: Theme.of(context).bellotaColors.melon,
+              inactiveTrackColor: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.3),
+              thumbColor: Theme.of(context).bellotaColors.melon,
+              trackHeight: 8,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14),
+            ),
+            child: Slider(
+              value: _periodDuration.toDouble(),
+              min: 1,
+              max: 10,
+              divisions: 9,
+              onChanged: (val) => setState(() => _periodDuration = val.toInt()),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Promedio normal: 5 días",
+            style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.6)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep4Medications() {
+    return _stepWrapper(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.medication_outlined, size: 48, color: Theme.of(context).bellotaColors.blanco),
+          const SizedBox(height: 16),
+          Text(
+            "¿Tomas algún medicamento regularmente?",
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: _medications.map((med) {
+                  final isSelected = _selectedMedications.contains(med);
+                  final label = AppTranslations.get('registration_form', med, languageNotifier.currentLang);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (med == 'none') {
+                          _selectedMedications.clear();
+                          _selectedMedications.add('none');
+                        } else {
+                          _selectedMedications.remove('none');
+                          if (isSelected) {
+                            _selectedMedications.remove(med);
+                            if (_selectedMedications.isEmpty) _selectedMedications.add('none');
+                          } else {
+                            _selectedMedications.add(med);
+                          }
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isSelected) ...[
+                            Icon(Icons.check, color: Theme.of(context).bellotaColors.blanco, size: 18),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            label,
+                            style: GoogleFonts.poppins(
+                              color: Theme.of(context).bellotaColors.blanco,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep5Conditions() {
+    return _stepWrapper(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.health_and_safety_outlined, size: 48, color: Theme.of(context).bellotaColors.blanco),
+          const SizedBox(height: 16),
+          Text(
+            "¿Tienes alguna condición de salud diagnosticada?",
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: _conditionsMap.entries.map((e) {
+                  final key = e.key;
+                  final label = e.value;
+                  final isSelected = _selectedConditions.contains(key);
+                  final icon = _conditionsIcons[key]!;
+                  final color = _conditionsColors[key]!;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (key == 'none') {
+                            _selectedConditions.clear();
+                            _selectedConditions.add('none');
+                          } else {
+                            _selectedConditions.remove('none');
+                            if (isSelected) {
+                              _selectedConditions.remove(key);
+                              if (_selectedConditions.isEmpty) _selectedConditions.add('none');
+                            } else {
+                              _selectedConditions.add(key);
+                            }
+                          }
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(icon, color: color, size: 24),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                label,
+                                style: GoogleFonts.poppins(
+                                  color: Theme.of(context).bellotaColors.blanco,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(Icons.check_circle_rounded, color: Theme.of(context).bellotaColors.blanco),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep6Contraceptive() {
+    return _stepWrapper(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.shield_outlined, size: 48, color: Theme.of(context).bellotaColors.blanco),
+          const SizedBox(height: 16),
+          Text(
+            "¿Usas algún método anticonceptivo?",
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: _contraceptivesMap.entries.map((e) {
+                  final key = e.key;
+                  final label = e.value;
+                  final isSelected = _selectedContraceptive == key;
+                  final icon = _contraceptivesIcons[key]!;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedContraceptive = key),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(icon, color: Theme.of(context).bellotaColors.blanco, size: 24),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                label,
+                                style: GoogleFonts.poppins(
+                                  color: Theme.of(context).bellotaColors.blanco,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            Radio<String>(
+                              value: key,
+                              groupValue: _selectedContraceptive,
+                              onChanged: (v) => setState(() => _selectedContraceptive = v),
+                              activeColor: Theme.of(context).bellotaColors.blanco,
+                              fillColor: WidgetStateProperty.resolveWith((states) => Theme.of(context).bellotaColors.blanco),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep7Goal() {
+    return _stepWrapper(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.flag_outlined, size: 48, color: Theme.of(context).bellotaColors.blanco),
+          const SizedBox(height: 16),
+          Text(
+            "¿Cuál es tu objetivo principal?",
+            style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: _goalsMap.entries.map((e) {
+                  final key = e.key;
+                  final map = e.value;
+                  final isSelected = _selectedGoal == key;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedGoal = key),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(map['icon'], color: Theme.of(context).bellotaColors.blanco, size: 32),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    map['title'],
+                                    style: GoogleFonts.poppins(
+                                      color: Theme.of(context).bellotaColors.blanco,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    map['desc'],
+                                    style: GoogleFonts.poppins(
+                                      color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDecorations() {
     return IgnorePointer(
       child: Stack(
         children: [
           Positioned(
-            top: -size.width * 0.25,
-            right: -size.width * 0.2,
-            child: Container(
-              width: size.width * 0.75,
-              height: size.width * 0.75,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.07),
-              ),
-            ),
+            top: -50,
+            left: -50,
+            child: Container(width: 150, height: 150, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), shape: BoxShape.circle)),
           ),
           Positioned(
-            top: size.height * 0.1,
-            left: -size.width * 0.15,
-            child: Container(
-              width: size.width * 0.45,
-              height: size.width * 0.45,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.05),
-              ),
-            ),
+            top: 200,
+            right: -80,
+            child: Container(width: 200, height: 200, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.04), shape: BoxShape.circle)),
           ),
           Positioned(
-            top: size.height * 0.06,
-            right: size.width * 0.1,
+            bottom: -60,
+            left: -30,
             child: Transform.rotate(
-              angle: math.pi / 5,
-              child: Container(
-                width: 18,
-                height: 18,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
-              ),
+              angle: math.pi / 4,
+              child: Container(width: 150, height: 150, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03), borderRadius: BorderRadius.circular(40))),
             ),
           ),
         ],
@@ -716,6 +972,3 @@ class _PersonalDataScreenState extends State<PersonalDataScreen>
     );
   }
 }
-
-
-

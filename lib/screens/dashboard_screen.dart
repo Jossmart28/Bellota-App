@@ -3,9 +3,11 @@ import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../database/database_helper.dart';
@@ -17,6 +19,9 @@ import 'profile_screen.dart';
 import '../widgets/health_info_carousel.dart';
 import '../core/services/cycle_service.dart';
 import '../core/services/notification_service.dart';
+import '../widgets/cozy_section_header.dart';
+import '../widgets/cozy_card.dart';
+import 'resumen_diario_screen.dart';
 
 /// Dashboard principal de Bellota
 class DashboardScreen extends StatefulWidget {
@@ -44,6 +49,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _periodDuration = 5;
   CycleInfo? _cycleInfo;
   bool _hasPeriodsRegistered = true;
+
+  List<String> _predictedSymptoms = ['mood_swings', 'sensitivity', 'fatigue'];
+  String? _todayMood;
+  List<String> _medicalConditions = [];
 
   // ── Definición de las 4 fases ──
   List<_PhaseData> _getPhases(String lang) {
@@ -138,24 +147,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadDashboardData(int userId) async {
-    // 1. Cargar perfil para duración de ciclo y foto de perfil
+    // 1. Cargar perfil para duración de ciclo, foto y condiciones médicas
     final profile = await DatabaseHelper.instance.getProfile(userId);
+    List<String> medicalConds = [];
     if (profile != null) {
       _cycleDuration = profile['cycle_duration'] as int? ?? 28;
       _periodDuration = profile['period_duration'] as int? ?? 5;
+      
+      if (profile['medical_conditions'] != null) {
+        try {
+          medicalConds = List<String>.from(jsonDecode(profile['medical_conditions'].toString()));
+        } catch (_) {}
+      }
+
       setState(() {
         if (profile['username'] != null && profile['username'].toString().isNotEmpty) {
           _userName = profile['username'].toString();
         }
         _profileImagePath = profile['profile_image_path'] as String?;
         _profileImageExists = _profileImagePath != null && File(_profileImagePath!).existsSync();
+        _medicalConditions = medicalConds;
       });
     }
 
-    // 2. Obtener datos de períodos
+    // 2. Obtener datos de períodos y fertilidad
     final now = DateTime.now();
     final lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(userId);
     final allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
+    
+    // Asumiremos que tenemos una función en DatabaseHelper para obtener datos de fertilidad del ciclo actual, 
+    // pero por simplicidad pasaremos null si no la tenemos a mano (se requiere query adicional)
     
     // 3. Calcular info del ciclo usando CycleService
     final cycleInfo = CycleService.instance.calculateCycleInfo(
@@ -164,31 +185,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
       cycleDuration: _cycleDuration,
       periodDuration: _periodDuration,
       allPeriodStarts: allPeriodStarts.isNotEmpty ? allPeriodStarts : null,
+      medicalConditions: medicalConds.isNotEmpty ? medicalConds : null,
+      fertilityData: null, // Idealmente cargaríamos los daily_logs del ciclo actual aquí
     );
 
     // 4. Mapear fase a índice del array _phases
     int phaseIndex;
+    String phaseNameStr = '';
     switch (cycleInfo.phase) {
       case CyclePhase.ovulatory:
         phaseIndex = 0;
+        phaseNameStr = 'ovulatory';
       case CyclePhase.luteal:
         phaseIndex = 1;
+        phaseNameStr = 'luteal';
       case CyclePhase.follicular:
         phaseIndex = 2;
+        phaseNameStr = 'follicular';
       case CyclePhase.menstrual:
         phaseIndex = 3;
+        phaseNameStr = 'menstrual';
     }
 
-    // 5. Cargar síntomas registrados HOY
+    // 5. Cargar predicciones inteligentes de síntomas
+    final topSymptoms = await DatabaseHelper.instance.getTopSymptomsForPhase(userId, phaseNameStr);
+    List<String> predictedSymptoms = topSymptoms.isNotEmpty ? topSymptoms : ['mood_swings', 'sensitivity', 'fatigue'];
+
+    // 6. Cargar síntomas registrados HOY y estado de ánimo
     String todayKey = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final log = await DatabaseHelper.instance.getDailyLog(userId, todayKey);
 
     List<String> combinedSymptoms = [];
     bool periodoIniciado = false;
+    String? todayMood;
+    
     if (log != null) {
       periodoIniciado = (log['period_start'] as int?) == 1;
       List<String> s = List<String>.from(jsonDecode(log['symptoms'] as String? ?? '[]'));
       combinedSymptoms.addAll(s);
+      todayMood = log['mood'] as String?;
     }
 
     setState(() {
@@ -198,6 +233,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _nextPeriodDate = cycleInfo.nextPeriodDate;
       _todaySymptoms = combinedSymptoms;
       _periodoIniciado = periodoIniciado;
+      _predictedSymptoms = predictedSymptoms;
+      _todayMood = todayMood;
     });
   }
 
@@ -242,86 +279,253 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDashboardContent(BuildContext context, String lang) {
-    final phase = _getPhases(lang)[_currentPhaseIndex];
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 16),
-            _buildHeader(context),
-            SizedBox(height: 28),
-            _buildSectionLabel(context, AppTranslations.get('dashboard', 'predictions', languageNotifier.currentLang)),
-            SizedBox(height: 10),
-            if (!_hasPeriodsRegistered)
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).bellotaColors.blanco,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.08),
-                      blurRadius: 18,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Icon(Icons.calendar_today_rounded, size: 40, color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.5)),
-                    SizedBox(height: 12),
-                    Text(
-                      'Registra tu primer período para ver predicciones',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).bellotaColors.textoMedio),
-                    ),
-                  ],
-                ),
-              ),
-            if (_hasPeriodsRegistered)
-              _buildPrediccionesCard(context),
-            SizedBox(height: 28),
-            _buildSectionLabel(context, AppTranslations.get('dashboard', 'todays_summary', languageNotifier.currentLang)),
-            SizedBox(height: 10),
-            _buildResumenCard(context, phase),
-            SizedBox(height: 28),
-            _buildSectionLabel(context, AppTranslations.get('dashboard', 'information_for_you', languageNotifier.currentLang)),
-            SizedBox(height: 10),
-            HealthInfoCarousel(),
-            SizedBox(height: 28),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Etiqueta de sección con línea decorativa suave al lado
-  Widget _buildSectionLabel(BuildContext context, String title) {
-    final textTheme = Theme.of(context).textTheme;
-    return Row(
+    return Stack(
       children: [
-        Text(
-          title,
-          style: textTheme.headlineMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+        // ── Decoración: marca de agua floral en esquina superior derecha ──
+        Positioned(
+          top: -10,
+          right: -20,
+          child: Opacity(
+            opacity: 0.08,
+            child: SvgPicture.asset(
+              'assets/decorations/dashboard_bg_deco.svg',
+              width: 250,
+              height: 250,
+              colorFilter: ColorFilter.mode(Theme.of(context).bellotaColors.textoDark, BlendMode.srcIn),
+            ),
+          ),
         ),
-        SizedBox(width: 10),
-        Expanded(
-          child: Container(
-            height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.25),
-                  Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.0),
-                ],
-              ),
+        SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                _buildHeader(context),
+                const SizedBox(height: 28),
+
+                // ── Botón de acceso al Resumen Diario ──
+                _buildResumenDiarioBanner(context),
+
+                const SizedBox(height: 28),
+                CozySectionHeader(
+                  title: AppTranslations.get('dashboard', 'todays_summary', languageNotifier.currentLang),
+                ),
+                const SizedBox(height: 10),
+                _buildResumenCard(context, _getPhases(languageNotifier.currentLang)[_currentPhaseIndex]),
+
+                const SizedBox(height: 28),
+                CozySectionHeader(
+                  title: AppTranslations.get('dashboard', 'information_for_you', languageNotifier.currentLang),
+                ),
+                const SizedBox(height: 10),
+                const HealthInfoCarousel(),
+                const SizedBox(height: 28),
+              ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+
+
+  // ───────────────────────────────────────────────
+  // BANNER / BOTÓN — Acceso a Resumen Diario
+  // ───────────────────────────────────────────────
+  Widget _buildResumenDiarioBanner(BuildContext context) {
+    final phase = _getPhases(languageNotifier.currentLang)[_currentPhaseIndex];
+    final List<String> monthNamesShort = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
+    final String dateStr = '${_nextPeriodDate.day} ${monthNamesShort[_nextPeriodDate.month - 1]}';
+    final daysUntil = _nextPeriodDate.difference(DateTime.now()).inDays;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ResumenDiarioScreen(
+              nextPeriodDate: _nextPeriodDate,
+              predictedSymptoms: _predictedSymptoms,
+              todaySymptoms: _todaySymptoms,
+              todayMood: _todayMood,
+              medicalConditions: _medicalConditions,
+              cycleInfo: _cycleInfo,
+              currentPhaseIndex: _currentPhaseIndex,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              phase.color.withValues(alpha: 0.85),
+              phase.borderColor.withValues(alpha: 0.7),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: phase.color.withValues(alpha: 0.25),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Patron decorativo de fondo
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Opacity(
+                  opacity: 0.10,
+                  child: Image.asset(
+                    'assets/decorations/dashboard_bg_deco.svg',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+            ),
+
+            // Imagen decorativa con fade suave hacia la derecha (no centrada)
+            Positioned(
+              right: -10,
+              top: -10,
+              bottom: -10,
+              width: 155,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.horizontal(right: Radius.circular(24)),
+                child: ShaderMask(
+                  shaderCallback: (rect) {
+                    return const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black,
+                      ],
+                      stops: [0.0, 0.35],
+                    ).createShader(rect);
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: Opacity(
+                    opacity: 0.88,
+                    child: Image.asset(
+                      'assets/images/resumen_banner.png',
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topRight,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 115, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Resumen Diario",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (_hasPeriodsRegistered) ...[
+                    Text(
+                      "Próximo período: $dateStr",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      daysUntil <= 0
+                          ? "Puede estar comenzando hoy"
+                          : "En $daysUntil ${daysUntil == 1 ? 'día' : 'días'}",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 11,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "${_predictedSymptoms.length} síntomas esperados",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    Text(
+                      "Registra tu primer período para ver predicciones",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // Flecha de navegación flotante con cápsula translúcida
+            Positioned(
+              bottom: 14,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.28),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.25),
+                    width: 0.8,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Ver detalle",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 11),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -417,20 +621,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
     String dateStr = '${_nextPeriodDate.day}/${monthNamesShort[_nextPeriodDate.month - 1]}';
 
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).bellotaColors.blanco,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.08),
-            blurRadius: 18,
-            spreadRadius: 0,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
+    return CozyCard(
+      padding: const EdgeInsets.all(20),
+      shadowColor: Theme.of(context).bellotaColors.melon,
       child: Row(
         children: [
           Expanded(
@@ -442,7 +635,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   AppTranslations.get('symptoms_and_actions', 'next_period_will_be', languageNotifier.currentLang),
                   style: textTheme.bodySmall?.copyWith(height: 1.4),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   dateStr,
                   style: textTheme.headlineLarge?.copyWith(
@@ -451,7 +644,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
                   AppTranslations.get('symptoms_and_actions', 'based_on_last_cycles', languageNotifier.currentLang),
                   style: textTheme.bodySmall?.copyWith(fontSize: 9.5, height: 1.3),
@@ -462,7 +655,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Container(
             width: 1,
             height: 72,
-            margin: EdgeInsets.symmetric(horizontal: 14),
+            margin: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -488,10 +681,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontSize: 12,
                   ),
                 ),
-                SizedBox(height: 8),
-                _bulletItem(context, AppTranslations.get('symptoms', 'mood_swings', languageNotifier.currentLang)),
-                _bulletItem(context, AppTranslations.get('symptoms', 'sensitivity', languageNotifier.currentLang)),
-                _bulletItem(context, AppTranslations.get('symptoms', 'fatigue', languageNotifier.currentLang)),
+                const SizedBox(height: 8),
+                if (_medicalConditions.contains('pcos')) ...[
+                  Text(
+                    '⚠️ Predicciones pueden variar por PCOS',
+                    style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.melon),
+                  ),
+                  const SizedBox(height: 4),
+                ],
+                ..._predictedSymptoms.map((s) => _bulletItem(context, _translateSymptomKey(s))),
               ],
             ),
           ),
@@ -499,6 +697,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
 
   /// Traduce una clave de síntoma al idioma actual
   String _translateSymptomKey(String key) {
@@ -545,52 +744,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildResumenCard(BuildContext context, _PhaseData phase) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).bellotaColors.blanco,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: phase.color.withValues(alpha: 0.12),
-            blurRadius: 18,
-            spreadRadius: 0,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
+    return CozyCard(
+      padding: const EdgeInsets.all(20),
+      shadowColor: phase.color,
       child: Row(
         children: [
-          AnimatedContainer(
-            duration: Duration(milliseconds: 400),
-            curve: Curves.easeInOutCubic,
-            width: 108,
-            height: 108,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: phase.color.withValues(alpha: 0.80),
-              border: Border.all(
-                color: phase.borderColor.withValues(alpha: 0.7),
-                width: 3,
+          // Círculo de fase con anillo decorativo de puntos (petal ring)
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // Anillo exterior decorativo (puntos)
+              CustomPaint(
+                size: const Size(116, 116),
+                painter: _PetalRingPainter(color: phase.borderColor.withValues(alpha: 0.35)),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: phase.color.withValues(alpha: 0.22),
-                  blurRadius: 16,
-                  spreadRadius: 2,
-                  offset: Offset(0, 5),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOutCubic,
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: phase.color.withValues(alpha: 0.80),
+                  border: Border.all(
+                    color: phase.borderColor.withValues(alpha: 0.7),
+                    width: 2.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: phase.color.withValues(alpha: 0.22),
+                      blurRadius: 14,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                phase.name,
-                textAlign: TextAlign.center,
-                style: textTheme.labelLarge?.copyWith(fontSize: 12.5, height: 1.25),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        phase.name,
+                        textAlign: TextAlign.center,
+                        style: textTheme.labelLarge?.copyWith(fontSize: 12.5, height: 1.25),
+                      ),
+                      if (_todayMood != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          _getMoodEmoji(_todayMood!),
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-          SizedBox(width: 18),
+          const SizedBox(width: 18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,20 +814,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 if (_todaySymptoms.isEmpty)
-                  Text(
-                    AppTranslations.get('symptoms_and_actions', 'no_symptoms_logged', languageNotifier.currentLang),
-                    style: textTheme.bodySmall?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      height: 1.4,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Image.asset(
+                        'assets/decorations/empty_state_cozy.png',
+                        width: 54,
+                        height: 54,
+                        color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.7),
+                        colorBlendMode: BlendMode.srcIn,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        AppTranslations.get('symptoms_and_actions', 'no_symptoms_logged', languageNotifier.currentLang),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).bellotaColors.textoMedio,
+                          fontStyle: FontStyle.italic,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
                   ),
                 if (_todaySymptoms.isNotEmpty)
                   ..._todaySymptoms.take(4).map((s) => _bulletItem(context, _translateSymptomKey(s))),
                 if (_todaySymptoms.length > 4)
                   Padding(
-                    padding: EdgeInsets.only(top: 2),
+                    padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       '+${_todaySymptoms.length - 4} más',
                       style: textTheme.bodySmall?.copyWith(
@@ -633,74 +859,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ──────────────────────
-  // INFORMACIÓN ADICIONAL
-  // ──────────────────────
-  Widget _buildInfoAdicionalCard(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
 
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        padding: EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: Theme.of(context).bellotaColors.blanco,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).bellotaColors.chiltoma.withValues(alpha: 0.10),
-              blurRadius: 18,
-              spreadRadius: 0,
-              offset: Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 88,
-              height: 88,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                color: Theme.of(context).bellotaColors.nancite,
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.article_outlined,
-                  size: 38,
-                  color: Theme.of(context).bellotaColors.melon,
-                ),
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '¿Cómo afecta el estrés tu ciclo?',
-                    style: textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).bellotaColors.textoDark,
-                      fontSize: 13,
-                      height: 1.35,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 7),
-                  Text(
-                    'El estrés crónico puede alterar tus niveles hormonales, provocando retrasos en tu periodo o cambios en la ovulación.',
-                    style: textTheme.bodySmall?.copyWith(fontSize: 10.5, height: 1.5),
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
 
   // ───────────────────────
@@ -802,6 +962,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  String _getMoodEmoji(String mood) {
+    switch (mood) {
+      case 'great': return '😁';
+      case 'good': return '🙂';
+      case 'neutral': return '😐';
+      case 'low': return '😔';
+      case 'bad': return '😢';
+      default: return '';
+    }
+  }
 }
 
 // ─────────────────────────
@@ -824,6 +995,40 @@ class _PhaseData {
     required this.symptoms,
   });
 }
+
+// ──────────────────────────────────────────────────────
+// Petal Ring Painter — anillo de puntos orgánicos
+// alrededor del círculo de fase en el resumen de hoy.
+// ──────────────────────────────────────────────────────
+class _PetalRingPainter extends CustomPainter {
+  final Color color;
+  _PetalRingPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 4;
+    const int dotCount = 24;
+    const double dotRadius = 2.2;
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    for (int i = 0; i < dotCount; i++) {
+      final angle = (2 * math.pi * i) / dotCount - math.pi / 2;
+      final x = center.dx + radius * math.cos(angle);
+      final y = center.dy + radius * math.sin(angle);
+      canvas.drawCircle(Offset(x, y), dotRadius, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PetalRingPainter oldDelegate) =>
+      oldDelegate.color != color;
+}
+
+
 
 
 

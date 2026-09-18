@@ -6,7 +6,7 @@ import '../theme/bellota_colors.dart';
 class SymptomsSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedSymptoms;
 
-  SymptomsSelectionScreen({super.key, required this.initialSelectedSymptoms});
+  const SymptomsSelectionScreen({super.key, required this.initialSelectedSymptoms});
 
   @override
   State<SymptomsSelectionScreen> createState() => _SymptomsSelectionScreenState();

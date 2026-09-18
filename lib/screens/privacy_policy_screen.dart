@@ -5,6 +5,7 @@ import '../navigation/navigation_service.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../l10n/language_notifier.dart';
+import 'birth_year_screen.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
@@ -26,8 +27,17 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     
     if (!mounted) return;
     
-    final nextScreen = NavigationService.resolveHomeScreen(prefs);
-    NavigationService.goReplace(context, nextScreen);
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => const BirthYearScreen(),
+        transitionsBuilder: (_, animation, __, child) => FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+        transitionDuration: const Duration(milliseconds: 600),
+      ),
+    );
   }
 
   @override

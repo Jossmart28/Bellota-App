@@ -1,4 +1,4 @@
-﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -6,7 +6,7 @@ import '../theme/bellota_colors.dart';
 class FlujoVaginalSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedFlujos;
 
-  FlujoVaginalSelectionScreen({super.key, required this.initialSelectedFlujos});
+  const FlujoVaginalSelectionScreen({super.key, required this.initialSelectedFlujos});
 
   @override
   State<FlujoVaginalSelectionScreen> createState() => _FlujoVaginalSelectionScreenState();

@@ -56,6 +56,15 @@ class DailyLogModel {
   /// Estado del autoexamen de mama ('done', 'pending')
   final String? breastExam;
   
+  /// Temperatura basal matutina en °C (ej: 36.4)
+  final double? basalTemp;
+  /// Resultado del test de LH ('negative', 'positive', 'peak')
+  final String? lhTestResult;
+  /// Posición cervical ('low_firm', 'mid', 'high_soft')
+  final String? cervicalPosition;
+  /// Estado de ánimo general ('great', 'good', 'neutral', 'low', 'bad')
+  final String? mood;
+
   // Notas
   /// Notas adicionales para este día
   final String? notes;
@@ -85,6 +94,10 @@ class DailyLogModel {
     this.physicalSymptoms = const [],
     this.emotionalSymptoms = const [],
     this.breastExam,
+    this.basalTemp,
+    this.lhTestResult,
+    this.cervicalPosition,
+    this.mood,
     this.notes,
     required this.createdAt,
   });
@@ -121,6 +134,10 @@ class DailyLogModel {
       physicalSymptoms: _parseStringList(map['physical_symptoms']),
       emotionalSymptoms: _parseStringList(map['emotional_symptoms']),
       breastExam: map['breast_exam'] as String?,
+      basalTemp: map['basal_temp'] != null ? (map['basal_temp'] as num).toDouble() : null,
+      lhTestResult: map['lh_test_result'] as String?,
+      cervicalPosition: map['cervical_position'] as String?,
+      mood: map['mood'] as String?,
       notes: map['notes'] as String?,
       createdAt: map['created_at'] != null 
           ? DateTime.parse(map['created_at'] as String) 
@@ -169,6 +186,10 @@ class DailyLogModel {
       'physical_symptoms': jsonEncode(physicalSymptoms),
       'emotional_symptoms': jsonEncode(emotionalSymptoms),
       'breast_exam': breastExam,
+      'basal_temp': basalTemp,
+      'lh_test_result': lhTestResult,
+      'cervical_position': cervicalPosition,
+      'mood': mood,
       'notes': notes,
       'created_at': createdAt.toIso8601String(),
     };
@@ -196,6 +217,10 @@ class DailyLogModel {
     List<String>? physicalSymptoms,
     List<String>? emotionalSymptoms,
     String? breastExam,
+    double? basalTemp,
+    String? lhTestResult,
+    String? cervicalPosition,
+    String? mood,
     String? notes,
     DateTime? createdAt,
   }) {
@@ -220,6 +245,10 @@ class DailyLogModel {
       physicalSymptoms: physicalSymptoms ?? this.physicalSymptoms,
       emotionalSymptoms: emotionalSymptoms ?? this.emotionalSymptoms,
       breastExam: breastExam ?? this.breastExam,
+      basalTemp: basalTemp ?? this.basalTemp,
+      lhTestResult: lhTestResult ?? this.lhTestResult,
+      cervicalPosition: cervicalPosition ?? this.cervicalPosition,
+      mood: mood ?? this.mood,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -246,14 +275,19 @@ class DailyLogModel {
       emotionalSymptoms.isNotEmpty ||
       breastExam != null;
 
+  /// Retorna verdadero si hay datos de fertilidad registrados.
+  bool get hasFertilityData => basalTemp != null || lhTestResult != null || cervicalPosition != null;
+
   /// Retorna verdadero si cualquier campo además de userId o date contiene datos.
   bool get hasAnyData =>
       hasPeriodData ||
       hasBleedingData ||
       hasPainData ||
+      hasFertilityData ||
       symptoms.isNotEmpty ||
       sexo.isNotEmpty ||
       flujo.isNotEmpty ||
+      mood != null ||
       notes != null;
 
   /// Parsea la cadena de fecha a un objeto DateTime (a medianoche).

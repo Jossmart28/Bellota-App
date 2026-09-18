@@ -1,6 +1,7 @@
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/bellota_colors.dart';
 
 class DolorSintomatologiaScreen extends StatefulWidget {
@@ -17,24 +18,27 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
   late String _caracterDolorKey;
   late TextEditingController _diasDolorController;
   late String _tratamientoKey;
-  late Set<String> _sintomasFisicosKeys;
-  late Set<String> _sintomasEmocionalKeys;
+  late Set<String> _sintomasFisicosKeys; // Kept for backward compatibility in state
+  late Set<String> _sintomasEmocionalKeys; // Kept for backward compatibility in state
+  late Set<String> _sintomasCicloKeys;
   late String _autoexamenMamaKey;
+  
+  // Fertility data (Otros)
+  double? _basalTemp;
+  String? _lhTestResult;
+  String? _cervicalPosition;
 
   final List<String> _caracterDolorOptions = ['incapacitating', 'not_incapacitating'];
   final List<String> _tratamientoOptions = ['medication', 'thermal_remedies', 'none'];
-  final List<String> _sintomasFisicosOptions = [
-    'severe_cramps', 'menstrual_migraine', 'mastalgia', 'lower_back_pain', 
-    'leg_cramps', 'pelvic_pain', 'bloating', 'nausea', 'dizziness', 'palpitations'
-  ];
-  final List<String> _sintomasEmocionalesOptions = [
-    'anxiety', 'mood_swings', 'extreme_fatigue', 'irritability', 
-    'sadness', 'crying_easily', 'concentration_difficulty', 'low_self_esteem', 'pmdd_suspicion'
-  ];
+  final List<String> _sintomasCicloOptions = ['severe_cramps', 'menstrual_migraine', 'mastalgia'];
+  
   final List<String> _autoexamenMamaOptions = [
     'breast_normal', 'breast_lump', 'breast_localized_pain', 
     'breast_skin_change', 'breast_discharge', 'breast_pending'
   ];
+  
+  final List<String> _lhTestOptions = ['negative', 'positive', 'peak'];
+  final List<String> _cervicalPositionOptions = ['low_firm', 'mid', 'high_soft'];
 
   @override
   void initState() {
@@ -51,18 +55,30 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     _tratamientoKey = widget.initialData['tratamientoKey'] ?? 
         _mapTratamiento(widget.initialData['tratamiento'], lang);
     
+    _basalTemp = widget.initialData['basalTemp'];
+    _lhTestResult = widget.initialData['lhTestResult'];
+    _cervicalPosition = widget.initialData['cervicalPosition'];
+    
     _sintomasFisicosKeys = {};
     if (widget.initialData['sintomasFisicosKeys'] != null) {
       _sintomasFisicosKeys = Set<String>.from(widget.initialData['sintomasFisicosKeys']);
-    } else if (widget.initialData['sintomasFisicos'] != null) {
-      _sintomasFisicosKeys = _mapSintomas(widget.initialData['sintomasFisicos'], _sintomasFisicosOptions, lang);
     }
     
     _sintomasEmocionalKeys = {};
     if (widget.initialData['sintomasEmocionalKeys'] != null) {
       _sintomasEmocionalKeys = Set<String>.from(widget.initialData['sintomasEmocionalKeys']);
-    } else if (widget.initialData['sintomasEmocionales'] != null) {
-      _sintomasEmocionalKeys = _mapSintomas(widget.initialData['sintomasEmocionales'], _sintomasEmocionalesOptions, lang);
+    }
+
+    _sintomasCicloKeys = {};
+    if (widget.initialData['sintomasCicloKeys'] != null) {
+      _sintomasCicloKeys = Set<String>.from(widget.initialData['sintomasCicloKeys']);
+    } else {
+      // Migrate from old physical symptoms if available
+      for (var k in _sintomasFisicosKeys) {
+        if (_sintomasCicloOptions.contains(k)) {
+          _sintomasCicloKeys.add(k);
+        }
+      }
     }
     
     _autoexamenMamaKey = widget.initialData['autoexamenMamaKey'] ?? 
@@ -96,24 +112,6 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     return 'breast_pending';
   }
 
-  Set<String> _mapSintomas(List<dynamic>? vals, List<String> validKeys, String lang) {
-    if (vals == null) return {};
-    Set<String> result = {};
-    for (var v in vals) {
-      if (validKeys.contains(v)) {
-        result.add(v);
-      } else {
-        for (var k in validKeys) {
-          if (AppTranslations.get('registration_form', k, lang) == v) {
-            result.add(k);
-            break;
-          }
-        }
-      }
-    }
-    return result;
-  }
-
   @override
   void dispose() {
     _diasDolorController.dispose();
@@ -122,20 +120,36 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
 
   void _save() {
     final lang = languageNotifier.currentLang;
+    
+    // Ensure legacy sets have the new cycle keys updated
+    final updatedFisicos = Set<String>.from(_sintomasFisicosKeys);
+    for (var opt in _sintomasCicloOptions) {
+      if (_sintomasCicloKeys.contains(opt)) {
+        updatedFisicos.add(opt);
+      } else {
+        updatedFisicos.remove(opt);
+      }
+    }
+
     Navigator.pop(context, {
       'nivelDolor': _nivelDolor,
       'caracterDolorKey': _caracterDolorKey,
       'diasDolor': _diasDolorController.text.trim(),
       'tratamientoKey': _tratamientoKey,
-      'sintomasFisicosKeys': _sintomasFisicosKeys.toList(),
+      'sintomasFisicosKeys': updatedFisicos.toList(),
       'sintomasEmocionalKeys': _sintomasEmocionalKeys.toList(),
+      'sintomasCicloKeys': _sintomasCicloKeys.toList(),
       'autoexamenMamaKey': _autoexamenMamaKey,
+      
+      'basalTemp': _basalTemp,
+      'lhTestResult': _lhTestResult,
+      'cervicalPosition': _cervicalPosition,
       
       // Backward compatibility keys
       'caracterDolor': AppTranslations.get('registration_form', _caracterDolorKey, lang),
       'tratamiento': AppTranslations.get('registration_form', _tratamientoKey, lang),
       'autoexamenMama': AppTranslations.get('registration_form', _autoexamenMamaKey, lang),
-      'sintomasFisicos': _sintomasFisicosKeys.map((k) => AppTranslations.get('registration_form', k, lang)).toList(),
+      'sintomasFisicos': updatedFisicos.map((k) => AppTranslations.get('registration_form', k, lang)).toList(),
       'sintomasEmocionales': _sintomasEmocionalKeys.map((k) => AppTranslations.get('registration_form', k, lang)).toList(),
     });
   }
@@ -158,56 +172,86 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     return '😭';
   }
 
-  Widget _buildSectionLabel(String text, IconData iconData) {
-    return Row(
-      children: [
-        Icon(iconData, color: Theme.of(context).bellotaColors.chilero, size: 18),
-        SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text, 
-            style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontSize: 14, fontWeight: FontWeight.bold)
+  Widget _buildSectionBadge(String text, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildDivider() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
-      child: Divider(color: Theme.of(context).bellotaColors.nancite, thickness: 1),
+  Widget _buildCard({required Widget child}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).bellotaColors.blanco,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: child,
     );
   }
 
-  Widget _buildChoiceChips({required List<String> options, required String selected, required Function(String) onSelected}) {
-    final lang = languageNotifier.currentLang;
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
-      children: options.map((opt) {
-        final isSelected = selected == opt;
-        return FilterChip(
-          showCheckmark: false,
-          label: Text(AppTranslations.get('registration_form', opt, lang)),
-          selected: isSelected,
-          onSelected: (_) => onSelected(opt),
-          selectedColor: Theme.of(context).bellotaColors.chilero,
-          backgroundColor: Theme.of(context).bellotaColors.nancite,
-          side: BorderSide.none,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          labelStyle: TextStyle(
-            color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+  Widget _buildTreatmentPills(String lang) {
+    return Row(
+      children: _tratamientoOptions.map((opt) {
+        final isSelected = _tratamientoKey == opt;
+        final color = isSelected ? Theme.of(context).bellotaColors.asuncion : Theme.of(context).bellotaColors.nancite;
+        final textColor = isSelected ? Colors.white : Theme.of(context).bellotaColors.textoMedio;
+        
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => setState(() => _tratamientoKey = opt),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                AppTranslations.get('registration_form', opt, lang),
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  color: textColor,
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
           ),
         );
       }).toList(),
     );
   }
 
-  Widget _buildMultiChoiceChips({required List<String> options, required Set<String> selected, required Function(String) onToggle}) {
-    final lang = languageNotifier.currentLang;
+  Widget _buildMultiChoiceChips({required List<String> options, required Set<String> selected, required Function(String) onToggle, required String lang}) {
     return Wrap(
       spacing: 8.0,
       runSpacing: 8.0,
@@ -222,10 +266,90 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
           backgroundColor: Theme.of(context).bellotaColors.nancite,
           side: BorderSide.none,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          labelStyle: TextStyle(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          labelStyle: GoogleFonts.poppins(
             color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildBreastExamGrid(String lang) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 2.5,
+      children: _autoexamenMamaOptions.map((opt) {
+        final isSelected = _autoexamenMamaKey == opt;
+        
+        IconData icon;
+        Color activeColor;
+        switch (opt) {
+          case 'breast_normal':
+            icon = Icons.check_circle_outline;
+            activeColor = Colors.green;
+            break;
+          case 'breast_lump':
+            icon = Icons.warning_amber_rounded;
+            activeColor = Colors.orange;
+            break;
+          case 'breast_localized_pain':
+            icon = Icons.pin_drop_outlined;
+            activeColor = Colors.red;
+            break;
+          case 'breast_skin_change':
+            icon = Icons.texture_outlined;
+            activeColor = Colors.purple;
+            break;
+          case 'breast_discharge':
+            icon = Icons.water_drop_outlined;
+            activeColor = Colors.blue;
+            break;
+          case 'breast_pending':
+          default:
+            icon = Icons.schedule_outlined;
+            activeColor = Colors.grey;
+            break;
+        }
+
+        final bgColor = isSelected ? activeColor.withValues(alpha: 0.15) : Theme.of(context).bellotaColors.nancite;
+        final iconColor = isSelected ? activeColor : Theme.of(context).bellotaColors.textoMedio;
+        final textColor = isSelected ? activeColor : Theme.of(context).bellotaColors.textoMedio;
+
+        return GestureDetector(
+          onTap: () => setState(() => _autoexamenMamaKey = opt),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(16),
+              border: isSelected ? Border.all(color: activeColor.withValues(alpha: 0.5), width: 1.5) : Border.all(color: Colors.transparent, width: 1.5),
+            ),
+            child: Row(
+              children: [
+                Icon(icon, color: iconColor, size: 20),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    AppTranslations.get('registration_form', opt, lang),
+                    style: GoogleFonts.poppins(
+                      color: textColor,
+                      fontSize: 11,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }).toList(),
@@ -237,211 +361,402 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).bellotaColors.basilica,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).bellotaColors.blanco,
-        elevation: 0,
-        leading: TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(AppTranslations.get('registration_form', 'cancel', lang), style: TextStyle(color: Theme.of(context).bellotaColors.textoDark)),
-        ),
-        leadingWidth: 80,
-        title: Text(
-          AppTranslations.get('registration_form', 'pain_and_symptoms', lang), 
-          style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16)
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: _save,
-            child: Text(AppTranslations.get('onboarding', 'confirm', lang), style: TextStyle(color: Theme.of(context).bellotaColors.chilero)),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(16.0),
-        children: [
-          Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).bellotaColors.blanco,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.07), 
-                  blurRadius: 16, 
-                  offset: Offset(0, 4)
-                ),
-              ],
+        return Scaffold(
+          backgroundColor: Theme.of(context).bellotaColors.basilica,
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).bellotaColors.blanco,
+            elevation: 0,
+            leading: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                AppTranslations.get('registration_form', 'cancel', lang),
+                style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark),
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionLabel(AppTranslations.get('registration_form', 'pain_level', lang), Icons.thermostat_rounded),
-                SizedBox(height: 16),
-                
-                // EVA Slider labels
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            leadingWidth: 80,
+            title: Text(
+              AppTranslations.get('registration_form', 'pain_and_symptoms', lang),
+              style: GoogleFonts.poppins(
+                color: Theme.of(context).bellotaColors.textoDark,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            centerTitle: true,
+            actions: [
+              TextButton(
+                onPressed: _save,
+                child: Text(
+                  AppTranslations.get('onboarding', 'confirm', lang),
+                  style: GoogleFonts.poppins(
+                    color: Theme.of(context).bellotaColors.chilero,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          body: ListView(
+            padding: const EdgeInsets.all(16.0),
+            physics: const BouncingScrollPhysics(),
+            children: [
+              // Nivel de dolor
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppTranslations.get('registration_form', 'pain_none', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_mild', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_moderate', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_severe', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
-                    Text(AppTranslations.get('registration_form', 'pain_incapacitating', lang), style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.textoMedio)),
+                    _buildSectionBadge(AppTranslations.get('registration_form', 'pain_level', lang), Icons.thermostat_rounded, Theme.of(context).bellotaColors.chilero),
+                    const SizedBox(height: 24),
+                    
+                    // Emoji central grande
+                    Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            _getPainEmoji(_nivelDolor),
+                            style: const TextStyle(fontSize: 64),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${_nivelDolor.toInt()} / 10',
+                            style: GoogleFonts.poppins(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).bellotaColors.chilero,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    SliderTheme(
+                      data: SliderThemeData(
+                        trackHeight: 12,
+                        activeTrackColor: Theme.of(context).bellotaColors.chilero,
+                        inactiveTrackColor: Theme.of(context).bellotaColors.nancite,
+                        thumbColor: Theme.of(context).bellotaColors.blanco,
+                        overlayColor: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.2),
+                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14, elevation: 4),
+                      ),
+                      child: Slider(
+                        value: _nivelDolor,
+                        min: 0,
+                        max: 10,
+                        divisions: 10,
+                        onChanged: (val) => setState(() => _nivelDolor = val),
+                      ),
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppTranslations.get('registration_form', 'pain_none', lang), style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
+                        Text(AppTranslations.get('registration_form', 'pain_incapacitating', lang), style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
+                      ],
+                    ),
+
+                    // Alerta clínica
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      height: _nivelDolor >= 8 ? null : 0,
+                      child: _nivelDolor >= 8
+                          ? Container(
+                              margin: const EdgeInsets.only(top: 20),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.3)),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.warning_amber_rounded, color: Theme.of(context).bellotaColors.chilero, size: 28),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      AppTranslations.get('registration_form', 'pain_alert_msg', lang),
+                                      style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.chilero, height: 1.4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   ],
                 ),
-                
-                // EVA Slider
-                SliderTheme(
-                  data: SliderThemeData(
-                    trackHeight: 8,
-                    activeTrackColor: Theme.of(context).bellotaColors.chilero,
-                    inactiveTrackColor: Theme.of(context).bellotaColors.nancite,
-                    thumbColor: Theme.of(context).bellotaColors.chilero,
-                    overlayColor: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.2),
-                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12),
-                  ),
-                  child: Slider(
-                    value: _nivelDolor,
-                    min: 0, 
-                    max: 10, 
-                    divisions: 10,
-                    onChanged: (val) => setState(() => _nivelDolor = val),
-                  ),
-                ),
-                
-                // EVA Emoji and Value
-                Center(
-                  child: Text(
-                    '${_getPainEmoji(_nivelDolor)} ${_nivelDolor.toInt()}/10',
-                    style: TextStyle(
-                      fontSize: 20, 
-                      fontWeight: FontWeight.bold, 
-                      color: Theme.of(context).bellotaColors.chilero
-                    ),
-                  ),
-                ),
-                
-                // Clinical Alert Banner
-                AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  height: _nivelDolor >= 8 ? null : 0,
-                  child: _nivelDolor >= 8 ? Container(
-                    margin: EdgeInsets.symmetric(vertical: 12),
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
+              ),
+
+              // Carácter del dolor
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionBadge(AppTranslations.get('registration_form', 'character', lang), Icons.category_outlined, Theme.of(context).bellotaColors.asuncion),
+                    const SizedBox(height: 16),
+                    Row(
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: Theme.of(context).bellotaColors.chilero, size: 20),
-                        SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            AppTranslations.get('registration_form', 'pain_alert_msg', lang), 
-                            style: TextStyle(fontSize: 12, color: Theme.of(context).bellotaColors.chilero, height: 1.4)
+                          child: GestureDetector(
+                            onTap: () => setState(() => _caracterDolorKey = 'incapacitating'),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                color: _caracterDolorKey == 'incapacitating' ? Colors.red.shade50 : Theme.of(context).bellotaColors.nancite,
+                                borderRadius: BorderRadius.circular(16),
+                                border: _caracterDolorKey == 'incapacitating' ? Border.all(color: Colors.red.shade200) : Border.all(color: Colors.transparent),
+                              ),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.personal_injury_rounded, color: _caracterDolorKey == 'incapacitating' ? Colors.red : Theme.of(context).bellotaColors.textoMedio, size: 32),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppTranslations.get('registration_form', 'incapacitating', lang),
+                                    style: GoogleFonts.poppins(
+                                      color: _caracterDolorKey == 'incapacitating' ? Colors.red.shade700 : Theme.of(context).bellotaColors.textoMedio,
+                                      fontWeight: _caracterDolorKey == 'incapacitating' ? FontWeight.w600 : FontWeight.w500,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _caracterDolorKey = 'not_incapacitating'),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                color: _caracterDolorKey == 'not_incapacitating' ? Colors.green.shade50 : Theme.of(context).bellotaColors.nancite,
+                                borderRadius: BorderRadius.circular(16),
+                                border: _caracterDolorKey == 'not_incapacitating' ? Border.all(color: Colors.green.shade200) : Border.all(color: Colors.transparent),
+                              ),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.directions_walk_rounded, color: _caracterDolorKey == 'not_incapacitating' ? Colors.green : Theme.of(context).bellotaColors.textoMedio, size: 32),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppTranslations.get('registration_form', 'not_incapacitating', lang),
+                                    style: GoogleFonts.poppins(
+                                      color: _caracterDolorKey == 'not_incapacitating' ? Colors.green.shade700 : Theme.of(context).bellotaColors.textoMedio,
+                                      fontWeight: _caracterDolorKey == 'not_incapacitating' ? FontWeight.w600 : FontWeight.w500,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ) : SizedBox.shrink(),
-                ),
-
-                _buildDivider(),
-
-                _buildSectionLabel(AppTranslations.get('registration_form', 'character', lang), Icons.category_outlined),
-                SizedBox(height: 8),
-                _buildChoiceChips(
-                  options: _caracterDolorOptions,
-                  selected: _caracterDolorKey,
-                  onSelected: (val) => setState(() => _caracterDolorKey = val),
-                ),
-                
-                _buildDivider(),
-
-                _buildSectionLabel(AppTranslations.get('registration_form', 'critical_pain_days', lang), Icons.calendar_today_rounded),
-                SizedBox(height: 8),
-                TextFormField(
-                  controller: _diasDolorController,
-                  decoration: InputDecoration(
-                    hintText: AppTranslations.get('registration_form', 'phase_days', lang),
-                    filled: true,
-                    fillColor: Theme.of(context).bellotaColors.basilica,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  ),
-                ),
-                
-                _buildDivider(),
-
-                _buildSectionLabel(AppTranslations.get('registration_form', 'treatment', lang), Icons.medical_services_outlined),
-                SizedBox(height: 8),
-                _buildChoiceChips(
-                  options: _tratamientoOptions,
-                  selected: _tratamientoKey,
-                  onSelected: (val) => setState(() => _tratamientoKey = val),
-                ),
-                
-                _buildDivider(),
-
-                _buildSectionLabel(AppTranslations.get('registration_form', 'physical_symptoms', lang), Icons.accessibility_new_rounded),
-                SizedBox(height: 8),
-                _buildMultiChoiceChips(
-                  options: _sintomasFisicosOptions,
-                  selected: _sintomasFisicosKeys,
-                  onToggle: (val) => _toggleSetItem(_sintomasFisicosKeys, val),
-                ),
-                
-                _buildDivider(),
-
-                _buildSectionLabel(AppTranslations.get('registration_form', 'emotional_symptoms', lang), Icons.psychology_outlined),
-                SizedBox(height: 8),
-                _buildMultiChoiceChips(
-                  options: _sintomasEmocionalesOptions,
-                  selected: _sintomasEmocionalKeys,
-                  onToggle: (val) => _toggleSetItem(_sintomasEmocionalKeys, val),
-                ),
-                
-                _buildDivider(),
-
-                _buildSectionLabel(AppTranslations.get('registration_form', 'breast_exam', lang), Icons.favorite_border_rounded),
-                SizedBox(height: 8),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  margin: EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).bellotaColors.asuncion.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Theme.of(context).bellotaColors.asuncion, size: 16),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          AppTranslations.get('registration_form', 'breast_exam_info', lang), 
-                          style: TextStyle(fontSize: 11, color: Theme.of(context).bellotaColors.asuncion)
-                        ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _diasDolorController,
+                      style: GoogleFonts.poppins(),
+                      decoration: InputDecoration(
+                        hintText: AppTranslations.get('registration_form', 'critical_pain_days', lang),
+                        hintStyle: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio),
+                        filled: true,
+                        fillColor: Theme.of(context).bellotaColors.basilica,
+                        prefixIcon: Icon(Icons.calendar_today_rounded, color: Theme.of(context).bellotaColors.textoMedio),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                _buildChoiceChips(
-                  options: _autoexamenMamaOptions,
-                  selected: _autoexamenMamaKey,
-                  onSelected: (val) => setState(() => _autoexamenMamaKey = val),
+              ),
+
+              // Tratamiento
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionBadge(AppTranslations.get('registration_form', 'treatment', lang), Icons.medical_services_outlined, Theme.of(context).bellotaColors.asuncion),
+                    const SizedBox(height: 16),
+                    _buildTreatmentPills(lang),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              // Síntomas específicos del ciclo
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionBadge('🩺 Síntomas específicos del ciclo', Icons.accessibility_new_rounded, Theme.of(context).bellotaColors.chiltoma),
+                    const SizedBox(height: 16),
+                    _buildMultiChoiceChips(
+                      options: _sintomasCicloOptions,
+                      selected: _sintomasCicloKeys,
+                      onToggle: (val) => _toggleSetItem(_sintomasCicloKeys, val),
+                      lang: lang,
+                    ),
+                  ],
+                ),
+              ),
+
+              // Otros (Fertilidad)
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionBadge('Otros', Icons.science_outlined, Theme.of(context).bellotaColors.melon),
+                    const SizedBox(height: 16),
+                    
+                    // Temperatura Basal
+                    Text(
+                      'Temperatura Basal',
+                      style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            initialValue: _basalTemp?.toString(),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            style: GoogleFonts.poppins(fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: 'Ej: 36.5',
+                              hintStyle: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio, fontSize: 13),
+                              suffixText: '°C',
+                              filled: true,
+                              fillColor: Theme.of(context).bellotaColors.nancite,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            ),
+                            onChanged: (val) {
+                              final numVal = double.tryParse(val.replaceAll(',', '.'));
+                              if (numVal != null && numVal >= 35.0 && numVal <= 42.0) {
+                                _basalTemp = numVal;
+                              } else if (val.isEmpty) {
+                                _basalTemp = null;
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Test de LH
+                    Text(
+                      'Test de LH (Ovulación)',
+                      style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: _lhTestOptions.map((opt) {
+                        final isSelected = _lhTestResult == opt;
+                        String label = '';
+                        switch (opt) {
+                          case 'negative': label = 'Negativo'; break;
+                          case 'positive': label = 'Positivo'; break;
+                          case 'peak': label = 'Pico'; break;
+                        }
+                        return FilterChip(
+                          showCheckmark: false,
+                          label: Text(label),
+                          selected: isSelected,
+                          onSelected: (_) => setState(() => _lhTestResult = isSelected ? null : opt),
+                          selectedColor: Theme.of(context).bellotaColors.melon,
+                          backgroundColor: Theme.of(context).bellotaColors.nancite,
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          labelStyle: GoogleFonts.poppins(
+                            color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
+                            fontSize: 13,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Posición Cervical
+                    Text(
+                      'Posición Cervical',
+                      style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 8.0,
+                      children: _cervicalPositionOptions.map((opt) {
+                        final isSelected = _cervicalPosition == opt;
+                        String label = '';
+                        switch (opt) {
+                          case 'low_firm': label = 'Bajo'; break;
+                          case 'mid': label = 'Medio'; break;
+                          case 'high_soft': label = 'Alto'; break;
+                        }
+                        return FilterChip(
+                          showCheckmark: false,
+                          label: Text(label),
+                          selected: isSelected,
+                          onSelected: (_) => setState(() => _cervicalPosition = isSelected ? null : opt),
+                          selectedColor: Theme.of(context).bellotaColors.chiltoma,
+                          backgroundColor: Theme.of(context).bellotaColors.nancite,
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          labelStyle: GoogleFonts.poppins(
+                            color: isSelected ? Colors.white : Theme.of(context).bellotaColors.textoDark,
+                            fontSize: 13,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Autoexamen de mama
+              _buildCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionBadge(AppTranslations.get('registration_form', 'breast_exam', lang), Icons.favorite_border_rounded, const Color(0xFFA566C1)),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFA566C1).withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.info_outline, color: Color(0xFFA566C1), size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              AppTranslations.get('registration_form', 'breast_exam_info', lang),
+                              style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFFA566C1)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildBreastExamGrid(lang),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-        },
+        );
+      },
     );
   }
 }
-

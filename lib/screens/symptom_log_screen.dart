@@ -30,6 +30,10 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   Map<String, dynamic> _patronSangrado = {};
   Map<String, dynamic> _dolorSintomatologia = {};
   String _notes = '';
+  double? _basalTemp;
+  String? _lhTestResult;
+  String? _cervicalPosition;
+  String? _mood;
   late TextEditingController _notesController;
   late DateTime _date;
   int? _userId;
@@ -93,6 +97,11 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           _notes = log['notes'] as String? ?? '';
           _notesController.text = _notes;
           
+          if (log['basal_temp'] != null) _basalTemp = (log['basal_temp'] as num).toDouble();
+          _lhTestResult = log['lh_test_result'] as String?;
+          _cervicalPosition = log['cervical_position'] as String?;
+          _mood = log['mood'] as String?;
+
           // Load bleeding pattern from SQLite (was SharedPreferences)
           _patronSangrado = {};
           if (log['bleeding_intensity'] != null) _patronSangrado['intensidadFlujo'] = log['bleeding_intensity'];
@@ -120,6 +129,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
       }
     }
   }
+
 
   Future<void> _saveAndAccept() async {
     final lang = languageNotifier.currentLang;
@@ -172,6 +182,10 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           sexo: _selectedSexo,
           flujo: _selectedFlujos,
           notes: _notes.isNotEmpty ? _notes : null,
+          basalTemp: _basalTemp,
+          lhTestResult: _lhTestResult,
+          cervicalPosition: _cervicalPosition,
+          mood: _mood,
           // Bleeding pattern data
           bleedingIntensity: _patronSangrado['intensidadFlujo'] as String?,
           clots: _patronSangrado['coagulos'] as String?,
@@ -280,14 +294,22 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   }
 
   Future<void> _openDolorSintomatologiaSelection() async {
+    final Map<String, dynamic> initialMap = Map.from(_dolorSintomatologia);
+    initialMap['basalTemp'] = _basalTemp;
+    initialMap['lhTestResult'] = _lhTestResult;
+    initialMap['cervicalPosition'] = _cervicalPosition;
+    
     final selected = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
-        builder: (context) => DolorSintomatologiaScreen(initialData: _dolorSintomatologia),
+        builder: (context) => DolorSintomatologiaScreen(initialData: initialMap),
       ),
     );
     if (selected != null) {
       setState(() {
+        _basalTemp = selected['basalTemp'] as double?;
+        _lhTestResult = selected['lhTestResult'] as String?;
+        _cervicalPosition = selected['cervicalPosition'] as String?;
         _dolorSintomatologia = selected;
       });
     }

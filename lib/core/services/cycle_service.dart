@@ -70,6 +70,8 @@ class CycleService {
     required int cycleDuration,
     required int periodDuration,
     List<DateTime>? allPeriodStarts,
+    List<Map<String, dynamic>>? fertilityData,
+    List<String>? medicalConditions,
   }) {
     if (lastPeriodStart == null) {
       return CycleInfo(
@@ -114,6 +116,10 @@ class CycleService {
     // Calcular días pasados desde el último periodo
     int diffDays = ref.difference(start).inDays;
     
+    if (medicalConditions?.contains('pcos') == true) {
+      irregular = true;
+    }
+
     int cycleDay;
     if (diffDays >= 0) {
       cycleDay = (diffDays % effectiveCycleDuration) + 1;
@@ -122,8 +128,31 @@ class CycleService {
       if (cycleDay > effectiveCycleDuration) cycleDay = 1;
     }
 
-    // Día de ovulación = duración del ciclo - 14
     int ovulationDay = effectiveCycleDuration - 14;
+
+    // Ajuste multi-señal: LH peak o shift de BBT
+    if (fertilityData != null && fertilityData.isNotEmpty) {
+      // 1. Priorizar LH Peak
+      for (var f in fertilityData) {
+        if (f['lh_test_result'] == 'peak') {
+          final fDate = DateTime.parse(f['date']);
+          if (fDate.isAfter(start) || fDate.isAtSameMomentAs(start)) {
+            final fDiff = fDate.difference(start).inDays;
+            if (fDiff < effectiveCycleDuration) {
+              ovulationDay = fDiff + 2; // Día siguiente al pico
+              break;
+            }
+          }
+        }
+      }
+      // 2. Si no hay LH, intentar con BBT
+      final bbtDay = _detectBBTShift(fertilityData, start, effectiveCycleDuration);
+      if (bbtDay != null) {
+        // BBT shift detectado, ovulación suele ser un día antes del shift
+        ovulationDay = bbtDay - 1;
+      }
+    }
+
     if (ovulationDay < 1) ovulationDay = effectiveCycleDuration ~/ 2; // fallback para ciclos muy cortos
 
     // Determinar fase
@@ -137,7 +166,10 @@ class CycleService {
     DateTime ovulationDate = currentCycleStart.add(Duration(days: ovulationDay - 1));
     
     // Fertile window (6-day window: ovulationDay - 5 to ovulationDay + 1)
-    DateTime fertileWindowStart = currentCycleStart.add(Duration(days: ovulationDay - 6));
+    int fertileWindowSize = medicalConditions?.contains('pcos') == true ? 8 : 6;
+    int fertileWindowPre = medicalConditions?.contains('pcos') == true ? 7 : 5;
+    
+    DateTime fertileWindowStart = currentCycleStart.add(Duration(days: ovulationDay - (fertileWindowPre + 1)));
     DateTime fertileWindowEnd = currentCycleStart.add(Duration(days: ovulationDay));
 
     int daysUntilNext = nextPeriod.difference(ref).inDays;
@@ -266,6 +298,48 @@ class CycleService {
       isRegular: isReg,
       cycleLengths: lengths.reversed.toList(), 
     );
+  }
+
+  /// Detecta el día de ovulación basado en el shift térmico de BBT.
+  /// Retorna el cycleDay estimado de ovulación, o null si no hay datos suficientes.
+  int? _detectBBTShift(List<Map<String, dynamic>> fertilityData, DateTime cycleStart, int effectiveCycleDuration) {
+    // Ordenar los datos cronológicamente
+    final sorted = List<Map<String, dynamic>>.from(fertilityData)
+      ..sort((a, b) => DateTime.parse(a['date']).compareTo(DateTime.parse(b['date'])));
+      
+    List<double> temps = [];
+    List<int> cycleDays = [];
+    
+    for (var f in sorted) {
+      if (f['basal_temp'] != null) {
+        final fDate = DateTime.parse(f['date']);
+        if (fDate.isAfter(cycleStart) || fDate.isAtSameMomentAs(cycleStart)) {
+          final diff = fDate.difference(cycleStart).inDays;
+          if (diff < effectiveCycleDuration) {
+            temps.add((f['basal_temp'] as num).toDouble());
+            cycleDays.add(diff + 1);
+          }
+        }
+      }
+    }
+
+    if (temps.length < 6) return null; // Necesita al menos 6 días previos para calcular promedio
+
+    for (int i = 5; i < temps.length - 2; i++) {
+      // Promedio de 6 días previos
+      double sum = 0;
+      for (int j = i - 5; j <= i; j++) {
+        sum += temps[j];
+      }
+      double avg6 = sum / 6;
+
+      // Check shift: 3 días seguidos al menos 0.2°C por encima del promedio
+      if (temps[i + 1] >= avg6 + 0.2 && temps[i + 2] >= avg6 + 0.2) {
+        // Encontrado shift
+        return cycleDays[i + 1];
+      }
+    }
+    return null;
   }
 }
 

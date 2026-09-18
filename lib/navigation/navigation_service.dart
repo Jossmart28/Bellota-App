@@ -10,6 +10,8 @@ import '../screens/personal_data_screen.dart';
 import '../screens/admin_panel_screen.dart';
 import '../screens/audit_dashboard_screen.dart';
 import '../screens/privacy_policy_screen.dart';
+import '../screens/birth_year_screen.dart';
+import '../screens/language_selection_screen.dart';
 
 /// Servicio de navegación que centraliza la lógica de redirección post-login.
 ///
@@ -59,12 +61,16 @@ abstract final class NavigationService {
 
       case 'usuario':
       default:
+        final languageSetupDone = prefs.getBool('language_setup_done') ?? false;
+        final privacyPolicyAccepted = prefs.getBool('privacy_policy_accepted') ?? false;
+        final birthYear = prefs.getInt('birth_year');
         final onboardingDone = prefs.getBool(AppKeys.onboardingDone) ?? false;
         final calendarTourDone = prefs.getBool(AppKeys.calendarTourDone) ?? false;
         final setupCompleted = prefs.getBool(AppKeys.setupCompleted) ?? false;
-        final privacyPolicyAccepted = prefs.getBool('privacy_policy_accepted') ?? false;
 
+        if (!languageSetupDone) return const LanguageSelectionScreen();
         if (!privacyPolicyAccepted) return const PrivacyPolicyScreen();
+        if (birthYear == null) return const BirthYearScreen();
         if (!onboardingDone) return const OnboardingScreen();
         if (!calendarTourDone) return const CalendarTourScreen();
         if (!setupCompleted) return const PersonalDataScreen();
@@ -72,12 +78,17 @@ abstract final class NavigationService {
     }
   }
 
-  /// Determina la pantalla raíz basándose en si hay sesión activa.
+  /// Determina la pantalla raíz basándose en si hay sesión activa y
+  /// configuraciones previas al login.
   ///
-  /// Usar en el splash para decidir entre ir a login o al home del usuario.
+  /// Usar en el splash para decidir entre ir a login, idioma o al home del usuario.
   static Widget resolveRootScreen(SharedPreferences prefs) {
+    final languageSetupDone = prefs.getBool('language_setup_done') ?? false;
+    if (!languageSetupDone) return const LanguageSelectionScreen();
+
     final isLoggedIn = prefs.getBool(AppKeys.isLoggedIn) ?? false;
     if (!isLoggedIn) return const LoginScreen();
+    
     return resolveHomeScreen(prefs);
   }
 

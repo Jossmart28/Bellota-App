@@ -6,7 +6,7 @@ import '../theme/bellota_colors.dart';
 class PatronSangradoScreen extends StatefulWidget {
   final Map<String, dynamic> initialData;
 
-  PatronSangradoScreen({super.key, required this.initialData});
+  const PatronSangradoScreen({super.key, required this.initialData});
 
   @override
   State<PatronSangradoScreen> createState() => _PatronSangradoScreenState();

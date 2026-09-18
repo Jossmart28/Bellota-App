@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -16,11 +17,15 @@ import 'cycle_service.dart';
 /// Registro diario: 4
 /// Periodo: 1, Ovulación: 2
 class NotifId {
-  static const int period = 1;
+  static const int periodDay5 = 10;
+  static const int periodDay3 = 11;
+  static const int periodDay1 = 12;
+  static const int periodDay0 = 13;
+  static const int periodConfirm = 14;
   static const int ovulation = 2;
   static const int dailyLog = 4;
-  static const int pillBase = 100;   // 100, 101, 102 …
-  static const int apptBase = 200;   // 200, 201, 202 …
+  static const int pillBase = 100;
+  static const int apptBase = 200;
 }
 
 
@@ -178,11 +183,21 @@ class NotificationService {
     final lastPeriodStart =
         await DatabaseHelper.instance.getLastPeriodStart(userId);
 
+    final allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
+    List<String> medicalConds = [];
+    if (profile['medical_conditions'] != null) {
+      try {
+        medicalConds = List<String>.from(jsonDecode(profile['medical_conditions'].toString()));
+      } catch (_) {}
+    }
+
     if (notifPeriodo && lastPeriodStart != null) {
-      await _schedulePeriodReminder(
+      await _schedulePeriodReminders(
         lastPeriodStart: lastPeriodStart,
         cycleDuration: cycleDuration,
         periodDuration: periodDuration,
+        allPeriodStarts: allPeriodStarts.isNotEmpty ? allPeriodStarts : null,
+        medicalConditions: medicalConds.isNotEmpty ? medicalConds : null,
         withSound: notifSonidos,
       );
     }
@@ -192,6 +207,8 @@ class NotificationService {
         lastPeriodStart: lastPeriodStart,
         cycleDuration: cycleDuration,
         periodDuration: periodDuration,
+        allPeriodStarts: allPeriodStarts.isNotEmpty ? allPeriodStarts : null,
+        medicalConditions: medicalConds.isNotEmpty ? medicalConds : null,
         withSound: notifSonidos,
       );
     }
@@ -270,10 +287,12 @@ class NotificationService {
   // Notificaciones individuales
   // ─────────────────────────────────────────────────────────────────────────
 
-  Future<void> _schedulePeriodReminder({
+  Future<void> _schedulePeriodReminders({
     required DateTime lastPeriodStart,
     required int cycleDuration,
     required int periodDuration,
+    List<DateTime>? allPeriodStarts,
+    List<String>? medicalConditions,
     required bool withSound,
   }) async {
     final cycleInfo = CycleService.instance.calculateCycleInfo(
@@ -281,54 +300,75 @@ class NotificationService {
       lastPeriodStart: lastPeriodStart,
       cycleDuration: cycleDuration,
       periodDuration: periodDuration,
+      allPeriodStarts: allPeriodStarts,
+      medicalConditions: medicalConditions,
     );
 
     final nextPeriod = cycleInfo.nextPeriodDate;
-    final reminderDate = nextPeriod.subtract(const Duration(days: 3));
-    final scheduledDate = tz.TZDateTime(
-      tz.local,
-      reminderDate.year,
-      reminderDate.month,
-      reminderDate.day,
-      9,
-      0,
-    );
 
-    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
+    // Helper para programar notificaciones
+    Future<void> schedule(int id, int daysOffset, String title, String body) async {
+      final reminderDate = nextPeriod.add(Duration(days: daysOffset));
+      final scheduledDate = tz.TZDateTime(
+        tz.local,
+        reminderDate.year,
+        reminderDate.month,
+        reminderDate.day,
+        9, // 9:00 AM
+        0,
+      );
 
-    await _plugin.zonedSchedule(
-      NotifId.period,
-      '🌸 Tu periodo se acerca',
-      'En 3 días comienza tu siguiente periodo. ¡Prepárate!',
-      scheduledDate,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'bellota_cycle',
-          'Recordatorios de Ciclo',
-          channelDescription: 'Avisos de periodo, ovulación y días fértiles',
-          importance: Importance.high,
-          priority: Priority.high,
-          playSound: withSound,
-          color: const Color(0xFFD46A63),
-          largeIcon:
-              const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+      await _plugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            'bellota_cycle',
+            'Recordatorios de Ciclo',
+            channelDescription: 'Avisos de periodo, ovulación y días fértiles',
+            importance: Importance.high,
+            priority: Priority.high,
+            playSound: withSound,
+            color: const Color(0xFFD46A63),
+            largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: withSound,
+          ),
         ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: withSound,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    }
+
+    // 1. 5 días antes
+    await schedule(NotifId.periodDay5, -5, '🌸 Se acerca tu periodo', 'Tu periodo debería comenzar en unos 5 días.');
+    
+    // 2. 3 días antes
+    await schedule(NotifId.periodDay3, -3, '🌸 Prepárate', 'Faltan aproximadamente 3 días para tu periodo.');
+    
+    // 3. 1 día antes
+    await schedule(NotifId.periodDay1, -1, '🌸 Mañana es el día', 'Tu periodo está previsto para mañana. ¡Ten todo listo!');
+    
+    // 4. Día 0
+    await schedule(NotifId.periodDay0, 0, '🌸 Día de periodo', 'Tu periodo debería comenzar hoy. ¿Ya comenzó?');
+    
+    // 5. +2 días (confirmación)
+    await schedule(NotifId.periodConfirm, 2, '🌸 ¿Cómo estás?', 'Tu periodo debía comenzar hace un par de días. No olvides registrarlo si ya empezó.');
   }
 
   Future<void> _scheduleOvulationReminder({
     required DateTime lastPeriodStart,
     required int cycleDuration,
     required int periodDuration,
+    List<DateTime>? allPeriodStarts,
+    List<String>? medicalConditions,
     required bool withSound,
   }) async {
     final cycleInfo = CycleService.instance.calculateCycleInfo(
@@ -336,6 +376,8 @@ class NotificationService {
       lastPeriodStart: lastPeriodStart,
       cycleDuration: cycleDuration,
       periodDuration: periodDuration,
+      allPeriodStarts: allPeriodStarts,
+      medicalConditions: medicalConditions,
     );
 
     final fertileStart = cycleInfo.fertileWindowStart;

@@ -1,4 +1,4 @@
-﻿import 'package:bellotadevelopment/l10n/app_translations.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
@@ -6,7 +6,7 @@ import '../theme/bellota_colors.dart';
 class SexoSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedSexo;
 
-  SexoSelectionScreen({super.key, required this.initialSelectedSexo});
+  const SexoSelectionScreen({super.key, required this.initialSelectedSexo});
 
   @override
   State<SexoSelectionScreen> createState() => _SexoSelectionScreenState();

@@ -2,6 +2,8 @@ import '../core/constants/app_keys.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -18,8 +20,12 @@ import '../core/models/user_model.dart';
 import '../core/services/auth_service.dart';
 import '../core/models/user_role.dart';
 import '../navigation/navigation_service.dart';
+import '../core/services/sync_service.dart';
 import 'admin_panel_screen.dart';
 import 'audit_dashboard_screen.dart';
+import '../widgets/botanical_divider.dart';
+import '../widgets/cozy_row_item.dart';
+import '../widgets/cozy_section_header.dart';
 
 /// Diseño fiel al mockup de referencia con paleta de colores Bellota.
 class ProfileScreen extends StatefulWidget {
@@ -881,175 +887,288 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
-    return SingleChildScrollView(
-      physics: ClampingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            SizedBox(height: 12),
-            _buildTopIcons(),
-            SizedBox(height: 8),
-            _buildAvatarSection(),
-            SizedBox(height: 28),
-            Container(
-              height: 1,
-              color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
-            ),
-            SizedBox(height: 20),
-            _buildHealthSection(),
-            SizedBox(height: 28),
-            Container(
-              height: 1,
-              color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
-            ),
-            SizedBox(height: 20),
-            _buildPreferencesSection(),
-            
-            if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
-              SizedBox(height: 28),
-              Container(
-                height: 1,
-                color: Color(0xFFE0D0C0).withValues(alpha: 0.5),
+        final colors = Theme.of(context).bellotaColors;
+        return SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            children: [
+              // ── Banner Header Cozy ──────────────────────────
+              _buildCozyProfileBanner(context, colors),
+              // ── Secciones con divisores botánicos ───────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 24),
+                    const BotanicalDivider(),
+                    const SizedBox(height: 20),
+                    _buildHealthSection(),
+                    const SizedBox(height: 20),
+                    const BotanicalDivider(),
+                    const SizedBox(height: 20),
+                    _buildPreferencesSection(),
+                    if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
+                      const SizedBox(height: 20),
+                      const BotanicalDivider(),
+                      const SizedBox(height: 20),
+                      _buildAdminSection(),
+                    ],
+                    const SizedBox(height: 20),
+                    const BotanicalDivider(),
+                    const SizedBox(height: 20),
+                    _buildDataSection(),
+                    const SizedBox(height: 20),
+                    const BotanicalDivider(opacity: 0.25),
+                    const SizedBox(height: 20),
+                    _buildLogoutButton(),
+                    const SizedBox(height: 36),
+                  ],
+                ),
               ),
-              SizedBox(height: 20),
-              _buildAdminSection(),
             ],
-
-            SizedBox(height: 28),
-            Container(
-              height: 1,
-              color: Colors.red.withValues(alpha: 0.15),
-            ),
-            SizedBox(height: 20),
-            _buildLogoutButton(),
-            SizedBox(height: 36),
-          ],
-        ),
-      ),
-    );
-        },
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildAdminSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Administración',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).bellotaColors.textoDark,
+  /// Banner superior del perfil — tarjeta cozy con borde de color y esquina decorativa
+  Widget _buildCozyProfileBanner(BuildContext context, BellotaColors colors) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      decoration: BoxDecoration(
+        color: colors.nancite,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: colors.melon.withValues(alpha: 0.25), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: colors.melon.withValues(alpha: 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Franja decorativa superior (como el borde de una postal)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 6,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
+                ),
+                gradient: LinearGradient(
+                  colors: [colors.melon.withValues(alpha: 0.7), colors.chilero.withValues(alpha: 0.7)],
                 ),
               ),
             ),
-          ],
+          ),
+          Positioned(
+            top: 10,
+            right: 10,
+            child: SvgPicture.asset(
+              'assets/decorations/profile_corner_deco.svg',
+              width: 52,
+              height: 52,
+              colorFilter: ColorFilter.mode(colors.chiltoma.withValues(alpha: 0.6), BlendMode.srcIn),
+            ),
+          ),
+          // Contenido del banner
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: colors.blanco.withValues(alpha: 0.7),
+                          border: Border.all(color: colors.nancite, width: 1),
+                        ),
+                        child: Icon(Icons.translate_rounded, size: 16, color: colors.textoDark),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: colors.chilero,
+                          boxShadow: [BoxShadow(color: colors.chilero.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 2))],
+                        ),
+                        child: const Icon(Icons.volume_up_rounded, size: 16, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildAvatarSection(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+  Widget _buildAdminSection() {
+    final colors = Theme.of(context).bellotaColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const CozySectionHeader(
+          title: 'Administración',
         ),
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         if (_currentUser!.isAdmin)
-          _buildHealthRow(
+          CozyRowItem(
             title: 'Panel de Administrador',
             value: 'Gestionar usuarios',
             onTap: () {
               NavigationService.goTo(context, const AdminPanelScreen());
             },
+            icon: Icons.admin_panel_settings_rounded,
+            iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
+            iconColor: colors.chilero,
           ),
-        if (_currentUser!.isAdmin) SizedBox(height: 8),
+        if (_currentUser!.isAdmin) const SizedBox(height: 8),
         if (_currentUser!.isAdmin || _currentUser!.isAuditor)
-          _buildHealthRow(
+          CozyRowItem(
             title: 'Registro de Auditoría',
             value: 'Ver logs',
             onTap: () {
               NavigationService.goTo(context, const AuditDashboardScreen());
             },
+            icon: Icons.list_alt_rounded,
+            iconBackgroundColor: colors.asuncion.withValues(alpha: 0.10),
+            iconColor: colors.asuncion,
           ),
       ],
     );
   }
+  
+  Widget _buildDataSection() {
+    final colors = Theme.of(context).bellotaColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const CozySectionHeader(
+          title: 'Mis Datos',
+        ),
+        const SizedBox(height: 14),
+        CozyRowItem(
+          title: 'Exportar Backup',
+          value: 'Guardar mis datos',
+          onTap: () async {
+            if (_userId != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Generando backup...')),
+              );
+              await SyncService.instance.exportAndShareBackup(_userId!);
+            }
+          },
+          icon: Icons.cloud_download_rounded,
+          iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
+          iconColor: colors.chilero,
+        ),
+        const SizedBox(height: 8),
+        CozyRowItem(
+          title: 'Importar Backup',
+          value: 'Restaurar datos',
+          onTap: () async {
+            if (_userId != null) {
+              final result = await SyncService.instance.importBackup(_userId!);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result ? 'Datos restaurados con éxito' : 'Error al restaurar datos'),
+                    backgroundColor: result ? Colors.green : Colors.red,
+                  ),
+                );
+                if (result) _loadProfile(); // recargar datos
+              }
+            }
+          },
+          icon: Icons.cloud_upload_rounded,
+          iconBackgroundColor: colors.asuncion.withValues(alpha: 0.10),
+          iconColor: colors.asuncion,
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildLogoutButton() {
-    return GestureDetector(
-      onTap: _handleLogout,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.red.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.red.withValues(alpha: 0.25), width: 1.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.logout_rounded, color: Colors.red, size: 20),
-            SizedBox(width: 10),
-            Text(
-              AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang),
-              style: GoogleFonts.poppins(
-                color: Colors.red,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+    bool isPressed = false;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        
+        return GestureDetector(
+          onTapDown: (_) => setState(() => isPressed = true),
+          onTapUp: (_) {
+            setState(() => isPressed = false);
+            _handleLogout();
+          },
+          onTapCancel: () => setState(() => isPressed = false),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: isPressed ? Colors.red.withValues(alpha: 0.12) : Colors.red.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: CustomPaint(
+              painter: _DashedBorderPainter(
+                color: Colors.red.withValues(alpha: 0.35),
+                radius: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnimatedRotation(
+                    turns: isPressed ? 0.25 : 0.0,
+                    duration: const Duration(milliseconds: 150),
+                    child: const Icon(Icons.logout_rounded, color: Colors.red, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.red,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 
-  Widget _buildTopIcons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        GestureDetector(
-          onTap: () {}, // Sin función
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 6,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(Icons.translate_rounded,
-                size: 18, color: Theme.of(context).bellotaColors.textoDark),
-          ),
-        ),
-        SizedBox(width: 10),
-        GestureDetector(
-          onTap: () {}, // Sin función
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context).bellotaColors.chilero,
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.3),
-                  blurRadius: 6,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child:
-                Icon(Icons.volume_up_rounded, size: 18, color: Colors.white),
-          ),
-        ),
-      ],
-    );
-  }
+
+
 
   Widget _buildAvatarSection() {
     return Column(
@@ -1168,200 +1287,165 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildHealthSection() {
+    final colors = Theme.of(context).bellotaColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Title + cat icon
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                AppTranslations.get('profile_and_report', 'health_profile', languageNotifier.currentLang),
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).bellotaColors.textoDark,
-                ),
-              ),
-            ),
-          ],
+        CozySectionHeader(
+          title: AppTranslations.get('profile_and_report', 'health_profile', languageNotifier.currentLang),
         ),
-        SizedBox(height: 14),
-        // Duración del ciclo
-        _buildHealthRow(
+        const SizedBox(height: 14),
+        CozyRowItem(
           title: AppTranslations.get('profile_and_report', 'cycle_duration', languageNotifier.currentLang),
           value: '$_cycleDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showCycleDurationPicker,
+          icon: Icons.autorenew_rounded,
+          iconBackgroundColor: colors.melon.withValues(alpha: 0.10),
+          iconColor: colors.melon,
         ),
-        SizedBox(height: 8),
-        // Duración de la menstruación
-        _buildHealthRow(
+        const SizedBox(height: 8),
+        CozyRowItem(
           title: AppTranslations.get('profile_and_report', 'period_duration', languageNotifier.currentLang),
           value: '$_periodDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
           onTap: _showPeriodDurationPicker,
+          icon: Icons.water_drop_outlined,
+          iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
+          iconColor: colors.chilero,
         ),
-        SizedBox(height: 8),
-        // Informe médico
-        _buildHealthRow(
+        const SizedBox(height: 8),
+        CozyRowItem(
           title: AppTranslations.get('profile_and_report', 'medical_report', languageNotifier.currentLang),
           value: AppTranslations.get('profile_and_report', 'generate', languageNotifier.currentLang),
           onTap: _generateMedicalReport,
+          icon: Icons.picture_as_pdf_outlined,
+          iconBackgroundColor: colors.chiltoma.withValues(alpha: 0.10),
+          iconColor: colors.chiltoma,
         ),
       ],
     );
   }
 
-  Widget _buildHealthRow({
-    required String title,
-    required String value,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).bellotaColors.textoDark,
-                ),
-              ),
-            ),
-            Text(
-              value,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).bellotaColors.melon,
-              ),
-            ),
-            SizedBox(width: 4),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.6),
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildPreferencesSection() {
+    final colors = Theme.of(context).bellotaColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppTranslations.get('profile_and_report', 'app_preferences', languageNotifier.currentLang),
-          style: GoogleFonts.poppins(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).bellotaColors.textoDark,
-          ),
+        CozySectionHeader(
+          title: AppTranslations.get('profile_and_report', 'app_preferences', languageNotifier.currentLang),
         ),
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         // Recordatorios y notificaciones
-        _buildPreferenceRow(
+        CozyRowItem(
           title: AppTranslations.get('profile_and_report', 'reminders_notifications', languageNotifier.currentLang),
-          value: null,
+          value: '',
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => NotificationsSettingsScreen(),
+                builder: (_) => const NotificationsSettingsScreen(),
               ),
             );
           },
+          icon: Icons.notifications_none_rounded,
+          iconBackgroundColor: colors.melon.withValues(alpha: 0.10),
+          iconColor: colors.melon,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         // Política de privacidad
-        _buildPreferenceRow(
+        CozyRowItem(
           title: AppTranslations.get('profile_and_report', 'privacy_policy', languageNotifier.currentLang),
-          value: null,
+          value: '',
           onTap: () {}, // Sin función
+          icon: Icons.shield_outlined,
+          iconBackgroundColor: colors.chiltoma.withValues(alpha: 0.10),
+          iconColor: colors.chiltoma,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         // Idioma
-        _buildPreferenceRow(
+        CozyRowItem(
           title: AppTranslations.get('profile_and_report', 'language', languageNotifier.currentLang),
           value: languageNotifier.currentLang == 'es' ? 'Español' : (languageNotifier.currentLang == 'mi' ? 'Miskito' : 'English'),
           onTap: () {}, // Sin función
+          icon: Icons.language_rounded,
+          iconBackgroundColor: colors.asuncion.withValues(alpha: 0.10),
+          iconColor: colors.asuncion,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ValueListenableBuilder<ThemeMode>(
           valueListenable: themeNotifier,
           builder: (_, mode, _) {
             final isDark = mode == ThemeMode.dark;
             return Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                color: colors.blanco,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: colors.nancite.withValues(alpha: 0.6),
+                  width: 1.0,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 6,
-                    offset: Offset(0, 2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: Row(
                 children: [
+                  // Ícono de apariencia
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: isDark 
+                        ? const Color(0xFF9B7FD4).withValues(alpha: 0.10) 
+                        : colors.melon.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                      size: 18,
+                      color: isDark ? const Color(0xFF9B7FD4) : colors.melon,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           AppTranslations.get('profile_and_report', 'appearance', languageNotifier.currentLang),
-                          style: GoogleFonts.poppins(
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).bellotaColors.textoDark,
+                            color: colors.textoDark,
                           ),
                         ),
                         Text(
-                          isDark ? AppTranslations.get('profile_and_report', AppKeys.darkMode, languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'light_mode', languageNotifier.currentLang),
-                          style: GoogleFonts.poppins(
+                          isDark 
+                            ? AppTranslations.get('profile_and_report', AppKeys.darkMode, languageNotifier.currentLang) 
+                            : AppTranslations.get('profile_and_report', 'light_mode', languageNotifier.currentLang),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 11,
-                            color: Theme.of(context).bellotaColors.textoMedio,
+                            color: colors.textoMedio,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Row(
-                    children: [
-                      Icon(
-                        isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                        size: 18,
-                        color: isDark ? Color(0xFF9B7FD4) : Theme.of(context).bellotaColors.melon,
-                      ),
-                      SizedBox(width: 8),
-                      Switch(
-                        value: isDark,
-                        onChanged: (_) => themeNotifier.toggle(),
-                        activeThumbColor: Color(0xFF9B7FD4),
-                        activeTrackColor: Color(0xFF9B7FD4).withValues(alpha: 0.3),
-                        inactiveThumbColor: Theme.of(context).bellotaColors.melon,
-                        inactiveTrackColor: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.3),
-                      ),
-                    ],
+                  Switch(
+                    value: isDark,
+                    onChanged: (_) {
+                      HapticFeedback.lightImpact();
+                      themeNotifier.toggle();
+                    },
+                    activeThumbColor: const Color(0xFF9B7FD4),
+                    activeTrackColor: const Color(0xFF9B7FD4).withValues(alpha: 0.3),
+                    inactiveThumbColor: colors.melon,
+                    inactiveTrackColor: colors.melon.withValues(alpha: 0.3),
                   ),
                 ],
               ),
@@ -1372,58 +1456,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPreferenceRow({
-    required String title,
-    String? value,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).bellotaColors.textoDark,
-                ),
-              ),
-            ),
-            if (value != null)
-              Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).bellotaColors.melon,
-                ),
-              ),
-            SizedBox(width: 4),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.4),
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _CustomThumbShape extends SliderComponentShape {
@@ -1487,6 +1519,47 @@ class _CustomThumbShape extends SliderComponentShape {
   }
 }
 
+// ──────────────────────────────────────────────────────
+// Painter para el borde discontinuo (dashed) del botón
+// ──────────────────────────────────────────────────────
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double radius;
+  _DashedBorderPainter({required this.color, required this.radius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+      
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height), 
+        Radius.circular(radius)
+      ));
+
+    const double dashWidth = 5;
+    const double dashSpace = 4;
+    double distance = 0;
+    
+    for (final metric in path.computeMetrics()) {
+      while (distance < metric.length) {
+        canvas.drawPath(
+          metric.extractPath(distance, distance + dashWidth),
+          paint,
+        );
+        distance += dashWidth + dashSpace;
+      }
+      distance = 0;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
+}
 
 
 

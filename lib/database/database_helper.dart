@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 
 import '../core/models/user_model.dart';
 import '../core/models/profile_model.dart';
@@ -27,7 +28,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: _onOpen,
@@ -48,7 +49,8 @@ class DatabaseHelper {
     final email = 'usm.unshowmas@gmail.com';
     final result = await db.query('users', where: 'email = ?', whereArgs: [email]);
     if (result.isEmpty) {
-      final hashed = _hashPassword('UsmAdmin26!');
+      final salt = _generateSalt();
+      final hashed = _hashPasswordSalted('UsmAdmin26!', salt);
       final userId = await db.insert('users', {
         'name': 'Administrador',
         'email': email,
@@ -159,6 +161,26 @@ class DatabaseHelper {
       await _createPillTimesTable(db);
       await _createWeeklyAppointmentsTable(db);
     }
+
+    if (oldVersion < 5) {
+      final profileCols = [
+        'ALTER TABLE profiles ADD COLUMN medical_conditions TEXT DEFAULT \'[]\'',
+        'ALTER TABLE profiles ADD COLUMN contraceptive TEXT DEFAULT NULL',
+      ];
+      for (final col in profileCols) {
+        try { await db.execute(col); } catch (_) {}
+      }
+      
+      final logCols = [
+        'ALTER TABLE daily_logs ADD COLUMN basal_temp REAL DEFAULT NULL',
+        'ALTER TABLE daily_logs ADD COLUMN lh_test_result TEXT DEFAULT NULL',
+        'ALTER TABLE daily_logs ADD COLUMN cervical_position TEXT DEFAULT NULL',
+        'ALTER TABLE daily_logs ADD COLUMN mood TEXT DEFAULT NULL',
+      ];
+      for (final col in logCols) {
+        try { await db.execute(col); } catch (_) {}
+      }
+    }
   }
 
   /// Migra datos de patrón de sangrado y dolor almacenados en SharedPreferences
@@ -239,6 +261,8 @@ class DatabaseHelper {
       notif_daily_log INTEGER DEFAULT 1,
       notif_log_hour INTEGER DEFAULT 21,
       notif_log_minute INTEGER DEFAULT 0,
+      medical_conditions TEXT DEFAULT '[]',
+      contraceptive TEXT DEFAULT NULL,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
     ''');
@@ -313,6 +337,10 @@ class DatabaseHelper {
       emotional_symptoms TEXT DEFAULT '[]',
       breast_exam TEXT DEFAULT NULL,
       notes TEXT DEFAULT NULL,
+      basal_temp REAL DEFAULT NULL,
+      lh_test_result TEXT DEFAULT NULL,
+      cervical_position TEXT DEFAULT NULL,
+      mood TEXT DEFAULT NULL,
       created_at TEXT NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
       UNIQUE (user_id, date)
@@ -348,6 +376,17 @@ class DatabaseHelper {
     return sha256.convert(bytes).toString();
   }
 
+  String _generateSalt() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  }
+
+  String _hashPasswordSalted(String password, String salt) {
+    final bytes = utf8.encode('\$salt\$password');
+    return '\$salt:\${sha256.convert(bytes)}';
+  }
+
   /// Registra un nuevo usuario con un rol opcional (por defecto 'usuario').
   Future<int> registerUser(
     String name,
@@ -360,10 +399,12 @@ class DatabaseHelper {
     }
 
     final db = await instance.database;
+    final salt = _generateSalt();
+    final hashed = _hashPasswordSalted(password, salt);
     final data = {
       'name': name,
       'email': email.trim().toLowerCase(),
-      'password_hash': _hashPassword(password),
+      'password_hash': hashed,
       'role': role,
       'is_active': 1,
       'created_at': DateTime.now().toIso8601String(),
@@ -393,18 +434,29 @@ class DatabaseHelper {
   // Iniciar sesión
   Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     final db = await instance.database;
-    final hashed = _hashPassword(password);
-
     final result = await db.query(
       'users',
-      where: 'email = ? AND password_hash = ? AND is_active = 1',
-      whereArgs: [email.trim().toLowerCase(), hashed],
+      where: 'email = ? AND is_active = 1',
+      whereArgs: [email.trim().toLowerCase()],
     );
-
-    if (result.isNotEmpty) {
-      return result.first;
+    if (result.isEmpty) return null;
+    
+    final stored = result.first['password_hash'] as String;
+    bool valid;
+    if (stored.contains(':')) {
+      final parts = stored.split(':');
+      final rehash = _hashPasswordSalted(password, parts[0]);
+      valid = rehash == stored;
+    } else {
+      valid = stored == _hashPassword(password);
+      if (valid) {
+        final salt = _generateSalt();
+        final newHash = _hashPasswordSalted(password, salt);
+        await db.update('users', {'password_hash': newHash},
+          where: 'id = ?', whereArgs: [result.first['id']]);
+      }
     }
-    return null;
+    return valid ? result.first : null;
   }
 
   // Verificar si un correo ya existe
@@ -830,6 +882,10 @@ class DatabaseHelper {
     List<String> emotionalSymptoms = const [],
     String? breastExam,
     String? notes,
+    double? basalTemp,
+    String? lhTestResult,
+    String? cervicalPosition,
+    String? mood,
   }) async {
     final db = await instance.database;
 
@@ -845,7 +901,8 @@ class DatabaseHelper {
         && isEmptyString(spottingDays) && isEmptyString(sexualSymptoms) 
         && (painLevel == null || painLevel == 0) && isEmptyString(painCharacter) && isEmptyString(painDays) 
         && isEmptyString(treatment) && physicalSymptoms.isEmpty && emotionalSymptoms.isEmpty 
-        && isEmptyString(breastExam) && isEmptyString(notes);
+        && isEmptyString(breastExam) && isEmptyString(notes)
+        && basalTemp == null && isEmptyString(lhTestResult) && isEmptyString(cervicalPosition) && isEmptyString(mood);
 
     if (isEmptyLog) {
       if (existing.isNotEmpty) {
@@ -875,6 +932,10 @@ class DatabaseHelper {
       'emotional_symptoms': jsonEncode(emotionalSymptoms),
       'breast_exam': breastExam,
       'notes': notes,
+      'basal_temp': basalTemp,
+      'lh_test_result': lhTestResult,
+      'cervical_position': cervicalPosition,
+      'mood': mood,
       'created_at': DateTime.now().toIso8601String(),
     };
 
@@ -1072,6 +1133,15 @@ class DatabaseHelper {
       'isRegular': isRegular,
       'count': starts.length,
     };
+  }
+
+  Future<List<String>> getTopSymptomsForPhase(
+    int userId,
+    String phaseName, {
+    int limit = 3,
+  }) async {
+    // This will be a stub for now, just return an empty list or some default values.
+    return ['mood_swings', 'sensitivity', 'fatigue'];
   }
 
   /// Calcula el promedio real de días de sangrado basándose en los registros consecutivos.
