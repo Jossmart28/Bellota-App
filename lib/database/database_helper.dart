@@ -28,7 +28,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
       onOpen: _onOpen,
@@ -58,6 +58,7 @@ class DatabaseHelper {
         'role': 'admin',
         'is_active': 1,
         'created_at': DateTime.now().toIso8601String(),
+        'language_pref': 'es',
       });
       await db.insert('profiles', {
         'user_id': userId,
@@ -87,7 +88,8 @@ class DatabaseHelper {
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'usuario',
       is_active INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL
+      created_at TEXT NOT NULL,
+      language_pref TEXT NOT NULL DEFAULT 'es'
     )
     ''');
     await _createProfilesTable(db);
@@ -180,6 +182,12 @@ class DatabaseHelper {
       for (final col in logCols) {
         try { await db.execute(col); } catch (_) {}
       }
+    }
+
+    if (oldVersion < 6) {
+      try {
+        await db.execute("ALTER TABLE users ADD COLUMN language_pref TEXT NOT NULL DEFAULT 'es'");
+      } catch (_) {}
     }
   }
 
@@ -393,6 +401,7 @@ class DatabaseHelper {
     String email,
     String password, {
     String role = 'usuario',
+    String languagePref = 'es',
   }) async {
     if (email.trim().toLowerCase() == 'usm.unshowmas@gmail.com') {
       throw Exception('Este correo está reservado y no puede ser registrado.');
@@ -408,6 +417,7 @@ class DatabaseHelper {
       'role': role,
       'is_active': 1,
       'created_at': DateTime.now().toIso8601String(),
+      'language_pref': languagePref,
     };
     final userId = await db.insert('users', data);
 
@@ -577,7 +587,7 @@ class DatabaseHelper {
     final db = await instance.database;
     return await db.query(
       'users',
-      columns: ['id', 'name', 'email', 'role', 'is_active', 'created_at'],
+      columns: ['id', 'name', 'email', 'role', 'is_active', 'created_at', 'language_pref'],
       orderBy: 'created_at DESC',
       limit: limit,
       offset: offset,
@@ -599,6 +609,17 @@ class DatabaseHelper {
     return await db.update(
       'users',
       {'role': newRole},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  /// Actualiza la preferencia de idioma de un usuario específico.
+  Future<int> updateUserLanguage(int userId, String languagePref) async {
+    final db = await instance.database;
+    return await db.update(
+      'users',
+      {'language_pref': languagePref},
       where: 'id = ?',
       whereArgs: [userId],
     );
@@ -1307,6 +1328,17 @@ class DatabaseHelper {
   // These are used by NotificationService — return domain models via maps
   Future<List<Map<String, dynamic>>> getPillTimes(int userId) => getPillTimesRaw(userId);
   Future<List<Map<String, dynamic>>> getWeeklyAppointments(int userId) => getWeeklyAppointmentsRaw(userId);
+
+  /// Actualiza la preferencia de idioma de una cuenta en la base de datos.
+  Future<void> updateLanguagePref(int userId, String lang) async {
+    final db = await instance.database;
+    await db.update(
+      'users',
+      {'language_pref': lang},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
 }
 
 

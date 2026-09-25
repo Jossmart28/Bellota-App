@@ -6,8 +6,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../theme/bellota_colors.dart';
-import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class MedicalReportPreviewScreen extends StatefulWidget {
   final Map<String, dynamic> reportData;
@@ -53,7 +53,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppTranslations.get('registration_form', 'share_pdf', languageNotifier.currentLang) + ' - Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.registrationFormSharePdf + ' - Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -383,8 +383,8 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppTranslations.get('profile_and_report','health_report_title',lang), style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.chilero)),
-                Text(AppTranslations.get('profile_and_report','health_report_subtitle',lang), style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
+                Text(AppLocalizations.of(context)!.profileAndReportHealthReportTitle, style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.chilero)),
+                Text(AppLocalizations.of(context)!.profileAndReportHealthReportSubtitle, style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
               ],
             )),
           ],
@@ -392,27 +392,27 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
         Divider(color: Theme.of(context).bellotaColors.chilero, thickness: 1.5, height: 24),
 
         // Section 1
-        _buildScreenSectionHeader(AppTranslations.get('profile_and_report','sec_general',lang)),
+        _buildScreenSectionHeader(AppLocalizations.of(context)!.profileAndReportSecGeneral),
         _buildScreenDataTable({
-          AppTranslations.get('profile_and_report','patient',lang): gen['paciente'],
-          AppTranslations.get('profile_and_report','age',lang): gen['edad'],
-          AppTranslations.get('profile_and_report','lmp',lang): gen['fum'],
-          AppTranslations.get('profile_and_report','analyzed_range',lang): gen['rango_analizado'],
-          AppTranslations.get('registration_form','total_cycles',lang): gen['total_ciclos']?.toString(),
-          AppTranslations.get('profile_and_report','contraceptives',lang): gen['anticonceptivos_medicamentos'],
-          AppTranslations.get('registration_form','location',lang): gen['ubicacion'],
+          AppLocalizations.of(context)!.profileAndReportPatient: gen['paciente'],
+          AppLocalizations.of(context)!.profileAndReportAge: gen['edad'],
+          AppLocalizations.of(context)!.profileAndReportLmp: gen['fum'],
+          AppLocalizations.of(context)!.profileAndReportAnalyzedRange: gen['rango_analizado'],
+          AppLocalizations.of(context)!.registrationFormTotalCycles: gen['total_ciclos']?.toString(),
+          AppLocalizations.of(context)!.profileAndReportContraceptives: gen['anticonceptivos_medicamentos'],
+          AppLocalizations.of(context)!.registrationFormLocation: gen['ubicacion'],
         }),
 
         // Section 2
         SizedBox(height: 16),
-        _buildScreenSectionHeader(AppTranslations.get('profile_and_report','sec_summary',lang)),
+        _buildScreenSectionHeader(AppLocalizations.of(context)!.profileAndReportSecSummary),
         // Metric cards row
         if (res['promedio_ciclo'] != null || res['promedio_sangrado'] != null)
           Row(
             children: [
               if (res['promedio_ciclo'] != null)
                 Expanded(child: _buildScreenMetricCard(
-                  AppTranslations.get('profile_and_report','cycle_average',lang),
+                  AppLocalizations.of(context)!.profileAndReportCycleAverage,
                   res['promedio_ciclo']['valor'].toString(),
                   res['promedio_ciclo']['referencia'].toString(),
                   res['promedio_ciclo']['estado'].toString(),
@@ -420,7 +420,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
               SizedBox(width: 8),
               if (res['promedio_sangrado'] != null)
                 Expanded(child: _buildScreenMetricCard(
-                  AppTranslations.get('profile_and_report','bleeding_average',lang),
+                  AppLocalizations.of(context)!.profileAndReportBleedingAverage,
                   res['promedio_sangrado']['valor'].toString(),
                   res['promedio_sangrado']['referencia'].toString(),
                   res['promedio_sangrado']['estado'].toString(),
@@ -429,7 +429,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
           ),
         SizedBox(height: 8),
         _buildScreenDataTable({
-          AppTranslations.get('profile_and_report','most_frequent_flow',lang): res['flujo_mas_frecuente'],
+          AppLocalizations.of(context)!.profileAndReportMostFrequentFlow: res['flujo_mas_frecuente'],
         }),
         if (res['sintomas_mas_frecuentes'] != null && (res['sintomas_mas_frecuentes'] as List).isNotEmpty)
           Padding(
@@ -437,7 +437,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
             child: Wrap(
               spacing: 6, runSpacing: 6,
               children: [
-                Text(AppTranslations.get('registration_form','top_symptoms',lang) + ':', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.textoDark)),
+                Text(AppLocalizations.of(context)!.registrationFormTopSymptoms + ':', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.textoDark)),
                 ...(res['sintomas_mas_frecuentes'] as List).map((s) => Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: Theme.of(context).bellotaColors.chilero.withValues(alpha:0.10), borderRadius: BorderRadius.circular(20)),
@@ -450,36 +450,36 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
         // Section 3
         if (pat.isNotEmpty) ...[
           SizedBox(height: 16),
-          _buildScreenSectionHeader(AppTranslations.get('profile_and_report','sec_pattern',lang)),
+          _buildScreenSectionHeader(AppLocalizations.of(context)!.profileAndReportSecPattern),
           _buildScreenDataTable({
-            AppTranslations.get('registration_form','flow_intensity_label',lang): pat['intensidad_flujo'],
-            AppTranslations.get('registration_form','clots_label',lang): pat['coagulos'],
-            AppTranslations.get('registration_form','spotting_label',lang): pat['manchado_intermenstrual'],
-            AppTranslations.get('registration_form','spotting_days_label',lang): pat['manchado_dias'],
-            AppTranslations.get('registration_form','sex_symptoms_label',lang): pat['sintomas_relaciones_sexuales'],
+            AppLocalizations.of(context)!.registrationFormFlowIntensityLabel: pat['intensidad_flujo'],
+            AppLocalizations.of(context)!.registrationFormClotsLabel: pat['coagulos'],
+            AppLocalizations.of(context)!.registrationFormSpottingLabel: pat['manchado_intermenstrual'],
+            AppLocalizations.of(context)!.registrationFormSpottingDaysLabel: pat['manchado_dias'],
+            AppLocalizations.of(context)!.registrationFormSexSymptomsLabel: pat['sintomas_relaciones_sexuales'],
           }),
         ],
 
         // Section 4
         if (dol.isNotEmpty) ...[
           SizedBox(height: 16),
-          _buildScreenSectionHeader(AppTranslations.get('profile_and_report','sec_pain',lang)),
+          _buildScreenSectionHeader(AppLocalizations.of(context)!.profileAndReportSecPain),
           // EVA bar
           if (dol['nivel_dolor_eva'] != null) _buildScreenEvaBar(dol['nivel_dolor_eva'].toString()),
           _buildScreenDataTable({
-            AppTranslations.get('registration_form','pain_character_label',lang): dol['caracter'],
-            AppTranslations.get('registration_form','pain_days_label',lang): dol['dias_dolor_critico'],
-            AppTranslations.get('registration_form','treatment_label',lang): dol['tratamiento'],
-            AppTranslations.get('registration_form','physical_symptoms_label',lang): dol['sintomas_fisicos'],
-            AppTranslations.get('registration_form','emotional_symptoms_label',lang): dol['sintomas_emocionales'],
-            AppTranslations.get('registration_form','breast_exam_label',lang): dol['autoexamen_mama'],
+            AppLocalizations.of(context)!.registrationFormPainCharacterLabel: dol['caracter'],
+            AppLocalizations.of(context)!.registrationFormPainDaysLabel: dol['dias_dolor_critico'],
+            AppLocalizations.of(context)!.registrationFormTreatmentLabel: dol['tratamiento'],
+            AppLocalizations.of(context)!.registrationFormPhysicalSymptomsLabel: dol['sintomas_fisicos'],
+            AppLocalizations.of(context)!.registrationFormEmotionalSymptomsLabel: dol['sintomas_emocionales'],
+            AppLocalizations.of(context)!.registrationFormBreastExamLabel: dol['autoexamen_mama'],
           }),
         ],
 
         // Section 5
         if (alertas.isNotEmpty) ...[
           SizedBox(height: 16),
-          _buildScreenSectionHeader(AppTranslations.get('profile_and_report','sec_alerts',lang)),
+          _buildScreenSectionHeader(AppLocalizations.of(context)!.profileAndReportSecAlerts),
           ...alertas.map((a) => _buildScreenAlertRow(a['tipo']?.toString() ?? '', a['detalle']?.toString() ?? '')),
         ],
 
@@ -639,7 +639,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
     return Scaffold(
       backgroundColor: Theme.of(context).bellotaColors.basilica,
       appBar: AppBar(
-        title: Text(AppTranslations.get('profile_and_report','preview',lang), style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontSize: 17, fontWeight: FontWeight.bold)),
+        title: Text(AppLocalizations.of(context)!.profileAndReportPreview, style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark, fontSize: 17, fontWeight: FontWeight.bold)),
         backgroundColor: Theme.of(context).bellotaColors.blanco,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -681,7 +681,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
               child: OutlinedButton.icon(
                 onPressed: (_isExporting || _isPrinting) ? null : _printPdf,
                 icon: Icon(Icons.print_rounded, size: 18),
-                label: Text(AppTranslations.get('registration_form','print_pdf',lang)),
+                label: Text(AppLocalizations.of(context)!.registrationFormPrintPdf),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Theme.of(context).bellotaColors.chilero,
                   side: BorderSide(color: Theme.of(context).bellotaColors.chilero),
@@ -696,7 +696,7 @@ class _MedicalReportPreviewScreenState extends State<MedicalReportPreviewScreen>
               child: ElevatedButton.icon(
                 onPressed: (_isExporting || _isPrinting) ? null : _exportPdf,
                 icon: Icon(Icons.picture_as_pdf_rounded, size: 18),
-                label: Text(AppTranslations.get('registration_form','share_pdf',lang)),
+                label: Text(AppLocalizations.of(context)!.registrationFormSharePdf),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).bellotaColors.chilero,
                   foregroundColor: Colors.white,

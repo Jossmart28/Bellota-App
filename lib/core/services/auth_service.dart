@@ -62,6 +62,7 @@ class AuthService {
     String email,
     String password, {
     UserRole role = UserRole.usuario,
+    String languagePref = 'es',
   }) async {
     final normalizedEmail = email.trim().toLowerCase();
 
@@ -72,6 +73,7 @@ class AuthService {
       normalizedEmail,
       password,
       role: role.name,
+      languagePref: languagePref,
     );
 
     // Construimos el modelo con los datos recién insertados.
@@ -82,6 +84,7 @@ class AuthService {
       role: role,
       isActive: true,
       createdAt: DateTime.now(),
+      languagePref: languagePref,
     );
   }
 
@@ -94,6 +97,7 @@ class AuthService {
   /// en este dispositivo otro usuario ya lo había completado.
   Future<void> resetOnboardingFlags() async {
     final prefs = await _sharedPrefs;
+    await prefs.remove('account_language_done');
     await prefs.remove('privacy_policy_accepted');
     await prefs.remove(AppKeys.onboardingDone);
     await prefs.remove(AppKeys.calendarTourDone);
@@ -209,7 +213,7 @@ class AuthService {
   ///
   /// Siempre muestra el selector de cuentas para que el usuario pueda
   /// elegir con qué cuenta de Google desea entrar.
-  Future<UserModel?> signInWithGoogle() async {
+  Future<UserModel?> signInWithGoogle({String languagePref = 'es'}) async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -257,4 +261,5 @@ class AuthService {
     }
   }
 }
+
 

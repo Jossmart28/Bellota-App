@@ -1,7 +1,7 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class SexoSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedSexo;
@@ -61,13 +61,13 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            AppTranslations.get('registration_form', 'cancel', lang),
+            AppLocalizations.of(context)!.registrationFormCancel,
             style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
           ),
         ),
         leadingWidth: 80,
         title: Text(
-          AppTranslations.get('registration_form', 'sex', lang),
+          AppLocalizations.of(context)!.registrationFormSex,
           style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         centerTitle: true,
@@ -77,7 +77,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
               Navigator.pop(context, _selectedSexoKeys.toList());
             },
             child: Text(
-              AppTranslations.get('onboarding', 'confirm', lang),
+              AppLocalizations.of(context)!.onboardingConfirm,
               style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
             ),
           ),
@@ -118,6 +118,16 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
     );
   }
 
+    String _translateSexOption(String key, BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'no_contraception': return loc.registrationFormNoContraception;
+      case 'condom': return loc.registrationFormCondom;
+      case 'no_ejaculation': return loc.registrationFormNoEjaculation;
+      case 'short_pill': return loc.registrationFormShortPill;
+      default: return key;
+    }
+  }
   Widget _buildSexoRow(String key, String lang) {
     final isSelected = _selectedSexoKeys.contains(key);
 
@@ -165,7 +175,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppTranslations.get('registration_form', key, lang),
+                    _translateSexOption(key, context),
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(context).bellotaColors.textoDark,
@@ -195,4 +205,5 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
     );
   }
 }
+
 

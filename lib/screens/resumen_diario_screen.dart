@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../core/services/cycle_service.dart';
@@ -183,7 +183,7 @@ class ResumenDiarioScreen extends StatelessWidget {
                                         ),
                                       )
                                     else
-                                      ...predictedSymptoms.map((s) => _buildSymptomItem(s)),
+                                      ...predictedSymptoms.map((s) => _buildSymptomItem(s, context)),
                                   ],
                                 ),
                               ),
@@ -276,18 +276,62 @@ class ResumenDiarioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSymptomItem(String symptomKey) {
-    // Translate the symptom
-    String translated = symptomKey;
-    final lang = languageNotifier.currentLang;
-    for (final cat in ['registration_form', 'symptoms_and_actions', 'symptoms']) {
-      final val = AppTranslations.get(cat, symptomKey, lang);
-      if (val != symptomKey) {
-        translated = val;
-        break;
-      }
+  String _translateSymptom(String key, BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    switch (key) {
+      // Whole Body
+      case 'fever': return loc.registrationFormFever;
+      case 'body_ache': return loc.registrationFormBodyAche;
+      case 'general_distension': return loc.registrationFormGeneralDistension;
+      case 'extreme_fatigue': return loc.registrationFormExtremeFatigue;
+      case 'water_retention': return loc.registrationFormWaterRetention;
+      case 'night_sweats': return loc.registrationFormNightSweats;
+      case 'hot_flashes': return loc.registrationFormHotFlashes;
+      case 'palpitations': return loc.registrationFormPalpitations;
+      case 'dizziness': return loc.registrationFormDizziness;
+      case 'joint_pain': return loc.registrationFormJointPain;
+      // Head
+      case 'headache': return loc.registrationFormHeadache;
+      case 'vertigo': return loc.registrationFormVertigo;
+      case 'insomnia': return loc.registrationFormInsomnia;
+      case 'vomiting': return loc.registrationFormVomiting;
+      case 'acne': return loc.registrationFormAcne;
+      case 'concentration_difficulty': return loc.registrationFormConcentrationDifficulty;
+      // Abdomen
+      case 'abdominal_pain': return loc.registrationFormAbdominalPain;
+      case 'abdominal_distension': return loc.registrationFormAbdominalDistension;
+      case 'bloating': return loc.registrationFormBloating;
+      case 'diarrhea': return loc.registrationFormDiarrhea;
+      case 'constipation': return loc.registrationFormConstipation;
+      case 'nausea': return loc.registrationFormNausea;
+      case 'pelvic_pain': return loc.registrationFormPelvicPain;
+      case 'lower_back_pain': return loc.registrationFormLowerBackPain;
+      case 'leg_cramps': return loc.registrationFormLegCramps;
+      // Other
+      case 'breast_tenderness': return loc.registrationFormBreastTenderness;
+      case 'abnormal_discharge': return loc.registrationFormAbnormalDischarge;
+      case 'spotting': return loc.registrationFormSpotting;
+      case 'appetite_changes': return loc.registrationFormAppetiteChanges;
+      case 'cravings': return loc.registrationFormCravings;
+      // Emotional
+      case 'irritability': return loc.registrationFormIrritability;
+      case 'sadness': return loc.registrationFormSadness;
+      case 'crying_easily': return loc.registrationFormCryingEasily;
+      case 'mood_swings': return loc.registrationFormMoodSwings;
+      case 'anxiety': return loc.registrationFormAnxiety;
+      case 'low_self_esteem': return loc.registrationFormLowSelfEsteem;
+      // Extra from older dictionary
+      case 'cramps': return loc.symptomsCramps;
+      case 'fatigue': return loc.symptomsFatigue;
+      case 'high_energy': return loc.symptomsHighEnergy;
+      case 'severe_pain': return loc.symptomsSeverePain;
+      case 'sensitivity': return loc.symptomsSensitivity;
+      default: return key.replaceAll('_', ' ');
     }
-    translated = translated.replaceAll('_', ' ');
+  }
+
+  Widget _buildSymptomItem(String symptomKey, BuildContext context) {
+    String translated = _translateSymptom(symptomKey, context);
     
     // Capitalize
     if (translated.isNotEmpty) {

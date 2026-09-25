@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_keys.dart';
-import '../core/models/user_role.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/onboarding_screen.dart';
@@ -11,6 +10,7 @@ import '../screens/admin_panel_screen.dart';
 import '../screens/audit_dashboard_screen.dart';
 import '../screens/privacy_policy_screen.dart';
 import '../screens/birth_year_screen.dart';
+import '../screens/account_language_screen.dart';
 import '../screens/language_selection_screen.dart';
 
 /// Servicio de navegación que centraliza la lógica de redirección post-login.
@@ -69,6 +69,7 @@ abstract final class NavigationService {
         final setupCompleted = prefs.getBool(AppKeys.setupCompleted) ?? false;
 
         if (!languageSetupDone) return const LanguageSelectionScreen();
+        if (!(prefs.getBool('account_language_done') ?? false)) return const AccountLanguageScreen();
         if (!privacyPolicyAccepted) return const PrivacyPolicyScreen();
         if (birthYear == null) return const BirthYearScreen();
         if (!onboardingDone) return const OnboardingScreen();
@@ -115,5 +116,7 @@ abstract final class NavigationService {
     );
   }
 }
+
+
 
 

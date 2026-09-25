@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
+import 'l10n/miskito_fallback_delegate.dart';
 
 import 'theme/bellota_theme.dart';
 import 'theme/theme_notifier.dart';
@@ -42,20 +44,23 @@ class BellotaApp extends StatelessWidget {
           valueListenable: themeNotifier,
           builder: (context, mode, _) {
             return MaterialApp(
-              title: 'Bellota · Calendario Menstrual',
+              title: 'Bellota - Calendario Menstrual',
+              color: const Color(0xFFFFFFFF),
               debugShowCheckedModeBanner: false,
               theme: BellotaTheme.lightTheme,
               darkTheme: BellotaTheme.darkTheme,
               themeMode: mode,
-              localizationsDelegates: const [
+                            localizationsDelegates: const [
+                AppLocalizations.delegate,
+                MiskitoMaterialLocalizationsDelegate(),
+                MiskitoCupertinoLocalizationsDelegate(),
+                MiskitoWidgetsLocalizationsDelegate(),
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              supportedLocales: const [
-                Locale('es'),
-                Locale('en'),
-              ],
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: Locale(lang),
               home: const SplashScreen(),
             );
           },
@@ -64,3 +69,6 @@ class BellotaApp extends StatelessWidget {
     );
   }
 }
+
+
+

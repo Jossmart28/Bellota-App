@@ -1,7 +1,8 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import '../theme/bellota_colors.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class FlujoVaginalSelectionScreen extends StatefulWidget {
   final List<String> initialSelectedFlujos;
@@ -72,7 +73,7 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        AppTranslations.get('registration_form', badgeKey, lang),
+        AppTranslations.get('registration_form', badgeKey, lang, context: context),
         style: TextStyle(
           color: color,
           fontSize: 11,
@@ -95,13 +96,13 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            AppTranslations.get('registration_form', 'cancel', lang),
+            AppLocalizations.of(context)!.registrationFormCancel,
             style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
           ),
         ),
         leadingWidth: 80,
         title: Text(
-          AppTranslations.get('registration_form', 'vaginal_flow', lang),
+          AppLocalizations.of(context)!.registrationFormVaginalFlow,
           style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         centerTitle: true,
@@ -111,7 +112,7 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
               Navigator.pop(context, _selectedFlujosKeys.toList());
             },
             child: Text(
-              AppTranslations.get('onboarding', 'confirm', lang),
+              AppLocalizations.of(context)!.onboardingConfirm,
               style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
             ),
           ),
@@ -165,7 +166,7 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppTranslations.get('registration_form', key, lang),
+                    AppTranslations.get('registration_form', key, lang, context: context),
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(context).bellotaColors.textoDark,
@@ -173,7 +174,7 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
                   ),
                   SizedBox(height: 4),
                   Text(
-                    AppTranslations.get('registration_form', '${key}_info', lang),
+                    AppLocalizations.of(context)!.registrationFormKeyInfo,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).bellotaColors.textoMedio,

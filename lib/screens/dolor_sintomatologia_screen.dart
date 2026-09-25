@@ -1,8 +1,9 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/bellota_colors.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class DolorSintomatologiaScreen extends StatefulWidget {
   final Map<String, dynamic> initialData;
@@ -89,7 +90,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     if (val == null) return 'not_incapacitating';
     if (_caracterDolorOptions.contains(val)) return val;
     for (var k in _caracterDolorOptions) {
-      if (AppTranslations.get('registration_form', k, lang) == val) return k;
+      if (AppTranslations.get('registration_form', k, lang, context: context) == val) return k;
     }
     return 'not_incapacitating';
   }
@@ -98,7 +99,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     if (val == null) return 'none';
     if (_tratamientoOptions.contains(val)) return val;
     for (var k in _tratamientoOptions) {
-      if (AppTranslations.get('registration_form', k, lang) == val) return k;
+      if (AppTranslations.get('registration_form', k, lang, context: context) == val) return k;
     }
     if (val.toLowerCase() == 'ninguno') return 'none';
     return 'none';
@@ -107,8 +108,8 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
   String _mapAutoexamenMama(String? val, String lang) {
     if (val == null) return 'breast_pending';
     if (_autoexamenMamaOptions.contains(val)) return val;
-    if (val == AppTranslations.get('registration_form', 'done', lang) || val.toLowerCase() == 'realizado') return 'breast_normal';
-    if (val == AppTranslations.get('registration_form', 'pending', lang) || val.toLowerCase() == 'pendiente') return 'breast_pending';
+    if (val == AppLocalizations.of(context)!.registrationFormDone || val.toLowerCase() == 'realizado') return 'breast_normal';
+    if (val == AppLocalizations.of(context)!.registrationFormPending || val.toLowerCase() == 'pendiente') return 'breast_pending';
     return 'breast_pending';
   }
 
@@ -146,11 +147,11 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
       'cervicalPosition': _cervicalPosition,
       
       // Backward compatibility keys
-      'caracterDolor': AppTranslations.get('registration_form', _caracterDolorKey, lang),
-      'tratamiento': AppTranslations.get('registration_form', _tratamientoKey, lang),
-      'autoexamenMama': AppTranslations.get('registration_form', _autoexamenMamaKey, lang),
-      'sintomasFisicos': updatedFisicos.map((k) => AppTranslations.get('registration_form', k, lang)).toList(),
-      'sintomasEmocionales': _sintomasEmocionalKeys.map((k) => AppTranslations.get('registration_form', k, lang)).toList(),
+      'caracterDolor': AppTranslations.get('registration_form', _caracterDolorKey, lang, context: context),
+      'tratamiento': AppTranslations.get('registration_form', _tratamientoKey, lang, context: context),
+      'autoexamenMama': AppTranslations.get('registration_form', _autoexamenMamaKey, lang, context: context),
+      'sintomasFisicos': updatedFisicos.map((k) => AppTranslations.get('registration_form', k, lang, context: context)).toList(),
+      'sintomasEmocionales': _sintomasEmocionalKeys.map((k) => AppTranslations.get('registration_form', k, lang, context: context)).toList(),
     });
   }
 
@@ -236,7 +237,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
               ),
               alignment: Alignment.center,
               child: Text(
-                AppTranslations.get('registration_form', opt, lang),
+                AppTranslations.get('registration_form', opt, lang, context: context),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: textColor,
@@ -259,7 +260,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
         final isSelected = selected.contains(opt);
         return FilterChip(
           showCheckmark: false,
-          label: Text(AppTranslations.get('registration_form', opt, lang)),
+          label: Text(AppTranslations.get('registration_form', opt, lang, context: context)),
           selected: isSelected,
           onSelected: (_) => onToggle(opt),
           selectedColor: Theme.of(context).bellotaColors.chilero,
@@ -338,7 +339,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    AppTranslations.get('registration_form', opt, lang),
+                    AppTranslations.get('registration_form', opt, lang, context: context),
                     style: GoogleFonts.poppins(
                       color: textColor,
                       fontSize: 11,
@@ -369,13 +370,13 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
             leading: TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                AppTranslations.get('registration_form', 'cancel', lang),
+                AppLocalizations.of(context)!.registrationFormCancel,
                 style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoDark),
               ),
             ),
             leadingWidth: 80,
             title: Text(
-              AppTranslations.get('registration_form', 'pain_and_symptoms', lang),
+              AppLocalizations.of(context)!.registrationFormPainAndSymptoms,
               style: GoogleFonts.poppins(
                 color: Theme.of(context).bellotaColors.textoDark,
                 fontWeight: FontWeight.bold,
@@ -387,7 +388,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
               TextButton(
                 onPressed: _save,
                 child: Text(
-                  AppTranslations.get('onboarding', 'confirm', lang),
+                  AppLocalizations.of(context)!.onboardingConfirm,
                   style: GoogleFonts.poppins(
                     color: Theme.of(context).bellotaColors.chilero,
                     fontWeight: FontWeight.bold,
@@ -405,7 +406,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionBadge(AppTranslations.get('registration_form', 'pain_level', lang), Icons.thermostat_rounded, Theme.of(context).bellotaColors.chilero),
+                    _buildSectionBadge(AppLocalizations.of(context)!.registrationFormPainLevel, Icons.thermostat_rounded, Theme.of(context).bellotaColors.chilero),
                     const SizedBox(height: 24),
                     
                     // Emoji central grande
@@ -451,8 +452,8 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(AppTranslations.get('registration_form', 'pain_none', lang), style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
-                        Text(AppTranslations.get('registration_form', 'pain_incapacitating', lang), style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
+                        Text(AppLocalizations.of(context)!.registrationFormPainNone, style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
+                        Text(AppLocalizations.of(context)!.registrationFormPainIncapacitating, style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).bellotaColors.textoMedio)),
                       ],
                     ),
 
@@ -475,7 +476,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      AppTranslations.get('registration_form', 'pain_alert_msg', lang),
+                                      AppLocalizations.of(context)!.registrationFormPainAlertMsg,
                                       style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.chilero, height: 1.4),
                                     ),
                                   ),
@@ -493,7 +494,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionBadge(AppTranslations.get('registration_form', 'character', lang), Icons.category_outlined, Theme.of(context).bellotaColors.asuncion),
+                    _buildSectionBadge(AppLocalizations.of(context)!.registrationFormCharacter, Icons.category_outlined, Theme.of(context).bellotaColors.asuncion),
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -513,7 +514,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                                   Icon(Icons.personal_injury_rounded, color: _caracterDolorKey == 'incapacitating' ? Colors.red : Theme.of(context).bellotaColors.textoMedio, size: 32),
                                   const SizedBox(height: 8),
                                   Text(
-                                    AppTranslations.get('registration_form', 'incapacitating', lang),
+                                    AppLocalizations.of(context)!.registrationFormIncapacitating,
                                     style: GoogleFonts.poppins(
                                       color: _caracterDolorKey == 'incapacitating' ? Colors.red.shade700 : Theme.of(context).bellotaColors.textoMedio,
                                       fontWeight: _caracterDolorKey == 'incapacitating' ? FontWeight.w600 : FontWeight.w500,
@@ -542,7 +543,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                                   Icon(Icons.directions_walk_rounded, color: _caracterDolorKey == 'not_incapacitating' ? Colors.green : Theme.of(context).bellotaColors.textoMedio, size: 32),
                                   const SizedBox(height: 8),
                                   Text(
-                                    AppTranslations.get('registration_form', 'not_incapacitating', lang),
+                                    AppLocalizations.of(context)!.registrationFormNotIncapacitating,
                                     style: GoogleFonts.poppins(
                                       color: _caracterDolorKey == 'not_incapacitating' ? Colors.green.shade700 : Theme.of(context).bellotaColors.textoMedio,
                                       fontWeight: _caracterDolorKey == 'not_incapacitating' ? FontWeight.w600 : FontWeight.w500,
@@ -561,7 +562,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                       controller: _diasDolorController,
                       style: GoogleFonts.poppins(),
                       decoration: InputDecoration(
-                        hintText: AppTranslations.get('registration_form', 'critical_pain_days', lang),
+                        hintText: AppLocalizations.of(context)!.registrationFormCriticalPainDays,
                         hintStyle: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio),
                         filled: true,
                         fillColor: Theme.of(context).bellotaColors.basilica,
@@ -578,7 +579,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionBadge(AppTranslations.get('registration_form', 'treatment', lang), Icons.medical_services_outlined, Theme.of(context).bellotaColors.asuncion),
+                    _buildSectionBadge(AppLocalizations.of(context)!.registrationFormTreatment, Icons.medical_services_outlined, Theme.of(context).bellotaColors.asuncion),
                     const SizedBox(height: 16),
                     _buildTreatmentPills(lang),
                   ],
@@ -727,7 +728,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionBadge(AppTranslations.get('registration_form', 'breast_exam', lang), Icons.favorite_border_rounded, const Color(0xFFA566C1)),
+                    _buildSectionBadge(AppLocalizations.of(context)!.registrationFormBreastExam, Icons.favorite_border_rounded, const Color(0xFFA566C1)),
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -742,7 +743,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              AppTranslations.get('registration_form', 'breast_exam_info', lang),
+                              AppLocalizations.of(context)!.registrationFormBreastExamInfo,
                               style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFFA566C1)),
                             ),
                           ),

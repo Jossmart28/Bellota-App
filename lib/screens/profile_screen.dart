@@ -2,6 +2,7 @@ import '../core/constants/app_keys.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +15,6 @@ import 'notifications_settings_screen.dart';
 import '../database/database_helper.dart';
 import 'login_screen.dart';
 import 'medical_report_preview_screen.dart';
-import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../core/models/user_model.dart';
 import '../core/services/auth_service.dart';
@@ -26,6 +26,7 @@ import 'audit_dashboard_screen.dart';
 import '../widgets/botanical_divider.dart';
 import '../widgets/cozy_row_item.dart';
 import '../widgets/cozy_section_header.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 /// Diseño fiel al mockup de referencia con paleta de colores Bellota.
 class ProfileScreen extends StatefulWidget {
@@ -109,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(width: 12),
             Text(
-              AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang),
+              AppLocalizations.of(context)!.profileAndReportLogout,
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w700,
                 fontSize: 17,
@@ -119,14 +120,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         content: Text(
-          AppTranslations.get('profile_and_report', 'logout_confirm', languageNotifier.currentLang),
+          AppLocalizations.of(context)!.profileAndReportLogoutConfirm,
           style: GoogleFonts.poppins(fontSize: 13, color: Theme.of(context).bellotaColors.textoMedio),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
-              AppTranslations.get('profile_and_report', 'cancel', languageNotifier.currentLang),
+              AppLocalizations.of(context)!.profileAndReportCancel,
               style: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio, fontWeight: FontWeight.w500),
             ),
           ),
@@ -138,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               minimumSize: Size(0, 38),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text(AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang), style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13)),
+            child: Text(AppLocalizations.of(context)!.profileAndReportLogout, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13)),
           ),
         ],
       ),
@@ -204,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 20),
               Text(
-                AppTranslations.get('profile_and_report', 'change_photo', languageNotifier.currentLang),
+                AppLocalizations.of(context)!.profileAndReportChangePhoto,
                 style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
@@ -223,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Icon(Icons.photo_library_outlined,
                       color: Theme.of(context).bellotaColors.melon),
                 ),
-                title: Text(AppTranslations.get('profile_and_report', 'gallery', languageNotifier.currentLang),
+                title: Text(AppLocalizations.of(context)!.profileAndReportGallery,
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).bellotaColors.textoDark)),
@@ -243,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Icon(Icons.camera_alt_outlined,
                       color: Theme.of(context).bellotaColors.chilero),
                 ),
-                title: Text(AppTranslations.get('profile_and_report', 'camera', languageNotifier.currentLang),
+                title: Text(AppLocalizations.of(context)!.profileAndReportCamera,
                     style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).bellotaColors.textoDark)),
@@ -264,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child:
                         Icon(Icons.delete_outline, color: Colors.red),
                   ),
-                  title: Text(AppTranslations.get('profile_and_report', 'delete_photo', languageNotifier.currentLang),
+                  title: Text(AppLocalizations.of(context)!.profileAndReportDeletePhoto,
                       style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w500, color: Colors.red)),
                   onTap: () async {
@@ -328,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Row(children: [
           CircularProgressIndicator(color: Theme.of(context).bellotaColors.chilero),
           SizedBox(width: 20),
-          Text(AppTranslations.get('profile_and_report', 'generating_report', languageNotifier.currentLang)),
+          Text(AppLocalizations.of(context)!.profileAndReportGeneratingReport),
         ]),
       ),
     );
@@ -347,7 +348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final List<DateTime> periodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(_userId!);
       final DateTime? lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(_userId!);
       final lang = languageNotifier.currentLang;
-      final notSpec = AppTranslations.get('profile_and_report', 'not_specified', lang);
+      final notSpec = AppLocalizations.of(context)!.profileAndReportNotSpecified;
 
       final cycleStats = await DatabaseHelper.instance.getCycleStatistics(_userId!);
       final double? promCicloReal = cycleStats['averageCycleLength'] as double?;
@@ -356,13 +357,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final double promSangrado = promSangradoReal ?? _periodDuration.toDouble();
 
       final String estadoCiclo = (promCiclo >= 21 && promCiclo <= 35)
-          ? AppTranslations.get('profile_and_report', 'normal', lang)
-          : AppTranslations.get('profile_and_report', 'irregular', lang);
+          ? AppLocalizations.of(context)!.profileAndReportNormal
+          : AppLocalizations.of(context)!.profileAndReportIrregular;
       final String estadoSangrado = promSangrado >= 3 && promSangrado <= 7
-          ? AppTranslations.get('profile_and_report', 'normal', lang)
+          ? AppLocalizations.of(context)!.profileAndReportNormal
           : (promSangrado > 7
-              ? AppTranslations.get('profile_and_report', 'prolonged', lang)
-              : AppTranslations.get('profile_and_report', 'short', lang));
+              ? AppLocalizations.of(context)!.profileAndReportProlonged
+              : AppLocalizations.of(context)!.profileAndReportShort);
 
       String fum = lastPeriod != null
           ? '${lastPeriod.day.toString().padLeft(2, '0')}/${lastPeriod.month.toString().padLeft(2, '0')}/${lastPeriod.year}'
@@ -409,8 +410,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'intensidadFlujo': log['bleeding_intensity'],
             'coagulos': log['clots'],
             'manchado': (log['spotting'] as int?) == 1
-                ? AppTranslations.get('registration_form', 'yes', lang)
-                : AppTranslations.get('registration_form', 'no', lang),
+                ? AppLocalizations.of(context)!.registrationFormYes
+                : AppLocalizations.of(context)!.registrationFormNo,
             'manchadoDias': log['spotting_days'],
             'sintomasSexuales': log['sexual_symptoms'],
           };
@@ -440,32 +441,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       List<Map<String, String>> alertas = [];
-      final String irregStr = AppTranslations.get('profile_and_report', 'irregular_cycles', lang);
+      final String irregStr = AppLocalizations.of(context)!.profileAndReportIrregularCycles;
       if (promCiclo < 21 || promCiclo > 35) {
-        alertas.add({'tipo': irregStr, 'detalle': AppTranslations.get('registration_form', 'alert_irregular_detail', lang).replaceAll('{value}', promCiclo.toStringAsFixed(0))});
+        alertas.add({'tipo': irregStr, 'detalle': AppLocalizations.of(context)!.registrationFormAlertIrregularDetail(promCiclo.toStringAsFixed(0))});
       } else {
-        alertas.add({'tipo': irregStr, 'detalle': AppTranslations.get('registration_form', 'normal_duration_detail', lang).replaceAll('{value}', promCiclo.toStringAsFixed(0))});
+        alertas.add({'tipo': irregStr, 'detalle': AppLocalizations.of(context)!.registrationFormNormalDurationDetail(promCiclo.toStringAsFixed(0))});
       }
-      final String prolonStr = AppTranslations.get('profile_and_report', 'prolonged_bleeding', lang);
+      final String prolonStr = AppLocalizations.of(context)!.profileAndReportProlongedBleeding;
       if (promSangrado > 7) {
-        alertas.add({'tipo': prolonStr, 'detalle': AppTranslations.get('registration_form', 'alert_bleeding_detail', lang).replaceAll('{value}', promSangrado.toInt().toString())});
+        alertas.add({'tipo': prolonStr, 'detalle': AppLocalizations.of(context)!.registrationFormAlertBleedingDetail(promSangrado.toInt().toString())});
       } else {
-        alertas.add({'tipo': prolonStr, 'detalle': AppTranslations.get('registration_form', 'normal_duration_detail', lang).replaceAll('{value}', promSangrado.toInt().toString())});
+        alertas.add({'tipo': prolonStr, 'detalle': AppLocalizations.of(context)!.registrationFormNormalDurationDetail(promSangrado.toInt().toString())});
       }
-      final String ameStr = AppTranslations.get('profile_and_report', 'amenorrhea', lang);
+      final String ameStr = AppLocalizations.of(context)!.profileAndReportAmenorrhea;
       if (lastPeriod == null) {
-        alertas.add({'tipo': ameStr, 'detalle': AppTranslations.get('registration_form', 'alert_amenorrhea_detail', lang)});
+        alertas.add({'tipo': ameStr, 'detalle': AppLocalizations.of(context)!.registrationFormAlertAmenorrheaDetail});
       } else {
-        alertas.add({'tipo': ameStr, 'detalle': AppTranslations.get('registration_form', 'no_alert_amenorrhea', lang).replaceAll('{value}', fum)});
+        alertas.add({'tipo': ameStr, 'detalle': AppLocalizations.of(context)!.registrationFormNoAlertAmenorrhea(fum)});
       }
       final nivelD = dolor['nivelDolor'];
-      final String alertPStr = AppTranslations.get('profile_and_report', 'alert_pain', lang);
+      final String alertPStr = AppLocalizations.of(context)!.profileAndReportAlertPain;
       if (nivelD != null && (nivelD as num) >= 8) {
-        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'alert_severe_pain_detail', lang).replaceAll('{value}', (nivelD).toStringAsFixed(0))});
+        alertas.add({'tipo': alertPStr, 'detalle': AppLocalizations.of(context)!.registrationFormAlertSeverePainDetail((nivelD).toStringAsFixed(0))});
       } else if (nivelD != null) {
-        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'pain_normal_range', lang).replaceAll('{value}', (nivelD).toStringAsFixed(0))});
+        alertas.add({'tipo': alertPStr, 'detalle': AppLocalizations.of(context)!.registrationFormPainNormalRange((nivelD).toStringAsFixed(0))});
       } else {
-        alertas.add({'tipo': alertPStr, 'detalle': AppTranslations.get('registration_form', 'no_pain_logged', lang)});
+        alertas.add({'tipo': alertPStr, 'detalle': AppLocalizations.of(context)!.registrationFormNoPainLogged});
       }
 
       Map<String, dynamic> filterNulls(Map<String, dynamic> m) {
@@ -480,7 +481,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'app': 'Bellota - Calendario Menstrual',
           'tipo': 'Reporte de salud menstrual y clínico ginecológico',
           'uso': 'Seguimiento y apoyo para consulta profesional',
-          'aviso': AppTranslations.get('registration_form', 'report_disclaimer', lang),
+          'aviso': AppLocalizations.of(context)!.registrationFormReportDisclaimer,
         },
         'seccion_1_informacion_general': filterNulls({
           'paciente': _userName,
@@ -494,13 +495,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }),
         'seccion_2_resumen_estadistico': filterNulls({
           'promedio_ciclo': {
-            'valor': '${promCiclo.toStringAsFixed(0)} ${AppTranslations.get('profile_and_report', 'days', lang)}',
-            'referencia': '21-35 ${AppTranslations.get('profile_and_report', 'days', lang)}',
+            'valor': '${promCiclo.toStringAsFixed(0)} ${AppLocalizations.of(context)!.profileAndReportDays}',
+            'referencia': '21-35 ${AppLocalizations.of(context)!.profileAndReportDays}',
             'estado': estadoCiclo,
           },
           'promedio_sangrado': {
-            'valor': '${promSangrado.toInt()} ${AppTranslations.get('profile_and_report', 'days', lang)}',
-            'referencia': '3-7 ${AppTranslations.get('profile_and_report', 'days', lang)}',
+            'valor': '${promSangrado.toInt()} ${AppLocalizations.of(context)!.profileAndReportDays}',
+            'referencia': '3-7 ${AppLocalizations.of(context)!.profileAndReportDays}',
             'estado': estadoSangrado,
           },
           'fum': fum,
@@ -550,7 +551,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${AppTranslations.get('profile_and_report', 'generating_report', languageNotifier.currentLang)} - Error: $e'),
+            content: Text('${AppLocalizations.of(context)!.profileAndReportGeneratingReport} - Error: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -585,7 +586,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 24),
                 Text(
-                  AppTranslations.get('profile_and_report', 'cycle_duration', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.profileAndReportCycleDuration,
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -594,7 +595,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  AppTranslations.get('profile_and_report', 'adjust_cycle', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.profileAndReportAdjustCycle,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
@@ -633,7 +634,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Text(
-                        AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang),
+                        AppLocalizations.of(context)!.profileAndReportDays,
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -662,7 +663,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     min: 20,
                     max: 45,
                     divisions: 25,
-                    label: '$tempValue ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
+                    label: '$tempValue ${AppLocalizations.of(context)!.profileAndReportDays}',
                     onChanged: (val) {
                       setModalState(() => tempValue = val.round());
                     },
@@ -673,11 +674,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('20 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
+                      Text('20 ${AppLocalizations.of(context)!.profileAndReportDays}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: Theme.of(context).bellotaColors.textoMedio)),
-                      Text('45 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
+                      Text('45 ${AppLocalizations.of(context)!.profileAndReportDays}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: Theme.of(context).bellotaColors.textoMedio)),
@@ -704,7 +705,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      AppTranslations.get('profile_and_report', 'save', languageNotifier.currentLang),
+                      AppLocalizations.of(context)!.profileAndReportSave,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -747,7 +748,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 24),
                 Text(
-                  AppTranslations.get('profile_and_report', 'period_duration', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.profileAndReportPeriodDuration,
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -756,7 +757,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  AppTranslations.get('profile_and_report', 'adjust_period', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.profileAndReportAdjustPeriod,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
@@ -795,7 +796,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Text(
-                        tempValue == 1 ? AppTranslations.get('profile_and_report', 'day', languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang),
+                        tempValue == 1 ? AppLocalizations.of(context)!.profileAndReportDay : AppLocalizations.of(context)!.profileAndReportDays,
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -824,7 +825,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     min: 1,
                     max: 10,
                     divisions: 9,
-                    label: '$tempValue ${tempValue == 1 ? AppTranslations.get('profile_and_report', 'day', languageNotifier.currentLang) : AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
+                    label: '$tempValue ${tempValue == 1 ? AppLocalizations.of(context)!.profileAndReportDay : AppLocalizations.of(context)!.profileAndReportDays}',
                     onChanged: (val) {
                       setModalState(() => tempValue = val.round());
                     },
@@ -835,11 +836,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('1 ${AppTranslations.get('profile_and_report', 'day', languageNotifier.currentLang)}',
+                      Text('1 ${AppLocalizations.of(context)!.profileAndReportDay}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: Theme.of(context).bellotaColors.textoMedio)),
-                      Text('10 ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
+                      Text('10 ${AppLocalizations.of(context)!.profileAndReportDays}',
                           style: GoogleFonts.poppins(
                               fontSize: 11,
                               color: Theme.of(context).bellotaColors.textoMedio)),
@@ -866,7 +867,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      AppTranslations.get('profile_and_report', 'save', languageNotifier.currentLang),
+                      AppLocalizations.of(context)!.profileAndReportSave,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -877,6 +878,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).bellotaColors.blanco,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.only(top: 12, left: 24, right: 24, bottom: 40),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                AppLocalizations.of(context)!.profileAndReportLanguage,
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).bellotaColors.textoDark,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildLanguageOption(ctx, 'es', 'Español'),
+              const SizedBox(height: 12),
+              _buildLanguageOption(ctx, 'en', 'English'),
+              const SizedBox(height: 12),
+              _buildLanguageOption(ctx, 'mi', 'Miskito'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption(BuildContext ctx, String code, String name) {
+    final isSelected = languageNotifier.currentLang == code;
+    return GestureDetector(
+      onTap: () {
+        languageNotifier.setLanguage(code);
+        Navigator.pop(ctx);
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).bellotaColors.asuncion.withValues(alpha: 0.15) : Theme.of(context).bellotaColors.blanco,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).bellotaColors.asuncion : Theme.of(context).bellotaColors.nancite,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              name,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: Theme.of(context).bellotaColors.textoDark,
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check_circle_rounded, color: Theme.of(context).bellotaColors.asuncion),
+          ],
         ),
       ),
     );
@@ -1151,7 +1234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    AppTranslations.get('profile_and_report', 'logout', languageNotifier.currentLang),
+                    AppLocalizations.of(context)!.profileAndReportLogout,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.red,
                       fontSize: 15,
@@ -1292,12 +1375,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CozySectionHeader(
-          title: AppTranslations.get('profile_and_report', 'health_profile', languageNotifier.currentLang),
+          title: AppLocalizations.of(context)!.profileAndReportHealthProfile,
         ),
         const SizedBox(height: 14),
         CozyRowItem(
-          title: AppTranslations.get('profile_and_report', 'cycle_duration', languageNotifier.currentLang),
-          value: '$_cycleDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
+          title: AppLocalizations.of(context)!.profileAndReportCycleDuration,
+          value: '$_cycleDuration ${AppLocalizations.of(context)!.profileAndReportDays}',
           onTap: _showCycleDurationPicker,
           icon: Icons.autorenew_rounded,
           iconBackgroundColor: colors.melon.withValues(alpha: 0.10),
@@ -1305,8 +1388,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 8),
         CozyRowItem(
-          title: AppTranslations.get('profile_and_report', 'period_duration', languageNotifier.currentLang),
-          value: '$_periodDuration ${AppTranslations.get('profile_and_report', 'days', languageNotifier.currentLang)}',
+          title: AppLocalizations.of(context)!.profileAndReportPeriodDuration,
+          value: '$_periodDuration ${AppLocalizations.of(context)!.profileAndReportDays}',
           onTap: _showPeriodDurationPicker,
           icon: Icons.water_drop_outlined,
           iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
@@ -1314,8 +1397,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 8),
         CozyRowItem(
-          title: AppTranslations.get('profile_and_report', 'medical_report', languageNotifier.currentLang),
-          value: AppTranslations.get('profile_and_report', 'generate', languageNotifier.currentLang),
+          title: AppLocalizations.of(context)!.profileAndReportMedicalReport,
+          value: AppLocalizations.of(context)!.profileAndReportGenerate,
           onTap: _generateMedicalReport,
           icon: Icons.picture_as_pdf_outlined,
           iconBackgroundColor: colors.chiltoma.withValues(alpha: 0.10),
@@ -1332,12 +1415,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CozySectionHeader(
-          title: AppTranslations.get('profile_and_report', 'app_preferences', languageNotifier.currentLang),
+          title: AppLocalizations.of(context)!.profileAndReportAppPreferences,
         ),
         const SizedBox(height: 14),
         // Recordatorios y notificaciones
         CozyRowItem(
-          title: AppTranslations.get('profile_and_report', 'reminders_notifications', languageNotifier.currentLang),
+          title: AppLocalizations.of(context)!.profileAndReportRemindersNotifications,
           value: '',
           onTap: () {
             Navigator.push(
@@ -1354,7 +1437,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 8),
         // Política de privacidad
         CozyRowItem(
-          title: AppTranslations.get('profile_and_report', 'privacy_policy', languageNotifier.currentLang),
+          title: AppLocalizations.of(context)!.profileAndReportPrivacyPolicy,
           value: '',
           onTap: () {}, // Sin función
           icon: Icons.shield_outlined,
@@ -1362,16 +1445,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           iconColor: colors.chiltoma,
         ),
         const SizedBox(height: 8),
-        // Idioma
-        CozyRowItem(
-          title: AppTranslations.get('profile_and_report', 'language', languageNotifier.currentLang),
-          value: languageNotifier.currentLang == 'es' ? 'Español' : (languageNotifier.currentLang == 'mi' ? 'Miskito' : 'English'),
-          onTap: () {}, // Sin función
-          icon: Icons.language_rounded,
-          iconBackgroundColor: colors.asuncion.withValues(alpha: 0.10),
-          iconColor: colors.asuncion,
-        ),
-        const SizedBox(height: 8),
+        /* Idioma suspendido temporalmente */
         ValueListenableBuilder<ThemeMode>(
           valueListenable: themeNotifier,
           builder: (_, mode, _) {
@@ -1417,7 +1491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppTranslations.get('profile_and_report', 'appearance', languageNotifier.currentLang),
+                          AppLocalizations.of(context)!.profileAndReportAppearance,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -1426,8 +1500,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         Text(
                           isDark 
-                            ? AppTranslations.get('profile_and_report', AppKeys.darkMode, languageNotifier.currentLang) 
-                            : AppTranslations.get('profile_and_report', 'light_mode', languageNotifier.currentLang),
+                            ? AppTranslations.get('profile_and_report', AppKeys.darkMode, languageNotifier.currentLang, context: context) 
+                            : AppLocalizations.of(context)!.profileAndReportLightMode,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 11,
                             color: colors.textoMedio,
@@ -1560,6 +1634,7 @@ class _DashedBorderPainter extends CustomPainter {
   bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
       oldDelegate.color != color || oldDelegate.radius != radius;
 }
+
 
 
 

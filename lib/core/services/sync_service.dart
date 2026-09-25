@@ -41,7 +41,7 @@ class SyncService {
       await file.writeAsString(jsonStr);
 
       // Compartir el archivo
-      final result = await Share.shareXFiles([XFile(path)], text: 'Mi backup de datos de Bellota');
+      await Share.shareXFiles([XFile(path)], text: 'Mi backup de datos de Bellota');
       
       return path; 
     } catch (e) {

@@ -1,6 +1,5 @@
 import '../core/constants/app_keys.dart';
 import 'dart:convert';
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +7,7 @@ import '../theme/bellota_colors.dart';
 import '../database/database_helper.dart';
 import '../widgets/bellota_icon.dart';
 import 'personal_data_screen.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 /// Full-screen calendar tour that overlays a tutorial on top of the calendar.
 /// Guides the user to mark the start of their last period.
@@ -33,31 +33,31 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
   List<String> get _dayNames {
     final lang = languageNotifier.currentLang;
     return [
-      AppTranslations.get('calendar', 'sun', lang),
-      AppTranslations.get('calendar', 'mon', lang),
-      AppTranslations.get('calendar', 'tue', lang),
-      AppTranslations.get('calendar', 'wed', lang),
-      AppTranslations.get('calendar', 'thu', lang),
-      AppTranslations.get('calendar', 'fri', lang),
-      AppTranslations.get('calendar', 'sat', lang),
+      AppLocalizations.of(context)!.calendarSun,
+      AppLocalizations.of(context)!.calendarMon,
+      AppLocalizations.of(context)!.calendarTue,
+      AppLocalizations.of(context)!.calendarWed,
+      AppLocalizations.of(context)!.calendarThu,
+      AppLocalizations.of(context)!.calendarFri,
+      AppLocalizations.of(context)!.calendarSat,
     ];
   }
 
   List<String> get _monthNames {
     final lang = languageNotifier.currentLang;
     return [
-      AppTranslations.get('calendar', 'jan', lang),
-      AppTranslations.get('calendar', 'feb', lang),
-      AppTranslations.get('calendar', 'mar', lang),
-      AppTranslations.get('calendar', 'apr', lang),
-      AppTranslations.get('calendar', 'may', lang),
-      AppTranslations.get('calendar', 'jun', lang),
-      AppTranslations.get('calendar', 'jul', lang),
-      AppTranslations.get('calendar', 'aug', lang),
-      AppTranslations.get('calendar', 'sep', lang),
-      AppTranslations.get('calendar', 'oct', lang),
-      AppTranslations.get('calendar', 'nov', lang),
-      AppTranslations.get('calendar', 'dec', lang),
+      AppLocalizations.of(context)!.calendarJan,
+      AppLocalizations.of(context)!.calendarFeb,
+      AppLocalizations.of(context)!.calendarMar,
+      AppLocalizations.of(context)!.calendarApr,
+      AppLocalizations.of(context)!.calendarMay,
+      AppLocalizations.of(context)!.calendarJun,
+      AppLocalizations.of(context)!.calendarJul,
+      AppLocalizations.of(context)!.calendarAug,
+      AppLocalizations.of(context)!.calendarSep,
+      AppLocalizations.of(context)!.calendarOct,
+      AppLocalizations.of(context)!.calendarNov,
+      AppLocalizations.of(context)!.calendarDec,
     ];
   }
 
@@ -208,7 +208,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                   ),
                 ),
                 Text(
-                  _tourStep == 0 ? AppTranslations.get('onboarding', 'lets_start', languageNotifier.currentLang) : AppTranslations.get('onboarding', 'tap_start_day', languageNotifier.currentLang),
+                  _tourStep == 0 ? AppLocalizations.of(context)!.onboardingLetsStart : AppLocalizations.of(context)!.onboardingTapStartDay,
                   style: TextStyle(
                     color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.7),
                     fontSize: 13,
@@ -373,7 +373,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                     ),
                     SizedBox(height: 4),
                     Text(
-                      AppTranslations.get('symptoms_and_actions', 'last_period_start', languageNotifier.currentLang),
+                      AppLocalizations.of(context)!.symptomsAndActionsLastPeriodStart,
                       style: TextStyle(
                         color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.7),
                         fontSize: 12,
@@ -399,7 +399,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   elevation: 4,
                 ),
-                child: Text(AppTranslations.get('onboarding', 'confirm', languageNotifier.currentLang), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                child: Text(AppLocalizations.of(context)!.onboardingConfirm, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ),
             ),
           ),
@@ -408,7 +408,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
           Padding(
             padding: EdgeInsets.only(bottom: 24),
             child: Text(
-              AppTranslations.get('onboarding', 'tap_last_period_start', languageNotifier.currentLang),
+              AppLocalizations.of(context)!.onboardingTapLastPeriodStart,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).bellotaColors.textoMedio,
@@ -438,7 +438,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               ),
               SizedBox(height: 32),
               Text(
-                AppTranslations.get('onboarding', 'welcome', languageNotifier.currentLang),
+                AppLocalizations.of(context)!.onboardingWelcome,
                 style: TextStyle(
                   color: Theme.of(context).bellotaColors.blanco,
                   fontSize: 24,
@@ -448,7 +448,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
               ),
               SizedBox(height: 16),
               Text(
-                AppTranslations.get('onboarding', 'instructions', languageNotifier.currentLang),
+                AppLocalizations.of(context)!.onboardingInstructions,
                 style: TextStyle(
                   color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.85),
                   fontSize: 15,
@@ -464,7 +464,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                       color: Theme.of(context).bellotaColors.nancite.withValues(alpha: 0.8), size: 28),
                   SizedBox(height: 4),
                   Text(
-                    AppTranslations.get('onboarding', 'calendar_is_below', languageNotifier.currentLang),
+                    AppLocalizations.of(context)!.onboardingCalendarIsBelow,
                     style: TextStyle(
                       color: Theme.of(context).bellotaColors.nancite.withValues(alpha: 0.7),
                       fontSize: 12,
@@ -485,7 +485,7 @@ class _CalendarTourScreenState extends State<CalendarTourScreen>
                     elevation: 6,
                   ),
                   child: Text(
-                    AppTranslations.get('onboarding', 'got_it_lets_go', languageNotifier.currentLang),
+                    AppLocalizations.of(context)!.onboardingGotItLetsGo,
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),

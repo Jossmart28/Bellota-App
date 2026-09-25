@@ -11,6 +11,7 @@ class UserModel {
   final UserRole role;
   final bool isActive;
   final DateTime createdAt;
+  final String languagePref;
 
   const UserModel({
     required this.id,
@@ -19,6 +20,7 @@ class UserModel {
     this.role = UserRole.usuario,
     this.isActive = true,
     required this.createdAt,
+    this.languagePref = 'es',
   });
 
   // ── Deserialización ────────────────────────────────────────────────────────
@@ -33,6 +35,7 @@ class UserModel {
       isActive: (map['is_active'] as int?) != 0,
       createdAt: DateTime.tryParse(map['created_at'] as String? ?? '') ??
           DateTime.now(),
+      languagePref: map['language_pref'] as String? ?? 'es',
     );
   }
 
@@ -59,6 +62,7 @@ class UserModel {
         'role': role.name,
         'is_active': isActive ? 1 : 0,
         'created_at': createdAt.toIso8601String(),
+        'language_pref': languagePref,
       };
 
   // ── Utilidades ─────────────────────────────────────────────────────────────
@@ -83,6 +87,7 @@ class UserModel {
     UserRole? role,
     bool? isActive,
     DateTime? createdAt,
+    String? languagePref,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -91,12 +96,13 @@ class UserModel {
       role: role ?? this.role,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
+      languagePref: languagePref ?? this.languagePref,
     );
   }
 
   @override
   String toString() =>
-      'UserModel(id: $id, name: $name, email: $email, role: ${role.name})';
+      'UserModel(id: $id, name: $name, email: $email, role: ${role.name}, lang: $languagePref)';
 
   @override
   bool operator ==(Object other) {
@@ -107,10 +113,11 @@ class UserModel {
         other.email == email &&
         other.role == role &&
         other.isActive == isActive &&
-        other.createdAt == createdAt;
+        other.createdAt == createdAt &&
+        other.languagePref == languagePref;
   }
 
   @override
-  int get hashCode => Object.hash(id, name, email, role, isActive, createdAt);
+  int get hashCode => Object.hash(id, name, email, role, isActive, createdAt, languagePref);
 }
 

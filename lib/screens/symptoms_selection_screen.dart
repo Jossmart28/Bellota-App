@@ -1,6 +1,6 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 import '../theme/bellota_colors.dart';
 
 class SymptomsSelectionScreen extends StatefulWidget {
@@ -155,8 +155,72 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     });
   }
 
-  String _getTranslated(String key) {
-    return AppTranslations.get('registration_form', key, languageNotifier.currentLang);
+  String _getTranslated(String key, BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'cancel': return loc.registrationFormCancel;
+      case 'symptoms': return loc.registrationFormSymptoms;
+      case 'selected_count': return loc.registrationFormSelectedCount;
+      case 'confirm': return loc.registrationFormConfirm;
+      case 'personalization': return loc.registrationFormPersonalization;
+      case 'custom_symptoms': return loc.registrationFormCustomSymptoms;
+      case 'press_enter': return loc.registrationFormPressEnter;
+      
+      // Categorías
+      case 'whole_body': return loc.registrationFormWholeBody;
+      case 'head': return loc.registrationFormHead;
+      case 'abdomen': return loc.registrationFormAbdomen;
+      case 'other': return loc.registrationFormOther;
+      case 'emotional': return loc.registrationFormEmotional;
+      
+      // Síntomas Whole Body
+      case 'fever': return loc.registrationFormFever;
+      case 'body_ache': return loc.registrationFormBodyAche;
+      case 'general_distension': return loc.registrationFormGeneralDistension;
+      case 'extreme_fatigue': return loc.registrationFormExtremeFatigue;
+      case 'water_retention': return loc.registrationFormWaterRetention;
+      case 'night_sweats': return loc.registrationFormNightSweats;
+      case 'hot_flashes': return loc.registrationFormHotFlashes;
+      case 'palpitations': return loc.registrationFormPalpitations;
+      case 'dizziness': return loc.registrationFormDizziness;
+      case 'joint_pain': return loc.registrationFormJointPain;
+      
+      // Síntomas Head
+      case 'headache': return loc.registrationFormHeadache;
+      case 'vertigo': return loc.registrationFormVertigo;
+      case 'insomnia': return loc.registrationFormInsomnia;
+      case 'vomiting': return loc.registrationFormVomiting;
+      case 'acne': return loc.registrationFormAcne;
+      case 'concentration_difficulty': return loc.registrationFormConcentrationDifficulty;
+      
+      // Síntomas Abdomen
+      case 'abdominal_pain': return loc.registrationFormAbdominalPain;
+      case 'abdominal_distension': return loc.registrationFormAbdominalDistension;
+      case 'bloating': return loc.registrationFormBloating;
+      case 'diarrhea': return loc.registrationFormDiarrhea;
+      case 'constipation': return loc.registrationFormConstipation;
+      case 'nausea': return loc.registrationFormNausea;
+      case 'pelvic_pain': return loc.registrationFormPelvicPain;
+      case 'lower_back_pain': return loc.registrationFormLowerBackPain;
+      case 'leg_cramps': return loc.registrationFormLegCramps;
+      
+      // Síntomas Other
+      case 'breast_tenderness': return loc.registrationFormBreastTenderness;
+      case 'abnormal_discharge': return loc.registrationFormAbnormalDischarge;
+      case 'spotting': return loc.registrationFormSpotting;
+      case 'appetite_changes': return loc.registrationFormAppetiteChanges;
+      case 'cravings': return loc.registrationFormCravings;
+      
+      // Síntomas Emotional
+      case 'irritability': return loc.registrationFormIrritability;
+      case 'sadness': return loc.registrationFormSadness;
+      case 'crying_easily': return loc.registrationFormCryingEasily;
+      case 'mood_swings': return loc.registrationFormMoodSwings;
+      case 'anxiety': return loc.registrationFormAnxiety;
+      case 'low_self_esteem': return loc.registrationFormLowSelfEsteem;
+      
+      default: return key;
+    }
   }
 
   @override
@@ -174,7 +238,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            _getTranslated('cancel'),
+            _getTranslated('', context),
             style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontSize: 16),
           ),
         ),
@@ -182,7 +246,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _getTranslated('symptoms'),
+              _getTranslated('', context),
               style: TextStyle(
                 color: Theme.of(context).bellotaColors.textoDark,
                 fontWeight: FontWeight.bold,
@@ -191,7 +255,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             ),
             if (_selectedSymptoms.isNotEmpty)
               Text(
-                '${_selectedSymptoms.length} ${_getTranslated('selected_count')}',
+                '${_selectedSymptoms.length} ${_getTranslated('', context)}',
                 style: TextStyle(
                   fontSize: 11,
                   color: Theme.of(context).bellotaColors.textoMedio,
@@ -219,7 +283,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
               Navigator.pop(context, _selectedSymptoms.toList());
             },
             child: Text(
-              _getTranslated('confirm'),
+              _getTranslated('', context),
               style: TextStyle(
                 color: Theme.of(context).bellotaColors.chilero,
                 fontSize: 16,
@@ -283,7 +347,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    _getTranslated(catKey),
+                    _getTranslated(catKey, context),
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -315,7 +379,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
               final symptom = symptoms[index];
               return _buildSymptomRow(
                 symptomKey: symptom['key'],
-                label: _getTranslated(symptom['key']),
+                label: _getTranslated(symptom['key'], context),
                 icon: symptom['icon'],
                 catColor: catColor,
               );
@@ -409,7 +473,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    _getTranslated('personalization'),
+                    _getTranslated('', context),
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -430,7 +494,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                   controller: _customSymptomController,
                   onSubmitted: (_) => _saveCustomSymptom(),
                   decoration: InputDecoration(
-                    hintText: _getTranslated('custom_symptoms'),
+                    hintText: _getTranslated('', context),
                     hintStyle: TextStyle(color: Theme.of(context).bellotaColors.textoMedio),
                     filled: true,
                     fillColor: Theme.of(context).bellotaColors.nancite,
@@ -447,7 +511,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  _getTranslated('press_enter'),
+                  _getTranslated('', context),
                   style: TextStyle(
                     fontSize: 11,
                     color: Theme.of(context).bellotaColors.textoMedio,

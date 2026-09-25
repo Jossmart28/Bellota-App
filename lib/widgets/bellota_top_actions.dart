@@ -37,31 +37,7 @@ class BellotaTopActions extends StatelessWidget {
           SizedBox(width: 6),
         ],
 
-        // 2. Botón de Idioma (Va en todas)
-        _buildCircleButton(
-          tooltip: 'Cambiar idioma',
-          child: ValueListenableBuilder<String>(
-            valueListenable: languageNotifier,
-            builder: (context, lang, _) {
-              return Text(
-                lang.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).bellotaColors.textoDark,
-                ),
-              );
-            }
-          ),
-          backgroundColor: Theme.of(context).bellotaColors.blanco,
-          onPressed: () {
-            languageNotifier.toggle();
-            if (onLanguagePressed != null) {
-              onLanguagePressed!();
-            }
-          },
-        ),
-        SizedBox(width: 6),
+
 
         // 3. Botón de TalkBack / Audio (Va en todas)
         _buildCircleButton(

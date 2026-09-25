@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/language_notifier.dart';
+import '../database/database_helper.dart';
 import '../theme/bellota_colors.dart';
 import '../navigation/navigation_service.dart';
+import '../core/constants/app_keys.dart';
 
-class LanguageSelectionScreen extends StatefulWidget {
-  const LanguageSelectionScreen({super.key});
+/// Pantalla de seleccion de idioma de la cuenta.
+/// Se muestra una sola vez, justo despues del registro y antes de la
+/// Politica de Privacidad. El idioma queda grabado en la base de datos.
+class AccountLanguageScreen extends StatefulWidget {
+  const AccountLanguageScreen({super.key});
 
   @override
-  State<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
+  State<AccountLanguageScreen> createState() => _AccountLanguageScreenState();
 }
 
-class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
+class _AccountLanguageScreenState extends State<AccountLanguageScreen> {
+  bool _loading = false;
+
   @override
   void initState() {
     super.initState();
@@ -28,12 +34,14 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
   }
 
   Future<void> _selectLanguage(String lang) async {
+    if (_loading) return;
+
     if (lang == 'mi') {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(
-            'Idioma en Construcción', 
+            'Idioma en Construcción',
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           content: Text(
@@ -61,12 +69,19 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
       if (confirm != true) return;
     }
 
+    setState(() => _loading = true);
     await languageNotifier.setLanguage(lang);
+    
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('language_setup_done', true);
-
+    final userId = prefs.getInt(AppKeys.userId);
+    if (userId != null) {
+      await DatabaseHelper.instance.updateLanguagePref(userId, lang);
+    }
+    
+    await prefs.setBool('account_language_done', true);
     if (!mounted) return;
-    final destination = NavigationService.resolveRootScreen(prefs);
+    
+    final destination = NavigationService.resolveHomeScreen(prefs);
     NavigationService.goReplace(context, destination);
   }
 
@@ -76,7 +91,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
       backgroundColor: Theme.of(context).bellotaColors.chilero,
       body: Stack(
         children: [
-          // Fondo decorativo
+          // Fondo decorativo idéntico al LanguageSelectionScreen original
           Positioned.fill(
             child: CustomPaint(painter: _BackgroundPainter(Theme.of(context).bellotaColors.blanco)),
           ),
@@ -92,7 +107,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                       image: AssetImage('assets/images/logo_white.png'),
                       width: 180,
                       fit: BoxFit.contain,
-                    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1),
+                    ),
                   ),
                 ),
                 Expanded(
@@ -103,6 +118,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.12),
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
+                      // Border idéntico a LanguageSelectionScreen
                       border: Border(
                         top: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
                         left: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
@@ -112,36 +128,63 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Chip "Paso 1 de 5"
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'Paso 1 de 5',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12, 
+                              color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.9), 
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         Text(
-                          "Elige tu idioma",
+                          "Elige el idioma para tu cuenta",
                           style: GoogleFonts.poppins(
-                            fontSize: 26,
+                            fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: Theme.of(context).bellotaColors.blanco,
+                            height: 1.2,
                           ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Choose your language",
+                          "Esta será la configuración permanente",
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75),
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 36),
                         
                         _buildLangCard('es', 'Español', 'Hola'),
-                        const SizedBox(height: 16),
-                        _buildLangCard('en', 'English', 'Hello'),
                         const SizedBox(height: 16),
                         _buildLangCard('mi', 'Miskitu', 'Naksa'),
                         
                         const Spacer(),
+                        if (_loading)
+                          Center(
+                            child: SizedBox(
+                              height: 24, 
+                              width: 24, 
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5, 
+                                color: Theme.of(context).bellotaColors.blanco,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
-                  ).animate().fadeIn(duration: 600.ms, delay: 200.ms).slideY(begin: 0.4, curve: Curves.easeOutCubic),
+                  ),
                 ),
               ],
             ),
@@ -171,13 +214,35 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).bellotaColors.blanco,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).bellotaColors.blanco,
+                      ),
+                    ),
+                    if (code == 'mi') ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2), 
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: Text(
+                          'Próximamente', 
+                          style: GoogleFonts.poppins(
+                            fontSize: 10, 
+                            color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.9), 
+                            fontWeight: FontWeight.w500
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 Text(
                   subtitle,

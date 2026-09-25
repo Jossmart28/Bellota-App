@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../widgets/bellota_top_actions.dart';
 import 'calendar_tour_screen.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -28,24 +28,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       _SlideData(
         gradient: [Color(0xFFD35D53), Color(0xFFE8897A)],
         imagePath: 'assets/images/slide1.png',
-        title: AppTranslations.get('onboarding_and_auth', 'slide1_title', lang),
-        subtitle: AppTranslations.get('onboarding_and_auth', 'slide1_sub', lang),
+        title: AppLocalizations.of(context)!.onboardingAndAuthSlide1Title,
+        subtitle: AppLocalizations.of(context)!.onboardingAndAuthSlide1Sub,
         decoration1: Color(0xFFFF8A80),
         decoration2: Color(0xFFFFCDD2),
       ),
       _SlideData(
         gradient: [Color(0xFFEE8658), Color(0xFFF7AD78)],
         imagePath: 'assets/images/slide2.png',
-        title: AppTranslations.get('onboarding_and_auth', 'slide2_title', lang),
-        subtitle: AppTranslations.get('onboarding_and_auth', 'slide2_sub', lang),
+        title: AppLocalizations.of(context)!.onboardingAndAuthSlide2Title,
+        subtitle: AppLocalizations.of(context)!.onboardingAndAuthSlide2Sub,
         decoration1: Color(0xFFFFCC80),
         decoration2: Color(0xFFFFF3E0),
       ),
       _SlideData(
         gradient: [Color(0xFF7A9EB5), Color(0xFFB0C4D8)],
         imagePath: 'assets/images/slide3.png',
-        title: AppTranslations.get('onboarding_and_auth', 'slide3_title', lang),
-        subtitle: AppTranslations.get('onboarding_and_auth', 'slide3_sub', lang),
+        title: AppLocalizations.of(context)!.onboardingAndAuthSlide3Title,
+        subtitle: AppLocalizations.of(context)!.onboardingAndAuthSlide3Sub,
         decoration1: Color(0xFF90CAF9),
         decoration2: Color(0xFFE3F2FD),
       ),
@@ -151,7 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             TextButton(
                               onPressed: _finish,
                               child: Text(
-                                AppTranslations.get('onboarding_and_auth', 'skip', lang),
+                                AppLocalizations.of(context)!.onboardingAndAuthSkip,
                                 style: GoogleFonts.poppins(
                                   color: Colors.white70,
                                   fontSize: 14,
@@ -235,8 +235,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                     children: [
                                       Text(
                                         _currentPage < slidesList.length - 1
-                                            ? AppTranslations.get('onboarding_and_auth', 'continue', lang)
-                                            : AppTranslations.get('onboarding_and_auth', 'start', lang),
+                                            ? AppLocalizations.of(context)!.onboardingAndAuthContinue
+                                            : AppLocalizations.of(context)!.onboardingAndAuthStart,
                                         style: GoogleFonts.poppins(
                                           color: slide.gradient.first,
                                           fontSize: 17,

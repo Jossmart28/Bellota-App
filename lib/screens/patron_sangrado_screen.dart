@@ -1,7 +1,8 @@
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import '../theme/bellota_colors.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class PatronSangradoScreen extends StatefulWidget {
   final Map<String, dynamic> initialData;
@@ -52,10 +53,10 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
       'sintomasSexualesKeys': _sintomasSexualesKeys.toList(),
       'colorSangradoKey': _colorSangradoKey,
       // Backwards compatibility
-      'intensidadFlujo': AppTranslations.get('registration_form', _intensidadFlujoKey, lang),
-      'coagulos': AppTranslations.get('registration_form', _coagulosKey, lang),
-      'manchado': AppTranslations.get('registration_form', _manchadoKey, lang),
-      'sintomasSexuales': _sintomasSexualesKeys.map((k) => AppTranslations.get('registration_form', k, lang)).join(', '),
+      'intensidadFlujo': AppTranslations.get('registration_form', _intensidadFlujoKey, lang, context: context),
+      'coagulos': AppTranslations.get('registration_form', _coagulosKey, lang, context: context),
+      'manchado': AppTranslations.get('registration_form', _manchadoKey, lang, context: context),
+      'sintomasSexuales': _sintomasSexualesKeys.map((k) => AppTranslations.get('registration_form', k, lang, context: context)).join(', '),
     });
   }
 
@@ -95,7 +96,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
       runSpacing: 8.0,
       children: optionKeys.map((key) {
         final isSelected = selectedKey == key;
-        final label = AppTranslations.get('registration_form', key, lang);
+        final label = AppTranslations.get('registration_form', key, lang, context: context);
         return ChoiceChip(
           label: prefixes != null && prefixes.containsKey(key)
               ? Row(
@@ -136,7 +137,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
       runSpacing: 8.0,
       children: optionKeys.map((key) {
         final isSelected = selectedKeys.contains(key);
-        final label = AppTranslations.get('registration_form', key, lang);
+        final label = AppTranslations.get('registration_form', key, lang, context: context);
         return FilterChip(
           label: Text(label),
           selected: isSelected,
@@ -170,13 +171,13 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            AppTranslations.get('registration_form', 'cancel', lang),
+            AppLocalizations.of(context)!.registrationFormCancel,
             style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
           ),
         ),
         leadingWidth: 80,
         title: Text(
-          AppTranslations.get('registration_form', 'bleeding_pattern', lang),
+          AppLocalizations.of(context)!.registrationFormBleedingPattern,
           style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         centerTitle: true,
@@ -184,7 +185,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
           TextButton(
             onPressed: _save,
             child: Text(
-              AppTranslations.get('onboarding', 'confirm', lang),
+              AppLocalizations.of(context)!.onboardingConfirm,
               style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
             ),
           ),
@@ -209,7 +210,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLabel(AppTranslations.get('registration_form', 'flow_intensity', lang)),
+                _buildLabel(AppLocalizations.of(context)!.registrationFormFlowIntensity),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   optionKeys: ['light_flow', 'moderate_flow', 'heavy_flow'],
@@ -223,7 +224,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel(AppTranslations.get('registration_form', 'blood_color', lang)),
+                _buildLabel(AppLocalizations.of(context)!.registrationFormBloodColor),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   optionKeys: ['bright_red', 'dark_red', 'brown', 'pink'],
@@ -232,7 +233,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel(AppTranslations.get('registration_form', 'clots', lang)),
+                _buildLabel(AppLocalizations.of(context)!.registrationFormClots),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   optionKeys: ['never', 'occasional', 'frequent'],
@@ -241,7 +242,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                 ),
                 SizedBox(height: 24),
 
-                _buildLabel(AppTranslations.get('registration_form', 'intermenstrual_spotting', lang)),
+                _buildLabel(AppLocalizations.of(context)!.registrationFormIntermenstrualSpotting),
                 SizedBox(height: 8),
                 _buildSingleChoiceChips(
                   optionKeys: ['no', 'yes'],
@@ -254,7 +255,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                     controller: _manchadoDiasController,
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
-                      hintText: AppTranslations.get('registration_form', 'cycle_days', lang),
+                      hintText: AppLocalizations.of(context)!.registrationFormCycleDays,
                       filled: true,
                       fillColor: Theme.of(context).bellotaColors.nancite,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -263,7 +264,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
                 ],
                 SizedBox(height: 24),
 
-                _buildLabel(AppTranslations.get('registration_form', 'sex_symptoms', lang)),
+                _buildLabel(AppLocalizations.of(context)!.registrationFormSexSymptoms),
                 SizedBox(height: 8),
                 _buildMultiChoiceChips(
                   optionKeys: ['pain', 'bleeding', 'unusual_flow', 'none'],

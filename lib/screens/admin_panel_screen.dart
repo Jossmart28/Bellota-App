@@ -426,6 +426,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
                 _RoleBadge(role: role, color: roleColor),
                 const SizedBox(width: 8),
                 _StatusBadge(isActive: isActive),
+                const SizedBox(width: 8),
+                _LanguageBadge(languageCode: user['language_pref'] as String? ?? 'es'),
               ],
             ),
           ],
@@ -603,6 +605,36 @@ class _StatusBadge extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LanguageBadge extends StatelessWidget {
+  final String languageCode;
+  const _LanguageBadge({required this.languageCode});
+
+  @override
+  Widget build(BuildContext context) {
+    final label = switch (languageCode) {
+      'es' => 'ES',
+      'en' => 'EN',
+      'mi' => 'MI',
+      _ => 'ES',
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.shade50,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: Colors.blueGrey.shade700,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

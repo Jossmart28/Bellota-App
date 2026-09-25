@@ -1,7 +1,7 @@
 import '../core/constants/app_keys.dart';
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +22,7 @@ import '../core/services/notification_service.dart';
 import '../widgets/cozy_section_header.dart';
 import '../widgets/cozy_card.dart';
 import 'resumen_diario_screen.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 /// Dashboard principal de Bellota
 class DashboardScreen extends StatefulWidget {
@@ -58,36 +59,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<_PhaseData> _getPhases(String lang) {
     return [
       _PhaseData(
-        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'ovulatory', lang)}',
-        shortName: AppTranslations.get('cycle_phases', 'ovulatory', lang),
+        name: '${AppLocalizations.of(context)!.cyclePhasesPhase}\n${AppLocalizations.of(context)!.cyclePhasesOvulatory}',
+        shortName: AppLocalizations.of(context)!.cyclePhasesOvulatory,
         color: Theme.of(context).bellotaColors.melon,
         borderColor: Color(0xFFD97A4A),
         symptomsTitle: 'Síntomas\nRegistrados',
-        symptoms: [AppTranslations.get('symptoms', 'severe_pain', lang)],
+        symptoms: [AppLocalizations.of(context)!.symptomsSeverePain],
       ),
       _PhaseData(
-        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'luteal', lang)}',
-        shortName: AppTranslations.get('cycle_phases', 'luteal', lang),
+        name: '${AppLocalizations.of(context)!.cyclePhasesPhase}\n${AppLocalizations.of(context)!.cyclePhasesLuteal}',
+        shortName: AppLocalizations.of(context)!.cyclePhasesLuteal,
         color: Theme.of(context).bellotaColors.asuncion,
         borderColor: Color(0xFF8FAFC8),
         symptomsTitle: 'Síntomas\nRegistrados',
-        symptoms: [AppTranslations.get('symptoms', 'fatigue', lang)],
+        symptoms: [AppLocalizations.of(context)!.symptomsFatigue],
       ),
       _PhaseData(
-        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'follicular', lang)}',
-        shortName: AppTranslations.get('cycle_phases', 'follicular', lang),
+        name: '${AppLocalizations.of(context)!.cyclePhasesPhase}\n${AppLocalizations.of(context)!.cyclePhasesFollicular}',
+        shortName: AppLocalizations.of(context)!.cyclePhasesFollicular,
         color: Theme.of(context).bellotaColors.chiltoma,
         borderColor: Color(0xFF97B580),
         symptomsTitle: 'Síntomas\nRegistrados',
-        symptoms: [AppTranslations.get('symptoms', 'high_energy', lang)],
+        symptoms: [AppLocalizations.of(context)!.symptomsHighEnergy],
       ),
       _PhaseData(
-        name: '${AppTranslations.get('cycle_phases', 'phase', lang)}\n${AppTranslations.get('cycle_phases', 'menstrual', lang)}',
-        shortName: AppTranslations.get('cycle_phases', 'menstrual', lang),
+        name: '${AppLocalizations.of(context)!.cyclePhasesPhase}\n${AppLocalizations.of(context)!.cyclePhasesMenstrual}',
+        shortName: AppLocalizations.of(context)!.cyclePhasesMenstrual,
         color: Theme.of(context).bellotaColors.chilero,
         borderColor: Color(0xFFD46A63),
         symptomsTitle: 'Síntomas\nRegistrados',
-        symptoms: [AppTranslations.get('symptoms', 'cramps', lang)],
+        symptoms: [AppLocalizations.of(context)!.symptomsCramps],
       ),
     ];
   }
@@ -311,14 +312,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                 const SizedBox(height: 28),
                 CozySectionHeader(
-                  title: AppTranslations.get('dashboard', 'todays_summary', languageNotifier.currentLang),
+                  title: AppLocalizations.of(context)!.dashboardTodaysSummary,
                 ),
                 const SizedBox(height: 10),
                 _buildResumenCard(context, _getPhases(languageNotifier.currentLang)[_currentPhaseIndex]),
 
                 const SizedBox(height: 28),
                 CozySectionHeader(
-                  title: AppTranslations.get('dashboard', 'information_for_you', languageNotifier.currentLang),
+                  title: AppLocalizations.of(context)!.dashboardInformationForYou,
                 ),
                 const SizedBox(height: 10),
                 const HealthInfoCarousel(),
@@ -632,7 +633,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppTranslations.get('symptoms_and_actions', 'next_period_will_be', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.symptomsAndActionsNextPeriodWillBe,
                   style: textTheme.bodySmall?.copyWith(height: 1.4),
                 ),
                 const SizedBox(height: 8),
@@ -646,7 +647,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  AppTranslations.get('symptoms_and_actions', 'based_on_last_cycles', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.symptomsAndActionsBasedOnLastCycles,
                   style: textTheme.bodySmall?.copyWith(fontSize: 9.5, height: 1.3),
                 ),
               ],
@@ -674,7 +675,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppTranslations.get('symptoms_and_actions', 'expected_symptoms', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.symptomsAndActionsExpectedSymptoms,
                   style: textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).bellotaColors.textoDark,
                     fontWeight: FontWeight.w600,
@@ -705,7 +706,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Buscar en registration_form (donde están fever, headache, etc.)
     final categories = ['registration_form', 'symptoms_and_actions', 'symptoms'];
     for (final cat in categories) {
-      final val = AppTranslations.get(cat, key, lang);
+      final val = AppTranslations.get(cat, key, lang, context: context);
       if (val != key) return val;
     }
     // Si no se encuentra, retornar la clave formateada
@@ -807,7 +808,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppTranslations.get('symptoms_and_actions', 'logged_symptoms', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.symptomsAndActionsLoggedSymptoms,
                   style: textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).bellotaColors.textoDark,
                     fontSize: 13.5,
@@ -829,7 +830,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        AppTranslations.get('symptoms_and_actions', 'no_symptoms_logged', languageNotifier.currentLang),
+                        AppLocalizations.of(context)!.symptomsAndActionsNoSymptomsLogged,
                         style: textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).bellotaColors.textoMedio,
                           fontStyle: FontStyle.italic,
@@ -887,11 +888,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _navItem(context, Icons.home_filled, AppTranslations.get('navigation', 'home', languageNotifier.currentLang), 0),
-              _navItem(context, Icons.calendar_month_rounded, AppTranslations.get('navigation', 'calendar', languageNotifier.currentLang), 1),
-              _navItem(context, Icons.article_outlined, AppTranslations.get('navigation', 'log', languageNotifier.currentLang), 2),
-              _navItem(context, Icons.location_on_outlined, AppTranslations.get('navigation', 'map', languageNotifier.currentLang), 3),
-              _navItem(context, Icons.person_outline_rounded, languageNotifier.currentLang == 'mi' ? '' : AppTranslations.get('navigation', 'profile', languageNotifier.currentLang), 4),
+              _navItem(context, Icons.home_filled, AppLocalizations.of(context)!.navigationHome, 0),
+              _navItem(context, Icons.calendar_month_rounded, AppLocalizations.of(context)!.navigationCalendar, 1),
+              _navItem(context, Icons.article_outlined, AppLocalizations.of(context)!.navigationLog, 2),
+              _navItem(context, Icons.location_on_outlined, AppLocalizations.of(context)!.navigationMap, 3),
+              _navItem(context, Icons.person_outline_rounded, languageNotifier.currentLang == 'mi' ? '' : AppLocalizations.of(context)!.navigationProfile, 4),
             ],
           ),
         ),

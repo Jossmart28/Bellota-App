@@ -4,7 +4,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';

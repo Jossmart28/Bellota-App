@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../core/services/auth_service.dart';
 import '../navigation/navigation_service.dart';
@@ -10,11 +9,12 @@ import '../theme/bellota_colors.dart';
 import '../widgets/bellota_text_field.dart';
 import '../widgets/bellota_top_actions.dart';
 import 'register_screen.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
-/// Pantalla de Inicio de Sesión de Bellota.
+/// Pantalla de Inicio de SesiÃ³n de Bellota.
 ///
 /// Valida las credenciales locales del usuario y redirige al flujo
-/// de incorporación correcto usando [NavigationService.resolveHomeScreen].
+/// de incorporaciÃ³n correcto usando [NavigationService.resolveHomeScreen].
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -89,7 +89,8 @@ class _LoginScreenState extends State<LoginScreen>
 
       if (user != null) {
         await AuthService.instance.saveSession(user);
-        // Registrar login exitoso en el log de auditoría
+        await languageNotifier.setLanguage(user.languagePref);
+        // Registrar login exitoso en el log de auditorÃ­a
         await AuthService.instance.logAction(
           action: 'login',
           targetType: 'user',
@@ -97,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen>
         );
         if (!mounted) return;
 
-        // Resolución de pantalla sin gaps asíncronos tras el mounted check
+        // ResoluciÃ³n de pantalla sin gaps asÃ­ncronos tras el mounted check
         final prefs = await SharedPreferences.getInstance();
         if (!mounted) return;
         final destination = NavigationService.resolveHomeScreen(prefs);
@@ -113,16 +114,17 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesión.');
+      _showError('Error al iniciar sesiÃ³n.');
     }
   }
 
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
     try {
-      final user = await AuthService.instance.signInWithGoogle();
+      final user = await AuthService.instance.signInWithGoogle(languagePref: languageNotifier.currentLang);
       if (user != null) {
         await AuthService.instance.saveSession(user);
+        await languageNotifier.setLanguage(user.languagePref);
         // Registrar login de Google
         await AuthService.instance.logAction(
           action: 'login',
@@ -141,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesión con Google.');
+      _showError('Error al iniciar sesiÃ³n con Google.');
     }
   }
 
@@ -281,13 +283,13 @@ class _LoginScreenState extends State<LoginScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppTranslations.get('onboarding_and_auth', 'login_title', lang),
+              (AppLocalizations.of(context)?.onboardingAndAuthLoginTitle ?? ''),
               style: textTheme.displayMedium
                   ?.copyWith(color: Theme.of(context).bellotaColors.blanco),
             ),
             const SizedBox(height: 4),
             Text(
-              AppTranslations.get('onboarding_and_auth', 'welcome_back', lang),
+              (AppLocalizations.of(context)?.onboardingAndAuthWelcomeBack ?? ''),
               style: textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75)),
             ),
@@ -296,23 +298,23 @@ class _LoginScreenState extends State<LoginScreen>
             // Campo de email
             BellotaTextField(
               controller: _emailController,
-              label: AppTranslations.get('onboarding_and_auth', 'email_label', lang),
-              hint: AppTranslations.get('onboarding_and_auth', 'email_hint', lang),
+              label: (AppLocalizations.of(context)?.onboardingAndAuthEmailLabel ?? ''),
+              hint: (AppLocalizations.of(context)?.onboardingAndAuthEmailHint ?? ''),
               prefixIcon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               validator: (v) {
-                if (v == null || v.isEmpty) return AppTranslations.get('onboarding_and_auth', 'enter_email', lang);
-                if (!v.contains('@')) return AppTranslations.get('onboarding_and_auth', 'invalid_email', lang);
+                if (v == null || v.isEmpty) return (AppLocalizations.of(context)?.onboardingAndAuthEnterEmail ?? '');
+                if (!v.contains('@')) return (AppLocalizations.of(context)?.onboardingAndAuthInvalidEmail ?? '');
                 return null;
               },
             ),
             const SizedBox(height: 16),
 
-            // Campo de contraseña
+            // Campo de contraseÃ±a
             BellotaTextField(
               controller: _passwordController,
-              label: AppTranslations.get('onboarding_and_auth', 'password_label', lang),
-              hint: 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
+              label: (AppLocalizations.of(context)?.onboardingAndAuthPasswordLabel ?? ''),
+              hint: 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢',
               prefixIcon: Icons.lock_outline,
               obscureText: !_passwordVisible,
               suffixIcon: IconButton(
@@ -326,14 +328,14 @@ class _LoginScreenState extends State<LoginScreen>
                     setState(() => _passwordVisible = !_passwordVisible),
               ),
               validator: (v) {
-                if (v == null || v.isEmpty) return AppTranslations.get('onboarding_and_auth', 'enter_pass', lang);
-                if (v.length < 6) return AppTranslations.get('onboarding_and_auth', 'min_6_chars', lang);
+                if (v == null || v.isEmpty) return (AppLocalizations.of(context)?.onboardingAndAuthEnterPass ?? '');
+                if (v.length < 6) return (AppLocalizations.of(context)?.onboardingAndAuthMin6Chars ?? '');
                 return null;
               },
             ),
             const SizedBox(height: 12),
 
-            // Olvidé mi contraseña
+            // OlvidÃ© mi contraseÃ±a
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -344,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen>
                   minimumSize: const Size(10, 36),
                 ),
                 child: Text(
-                  AppTranslations.get('onboarding_and_auth', 'forgot_pass', lang),
+                  (AppLocalizations.of(context)?.onboardingAndAuthForgotPass ?? ''),
                   style: textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.85),
                     decoration: TextDecoration.underline,
@@ -356,15 +358,15 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 24),
 
-            // Botón de ingreso
+            // BotÃ³n de ingreso
             _BellotaButton(
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
-              label: AppTranslations.get('onboarding_and_auth', 'enter', lang),
+              label: (AppLocalizations.of(context)?.onboardingAndAuthEnter ?? ''),
             ),
             const SizedBox(height: 20),
 
-            // Separador "o continúa con"
+            // Separador "o continÃºa con"
             Row(
               children: [
                 Expanded(
@@ -374,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen>
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
-                    AppTranslations.get('onboarding_and_auth', 'or_continue_with', lang),
+                    (AppLocalizations.of(context)?.onboardingAndAuthOrContinueWith ?? ''),
                     style: textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.65)),
                   ),
@@ -387,9 +389,9 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 20),
 
-            // Botón de Google
+            // BotÃ³n de Google
             _SocialButton(
-              label: AppTranslations.get('onboarding_and_auth', 'continue_google', lang),
+              label: (AppLocalizations.of(context)?.onboardingAndAuthContinueGoogle ?? ''),
               icon: Icons.g_mobiledata_rounded,
               onPressed: _isLoading ? () {} : _handleGoogleLogin,
             ),
@@ -402,7 +404,7 @@ class _LoginScreenState extends State<LoginScreen>
                   style: textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75)),
                   children: [
-                    TextSpan(text: AppTranslations.get('onboarding_and_auth', 'no_account', lang)),
+                    TextSpan(text: (AppLocalizations.of(context)?.onboardingAndAuthNoAccount ?? '')),
                     WidgetSpan(
                       child: GestureDetector(
                         onTap: () => NavigationService.goTo(
@@ -410,7 +412,7 @@ class _LoginScreenState extends State<LoginScreen>
                           const RegisterScreen(),
                         ),
                         child: Text(
-                          AppTranslations.get('onboarding_and_auth', 'register_now', lang),
+                          (AppLocalizations.of(context)?.onboardingAndAuthRegisterNow ?? ''),
                           style: textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).bellotaColors.blanco,
                             fontWeight: FontWeight.w700,
@@ -432,7 +434,7 @@ class _LoginScreenState extends State<LoginScreen>
 }
 
 
-/// Botón principal con gradiente Bellota.
+/// BotÃ³n principal con gradiente Bellota.
 class _BellotaButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
@@ -482,7 +484,7 @@ class _BellotaButton extends StatelessWidget {
   }
 }
 
-/// Botón de proveedor externo (Google, Apple, etc.).
+/// BotÃ³n de proveedor externo (Google, Apple, etc.).
 class _SocialButton extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -557,4 +559,10 @@ class _LoginBackgroundPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
+
+
+
+
+
+
 

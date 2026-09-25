@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../core/services/auth_service.dart';
 import '../navigation/navigation_service.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_text_field.dart';
 import '../widgets/bellota_top_actions.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -48,7 +48,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
       final user = await AuthService.instance.register(
-        _nameController.text, email, _passwordController.text,
+        _nameController.text,
+        email,
+        _passwordController.text,
+        languagePref: languageNotifier.currentLang,
       );
       await AuthService.instance.saveSession(user);
       // Registrar el evento de registro en el log de auditoría
@@ -60,6 +63,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _setLoading(false);
       if (!mounted) return;
       final prefs = await SharedPreferences.getInstance();
+      // Resetear flag para que la nueva cuenta siempre vea la pantalla de idioma
+      await prefs.setBool('account_language_done', false);
       if (!mounted) return;
       final destination = NavigationService.resolveHomeScreen(prefs);
       NavigationService.goAndClearStack(context, destination);
@@ -117,12 +122,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppTranslations.get('onboarding_and_auth', 'create_account', lang),
+                      AppLocalizations.of(context)!.onboardingAndAuthCreateAccount,
                       style: textTheme.displayMedium?.copyWith(color: Theme.of(context).bellotaColors.blanco),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppTranslations.get('onboarding_and_auth', 'join_bellota', lang),
+                      AppLocalizations.of(context)!.onboardingAndAuthJoinBellota,
                       style: textTheme.bodyLarge?.copyWith(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8)),
                     ),
                     const SizedBox(height: 32),
@@ -139,28 +144,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           children: [
                             BellotaTextField(
                               controller: _nameController,
-                              label: AppTranslations.get('onboarding_and_auth', 'name_label', lang),
-                              hint: AppTranslations.get('onboarding_and_auth', 'name_hint', lang),
+                              label: AppLocalizations.of(context)!.onboardingAndAuthNameLabel,
+                              hint: AppLocalizations.of(context)!.onboardingAndAuthNameHint,
                               prefixIcon: Icons.person_outline,
-                              validator: (v) => v!.isEmpty ? AppTranslations.get('onboarding_and_auth', 'enter_name', lang) : null,
+                              validator: (v) => v!.isEmpty ? AppLocalizations.of(context)!.onboardingAndAuthEnterName : null,
                             ),
                             const SizedBox(height: 16),
                             BellotaTextField(
                               controller: _emailController,
-                              label: AppTranslations.get('onboarding_and_auth', 'email_label', lang),
-                              hint: AppTranslations.get('onboarding_and_auth', 'email_hint', lang),
+                              label: AppLocalizations.of(context)!.onboardingAndAuthEmailLabel,
+                              hint: AppLocalizations.of(context)!.onboardingAndAuthEmailHint,
                               prefixIcon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               validator: (v) {
-                                if (v == null || v.isEmpty) return AppTranslations.get('onboarding_and_auth', 'enter_email', lang);
-                                if (!v.contains('@')) return AppTranslations.get('onboarding_and_auth', 'invalid_email', lang);
+                                if (v == null || v.isEmpty) return AppLocalizations.of(context)!.onboardingAndAuthEnterEmail;
+                                if (!v.contains('@')) return AppLocalizations.of(context)!.onboardingAndAuthInvalidEmail;
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
                             BellotaTextField(
                               controller: _passwordController,
-                              label: AppTranslations.get('onboarding_and_auth', 'password_label', lang),
+                              label: AppLocalizations.of(context)!.onboardingAndAuthPasswordLabel,
                               hint: 'aaaaaaaa',
                               prefixIcon: Icons.lock_outline,
                               obscureText: !_passwordVisible,
@@ -170,15 +175,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
                               ),
                               validator: (v) {
-                                if (v == null || v.isEmpty) return AppTranslations.get('onboarding_and_auth', 'enter_pass', lang);
-                                if (v.length < 6) return AppTranslations.get('onboarding_and_auth', 'min_6_chars', lang);
+                                if (v == null || v.isEmpty) return AppLocalizations.of(context)!.onboardingAndAuthEnterPass;
+                                if (v.length < 6) return AppLocalizations.of(context)!.onboardingAndAuthMin6Chars;
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
                             BellotaTextField(
                               controller: _confirmController,
-                              label: AppTranslations.get('onboarding_and_auth', 'confirm_pass', lang),
+                              label: AppLocalizations.of(context)!.onboardingAndAuthConfirmPass,
                               hint: 'aaaaaaaa',
                               prefixIcon: Icons.lock_outline,
                               obscureText: !_confirmVisible,
@@ -188,8 +193,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onPressed: () => setState(() => _confirmVisible = !_confirmVisible),
                               ),
                               validator: (v) {
-                                if (v == null || v.isEmpty) return AppTranslations.get('onboarding_and_auth', 'confirm_pass_req', lang);
-                                if (v != _passwordController.text) return AppTranslations.get('onboarding_and_auth', 'pass_no_match', lang);
+                                if (v == null || v.isEmpty) return AppLocalizations.of(context)!.onboardingAndAuthConfirmPassReq;
+                                if (v != _passwordController.text) return AppLocalizations.of(context)!.onboardingAndAuthPassNoMatch;
                                 return null;
                               },
                             ),
@@ -206,7 +211,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                                 child: _isLoading
                                     ? CircularProgressIndicator(color: Theme.of(context).bellotaColors.blanco)
-                                    : Text(AppTranslations.get('onboarding_and_auth', 'register_btn', lang)),
+                                    : Text(AppLocalizations.of(context)!.onboardingAndAuthRegisterBtn),
                               ),
                             ),
                           ],

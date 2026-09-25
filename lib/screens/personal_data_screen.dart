@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,7 +13,6 @@ import 'package:geocoding/geocoding.dart';
 import '../core/constants/nicaragua_data.dart';
 import '../core/constants/app_keys.dart';
 import '../database/database_helper.dart';
-import '../l10n/app_translations.dart';
 import '../l10n/language_notifier.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
@@ -643,7 +643,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                 runSpacing: 12,
                 children: _medications.map((med) {
                   final isSelected = _selectedMedications.contains(med);
-                  final label = AppTranslations.get('registration_form', med, languageNotifier.currentLang);
+                  final label = AppTranslations.get('registration_form', med, languageNotifier.currentLang, context: context);
                   return GestureDetector(
                     onTap: () {
                       setState(() {

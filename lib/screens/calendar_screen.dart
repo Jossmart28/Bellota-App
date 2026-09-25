@@ -1,8 +1,8 @@
 import '../core/constants/app_keys.dart';
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
@@ -10,6 +10,7 @@ import '../widgets/bellota_icon.dart';
 import '../database/database_helper.dart';
 import 'symptom_log_screen.dart';
 import '../core/services/cycle_service.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 enum CalendarViewType { weekly, monthly, annual }
 
@@ -55,31 +56,31 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<String> get _dayNames {
     final lang = languageNotifier.currentLang;
     return [
-      AppTranslations.get('calendar', 'sun', lang),
-      AppTranslations.get('calendar', 'mon', lang),
-      AppTranslations.get('calendar', 'tue', lang),
-      AppTranslations.get('calendar', 'wed', lang),
-      AppTranslations.get('calendar', 'thu', lang),
-      AppTranslations.get('calendar', 'fri', lang),
-      AppTranslations.get('calendar', 'sat', lang),
+      AppLocalizations.of(context)!.calendarSun,
+      AppLocalizations.of(context)!.calendarMon,
+      AppLocalizations.of(context)!.calendarTue,
+      AppLocalizations.of(context)!.calendarWed,
+      AppLocalizations.of(context)!.calendarThu,
+      AppLocalizations.of(context)!.calendarFri,
+      AppLocalizations.of(context)!.calendarSat,
     ];
   }
 
   List<String> get _monthNames {
     final lang = languageNotifier.currentLang;
     return [
-      AppTranslations.get('calendar', 'jan', lang),
-      AppTranslations.get('calendar', 'feb', lang),
-      AppTranslations.get('calendar', 'mar', lang),
-      AppTranslations.get('calendar', 'apr', lang),
-      AppTranslations.get('calendar', 'may', lang),
-      AppTranslations.get('calendar', 'jun', lang),
-      AppTranslations.get('calendar', 'jul', lang),
-      AppTranslations.get('calendar', 'aug', lang),
-      AppTranslations.get('calendar', 'sep', lang),
-      AppTranslations.get('calendar', 'oct', lang),
-      AppTranslations.get('calendar', 'nov', lang),
-      AppTranslations.get('calendar', 'dec', lang),
+      AppLocalizations.of(context)!.calendarJan,
+      AppLocalizations.of(context)!.calendarFeb,
+      AppLocalizations.of(context)!.calendarMar,
+      AppLocalizations.of(context)!.calendarApr,
+      AppLocalizations.of(context)!.calendarMay,
+      AppLocalizations.of(context)!.calendarJun,
+      AppLocalizations.of(context)!.calendarJul,
+      AppLocalizations.of(context)!.calendarAug,
+      AppLocalizations.of(context)!.calendarSep,
+      AppLocalizations.of(context)!.calendarOct,
+      AppLocalizations.of(context)!.calendarNov,
+      AppLocalizations.of(context)!.calendarDec,
     ];
   }
 
@@ -298,8 +299,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildCustomDropdown() {
-    String currentLabel = _currentView == CalendarViewType.annual ? AppTranslations.get('calendar_views', 'year', languageNotifier.currentLang) :
-    _currentView == CalendarViewType.monthly ? AppTranslations.get('calendar_views', 'month', languageNotifier.currentLang) : AppTranslations.get('calendar_views', 'week_short', languageNotifier.currentLang);
+    String currentLabel = _currentView == CalendarViewType.annual ? AppLocalizations.of(context)!.calendarViewsYear :
+    _currentView == CalendarViewType.monthly ? AppLocalizations.of(context)!.calendarViewsMonth : AppLocalizations.of(context)!.calendarViewsWeekShort;
 
     return PopupMenuButton<CalendarViewType>(
       onSelected: (view) => setState(() {
@@ -311,9 +312,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       offset: Offset(0, 40),
       itemBuilder: (context) => [
-        PopupMenuItem(value: CalendarViewType.weekly, child: Text(AppTranslations.get('calendar_views', 'weekly_view', languageNotifier.currentLang))),
-        PopupMenuItem(value: CalendarViewType.monthly, child: Text(AppTranslations.get('calendar_views', 'monthly_view', languageNotifier.currentLang))),
-        PopupMenuItem(value: CalendarViewType.annual, child: Text(AppTranslations.get('calendar_views', 'yearly_view', languageNotifier.currentLang))),
+        PopupMenuItem(value: CalendarViewType.weekly, child: Text(AppLocalizations.of(context)!.calendarViewsWeeklyView)),
+        PopupMenuItem(value: CalendarViewType.monthly, child: Text(AppLocalizations.of(context)!.calendarViewsMonthlyView)),
+        PopupMenuItem(value: CalendarViewType.annual, child: Text(AppLocalizations.of(context)!.calendarViewsYearlyView)),
       ],
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -324,7 +325,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(AppTranslations.get('calendar_views', 'view', languageNotifier.currentLang), style: TextStyle(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8), fontSize: 12)),
+            Text(AppLocalizations.of(context)!.calendarViewsView, style: TextStyle(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8), fontSize: 12)),
             SizedBox(width: 6),
             Container(width: 1, height: 12, color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5)),
             SizedBox(width: 6),
@@ -344,10 +345,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
         runSpacing: 6,
         alignment: WrapAlignment.center,
         children: [
-          _legendItem(Theme.of(context).bellotaColors.chilero, AppTranslations.get('cycle_phases', 'menstrual', languageNotifier.currentLang)),
-          _legendItem(Theme.of(context).bellotaColors.chiltoma, AppTranslations.get('cycle_phases', 'follicular', languageNotifier.currentLang)),
-          _legendItem(Theme.of(context).bellotaColors.melon, AppTranslations.get('cycle_phases', 'ovulatory', languageNotifier.currentLang)),
-          _legendItem(Theme.of(context).bellotaColors.asuncion, AppTranslations.get('cycle_phases', 'luteal', languageNotifier.currentLang)),
+          _legendItem(Theme.of(context).bellotaColors.chilero, AppLocalizations.of(context)!.cyclePhasesMenstrual),
+          _legendItem(Theme.of(context).bellotaColors.chiltoma, AppLocalizations.of(context)!.cyclePhasesFollicular),
+          _legendItem(Theme.of(context).bellotaColors.melon, AppLocalizations.of(context)!.cyclePhasesOvulatory),
+          _legendItem(Theme.of(context).bellotaColors.asuncion, AppLocalizations.of(context)!.cyclePhasesLuteal),
         ],
       ),
     );
@@ -481,7 +482,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _selectedDate = null;
           }),
           icon: Icon(Icons.arrow_back_ios_rounded, size: 16, color: Theme.of(context).bellotaColors.chilero),
-          label: Text(AppTranslations.get('calendar_views', 'back_to_year', languageNotifier.currentLang), style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold)),
+          label: Text(AppLocalizations.of(context)!.calendarViewsBackToYear, style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold)),
           style: TextButton.styleFrom(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             backgroundColor: Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.1),
@@ -580,10 +581,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   String _translateKey(String key) {
     final lang = languageNotifier.currentLang;
     // Intentar en registration_form primero (contiene la mayoría de claves)
-    final translated = AppTranslations.get('registration_form', key, lang);
+    final translated = AppTranslations.get('registration_form', key, lang, context: context);
     // Si devuelve la misma key, intentar en symptoms
     if (translated == key) {
-      return AppTranslations.get('symptoms', key, lang);
+      return AppTranslations.get('symptoms', key, lang, context: context);
     }
     return translated;
   }
@@ -671,7 +672,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       });
                     }
                   } : null,
-                  child: Text(AppTranslations.get('symptoms_and_actions', 'log_symptoms', languageNotifier.currentLang), style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(AppLocalizations.of(context)!.symptomsAndActionsLogSymptoms, style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).bellotaColors.chilero,
                     foregroundColor: Colors.white,
@@ -686,12 +687,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
               if (!hasData)
                 Text(
-                  AppTranslations.get('symptoms_and_actions', 'no_entries_day', languageNotifier.currentLang),
+                  AppLocalizations.of(context)!.symptomsAndActionsNoEntriesDay,
                   style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).bellotaColors.textoMedio),
                 ),
 
               if (periodStart)
-                _buildSymptomItem(Theme.of(context).bellotaColors.chilero, AppTranslations.get('symptoms_and_actions', 'period_start', languageNotifier.currentLang)),
+                _buildSymptomItem(Theme.of(context).bellotaColors.chilero, AppLocalizations.of(context)!.symptomsAndActionsPeriodStart),
               ...symptoms.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.asuncion, _translateKey(s))),
               ...sexo.map((s) => _buildSymptomItem(Theme.of(context).bellotaColors.melon, _translateKey(s))),
               ...flujo.map((s) => _buildSymptomItem(Color(0xFFA566C1), _translateKey(s))),

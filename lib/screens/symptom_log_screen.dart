@@ -1,5 +1,4 @@
 import '../core/constants/app_keys.dart';
-import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'flujo_vaginal_selection_screen.dart';
 import 'sexo_selection_screen.dart';
 import 'patron_sangrado_screen.dart';
 import 'dolor_sintomatologia_screen.dart';
+import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class SymptomLogScreen extends StatefulWidget {
   final DateTime? selectedDate;
@@ -150,17 +150,17 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang) == 'recent_period_title' ? 'Â¿Periodo reciente?' : AppTranslations.get('symptoms_and_actions', 'recent_period_title', lang)),
-              content: Text(AppTranslations.get('symptoms_and_actions', 'recent_period_error', lang)),
+              title: Text(AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodTitle == 'recent_period_title' ? 'Â¿Periodo reciente?' : AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodTitle),
+              content: Text(AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodError),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: Text(AppTranslations.get('registration_form', 'no', lang), style: TextStyle(color: Theme.of(context).bellotaColors.textoMedio)),
+                  child: Text(AppLocalizations.of(context)!.registrationFormNo, style: TextStyle(color: Theme.of(context).bellotaColors.textoMedio)),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: Text(AppTranslations.get('registration_form', 'yes', lang), style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold)),
+                  child: Text(AppLocalizations.of(context)!.registrationFormYes, style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -322,7 +322,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     if (_patronSangrado['coagulos'] != null && _patronSangrado['coagulos'] != 'Nunca' && _patronSangrado['coagulos'] != 'never' && _patronSangrado['coagulos'] != 'Never') {
       parts.add(_patronSangrado['coagulos'].toString());
     }
-    if (parts.isEmpty) return AppTranslations.get('registration_form', 'saved', lang);
+    if (parts.isEmpty) return AppLocalizations.of(context)!.registrationFormSaved;
     return parts.join(' Â· ');
   }
 
@@ -335,7 +335,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     if (caracter != null && caracter.toString().isNotEmpty) parts.add(caracter.toString());
     final trat = _dolorSintomatologia['tratamiento'];
     if (trat != null && trat.toString().isNotEmpty && trat != 'none' && trat != 'Ninguno') parts.add(trat.toString());
-    if (parts.isEmpty) return AppTranslations.get('registration_form', 'saved', lang);
+    if (parts.isEmpty) return AppLocalizations.of(context)!.registrationFormSaved;
     return parts.join(' Â· ');
   }
 
@@ -364,7 +364,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 Row(
                   children: [
                     Text(
-                      AppTranslations.get('registration_form', 'log_progress', lang),
+                      AppLocalizations.of(context)!.registrationFormLogProgress,
                       style: TextStyle(fontSize: 12, color: Theme.of(context).bellotaColors.textoMedio, fontWeight: FontWeight.w500),
                     ),
                     Spacer(),
@@ -403,7 +403,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   context,
                   icon: Icons.water_drop_outlined,
                   iconColor: Theme.of(context).bellotaColors.chilero,
-                  title: AppTranslations.get('registration_form', 'period_starts', lang),
+                  title: AppLocalizations.of(context)!.registrationFormPeriodStarts,
                   trailing: _buildSiNoToggle(
                     value: iniciaPeriodo,
                     onChanged: (val) => setState(() => iniciaPeriodo = val),
@@ -415,7 +415,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   context,
                   icon: Icons.favorite_border_rounded,
                   iconColor: Theme.of(context).bellotaColors.melon,
-                  title: AppTranslations.get('registration_form', 'sex', lang),
+                  title: AppLocalizations.of(context)!.registrationFormSex,
                   subtitle: _getListSummary(_selectedSexo),
                   trailing: _buildAddButton(hasItems: _selectedSexo.isNotEmpty),
                   onTap: _openSexoSelection,
@@ -425,7 +425,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   context,
                   icon: Icons.medical_services_outlined,
                   iconColor: Theme.of(context).bellotaColors.asuncion,
-                  title: AppTranslations.get('registration_form', 'symptoms', lang),
+                  title: AppLocalizations.of(context)!.registrationFormSymptoms,
                   subtitle: _getListSummary(_selectedSymptoms),
                   trailing: _buildAddButton(hasItems: _selectedSymptoms.isNotEmpty),
                   onTap: _openSymptomsSelection,
@@ -435,7 +435,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   context,
                   icon: Icons.opacity_rounded,
                   iconColor: Color(0xFFA566C1),
-                  title: AppTranslations.get('registration_form', 'vaginal_flow', lang),
+                  title: AppLocalizations.of(context)!.registrationFormVaginalFlow,
                   subtitle: _getListSummary(_selectedFlujos),
                   trailing: _buildAddButton(hasItems: _selectedFlujos.isNotEmpty),
                   onTap: _openFlujoSelection,
@@ -445,7 +445,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   context,
                   icon: Icons.bloodtype_outlined,
                   iconColor: Theme.of(context).bellotaColors.chilero,
-                  title: AppTranslations.get('registration_form', 'bleeding_pattern', lang),
+                  title: AppLocalizations.of(context)!.registrationFormBleedingPattern,
                   subtitle: _getBleedingSummary(lang),
                   trailing: _buildAddButton(hasItems: _patronSangrado.isNotEmpty),
                   onTap: _openPatronSangradoSelection,
@@ -455,7 +455,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   context,
                   icon: Icons.healing_outlined,
                   iconColor: Theme.of(context).bellotaColors.chiltoma,
-                  title: AppTranslations.get('registration_form', 'pain_and_symptoms', lang),
+                  title: AppLocalizations.of(context)!.registrationFormPainAndSymptoms,
                   subtitle: _getPainSummary(lang),
                   trailing: _buildAddButton(hasItems: _dolorSintomatologia.isNotEmpty),
                   onTap: _openDolorSintomatologiaSelection,
@@ -489,7 +489,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                           ),
                           SizedBox(width: 14),
                           Text(
-                            AppTranslations.get('registration_form', 'notes', lang),
+                            AppLocalizations.of(context)!.registrationFormNotes,
                             style: TextStyle(fontSize: 15.5, color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.w600),
                           ),
                         ],
@@ -502,7 +502,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                         controller: _notesController,
                         style: TextStyle(fontSize: 14, color: Theme.of(context).bellotaColors.textoDark),
                         decoration: InputDecoration(
-                          hintText: AppTranslations.get('registration_form', 'notes_hint', lang),
+                          hintText: AppLocalizations.of(context)!.registrationFormNotesHint,
                           hintStyle: TextStyle(color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.6), fontSize: 13),
                           filled: true,
                           fillColor: Theme.of(context).bellotaColors.nancite,
@@ -558,7 +558,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
         ),
       ),
       title: Text(
-        AppTranslations.get('navigation', 'log', lang),
+        AppLocalizations.of(context)!.navigationLog,
         style: TextStyle(
           color: Theme.of(context).bellotaColors.textoDark,
           fontSize: 17,
@@ -579,7 +579,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                AppTranslations.get('onboarding', 'confirm', lang),
+                AppLocalizations.of(context)!.onboardingConfirm,
                 style: TextStyle(
                   color: Theme.of(context).bellotaColors.chilero,
                   fontWeight: FontWeight.w700,
@@ -753,7 +753,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     : [],
               ),
               child: Text(
-                AppTranslations.get('registration_form', 'yes', lang),
+                AppLocalizations.of(context)!.registrationFormYes,
                 style: TextStyle(
                   color: value ? Colors.white : Theme.of(context).bellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
@@ -776,7 +776,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     : [],
               ),
               child: Text(
-                AppTranslations.get('registration_form', 'no', lang),
+                AppLocalizations.of(context)!.registrationFormNo,
                 style: TextStyle(
                   color: !value ? Colors.white : Theme.of(context).bellotaColors.textoMedio,
                   fontWeight: FontWeight.w600,
@@ -833,7 +833,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 20),
             SizedBox(width: 8),
             Text(
-              AppTranslations.get('registration_form', 'save_log', lang),
+              AppLocalizations.of(context)!.registrationFormSaveLog,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,

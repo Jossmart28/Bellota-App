@@ -166,7 +166,6 @@ class CycleService {
     DateTime ovulationDate = currentCycleStart.add(Duration(days: ovulationDay - 1));
     
     // Fertile window (6-day window: ovulationDay - 5 to ovulationDay + 1)
-    int fertileWindowSize = medicalConditions?.contains('pcos') == true ? 8 : 6;
     int fertileWindowPre = medicalConditions?.contains('pcos') == true ? 7 : 5;
     
     DateTime fertileWindowStart = currentCycleStart.add(Duration(days: ovulationDay - (fertileWindowPre + 1)));
