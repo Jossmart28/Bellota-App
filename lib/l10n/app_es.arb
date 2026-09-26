@@ -359,5 +359,11 @@
   "registrationFormItching": "Picazón",
   "registrationFormBurning": "Ardor",
   "registrationFormKeyInfo": "Info",
-  "symptomsAndActionsRecentPeriodTitle": "Periodo reciente"
+  "symptomsAndActionsRecentPeriodTitle": "Periodo reciente",
+  "hospitalHubRecommended": "Recomendados para ti",
+  "hospitalHubRecommendedSub": "Basado en tus últimos síntomas",
+  "hospitalHubNearby": "Cerca de tu zona",
+  "hospitalHubSearchHint": "Buscar centro de salud...",
+  "hospitalHubViewAll": "Ver todos los hospitales",
+  "hospitalHubViewMap": "Ver en mapa"
 }

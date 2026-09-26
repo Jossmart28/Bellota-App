@@ -2259,6 +2259,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Periodo reciente'**
   String get symptomsAndActionsRecentPeriodTitle;
+
+  /// No description provided for @hospitalHubRecommended.
+  ///
+  /// In es, this message translates to:
+  /// **'Recomendados para ti'**
+  String get hospitalHubRecommended;
+
+  /// No description provided for @hospitalHubRecommendedSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Basado en tus últimos síntomas'**
+  String get hospitalHubRecommendedSub;
+
+  /// No description provided for @hospitalHubNearby.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerca de tu zona'**
+  String get hospitalHubNearby;
+
+  /// No description provided for @hospitalHubSearchHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar centro de salud...'**
+  String get hospitalHubSearchHint;
+
+  /// No description provided for @hospitalHubViewAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos los hospitales'**
+  String get hospitalHubViewAll;
+
+  /// No description provided for @hospitalHubViewMap.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver en mapa'**
+  String get hospitalHubViewMap;
 }
 
 class _AppLocalizationsDelegate

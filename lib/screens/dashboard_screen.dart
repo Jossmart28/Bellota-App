@@ -12,7 +12,7 @@ import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../database/database_helper.dart';
 import 'login_screen.dart';
-import 'map_screen.dart';
+import 'hospital_hub_screen.dart';
 import 'calendar_screen.dart';
 import 'symptom_log_screen.dart';
 import 'profile_screen.dart';
@@ -273,7 +273,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Builder(builder: (context) => _buildDashboardContent(context, lang)),
         const CalendarScreen(),
         const SizedBox(), // Placeholder for symptom log
-        const MapScreen(),
+        const HospitalHubScreen(),
         const ProfileScreen(),
       ],
     );

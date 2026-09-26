@@ -1127,4 +1127,22 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get symptomsAndActionsRecentPeriodTitle => 'Periodo reciente';
+
+  @override
+  String get hospitalHubRecommended => 'Recomendados para ti';
+
+  @override
+  String get hospitalHubRecommendedSub => 'Basado en tus últimos síntomas';
+
+  @override
+  String get hospitalHubNearby => 'Cerca de tu zona';
+
+  @override
+  String get hospitalHubSearchHint => 'Buscar centro de salud...';
+
+  @override
+  String get hospitalHubViewAll => 'Ver todos los hospitales';
+
+  @override
+  String get hospitalHubViewMap => 'Ver en mapa';
 }

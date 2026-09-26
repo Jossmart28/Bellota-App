@@ -1,1 +1,19 @@
-{}
+{
+  "en": [
+    "hospitalHubRecommended",
+    "hospitalHubRecommendedSub",
+    "hospitalHubNearby",
+    "hospitalHubSearchHint",
+    "hospitalHubViewAll",
+    "hospitalHubViewMap"
+  ],
+
+  "mi": [
+    "hospitalHubRecommended",
+    "hospitalHubRecommendedSub",
+    "hospitalHubNearby",
+    "hospitalHubSearchHint",
+    "hospitalHubViewAll",
+    "hospitalHubViewMap"
+  ]
+}
