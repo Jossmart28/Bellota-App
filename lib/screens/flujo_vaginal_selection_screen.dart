@@ -16,12 +16,15 @@ class FlujoVaginalSelectionScreen extends StatefulWidget {
 class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScreen> {
   late Set<String> _selectedFlujosKeys;
 
-  final List<String> _flujoOptionKeys = [
-    'dry',
-    'thick',
-    'liquid_elastic',
-    'watery',
-    'egg_white',
+  final List<Map<String, dynamic>> _sections = [
+    {
+      'titleKey': 'Fisiológico (Normal)',
+      'options': ['dry', 'sticky', 'creamy', 'watery', 'egg_white']
+    },
+    {
+      'titleKey': 'Anormal (Posible Infección)',
+      'options': ['yellow_green', 'cottage_cheese', 'foul_odor']
+    }
   ];
 
   @override
@@ -47,23 +50,24 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
 
     switch (key) {
       case 'dry':
-      case 'thick':
+      case 'sticky':
         badgeKey = 'fertility_low';
         color = Theme.of(context).bellotaColors.chiltoma;
         bgColor = Theme.of(context).bellotaColors.chiltoma.withValues(alpha: 0.2);
         break;
-      case 'liquid_elastic':
+      case 'creamy':
         badgeKey = 'fertility_medium';
         color = Theme.of(context).bellotaColors.melon;
         bgColor = Theme.of(context).bellotaColors.melon.withValues(alpha: 0.2);
         break;
       case 'watery':
       case 'egg_white':
-      default:
         badgeKey = 'fertility_high';
         color = Theme.of(context).bellotaColors.chilero;
         bgColor = Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.15);
         break;
+      default:
+        return SizedBox(); // Sin badge para anormales
     }
 
     return Container(
@@ -88,72 +92,95 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).bellotaColors.basilica,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            AppLocalizations.of(context)!.registrationFormCancel,
-            style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
-          ),
-        ),
-        leadingWidth: 80,
-        title: Text(
-          AppLocalizations.of(context)!.registrationFormVaginalFlow,
-          style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, _selectedFlujosKeys.toList());
-            },
-            child: Text(
-              AppLocalizations.of(context)!.onboardingConfirm,
-              style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16),
+        return Scaffold(
+          backgroundColor: Theme.of(context).bellotaColors.basilica,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                AppLocalizations.of(context)!.registrationFormCancel,
+                style: TextStyle(color: Theme.of(context).bellotaColors.textoMedio, fontSize: 16),
+              ),
             ),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(16.0),
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
+            leadingWidth: 80,
+            title: Text(
+              AppLocalizations.of(context)!.registrationFormVaginalFlow,
+              style: TextStyle(color: Theme.of(context).bellotaColors.textoDark, fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            centerTitle: true,
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context, _selectedFlujosKeys.toList());
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.onboardingConfirm,
+                  style: TextStyle(color: Theme.of(context).bellotaColors.chilero, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8),
-                for (int i = 0; i < _flujoOptionKeys.length; i++) ...[
-                  _buildFlujoRow(_flujoOptionKeys[i], lang),
-                  if (i < _flujoOptionKeys.length - 1)
-                    Divider(height: 1),
-                ],
-                SizedBox(height: 8),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-        },
+          body: ListView.builder(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            itemCount: _sections.length,
+            itemBuilder: (context, index) {
+              final section = _sections[index];
+              final options = section['options'] as List<String>;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16, top: 12, bottom: 8),
+                    child: Text(
+                      section['titleKey'] as String,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).bellotaColors.textoMedio,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: options.asMap().entries.map((entry) {
+                        final i = entry.key;
+                        final optKey = entry.value;
+                        return Column(
+                          children: [
+                            _buildRow(optKey, lang),
+                            if (i < options.length - 1)
+                              Divider(height: 1, indent: 16, endIndent: 16, color: Colors.grey.shade100),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildFlujoRow(String key, String lang) {
+  Widget _buildRow(String key, String lang) {
     final isSelected = _selectedFlujosKeys.contains(key);
     return InkWell(
       onTap: () => _toggleFlujo(key),
@@ -162,42 +189,29 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
         child: Row(
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppTranslations.get('registration_form', key, lang, context: context),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).bellotaColors.textoDark,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    AppLocalizations.of(context)!.registrationFormKeyInfo,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).bellotaColors.textoMedio,
-                    ),
-                  ),
-                ],
+              child: Text(
+                AppTranslations.get('registration_form', key, lang, context: context),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).bellotaColors.textoDark,
+                ),
               ),
             ),
             _buildFertilityBadge(key, lang),
-            SizedBox(width: 8),
+            SizedBox(width: 12),
             Container(
-              width: 24,
-              height: 24,
+              width: 22,
+              height: 22,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: isSelected ? null : Border.all(
-                  color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.4),
-                  width: 2,
-                ),
+                shape: BoxShape.circle,
                 color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.transparent,
+                border: Border.all(
+                  color: isSelected ? Theme.of(context).bellotaColors.chilero : Colors.grey.shade300,
+                  width: 1.5,
+                ),
               ),
               child: isSelected
-                  ? Icon(Icons.check, size: 16, color: Colors.white)
+                  ? Icon(Icons.check, size: 14, color: Colors.white)
                   : null,
             ),
           ],

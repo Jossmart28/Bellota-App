@@ -303,23 +303,6 @@ class DatabaseHelper {
     ''');
   }
 
-  /// Tabla daily_logs versión 1 (legacy, para compatibilidad con _upgradeDB)
-  Future _createDailyLogsTable(Database db) async {
-    await db.execute('''
-    CREATE TABLE IF NOT EXISTS daily_logs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      date TEXT NOT NULL,
-      period_start INTEGER DEFAULT 0,
-      symptoms TEXT DEFAULT '[]',
-      sexo TEXT DEFAULT '[]',
-      flujo TEXT DEFAULT '[]',
-      created_at TEXT NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-    )
-    ''');
-  }
-
   /// Tabla daily_logs versión 2 completa (para nuevas instalaciones)
   Future _createDailyLogsTableV2(Database db) async {
     await db.execute('''
@@ -391,8 +374,8 @@ class DatabaseHelper {
   }
 
   String _hashPasswordSalted(String password, String salt) {
-    final bytes = utf8.encode('\$salt\$password');
-    return '\$salt:\${sha256.convert(bytes)}';
+    final bytes = utf8.encode('$salt$password');
+    return '$salt:${sha256.convert(bytes)}';
   }
 
   /// Registra un nuevo usuario con un rol opcional (por defecto 'usuario').
@@ -1161,8 +1144,192 @@ class DatabaseHelper {
     String phaseName, {
     int limit = 3,
   }) async {
-    // This will be a stub for now, just return an empty list or some default values.
-    return ['mood_swings', 'sensitivity', 'fatigue'];
+    final db = await instance.database;
+    final logs = await db.query(
+      'daily_logs',
+      where: 'user_id = ? AND symptoms IS NOT NULL AND symptoms != "[]"',
+      whereArgs: [userId],
+    );
+
+    if (logs.isEmpty) {
+      return ['mood_swings', 'sensitivity', 'fatigue'];
+    }
+
+    final periodStarts = await getAllPeriodStartDates(userId);
+    if (periodStarts.isEmpty) {
+      return ['mood_swings', 'sensitivity', 'fatigue'];
+    }
+    
+    // Obtener duraciones para calcular las fases
+    final cycleStats = await getCycleStatistics(userId);
+    final profile = await getProfile(userId);
+    int defaultCycle = profile?['cycle_duration'] ?? 28;
+    int periodDuration = profile?['period_duration'] ?? 5;
+    int effectiveCycle = cycleStats['averageCycleLength']?.round() ?? defaultCycle;
+
+    // Mapa de frecuencias
+    Map<String, int> symptomCounts = {};
+
+    for (var row in logs) {
+      final dateStr = row['date'] as String;
+      final date = _parseDateString(dateStr);
+      if (date == null) continue;
+
+      // Buscar el inicio de periodo más cercano hacia atrás
+      DateTime? applicablePeriodStart;
+      for (var pStart in periodStarts) {
+        if (pStart.isBefore(date) || pStart.isAtSameMomentAs(date)) {
+          applicablePeriodStart = pStart;
+          break;
+        }
+      }
+
+      if (applicablePeriodStart == null) continue;
+
+      // Calcular la fase de ese día
+      int diffDays = date.difference(applicablePeriodStart).inDays;
+      int cycleDay = diffDays + 1;
+      
+      // Descartar si el registro está muy fuera de un ciclo normal
+      if (cycleDay > effectiveCycle + 15) continue;
+
+      int ovulationDay = effectiveCycle - 14;
+      if (ovulationDay < 1) ovulationDay = effectiveCycle ~/ 2;
+
+      String logPhase = '';
+      if (cycleDay >= 1 && cycleDay <= periodDuration) {
+        logPhase = 'menstrual';
+      } else if (cycleDay >= ovulationDay - 1 && cycleDay <= ovulationDay + 1) {
+        logPhase = 'ovulatory';
+      } else if (cycleDay > periodDuration && cycleDay < ovulationDay - 1) {
+        logPhase = 'follicular';
+      } else {
+        logPhase = 'luteal';
+      }
+
+      // Si coincide con la fase buscada, contar los síntomas
+      if (logPhase == phaseName) {
+        try {
+          List<dynamic> symps = jsonDecode(row['symptoms'] as String);
+          for (var s in symps) {
+            String sympStr = s.toString();
+            symptomCounts[sympStr] = (symptomCounts[sympStr] ?? 0) + 1;
+          }
+        } catch (_) {}
+      }
+    }
+
+    if (symptomCounts.isEmpty) {
+      return ['mood_swings', 'sensitivity', 'fatigue'];
+    }
+
+    final sortedEntries = symptomCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return sortedEntries.take(limit).map((e) => e.key).toList();
+  }
+
+  /// Predicción de síntomas mejorada: cruza historial por fase + tendencias semanales + condiciones médicas
+  Future<List<String>> getPredictedSymptomsV2(
+    int userId,
+    String phaseName,
+    List<String> medicalConditions,
+    String? contraceptive, {
+    int limit = 5,
+  }) async {
+    // 1. Get top symptoms for this phase (historical)
+    final phaseSymptoms = await getTopSymptomsForPhase(userId, phaseName, limit: 10);
+    
+    // 2. Get symptoms from last 7 days (recent trends)
+    final now = DateTime.now();
+    final sevenDaysAgo = now.subtract(const Duration(days: 7));
+    String format(DateTime d) => "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+    
+    final recentLogs = await getLogsInRange(userId, format(sevenDaysAgo), format(now));
+    
+    Map<String, int> recentFrequency = {};
+    for (var log in recentLogs) {
+      _addSymptomFrequency(recentFrequency, log['symptoms']);
+      _addSymptomFrequency(recentFrequency, log['physical_symptoms']);
+      _addSymptomFrequency(recentFrequency, log['emotional_symptoms']);
+      _addSymptomFrequency(recentFrequency, log['flujo']);
+      _addSymptomFrequency(recentFrequency, log['sexo']);
+    }
+    
+    // 3. Score each symptom: phase history + recent trend + medical condition bonus
+    Map<String, double> scores = {};
+    
+    // Phase symptoms get base weight
+    for (int i = 0; i < phaseSymptoms.length; i++) {
+      final symptom = phaseSymptoms[i];
+      // Higher rank = higher score (first item gets most weight)
+      scores[symptom] = (scores[symptom] ?? 0) + (10.0 - i);
+    }
+    
+    // Recent symptoms get bonus weight
+    for (var entry in recentFrequency.entries) {
+      final symptom = entry.key;
+      final freq = entry.value;
+      // More frequent recently = higher bonus
+      scores[symptom] = (scores[symptom] ?? 0) + (freq * 3.0);
+    }
+    
+    // 4. Medical condition bonuses
+    final Map<String, List<String>> conditionSymptoms = {
+      'pcos': ['mood_swings', 'acne', 'bloating', 'spotting', 'water_retention'],
+      'endometriosis': ['pelvic_pain', 'lower_back_pain', 'bloating', 'pain_during_sex', 'extreme_fatigue'],
+      'hypothyroidism': ['extreme_fatigue', 'water_retention', 'mood_swings', 'constipation', 'insomnia'],
+    };
+    
+    for (var condition in medicalConditions) {
+      final expected = conditionSymptoms[condition];
+      if (expected != null) {
+        for (var symptom in expected) {
+          scores[symptom] = (scores[symptom] ?? 0) + 2.0;
+        }
+      }
+    }
+    
+    // 5. Contraceptive side-effect bonuses
+    if (contraceptive != null && contraceptive != 'none') {
+      final hormonalMethods = ['combined_pill', 'mini_pill', 'hormonal_iud', 'implant', 'ring', 'patch', 'injection'];
+      if (hormonalMethods.contains(contraceptive)) {
+        // Common hormonal side effects
+        for (var symptom in ['headache', 'nausea', 'mood_swings', 'breast_tenderness']) {
+          scores[symptom] = (scores[symptom] ?? 0) + 1.5;
+        }
+      }
+    }
+    
+    // Remove default fallback keys that aren't real tracked symptoms
+    scores.remove('sensitivity');
+    scores.remove('fatigue');
+    
+    if (scores.isEmpty) {
+      return ['mood_swings', 'bloating', 'headache'];
+    }
+    
+    // Sort by score descending
+    final sorted = scores.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    
+    return sorted.take(limit).map((e) => e.key).toList();
+  }
+
+  /// Helper to count symptom frequencies from a JSON array column
+  void _addSymptomFrequency(Map<String, int> freq, dynamic value) {
+    if (value == null) return;
+    try {
+      final list = jsonDecode(value.toString());
+      if (list is List) {
+        for (var item in list) {
+          final s = item.toString();
+          if (s.isNotEmpty) {
+            freq[s] = (freq[s] ?? 0) + 1;
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   /// Calcula el promedio real de días de sangrado basándose en los registros consecutivos.

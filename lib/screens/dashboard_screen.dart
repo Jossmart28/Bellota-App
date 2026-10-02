@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -19,8 +20,8 @@ import 'profile_screen.dart';
 import '../widgets/health_info_carousel.dart';
 import '../core/services/cycle_service.dart';
 import '../core/services/notification_service.dart';
-import '../widgets/cozy_section_header.dart';
-import '../widgets/cozy_card.dart';
+import '../widgets/cycle_ring_widget.dart';
+import '../core/services/clinical_analysis_service.dart';
 import 'resumen_diario_screen.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
@@ -54,6 +55,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<String> _predictedSymptoms = ['mood_swings', 'sensitivity', 'fatigue'];
   String? _todayMood;
   List<String> _medicalConditions = [];
+  List<ClinicalAlert> _activeAlerts = [];
 
   // ── Definición de las 4 fases ──
   List<_PhaseData> _getPhases(String lang) {
@@ -176,8 +178,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(userId);
     final allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
     
-    // Asumiremos que tenemos una función en DatabaseHelper para obtener datos de fertilidad del ciclo actual, 
-    // pero por simplicidad pasaremos null si no la tenemos a mano (se requiere query adicional)
+    // Cargar datos de fertilidad del ciclo actual (hasta 45 días atrás para mayor seguridad)
+    List<Map<String, dynamic>>? fertilityData;
+    if (lastPeriod != null) {
+      String lastPeriodStr = "${lastPeriod.year}-${lastPeriod.month.toString().padLeft(2, '0')}-${lastPeriod.day.toString().padLeft(2, '0')}";
+      String nowStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      final logs = await DatabaseHelper.instance.getLogsInRange(userId, lastPeriodStr, nowStr);
+      if (logs.isNotEmpty) {
+        fertilityData = logs.map((l) => {
+          'date': l['date'],
+          'lh_test_result': l['lh_test_result'],
+          'basal_temp': l['basal_temp'],
+        }).toList();
+      }
+    }
     
     // 3. Calcular info del ciclo usando CycleService
     final cycleInfo = CycleService.instance.calculateCycleInfo(
@@ -187,7 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       periodDuration: _periodDuration,
       allPeriodStarts: allPeriodStarts.isNotEmpty ? allPeriodStarts : null,
       medicalConditions: medicalConds.isNotEmpty ? medicalConds : null,
-      fertilityData: null, // Idealmente cargaríamos los daily_logs del ciclo actual aquí
+      fertilityData: fertilityData,
     );
 
     // 4. Mapear fase a índice del array _phases
@@ -208,9 +222,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         phaseNameStr = 'menstrual';
     }
 
-    // 5. Cargar predicciones inteligentes de síntomas
-    final topSymptoms = await DatabaseHelper.instance.getTopSymptomsForPhase(userId, phaseNameStr);
-    List<String> predictedSymptoms = topSymptoms.isNotEmpty ? topSymptoms : ['mood_swings', 'sensitivity', 'fatigue'];
+    // 5. Cargar predicciones inteligentes de síntomas (Próximos 5 días)
+    String? contraceptive = profile?['contraceptive_method'] as String?;
+    
+    final topSymptoms = await DatabaseHelper.instance.getPredictedSymptomsV2(
+      userId, 
+      phaseNameStr,
+      medicalConds,
+      contraceptive,
+      limit: 5,
+    );
+    List<String> predictedSymptoms = topSymptoms.isNotEmpty ? topSymptoms : ['mood_swings', 'headache', 'bloating'];
 
     // 6. Cargar síntomas registrados HOY y estado de ánimo
     String todayKey = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -227,7 +249,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       todayMood = log['mood'] as String?;
     }
 
+    final activeAlerts = await ClinicalAnalysisService.instance.analyzeHealthState(userId);
+
     setState(() {
+      _activeAlerts = activeAlerts;
       _currentPhaseIndex = phaseIndex;
       _cycleInfo = cycleInfo;
       _hasPeriodsRegistered = cycleInfo.hasData;
@@ -311,15 +336,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildResumenDiarioBanner(context),
 
                 const SizedBox(height: 28),
-                CozySectionHeader(
-                  title: AppLocalizations.of(context)!.dashboardTodaysSummary,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Text(
+                    AppLocalizations.of(context)!.dashboardTodaysSummary,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).bellotaColors.textoDark,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 _buildResumenCard(context, _getPhases(languageNotifier.currentLang)[_currentPhaseIndex]),
 
                 const SizedBox(height: 28),
-                CozySectionHeader(
-                  title: AppLocalizations.of(context)!.dashboardInformationForYou,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Text(
+                    AppLocalizations.of(context)!.dashboardInformationForYou,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).bellotaColors.textoDark,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 const HealthInfoCarousel(),
@@ -346,6 +387,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final String dateStr = '${_nextPeriodDate.day} ${monthNamesShort[_nextPeriodDate.month - 1]}';
     final daysUntil = _nextPeriodDate.difference(DateTime.now()).inDays;
 
+    final bool hasCriticalAlert = _activeAlerts.any((a) => a.severity == 'high');
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -359,12 +402,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               medicalConditions: _medicalConditions,
               cycleInfo: _cycleInfo,
               currentPhaseIndex: _currentPhaseIndex,
+              activeAlerts: _activeAlerts,
             ),
           ),
         );
       },
-      child: Container(
-        width: double.infinity,
+      child: badges.Badge(
+        showBadge: hasCriticalAlert,
+        position: badges.BadgePosition.topEnd(top: -5, end: -5),
+        badgeAnimation: const badges.BadgeAnimation.fade(
+          animationDuration: Duration(seconds: 1),
+          loopAnimation: true,
+        ),
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: Theme.of(context).bellotaColors.chilero,
+          padding: const EdgeInsets.all(8),
+          elevation: 6,
+        ),
+        badgeContent: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+        child: Container(
+          width: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -527,6 +584,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -622,9 +680,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
     String dateStr = '${_nextPeriodDate.day}/${monthNamesShort[_nextPeriodDate.month - 1]}';
 
-    return CozyCard(
+    return Container(
       padding: const EdgeInsets.all(20),
-      shadowColor: Theme.of(context).bellotaColors.melon,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).bellotaColors.melon.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Expanded(
@@ -745,62 +813,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildResumenCard(BuildContext context, _PhaseData phase) {
     final textTheme = Theme.of(context).textTheme;
 
-    return CozyCard(
+    return Container(
       padding: const EdgeInsets.all(20),
-      shadowColor: phase.color,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: phase.color.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
-          // Círculo de fase con anillo decorativo de puntos (petal ring)
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              // Anillo exterior decorativo (puntos)
-              CustomPaint(
-                size: const Size(116, 116),
-                painter: _PetalRingPainter(color: phase.borderColor.withValues(alpha: 0.35)),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.easeInOutCubic,
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: phase.color.withValues(alpha: 0.80),
-                  border: Border.all(
-                    color: phase.borderColor.withValues(alpha: 0.7),
-                    width: 2.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: phase.color.withValues(alpha: 0.22),
-                      blurRadius: 14,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        phase.name,
-                        textAlign: TextAlign.center,
-                        style: textTheme.labelLarge?.copyWith(fontSize: 12.5, height: 1.25),
-                      ),
-                      if (_todayMood != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          _getMoodEmoji(_todayMood!),
-                          style: TextStyle(fontSize: 24),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          CycleRingWidget(
+            cycleInfo: _cycleInfo,
+            phaseColor: phase.color,
+            phaseBorder: phase.borderColor,
+            phaseName: phase.name.replaceAll('\n', ' '),
+            todayMood: _todayMood,
+            size: 116,
           ),
           const SizedBox(width: 18),
           Expanded(
@@ -996,40 +1030,4 @@ class _PhaseData {
     required this.symptoms,
   });
 }
-
-// ──────────────────────────────────────────────────────
-// Petal Ring Painter — anillo de puntos orgánicos
-// alrededor del círculo de fase en el resumen de hoy.
-// ──────────────────────────────────────────────────────
-class _PetalRingPainter extends CustomPainter {
-  final Color color;
-  _PetalRingPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 4;
-    const int dotCount = 24;
-    const double dotRadius = 2.2;
-
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    for (int i = 0; i < dotCount; i++) {
-      final angle = (2 * math.pi * i) / dotCount - math.pi / 2;
-      final x = center.dx + radius * math.cos(angle);
-      final y = center.dy + radius * math.sin(angle);
-      canvas.drawCircle(Offset(x, y), dotRadius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_PetalRingPainter oldDelegate) =>
-      oldDelegate.color != color;
-}
-
-
-
-
 

@@ -260,6 +260,32 @@ class NotificationService {
     await _plugin.cancelAll();
   }
 
+  /// Muestra una alerta clínica urgente inmediatamente.
+  Future<void> showUrgentAlert({
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'bellota_urgent_alerts',
+      'Alertas Clínicas',
+      channelDescription: 'Alertas críticas sobre tu estado de salud',
+      importance: Importance.max,
+      priority: Priority.high,
+      color: Color(0xFFD46A63),
+      enableVibration: true,
+      playSound: true,
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    
+    // Usamos el ID 998 para evitar solapar con la de prueba
+    await _plugin.show(998, title, body, details);
+  }
+
   /// Envía una notificación de prueba inmediata.
   Future<void> sendTestNotification() async {
     await _plugin.show(

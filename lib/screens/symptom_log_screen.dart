@@ -11,6 +11,7 @@ import 'flujo_vaginal_selection_screen.dart';
 import 'sexo_selection_screen.dart';
 import 'patron_sangrado_screen.dart';
 import 'dolor_sintomatologia_screen.dart';
+import '../core/services/clinical_analysis_service.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class SymptomLogScreen extends StatefulWidget {
@@ -104,11 +105,13 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
 
           // Load bleeding pattern from SQLite (was SharedPreferences)
           _patronSangrado = {};
-          if (log['bleeding_intensity'] != null) _patronSangrado['intensidadFlujo'] = log['bleeding_intensity'];
-          if (log['clots'] != null) _patronSangrado['coagulos'] = log['clots'];
-          if ((log['spotting'] as int?) == 1) _patronSangrado['manchado'] = 'SÃ­';
+          if (log['bleeding_intensity'] != null) _patronSangrado['intensidadFlujoKey'] = log['bleeding_intensity'];
+          if (log['clots'] != null) _patronSangrado['coagulosKey'] = log['clots'];
+          if ((log['spotting'] as int?) == 1) _patronSangrado['manchadoKey'] = 'yes';
           if (log['spotting_days'] != null) _patronSangrado['manchadoDias'] = log['spotting_days'];
-          if (log['sexual_symptoms'] != null) _patronSangrado['sintomasSexuales'] = log['sexual_symptoms'];
+          if (log['sexual_symptoms'] != null) {
+            _patronSangrado['sintomasSexualesKeys'] = (log['sexual_symptoms'] as String).split(', ');
+          }
           
           // Load pain data from SQLite (was SharedPreferences)
           _dolorSintomatologia = {};
@@ -132,7 +135,6 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
 
 
   Future<void> _saveAndAccept() async {
-    final lang = languageNotifier.currentLang;
     if (_userId != null && iniciaPeriodo) {
       final starts = await DatabaseHelper.instance.getAllPeriodStartDates(_userId!);
       bool hasRecentPeriod = false;
@@ -187,23 +189,25 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           cervicalPosition: _cervicalPosition,
           mood: _mood,
           // Bleeding pattern data
-          bleedingIntensity: _patronSangrado['intensidadFlujo'] as String?,
-          clots: _patronSangrado['coagulos'] as String?,
-          spotting: (_patronSangrado['manchado'] == 'SÃ­' || _patronSangrado['manchado'] == 'Yes'),
+          bleedingIntensity: _patronSangrado['intensidadFlujoKey'] as String?,
+          clots: _patronSangrado['coagulosKey'] as String?,
+          spotting: (_patronSangrado['manchadoKey'] == 'yes'),
           spottingDays: _patronSangrado['manchadoDias'] as String?,
-          sexualSymptoms: _patronSangrado['sintomasSexuales'] as String?,
+          sexualSymptoms: _patronSangrado['sintomasSexualesKeys'] != null 
+              ? (_patronSangrado['sintomasSexualesKeys'] as List<String>).join(', ') 
+              : null,
           // Pain & symptomatology data
           painLevel: _dolorSintomatologia['nivelDolor']?.toDouble(),
-          painCharacter: _dolorSintomatologia['caracterDolor'] as String?,
+          painCharacter: _dolorSintomatologia['caracterDolorKey'] as String?,
           painDays: _dolorSintomatologia['diasDolor'] as String?,
-          treatment: _dolorSintomatologia['tratamiento'] as String?,
-          physicalSymptoms: _dolorSintomatologia['sintomasFisicos'] != null 
-              ? List<String>.from(_dolorSintomatologia['sintomasFisicos'])
+          treatment: _dolorSintomatologia['tratamientoKey'] as String?,
+          physicalSymptoms: _dolorSintomatologia['sintomasFisicosKeys'] != null 
+              ? List<String>.from(_dolorSintomatologia['sintomasFisicosKeys'])
               : [],
-          emotionalSymptoms: _dolorSintomatologia['sintomasEmocionales'] != null 
-              ? List<String>.from(_dolorSintomatologia['sintomasEmocionales'])
+          emotionalSymptoms: _dolorSintomatologia['sintomasEmocionalKeys'] != null 
+              ? List<String>.from(_dolorSintomatologia['sintomasEmocionalKeys'])
               : [],
-          breastExam: _dolorSintomatologia['autoexamenMama'] as String?,
+          breastExam: _dolorSintomatologia['autoexamenMamaKey'] as String?,
         );
 
         // Reprogramar notificaciones porque puede haber cambiado el inicio del periodo
@@ -211,6 +215,20 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           await NotificationService.instance.scheduleAllNotifications(_userId!);
         } catch (e) {
           debugPrint('Error scheduling notifications: $e');
+        }
+
+        // Evaluar estado clínico para disparar notificación push
+        try {
+          final alerts = await ClinicalAnalysisService.instance.analyzeHealthState(_userId!);
+          final highAlert = alerts.where((a) => a.severity == 'high').firstOrNull;
+          if (highAlert != null) {
+            await NotificationService.instance.showUrgentAlert(
+              title: '🚨 Bellota',
+              body: highAlert.triggerSymptoms.join(', '),
+            );
+          }
+        } catch (e) {
+          debugPrint('Error evaluating clinical state: $e');
         }
       } catch (e) {
         debugPrint('Error saving daily log: $e');
@@ -315,34 +333,6 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     }
   }
 
-  String? _getBleedingSummary(String lang) {
-    if (_patronSangrado.isEmpty) return null;
-    final parts = <String>[];
-    if (_patronSangrado['intensidadFlujo'] != null) parts.add(_patronSangrado['intensidadFlujo'].toString());
-    if (_patronSangrado['coagulos'] != null && _patronSangrado['coagulos'] != 'Nunca' && _patronSangrado['coagulos'] != 'never' && _patronSangrado['coagulos'] != 'Never') {
-      parts.add(_patronSangrado['coagulos'].toString());
-    }
-    if (parts.isEmpty) return AppLocalizations.of(context)!.registrationFormSaved;
-    return parts.join(' Â· ');
-  }
-
-  String? _getPainSummary(String lang) {
-    if (_dolorSintomatologia.isEmpty) return null;
-    final parts = <String>[];
-    final nivel = _dolorSintomatologia['nivelDolor'];
-    if (nivel != null) parts.add('EVA ${(nivel as num).toStringAsFixed(0)}/10');
-    final caracter = _dolorSintomatologia['caracterDolor'];
-    if (caracter != null && caracter.toString().isNotEmpty) parts.add(caracter.toString());
-    final trat = _dolorSintomatologia['tratamiento'];
-    if (trat != null && trat.toString().isNotEmpty && trat != 'none' && trat != 'Ninguno') parts.add(trat.toString());
-    if (parts.isEmpty) return AppLocalizations.of(context)!.registrationFormSaved;
-    return parts.join(' Â· ');
-  }
-
-  String? _getListSummary(List<String> list) {
-    if (list.isEmpty) return null;
-    return list.take(3).join(', ') + (list.length > 3 ? ' +${list.length - 3}' : '');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -416,7 +406,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   icon: Icons.favorite_border_rounded,
                   iconColor: Theme.of(context).bellotaColors.melon,
                   title: AppLocalizations.of(context)!.registrationFormSex,
-                  subtitle: _getListSummary(_selectedSexo),
+                  hasData: _selectedSexo.isNotEmpty,
                   trailing: _buildAddButton(hasItems: _selectedSexo.isNotEmpty),
                   onTap: _openSexoSelection,
                 ),
@@ -426,7 +416,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   icon: Icons.medical_services_outlined,
                   iconColor: Theme.of(context).bellotaColors.asuncion,
                   title: AppLocalizations.of(context)!.registrationFormSymptoms,
-                  subtitle: _getListSummary(_selectedSymptoms),
+                  hasData: _selectedSymptoms.isNotEmpty,
                   trailing: _buildAddButton(hasItems: _selectedSymptoms.isNotEmpty),
                   onTap: _openSymptomsSelection,
                 ),
@@ -436,7 +426,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   icon: Icons.opacity_rounded,
                   iconColor: Color(0xFFA566C1),
                   title: AppLocalizations.of(context)!.registrationFormVaginalFlow,
-                  subtitle: _getListSummary(_selectedFlujos),
+                  hasData: _selectedFlujos.isNotEmpty,
                   trailing: _buildAddButton(hasItems: _selectedFlujos.isNotEmpty),
                   onTap: _openFlujoSelection,
                 ),
@@ -446,7 +436,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   icon: Icons.bloodtype_outlined,
                   iconColor: Theme.of(context).bellotaColors.chilero,
                   title: AppLocalizations.of(context)!.registrationFormBleedingPattern,
-                  subtitle: _getBleedingSummary(lang),
+                  hasData: _patronSangrado.isNotEmpty,
                   trailing: _buildAddButton(hasItems: _patronSangrado.isNotEmpty),
                   onTap: _openPatronSangradoSelection,
                 ),
@@ -456,7 +446,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   icon: Icons.healing_outlined,
                   iconColor: Theme.of(context).bellotaColors.chiltoma,
                   title: AppLocalizations.of(context)!.registrationFormPainAndSymptoms,
-                  subtitle: _getPainSummary(lang),
+                  hasData: _dolorSintomatologia.isNotEmpty,
                   trailing: _buildAddButton(hasItems: _dolorSintomatologia.isNotEmpty),
                   onTap: _openDolorSintomatologiaSelection,
                 ),
@@ -642,7 +632,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
     required IconData icon,
     required Color iconColor,
     required String title,
-    String? subtitle,
+    bool hasData = false,
     required Widget trailing,
     VoidCallback? onTap,
   }) {
@@ -676,7 +666,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   ),
                   child: Icon(icon, color: iconColor, size: 22),
                 ),
-                if (subtitle != null)
+                // Punto verde indicando que hay datos registrados
+                if (hasData)
                   Positioned(
                     top: -2,
                     right: -2,
@@ -694,32 +685,14 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             ),
             SizedBox(width: 14),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15.5,
-                      color: Theme.of(context).bellotaColors.textoDark,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.05,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.85),
-                        height: 1.35,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15.5,
+                  color: Theme.of(context).bellotaColors.textoDark,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.05,
+                ),
               ),
             ),
             SizedBox(width: 10),

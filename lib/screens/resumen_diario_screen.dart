@@ -1,12 +1,14 @@
 import 'dart:math' as math;
-
+import 'dart:ui';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
+import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:flutter/material.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import '../core/services/cycle_service.dart';
 import '../theme/bellota_colors.dart';
+import '../core/services/cycle_service.dart';
+import '../core/services/clinical_analysis_service.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ResumenDiarioScreen extends StatelessWidget {
   final DateTime nextPeriodDate;
@@ -16,6 +18,7 @@ class ResumenDiarioScreen extends StatelessWidget {
   final List<String> medicalConditions;
   final CycleInfo? cycleInfo;
   final int currentPhaseIndex;
+  final List<ClinicalAlert>? activeAlerts;
 
   const ResumenDiarioScreen({
     super.key,
@@ -26,168 +29,155 @@ class ResumenDiarioScreen extends StatelessWidget {
     required this.currentPhaseIndex,
     this.todayMood,
     this.cycleInfo,
+    this.activeAlerts,
   });
+
+  // Colores de fase consistentes con dashboard_screen.dart _getPhases
+  Color _phaseColor(BuildContext context) {
+    final colors = Theme.of(context).bellotaColors;
+    switch (currentPhaseIndex) {
+      case 0: return colors.melon;      // Ovulatoria
+      case 1: return colors.asuncion;   // Lútea
+      case 2: return colors.chiltoma;   // Folicular
+      case 3: return colors.chilero;    // Menstrual
+      default: return colors.melon;
+    }
+  }
+
+  Color _phaseBorderColor(int index) {
+    switch (index) {
+      case 0: return const Color(0xFFD97A4A);
+      case 1: return const Color(0xFF8FAFC8);
+      case 2: return const Color(0xFF97B580);
+      case 3: return const Color(0xFFD46A63);
+      default: return const Color(0xFFD97A4A);
+    }
+  }
+
+  String _phaseName(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    switch (currentPhaseIndex) {
+      case 0: return loc.cyclePhasesOvulatory;
+      case 1: return loc.cyclePhasesLuteal;
+      case 2: return loc.cyclePhasesFollicular;
+      case 3: return loc.cyclePhasesMenstrual;
+      default: return loc.cyclePhasesOvulatory;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
+        final colors = Theme.of(context).bellotaColors;
         final daysUntil = nextPeriodDate.difference(DateTime.now()).inDays;
-        
-        final List<String> monthNames = [
-          'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-          'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-        ];
+        final phaseColor = _phaseColor(context);
+        final phaseBorder = _phaseBorderColor(currentPhaseIndex);
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: colors.basilica,
           body: Stack(
             children: [
-              // 1. Fondo Degradado (Rosa / Chilero)
+              // Fondo degradado con color de fase
               Positioned(
                 top: 0,
                 left: 0,
                 right: 0,
                 height: 280,
                 child: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Color(0xFFFF5E8A), // Rosa intenso
-                        Color(0xFFFF99B6), // Rosa suave
-                        Colors.white,
+                        phaseColor.withValues(alpha: 0.85),
+                        phaseColor.withValues(alpha: 0.4),
+                        colors.basilica,
                       ],
-                      stops: [0.0, 0.6, 1.0],
+                      stops: const [0.0, 0.6, 1.0],
                     ),
                   ),
                 ),
               ),
 
-              // 2. Contenido principal
               SafeArea(
                 bottom: false,
                 child: Column(
                   children: [
                     // Top Bar
-                    _buildTopBar(context),
-                    
-                    // Selector de fechas simulado
-                    _buildDateSelector(),
-                    
+                    _buildTopBar(context, colors),
+
+                    // Date selector
+                    _buildDateSelector(context, colors),
+
                     const SizedBox(height: 16),
 
-                    // Tarjeta blanca redondeada que cubre el resto
+                    // Tarjeta blanca principal
                     Expanded(
                       child: Container(
                         width: double.infinity,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colors.melon.withValues(alpha: 0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, -4),
+                            ),
+                          ],
                         ),
                         child: SingleChildScrollView(
                           physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Título principal
                               Text(
-                                daysUntil <= 0 
-                                    ? "Tu período puede iniciar hoy" 
-                                    : "Tu período inicia en $daysUntil días",
-                                style: GoogleFonts.poppins(
+                                daysUntil <= 0
+                                    ? 'Tu período puede iniciar hoy'
+                                    : 'Tu período inicia en $daysUntil días',
+                                style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF333333),
+                                  color: colors.textoDark,
                                   height: 1.2,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               Text(
-                                "Basado en la fecha prevista de tu período (${nextPeriodDate.day} ${monthNames[nextPeriodDate.month - 1]})",
-                                style: GoogleFonts.poppins(
+                                'Basado en tus registros — Día ${cycleInfo?.cycleDay ?? '?'} de tu ciclo',
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: const Color(0xFF757575),
+                                  color: colors.textoMedio,
                                   height: 1.4,
                                 ),
                               ),
-                              
-                              const SizedBox(height: 48),
-                              
-                              // Gráfico circular (Simulado Visualmente)
-                              Center(
-                                child: SizedBox(
-                                  width: 260,
-                                  height: 260,
-                                  child: CustomPaint(
-                                    painter: _CycleRingPainter(),
-                                  ),
-                                ),
-                              ),
 
-                              const SizedBox(height: 48),
+                              const SizedBox(height: 28),
 
-                              // Predicción de síntomas
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF7F7F9), // Gris muy claro
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFFFF5E8A),
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          "Predicción de síntomas",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: const Color(0xFF222222),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      "Según tus registros pasados, podrías experimentar los siguientes síntomas en esta fase de tu ciclo.",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        color: const Color(0xFF666666),
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    
-                                    if (predictedSymptoms.isEmpty)
-                                      Text(
-                                        "No hay predicciones disponibles aún.",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: const Color(0xFF999999),
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      )
-                                    else
-                                      ...predictedSymptoms.map((s) => _buildSymptomItem(s, context)),
-                                  ],
-                                ),
-                              ),
-                              
+                              // ════════════════════════════════════════
+                              // TARJETA: Fase actual + Síntomas registrados
+                              // ════════════════════════════════════════
+                              _buildPhaseAndSymptomsCard(context, colors, phaseColor, phaseBorder),
+
+                              const SizedBox(height: 20),
+
+                              // ════════════════════════════════════════
+                              // PREDICCIÓN DE SÍNTOMAS
+                              // ════════════════════════════════════════
+                              _buildPredictionSection(context, colors),
+
+                              if (activeAlerts != null && activeAlerts!.isNotEmpty) ...[
+                                const SizedBox(height: 20),
+                                // ════════════════════════════════════════
+                                // ALERTAS CLÍNICAS (Semáforo)
+                                // ════════════════════════════════════════
+                                _buildClinicalAlertSection(context, colors),
+                              ],
+
                               const SizedBox(height: 40),
                             ],
                           ),
@@ -204,42 +194,541 @@ class ResumenDiarioScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  // ═══════════════════════════════════════════════════════════
+  // TARJETA: Fase + Síntomas Registrados (con anillo de ciclo)
+  // ═══════════════════════════════════════════════════════════
+  Widget _buildPhaseAndSymptomsCard(
+    BuildContext context,
+    BellotaColors colors,
+    Color phaseColor,
+    Color phaseBorder,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: phaseColor.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+        border: Border.all(
+          color: phaseColor.withValues(alpha: 0.15),
+          width: 1,
+        ),
+      ),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
-            onPressed: () => Navigator.pop(context),
-          ),
+          // ── Síntomas registrados ──
           Expanded(
-            child: Text(
-              "Resumen diario",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.symptomsAndActionsLoggedSymptoms,
+                  style: TextStyle(
+                    color: colors.textoDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (todaySymptoms.isEmpty)
+                  Text(
+                    AppLocalizations.of(context)!.symptomsAndActionsNoSymptomsLogged,
+                    style: TextStyle(
+                      color: colors.textoMedio,
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                if (todaySymptoms.isNotEmpty)
+                  ...todaySymptoms.take(4).map((s) => _bulletItem(
+                    context,
+                    colors,
+                    AppTranslations.get('registration_form', s, languageNotifier.currentLang, context: context),
+                    phaseColor,
+                  )),
+                if (todaySymptoms.length > 4)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '+${todaySymptoms.length - 4} más',
+                      style: TextStyle(
+                        color: colors.textoMedio,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                if (todayMood != null) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: phaseColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${_getMoodEmoji(todayMood!)} ${_translateMood(todayMood!, context)}',
+                      style: TextStyle(
+                        color: phaseColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          const SizedBox(width: 48), // Espaciador para centrar
         ],
       ),
     );
   }
 
-  Widget _buildDateSelector() {
+  Widget _bulletItem(BuildContext context, BellotaColors colors, String text, Color dotColor) {
+    // Capitalize first letter
+    if (text.isNotEmpty) {
+      text = text[0].toUpperCase() + text.substring(1);
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: dotColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: colors.textoDark,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════
+  // PREDICCIÓN DE SÍNTOMAS (PREMIUM)
+  // ═══════════════════════════════
+  Widget _buildPredictionSection(BuildContext context, BellotaColors colors) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: colors.chilero.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.auto_awesome_outlined, color: colors.chilero, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Predicción de síntomas',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: colors.textoDark,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Basado en tus registros, podrías experimentar esto en tu fase actual:',
+          style: TextStyle(
+            fontSize: 13,
+            color: colors.textoMedio,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        if (predictedSymptoms.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colors.nancite.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              'No hay predicciones disponibles aún. Sigue registrando para mejorarlas.',
+              style: TextStyle(
+                fontSize: 13,
+                color: colors.textoMedio,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 100, // Altura de las tarjetas
+            child: AnimationLimiter(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                itemCount: predictedSymptoms.length,
+                clipBehavior: Clip.none,
+                itemBuilder: (BuildContext context, int index) {
+                  final s = predictedSymptoms[index];
+                  String translated = AppTranslations.get('registration_form', s, languageNotifier.currentLang, context: context);
+                  if (translated.isNotEmpty) {
+                    translated = translated[0].toUpperCase() + translated.substring(1);
+                  }
+                  
+                  // Simulate probability for visual impact
+                  final probability = 85 - (index * 15); 
+                  
+                  return AnimationConfiguration.staggeredList(
+                    position: index,
+                    duration: const Duration(milliseconds: 500),
+                    child: SlideAnimation(
+                      horizontalOffset: 50.0,
+                      child: FadeInAnimation(
+                        child: Container(
+                          width: 130,
+                          margin: const EdgeInsets.only(right: 12),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: colors.chilero.withValues(alpha: 0.15)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: colors.chilero.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.analytics_outlined, size: 16, color: colors.chilero.withValues(alpha: 0.7)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$probability%',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: colors.chilero,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: Text(
+                                  translated,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: colors.textoDark,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // ALERTAS CLÍNICAS (SCORE DIARIO)
+  // ════════════════════════════════════════════════════════════════
+  Widget _buildClinicalAlertSection(BuildContext context, BellotaColors colors) {
+    if (activeAlerts == null || activeAlerts!.isEmpty) return const SizedBox.shrink();
+    
+    // Sort so high severity is at top
+    final sortedAlerts = List<ClinicalAlert>.from(activeAlerts!);
+    sortedAlerts.sort((a, b) {
+      int getSev(String s) => s == 'high' ? 3 : s == 'medium' ? 2 : 1;
+      return getSev(b.severity).compareTo(getSev(a.severity));
+    });
+
+    final lang = languageNotifier.currentLang;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.health_and_safety_rounded, color: Colors.red.shade600, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              AppLocalizations.of(context)!.profileAndReportHealthProfile,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: colors.textoDark,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        ...sortedAlerts.asMap().entries.map((entry) {
+          int index = entry.key;
+          ClinicalAlert alert = entry.value;
+
+          Color alertColor;
+          Color bgColor;
+          IconData icon;
+          if (alert.severity == 'high') {
+            alertColor = const Color(0xFFD32F2F); // Red
+            bgColor = const Color(0xFFFFEBEE);
+            icon = Icons.warning_rounded;
+          } else if (alert.severity == 'medium') {
+            alertColor = const Color(0xFFF57C00); // Orange
+            bgColor = const Color(0xFFFFF3E0);
+            icon = Icons.info_outline_rounded;
+          } else {
+            alertColor = colors.chiltoma;
+            bgColor = colors.chiltoma.withValues(alpha: 0.1);
+            icon = Icons.check_circle_outline_rounded;
+          }
+
+          // Translate symptom keys to display names
+          final translatedSymptoms = alert.triggerSymptoms.map((key) {
+            String translated = AppTranslations.get(
+              'registration_form', key, lang, context: context,
+            );
+            if (translated.isNotEmpty) {
+              translated = translated[0].toUpperCase() + translated.substring(1);
+            }
+            return translated;
+          }).toList();
+
+          // Category icon
+          IconData categoryIcon;
+          switch (alert.category) {
+            case 'oncology': categoryIcon = Icons.favorite_border_rounded; break;
+            case 'infection': categoryIcon = Icons.opacity_rounded; break;
+            case 'pain': categoryIcon = Icons.thermostat_rounded; break;
+            case 'sexual_risk': categoryIcon = Icons.shield_outlined; break;
+            case 'sexual_pain': categoryIcon = Icons.spa_outlined; break;
+            case 'bleeding': categoryIcon = Icons.water_drop_rounded; break;
+            case 'spotting': categoryIcon = Icons.water_drop_outlined; break;
+            case 'cycle': categoryIcon = Icons.loop_rounded; break;
+            default: categoryIcon = Icons.health_and_safety_rounded; break;
+          }
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: alertColor.withValues(alpha: 0.3)),
+              boxShadow: [
+                BoxShadow(
+                  color: alertColor.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header row: icon + severity badge + weekly count
+                  Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: bgColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(categoryIcon, color: alertColor, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(icon, color: alertColor, size: 18),
+                      const SizedBox(width: 6),
+                      if (alert.severity == 'high')
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: alertColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Text(
+                            '⚠',
+                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      const Spacer(),
+                      // Weekly frequency badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: alertColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${alert.weeklyCount}/${alert.totalDaysWithData} d',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: alertColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Symptom chips — the ONLY content shown
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: translatedSymptoms.map((name) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: alertColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: alertColor.withValues(alpha: 0.25)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.adjust_rounded, size: 12, color: alertColor),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                name,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.textoDark,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ).animate().fade(duration: 400.ms, delay: (index * 150).ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+        }),
+      ],
+    );
+  }
+
+  // ═══════════════════
+  // TOP BAR
+  // ═══════════════════
+  Widget _buildTopBar(BuildContext context, BellotaColors colors) {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.2),
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.white.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
+                onPressed: () => Navigator.pop(context),
+              ),
+              Expanded(
+                child: Text(
+                  'Resumen Diario',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 48), // Spacer for centering
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════
+  // DATE SELECTOR
+  // ═══════════════════
+  Widget _buildDateSelector(BuildContext context, BellotaColors colors) {
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
+    final tomorrow = now.add(const Duration(days: 1));
+
+    final List<String> monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    final List<String> weekDays = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+
+    String format(DateTime d) => '${d.day} ${monthNames[d.month - 1]}';
+    String formatDay(DateTime d) => weekDays[d.weekday - 1];
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _dateItem("jue", "17 sept", false),
-          _dateItem("Hoy", "18 sept", true),
-          _dateItem("sáb", "19 sept", false),
+          _dateItem(formatDay(yesterday), format(yesterday), false),
+          _dateItem('Hoy', format(now), true),
+          _dateItem(formatDay(tomorrow), format(tomorrow), false),
         ],
       ),
     );
@@ -250,7 +739,7 @@ class ResumenDiarioScreen extends StatelessWidget {
       children: [
         Text(
           day,
-          style: GoogleFonts.poppins(
+          style: TextStyle(
             fontSize: isToday ? 18 : 14,
             fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
             color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.6),
@@ -259,13 +748,15 @@ class ResumenDiarioScreen extends StatelessWidget {
         const SizedBox(height: 4),
         Container(
           padding: EdgeInsets.symmetric(horizontal: isToday ? 12 : 0, vertical: isToday ? 4 : 0),
-          decoration: isToday ? BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(12),
-          ) : null,
+          decoration: isToday
+              ? BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                )
+              : null,
           child: Text(
             date,
-            style: GoogleFonts.poppins(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: isToday ? FontWeight.w500 : FontWeight.w400,
               color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.6),
@@ -276,218 +767,31 @@ class ResumenDiarioScreen extends StatelessWidget {
     );
   }
 
-  String _translateSymptom(String key, BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    switch (key) {
-      // Whole Body
-      case 'fever': return loc.registrationFormFever;
-      case 'body_ache': return loc.registrationFormBodyAche;
-      case 'general_distension': return loc.registrationFormGeneralDistension;
-      case 'extreme_fatigue': return loc.registrationFormExtremeFatigue;
-      case 'water_retention': return loc.registrationFormWaterRetention;
-      case 'night_sweats': return loc.registrationFormNightSweats;
-      case 'hot_flashes': return loc.registrationFormHotFlashes;
-      case 'palpitations': return loc.registrationFormPalpitations;
-      case 'dizziness': return loc.registrationFormDizziness;
-      case 'joint_pain': return loc.registrationFormJointPain;
-      // Head
-      case 'headache': return loc.registrationFormHeadache;
-      case 'vertigo': return loc.registrationFormVertigo;
-      case 'insomnia': return loc.registrationFormInsomnia;
-      case 'vomiting': return loc.registrationFormVomiting;
-      case 'acne': return loc.registrationFormAcne;
-      case 'concentration_difficulty': return loc.registrationFormConcentrationDifficulty;
-      // Abdomen
-      case 'abdominal_pain': return loc.registrationFormAbdominalPain;
-      case 'abdominal_distension': return loc.registrationFormAbdominalDistension;
-      case 'bloating': return loc.registrationFormBloating;
-      case 'diarrhea': return loc.registrationFormDiarrhea;
-      case 'constipation': return loc.registrationFormConstipation;
-      case 'nausea': return loc.registrationFormNausea;
-      case 'pelvic_pain': return loc.registrationFormPelvicPain;
-      case 'lower_back_pain': return loc.registrationFormLowerBackPain;
-      case 'leg_cramps': return loc.registrationFormLegCramps;
-      // Other
-      case 'breast_tenderness': return loc.registrationFormBreastTenderness;
-      case 'abnormal_discharge': return loc.registrationFormAbnormalDischarge;
-      case 'spotting': return loc.registrationFormSpotting;
-      case 'appetite_changes': return loc.registrationFormAppetiteChanges;
-      case 'cravings': return loc.registrationFormCravings;
-      // Emotional
-      case 'irritability': return loc.registrationFormIrritability;
-      case 'sadness': return loc.registrationFormSadness;
-      case 'crying_easily': return loc.registrationFormCryingEasily;
-      case 'mood_swings': return loc.registrationFormMoodSwings;
-      case 'anxiety': return loc.registrationFormAnxiety;
-      case 'low_self_esteem': return loc.registrationFormLowSelfEsteem;
-      // Extra from older dictionary
-      case 'cramps': return loc.symptomsCramps;
-      case 'fatigue': return loc.symptomsFatigue;
-      case 'high_energy': return loc.symptomsHighEnergy;
-      case 'severe_pain': return loc.symptomsSeverePain;
-      case 'sensitivity': return loc.symptomsSensitivity;
-      default: return key.replaceAll('_', ' ');
+  String _getMoodEmoji(String mood) {
+    switch (mood) {
+      case 'happy': return '😊';
+      case 'sad': return '😢';
+      case 'anxious': return '😰';
+      case 'angry': return '😠';
+      case 'calm': return '😌';
+      case 'energetic': return '⚡';
+      case 'tired': return '😴';
+      case 'sensitive': return '🥺';
+      default: return '😶';
     }
   }
 
-  Widget _buildSymptomItem(String symptomKey, BuildContext context) {
-    String translated = _translateSymptom(symptomKey, context);
-    
-    // Capitalize
-    if (translated.isNotEmpty) {
-      translated = translated[0].toUpperCase() + translated.substring(1);
+  String _translateMood(String mood, BuildContext context) {
+    switch (mood) {
+      case 'happy': return 'Feliz';
+      case 'sad': return 'Triste';
+      case 'anxious': return 'Ansiosa';
+      case 'angry': return 'Enojada';
+      case 'calm': return 'Tranquila';
+      case 'energetic': return 'Energética';
+      case 'tired': return 'Cansada';
+      case 'sensitive': return 'Sensible';
+      default: return mood;
     }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          // Avatar simulado del síntoma
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFEBF1), // Fondo rosita
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Icon(
-                Icons.face_retouching_natural_rounded, // Icono genérico
-                color: const Color(0xFFFF5E8A),
-                size: 24,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              translated,
-              style: GoogleFonts.poppins(
-                fontSize: 15,
-                color: const Color(0xFF333333),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
-}
-
-// ────────────────────────────────────────────────────────────────
-// Custom Painter para el gráfico circular del ciclo
-// ────────────────────────────────────────────────────────────────
-class _CycleRingPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 20;
-    final strokeWidth = 28.0;
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    // 1. Fase menstrual (Rosa) - Arriba a la derecha
-    paint.color = const Color(0xFFFCE1E8); // Rosa pálido
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,        // Inicio: -90 grados (arriba)
-      math.pi / 2.5,       // Sweep
-      false,
-      paint,
-    );
-
-    // 2. Fase folicular (Celeste) - Derecha abajo
-    paint.color = const Color(0xFFEAF5FA); // Celeste pálido
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2 + (math.pi / 2.2),
-      math.pi / 2,
-      false,
-      paint,
-    );
-
-    // 3. Ventana fértil / Ovulación (Morado claro) - Abajo izquierda
-    paint.color = const Color(0xFFF0E5F7); // Morado pálido
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      math.pi / 1.5,
-      math.pi / 3.5,
-      false,
-      paint,
-    );
-
-    // 4. Fase lútea (Naranja) - Izquierda a arriba
-    paint.color = const Color(0xFFFCAF3B); // Naranja vibrante
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      math.pi,
-      math.pi / 1.6,
-      false,
-      paint,
-    );
-
-    // --- Decoraciones interiores ---
-    
-    // Círculos concéntricos punteados/suaves (simulados con líneas finas)
-    final circlePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..color = const Color(0xFFEEEEEE);
-    
-    canvas.drawCircle(center, radius - 40, circlePaint);
-    canvas.drawCircle(center, radius - 60, circlePaint);
-    
-    // Anillo central (naranja)
-    final centerRingPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0
-      ..color = const Color(0xFFFCAF3B);
-    canvas.drawCircle(center, 8, centerRingPaint);
-
-    // Textos de las fases (simulados dibujando en el canvas con rotación)
-    _drawRotatedText(canvas, center, "Período", radius + 25, -math.pi / 3.5, const Color(0xFFBDBDBD));
-    _drawRotatedText(canvas, center, "Fase folicular", radius + 25, math.pi / 4, const Color(0xFFBDBDBD));
-    _drawRotatedText(canvas, center, "Día de ovulación", radius + 25, math.pi / 1.25, const Color(0xFFBDBDBD));
-    _drawRotatedText(canvas, center, "Fase lútea", radius + 25, -math.pi + 0.5, const Color(0xFFFCAF3B));
-  }
-
-  void _drawRotatedText(Canvas canvas, Offset center, String text, double radius, double angle, Color color) {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: GoogleFonts.poppins(
-          fontSize: 10,
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-
-    canvas.save();
-    // Movemos al centro
-    canvas.translate(center.dx, center.dy);
-    // Rotamos
-    canvas.rotate(angle);
-    // Movemos hacia afuera
-    canvas.translate(radius, 0);
-    // Rotamos el texto para que sea legible según su posición
-    if (angle > math.pi / 2 || angle < -math.pi / 2) {
-      canvas.rotate(math.pi); // Dar la vuelta si está del lado izquierdo
-      canvas.translate(-textPainter.width / 2, -textPainter.height / 2);
-    } else {
-      canvas.translate(-textPainter.width / 2, -textPainter.height / 2);
-    }
-    
-    textPainter.paint(canvas, Offset.zero);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

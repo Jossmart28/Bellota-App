@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/language_notifier.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
-import '../navigation/navigation_service.dart';
 import 'onboarding_screen.dart';
 
 class BirthYearScreen extends StatefulWidget {

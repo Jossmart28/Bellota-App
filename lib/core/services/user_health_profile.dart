@@ -87,6 +87,13 @@ class UserHealthProfileService {
           uniqueSymptoms.addAll(emo);
         } catch (_) {}
       }
+      // Anomalías mamarias
+      if (log['breast_exam'] != null) {
+        final exam = log['breast_exam'].toString();
+        if (exam != 'breast_normal' && exam != 'breast_pending') {
+          uniqueSymptoms.add(exam);
+        }
+      }
     }
 
     // 3. Obtener medicamentos de SharedPreferences

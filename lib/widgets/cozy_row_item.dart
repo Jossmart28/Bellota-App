@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/bellota_colors.dart';
 
@@ -7,7 +7,7 @@ import '../theme/bellota_colors.dart';
 class CozyRowItem extends StatelessWidget {
   final String title;
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final IconData icon;
   final Color? iconBackgroundColor;
   final Color? iconColor;
@@ -17,7 +17,7 @@ class CozyRowItem extends StatelessWidget {
     super.key,
     required this.title,
     required this.value,
-    required this.onTap,
+    this.onTap,
     this.icon = Icons.tune_rounded,
     this.iconBackgroundColor,
     this.iconColor,
@@ -31,10 +31,10 @@ class CozyRowItem extends StatelessWidget {
     final fgColor = iconColor ?? colors.melon;
 
     return GestureDetector(
-      onTap: () {
+      onTap: onTap != null ? () {
         HapticFeedback.lightImpact();
-        onTap();
-      },
+        onTap!();
+      } : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(

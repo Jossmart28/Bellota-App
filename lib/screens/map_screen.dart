@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../widgets/bellota_icon.dart';
+import '../widgets/rpg_help_dialog.dart';
 import 'health_center_detail_screen.dart';
 import '../core/models/health_center_model.dart';
 import '../core/data/hospital_repository.dart';
@@ -22,6 +23,7 @@ class _MapScreenState extends State<MapScreen> {
   final TextEditingController _searchController = TextEditingController();
   final HospitalRepository _repository = HospitalRepository();
   bool _isListVisible = true;
+  bool _showRpgHelp = false;
   LatLng? _userLocation;
 
   List<HealthCenter> _healthCenters = [];
@@ -96,52 +98,75 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildSearchBar(context),
-            Expanded(
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: _isListVisible ? 0 : 1,
-                    child: _isListVisible
-                        ? SizedBox(height: 300, child: _buildMap())
-                        : _buildMap(),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _isListVisible = !_isListVisible),
-                    child: Container(
-                      width: double.infinity,
-                      color: Theme.of(context).bellotaColors.blanco,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Center(
+            // ── Contenido principal del mapa ──
+            Column(
+              children: [
+                _buildSearchBar(context),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: _isListVisible ? 0 : 1,
+                        child: _isListVisible
+                            ? SizedBox(height: 300, child: _buildMap())
+                            : _buildMap(),
+                      ),
+                      GestureDetector(
+                        onTap: () => setState(() => _isListVisible = !_isListVisible),
                         child: Container(
-                          width: 48,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).bellotaColors.textoMedio.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(2.5),
+                          width: double.infinity,
+                          color: Theme.of(context).bellotaColors.blanco,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Center(
+                            child: Container(
+                              width: 48,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).bellotaColors.textoMedio.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(2.5),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      if (_isListVisible)
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            itemCount: _filteredCenters.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _buildHealthCenterCard(context, _filteredCenters[index]),
+                              );
+                            },
+                          ),
+                        ),
+                    ],
                   ),
-                  if (_isListVisible)
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        itemCount: _filteredCenters.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildHealthCenterCard(context, _filteredCenters[index]),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ),
+                ),
+              ],
             ),
+
+            // ── Overlay RPG Help Dialog ──
+            if (_showRpgHelp)
+              RpgHelpDialog(
+                speakerName: 'Bella',
+                message: '¡Hola! Soy Bella, tu guía. '
+                    'En este mapa puedes encontrar centros de salud '
+                    'y hospitales cercanos a tu ubicación, los cuales te recomiendo automáticamente según tus necesidades. '
+                    'También puedes usar la barra de búsqueda para filtrar por nombre '
+                    'o dirección. Toca un marcador en el mapa '
+                    'para ver los detalles del centro. '
+                    '¡Estoy aquí para ayudarte! ♥',
+                onDismiss: () {
+                  setState(() {
+                    _showRpgHelp = false;
+                  });
+                },
+              ),
           ],
         ),
       ),
@@ -220,8 +245,13 @@ class _MapScreenState extends State<MapScreen> {
           ),
           const SizedBox(width: 10),
           BellotaTopActions(
-            showSettings: false, 
-            onTalkBackPressed: () {},
+            showSettings: false,
+            showHelp: true,
+            onHelpPressed: () {
+              setState(() {
+                _showRpgHelp = !_showRpgHelp;
+              });
+            },
           ),
         ],
       ),

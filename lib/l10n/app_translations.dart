@@ -16,16 +16,52 @@ class AppTranslations {
   ];
 
   static String get(String category, String key, String? lang, {BuildContext? context}) {
-    if (context == null) return key.replaceAll('_', ' ');
-    final loc = AppLocalizations.of(context)!;
-    final camelKey = _toCamelCase(category, key);
+    if (context != null) {
+      final loc = AppLocalizations.of(context)!;
+      final camelKey = _toCamelCase(category, key);
+      final mapped = _lookup(loc, camelKey);
+      if (mapped != null) return mapped;
+    }
     
-    // We could use reflection, but Dart disables it in Flutter.
-    // Instead, we will fallback to a large lookup or just handle the most common ones 
-    // manually. But actually, if we use a massive switch or a Map, it would be better.
-    // Since we just want it to compile, let's implement the specific dynamic keys.
-    return _lookup(loc, camelKey) ?? key.replaceAll('_', ' ');
+    // Fallback manual dictionary si falla gen-l10n o si el key es nuevo
+    final isEs = lang == 'es';
+    return _manualFallback[key]?[isEs ? 'es' : 'en'] ?? key.replaceAll('_', ' ');
   }
+
+  static const Map<String, Map<String, String>> _manualFallback = {
+    'body_ache': {'es': 'Dolor corporal', 'en': 'Body ache'},
+    'breast_lump': {'es': 'Bulto palpado', 'en': 'Breast lump'},
+    'breast_skin_change': {'es': 'Cambio en piel', 'en': 'Skin change'},
+    'breast_discharge': {'es': 'Secreción inusual', 'en': 'Unusual discharge'},
+    'severe_pain': {'es': 'Dolor severo', 'en': 'Severe pain'},
+    'pelvic_pain': {'es': 'Dolor pélvico', 'en': 'Pelvic pain'},
+    'spotting': {'es': 'Manchado', 'en': 'Spotting'},
+    'clots': {'es': 'Coágulos', 'en': 'Clots'},
+    'heavy': {'es': 'Flujo abundante', 'en': 'Heavy flow'},
+    'egg_white': {'es': 'Clara de huevo', 'en': 'Egg white'},
+    'sticky': {'es': 'Pegajoso', 'en': 'Sticky'},
+    'creamy': {'es': 'Cremoso', 'en': 'Creamy'},
+    'watery': {'es': 'Acuoso', 'en': 'Watery'},
+    'yellow_green': {'es': 'Amarillento/Verdoso', 'en': 'Yellow/Green'},
+    'cottage_cheese': {'es': 'Grumoso', 'en': 'Cottage cheese'},
+    'foul_odor': {'es': 'Mal olor', 'en': 'Foul odor'},
+    'incapacitating': {'es': 'Incapacitante', 'en': 'Incapacitating'},
+    'not_incapacitating': {'es': 'Leve/Manejable', 'en': 'Manageable'},
+    'pain_during_sex': {'es': 'Dolor', 'en': 'Pain'},
+    'unprotected_new_partner': {'es': 'Sin protección (nueva pareja)', 'en': 'Unprotected (new partner)'},
+    'protected': {'es': 'Con protección', 'en': 'Protected'},
+    'unprotected': {'es': 'Sin protección', 'en': 'Unprotected'},
+    'masturbation': {'es': 'Masturbación', 'en': 'Masturbation'},
+    'high_libido': {'es': 'Líbido alta', 'en': 'High libido'},
+    'thick': {'es': 'Espeso', 'en': 'Thick'},
+    'liquid_elastic': {'es': 'Líquido y elástico', 'en': 'Liquid & Elastic'},
+    'no_contraception': {'es': 'Ninguno', 'en': 'None'},
+    'condom': {'es': 'Preservativo', 'en': 'Condom'},
+    'no_ejaculation': {'es': 'Sin eyaculación interna', 'en': 'No internal ejaculation'},
+    'short_pill': {'es': 'Píldora del día después', 'en': 'Morning-after pill'},
+    'light': {'es': 'Ligero', 'en': 'Light'},
+    'medium': {'es': 'Medio', 'en': 'Medium'},
+  };
 
   static String _toCamelCase(String cat, String key) {
     var parts = (cat.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_') + '_' + key.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')).split('_').where((s) => s.isNotEmpty).toList();

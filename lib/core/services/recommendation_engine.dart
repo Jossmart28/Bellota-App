@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import '../models/health_center_model.dart';
 import '../models/hospital_recommendation.dart';
 import '../data/symptom_hospital_mapping.dart';
+import '../data/clinical_dictionary.dart';
+import 'clinical_analysis_service.dart';
 
 class RecommendationEngine {
   /// Retorna una lista de hospitales recomendados ordenados por score.
@@ -16,12 +18,12 @@ class RecommendationEngine {
     required List<String> userSymptoms,
     required List<String> userMedicalConditions,
     required List<HealthCenter> hospitals,
+    List<ClinicalAlert>? activeAlerts,
   }) {
     List<HospitalRecommendation> recommendations = [];
-    final requiredSpecialties = SymptomHospitalMapping.getRequiredSpecialties(userSymptoms, userMedicalConditions);
     
     // Si la usuaria no tiene ubicación ni síntomas ni condiciones, retornamos top relevancia
-    if (userLocation == null && userSymptoms.isEmpty && userMedicalConditions.isEmpty) {
+    if (userLocation == null && userSymptoms.isEmpty && userMedicalConditions.isEmpty && (activeAlerts == null || activeAlerts.isEmpty)) {
       hospitals.sort((a, b) => b.relevanceScore.compareTo(a.relevanceScore));
       return hospitals.map((h) => HospitalRecommendation(
         hospital: h,
@@ -47,18 +49,39 @@ class RecommendationEngine {
       double symptomScore = 0.0;
       List<String> matched = [];
       if (userSymptoms.isNotEmpty) {
-        int matches = 0;
+        double maxPossibleWeight = 0;
+        double achievedWeight = 0;
+        
         final hospitalTags = hospital.symptomTags;
-        for (var specialty in requiredSpecialties) {
-          if (hospitalTags.contains(specialty) || hospital.specialtyTags.contains(specialty)) {
-            matches++;
-            matched.add(specialty);
+
+        // Iterar sobre cada síntoma en lugar de especialidades agregadas para poder ponderar
+        for (var symptom in userSymptoms) {
+          final def = ClinicalDictionary.dictionary[symptom];
+          // Asignar un peso base; si no está en el diccionario, peso 1
+          final weight = def != null ? def.baseScore.toDouble() : 1.0;
+          maxPossibleWeight += weight;
+
+          // Especialidades requeridas para este síntoma individual
+          final specialtiesForSymptom = SymptomHospitalMapping.getRequiredSpecialties([symptom], []);
+          
+          bool hospitalCanTreat = false;
+          for (var specialty in specialtiesForSymptom) {
+            if (hospitalTags.contains(specialty) || hospital.specialtyTags.contains(specialty)) {
+              hospitalCanTreat = true;
+              if (!matched.contains(specialty)) matched.add(specialty);
+              break;
+            }
+          }
+
+          if (hospitalCanTreat) {
+            achievedWeight += weight;
           }
         }
         
-        double matchRatio = matches / (requiredSpecialties.isNotEmpty ? requiredSpecialties.length : 1);
+        double matchRatio = achievedWeight / (maxPossibleWeight > 0 ? maxPossibleWeight : 1);
+        
         // Penalizar si no hay match, pero recompensar parcialmente si el hospital tiene emergencia general
-        if (matches == 0 && hospital.emergencyAvailable) {
+        if (achievedWeight == 0 && hospital.emergencyAvailable) {
           matchRatio = 0.3; // 30% del score de síntomas por tener emergencia (salvavidas)
         }
         
@@ -82,8 +105,27 @@ class RecommendationEngine {
       // 4. Calcular relevancia (15%)
       double relevanceScore = (hospital.relevanceScore / 100.0) * 0.15;
 
-      // 5. Total
-      double total = locationScore + symptomScore + conditionsScore + relevanceScore;
+      // 5. Multiplicador de Alertas Críticas (Clinical Alerts)
+      double alertMultiplier = 1.0;
+      if (activeAlerts != null && activeAlerts.isNotEmpty) {
+        for (var alert in activeAlerts) {
+          if (alert.category == 'oncology' && (hospital.specialtyTags.contains('oncologia') || hospital.specialtyTags.contains('ginecologia_especializada') || hospital.specialtyTags.contains('oncologia_ginecologica'))) {
+            alertMultiplier = math.max(alertMultiplier, 1.5); // x1.5 para cáncer de mama en oncología
+          }
+          if (alert.category == 'bleeding' && (hospital.specialtyTags.contains('ginecologia') || hospital.emergencyAvailable)) {
+            alertMultiplier = math.max(alertMultiplier, 1.2); // x1.2 para menorragia
+          }
+          if (alert.category == 'pain' && hospital.specialtyTags.contains('ginecologia_especializada')) {
+            alertMultiplier = math.max(alertMultiplier, 1.3); // x1.3 para endometriosis
+          }
+        }
+      }
+
+      // 6. Total
+      double total = (locationScore + symptomScore + conditionsScore + relevanceScore) * alertMultiplier;
+      // Cap at 1.0 just in case, though multiplier can technically push it above 100% logic-wise, 
+      // it's fine for ranking, but to keep percentages sane:
+      total = math.min(total, 1.0);
       
       recommendations.add(HospitalRecommendation(
         hospital: hospital,

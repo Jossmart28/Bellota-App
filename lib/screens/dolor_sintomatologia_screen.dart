@@ -41,48 +41,49 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
   final List<String> _lhTestOptions = ['negative', 'positive', 'peak'];
   final List<String> _cervicalPositionOptions = ['low_firm', 'mid', 'high_soft'];
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
-    final lang = languageNotifier.currentLang;
-    
+    // Solo inicializamos valores que NO requieren context/localizations
     _nivelDolor = widget.initialData['nivelDolor']?.toDouble() ?? 0.0;
-    
-    _caracterDolorKey = widget.initialData['caracterDolorKey'] ?? 
-        _mapCaracterDolor(widget.initialData['caracterDolor'], lang);
-        
     _diasDolorController = TextEditingController(text: widget.initialData['diasDolor'] ?? '');
-    
-    _tratamientoKey = widget.initialData['tratamientoKey'] ?? 
-        _mapTratamiento(widget.initialData['tratamiento'], lang);
-    
     _basalTemp = widget.initialData['basalTemp'];
     _lhTestResult = widget.initialData['lhTestResult'];
     _cervicalPosition = widget.initialData['cervicalPosition'];
-    
+
     _sintomasFisicosKeys = {};
     if (widget.initialData['sintomasFisicosKeys'] != null) {
       _sintomasFisicosKeys = Set<String>.from(widget.initialData['sintomasFisicosKeys']);
     }
-    
     _sintomasEmocionalKeys = {};
     if (widget.initialData['sintomasEmocionalKeys'] != null) {
       _sintomasEmocionalKeys = Set<String>.from(widget.initialData['sintomasEmocionalKeys']);
     }
-
     _sintomasCicloKeys = {};
     if (widget.initialData['sintomasCicloKeys'] != null) {
       _sintomasCicloKeys = Set<String>.from(widget.initialData['sintomasCicloKeys']);
     } else {
-      // Migrate from old physical symptoms if available
       for (var k in _sintomasFisicosKeys) {
-        if (_sintomasCicloOptions.contains(k)) {
-          _sintomasCicloKeys.add(k);
-        }
+        if (_sintomasCicloOptions.contains(k)) _sintomasCicloKeys.add(k);
       }
     }
-    
-    _autoexamenMamaKey = widget.initialData['autoexamenMamaKey'] ?? 
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+
+    // Aquí sí podemos usar context (AppLocalizations, AppTranslations)
+    final lang = languageNotifier.currentLang;
+    _caracterDolorKey = widget.initialData['caracterDolorKey'] ??
+        _mapCaracterDolor(widget.initialData['caracterDolor'], lang);
+    _tratamientoKey = widget.initialData['tratamientoKey'] ??
+        _mapTratamiento(widget.initialData['tratamiento'], lang);
+    _autoexamenMamaKey = widget.initialData['autoexamenMamaKey'] ??
         _mapAutoexamenMama(widget.initialData['autoexamenMama'], lang);
   }
 

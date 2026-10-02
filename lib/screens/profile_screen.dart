@@ -25,7 +25,6 @@ import 'admin_panel_screen.dart';
 import 'audit_dashboard_screen.dart';
 import '../widgets/botanical_divider.dart';
 import '../widgets/cozy_row_item.dart';
-import '../widgets/cozy_section_header.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 /// Diseño fiel al mockup de referencia con paleta de colores Bellota.
@@ -68,13 +67,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (profile['profile_image_path'] != null) {
           imageExists = File(profile['profile_image_path']).existsSync();
         }
+
+        final cycleStats = await DatabaseHelper.instance.getCycleStatistics(userId);
+        final double? promCicloReal = cycleStats['averageCycleLength'] as double?;
+        final double? promSangradoReal = await DatabaseHelper.instance.getRealBleedingAverage(userId);
+
         setState(() {
           _currentUser = user;
           _userId = userId;
           _userName = profile['username'] ?? 'UsuarioApp';
           _userEmail = email;
-          _cycleDuration = profile['cycle_duration'] ?? 28;
-          _periodDuration = profile['period_duration'] ?? 7;
+          _cycleDuration = promCicloReal?.round() ?? profile['cycle_duration'] ?? 28;
+          _periodDuration = promSangradoReal?.round() ?? profile['period_duration'] ?? 7;
           _profileImagePath = profile['profile_image_path'];
           _profileImageExists = imageExists;
         });
@@ -1109,17 +1113,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
-
-
+  Widget _sectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).bellotaColors.textoDark,
+        ),
+      ),
+    );
+  }
   Widget _buildAdminSection() {
     final colors = Theme.of(context).bellotaColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CozySectionHeader(
-          title: 'Administración',
-        ),
+        _sectionHeader('Administración'),
         const SizedBox(height: 14),
         if (_currentUser!.isAdmin)
           CozyRowItem(
@@ -1153,9 +1165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CozySectionHeader(
-          title: 'Mis Datos',
-        ),
+        _sectionHeader('Mis Datos'),
         const SizedBox(height: 14),
         CozyRowItem(
           title: 'Exportar Backup',
@@ -1374,14 +1384,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CozySectionHeader(
-          title: AppLocalizations.of(context)!.profileAndReportHealthProfile,
-        ),
+        _sectionHeader(AppLocalizations.of(context)!.profileAndReportHealthProfile),
         const SizedBox(height: 14),
         CozyRowItem(
           title: AppLocalizations.of(context)!.profileAndReportCycleDuration,
           value: '$_cycleDuration ${AppLocalizations.of(context)!.profileAndReportDays}',
-          onTap: _showCycleDurationPicker,
+          onTap: null, // Dinámicamente calculado
           icon: Icons.autorenew_rounded,
           iconBackgroundColor: colors.melon.withValues(alpha: 0.10),
           iconColor: colors.melon,
@@ -1390,7 +1398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         CozyRowItem(
           title: AppLocalizations.of(context)!.profileAndReportPeriodDuration,
           value: '$_periodDuration ${AppLocalizations.of(context)!.profileAndReportDays}',
-          onTap: _showPeriodDurationPicker,
+          onTap: null, // Dinámicamente calculado
           icon: Icons.water_drop_outlined,
           iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
           iconColor: colors.chilero,
@@ -1414,9 +1422,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CozySectionHeader(
-          title: AppLocalizations.of(context)!.profileAndReportAppPreferences,
-        ),
+        _sectionHeader(AppLocalizations.of(context)!.profileAndReportAppPreferences),
         const SizedBox(height: 14),
         // Recordatorios y notificaciones
         CozyRowItem(

@@ -40,9 +40,14 @@ class SymptomHospitalMapping {
     'pelvic_pain': ['ginecologia', 'emergencia'],
     'lower_back_pain': ['ortopedia', 'reumatologia', 'clinica_del_dolor'],
     'leg_cramps': ['medicina_interna', 'neurologia'],
+    'severe_pain': ['emergencia', 'clinica_del_dolor'],
+    'incapacitating': ['emergencia', 'clinica_del_dolor', 'ginecologia'],
 
     // ── Otros (5) ───────────────────────────────────────
     'breast_tenderness': ['ginecologia', 'mastologia'],
+    'breast_lump': ['oncologia', 'oncologia_ginecologica', 'mastologia'],
+    'breast_skin_change': ['oncologia', 'oncologia_ginecologica', 'mastologia'],
+    'breast_discharge': ['oncologia', 'oncologia_ginecologica', 'mastologia'],
     'abnormal_discharge': ['ginecologia', 'infectologia'],
     'spotting': ['ginecologia'],
     'appetite_changes': ['endocrinologia', 'nutricion'],

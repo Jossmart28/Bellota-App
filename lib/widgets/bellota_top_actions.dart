@@ -5,19 +5,23 @@ import '../l10n/language_notifier.dart';
 class BellotaTopActions extends StatelessWidget {
   final bool showSettings;
   final bool showNotifications;
+  final bool showHelp;
   final VoidCallback? onSettingsPressed;
   final VoidCallback? onLanguagePressed;
   final VoidCallback? onTalkBackPressed;
   final VoidCallback? onNotificationPressed;
+  final VoidCallback? onHelpPressed;
 
   const BellotaTopActions({
     super.key,
     this.showSettings = false,
     this.showNotifications = false,
+    this.showHelp = false,
     this.onSettingsPressed,
     this.onLanguagePressed,
     this.onTalkBackPressed,
     this.onNotificationPressed,
+    this.onHelpPressed,
   });
 
   @override
@@ -39,14 +43,23 @@ class BellotaTopActions extends StatelessWidget {
 
 
 
-        // 3. Botón de TalkBack / Audio (Va en todas)
-        _buildCircleButton(
-          icon: Icons.volume_up_rounded,
-          tooltip: 'Audio y Accesibilidad',
-          backgroundColor: Theme.of(context).bellotaColors.chilero,
-          iconColor: Theme.of(context).bellotaColors.blanco,
-          onPressed: onTalkBackPressed ?? () {},
-        ),
+        // 3. Botón de Ayuda RPG o TalkBack / Audio
+        if (showHelp)
+          _buildCircleButton(
+            icon: Icons.help_outline_rounded,
+            tooltip: 'Ayuda',
+            backgroundColor: Theme.of(context).bellotaColors.chilero,
+            iconColor: Theme.of(context).bellotaColors.blanco,
+            onPressed: onHelpPressed ?? () {},
+          )
+        else
+          _buildCircleButton(
+            icon: Icons.volume_up_rounded,
+            tooltip: 'Audio y Accesibilidad',
+            backgroundColor: Theme.of(context).bellotaColors.chilero,
+            iconColor: Theme.of(context).bellotaColors.blanco,
+            onPressed: onTalkBackPressed ?? () {},
+          ),
 
         // 4. Botón de Notificaciones (Solo en el Dashboard)
         if (showNotifications) ...[

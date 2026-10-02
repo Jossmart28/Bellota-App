@@ -7,6 +7,7 @@ import '../widgets/bellota_top_actions.dart';
 import '../core/data/hospital_repository.dart';
 import '../core/services/recommendation_engine.dart';
 import '../core/services/user_health_profile.dart';
+import '../core/services/clinical_analysis_service.dart';
 import '../core/models/hospital_recommendation.dart';
 import '../core/models/health_center_model.dart';
 import '../widgets/recommended_hospital_card.dart';
@@ -14,6 +15,7 @@ import '../widgets/nearby_hospital_card.dart';
 import 'health_center_detail_screen.dart';
 import 'all_hospitals_screen.dart';
 import 'map_screen.dart';
+import '../widgets/rpg_help_dialog.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class HospitalHubScreen extends StatefulWidget {
@@ -32,6 +34,7 @@ class _HospitalHubScreenState extends State<HospitalHubScreen> {
   List<HospitalRecommendation> _recommended = [];
   List<HospitalRecommendation> _nearby = [];
   bool _isLoading = true;
+  bool _showRpgHelp = false;
   int _matchingSymptomsCount = 0;
 
   @override
@@ -53,11 +56,13 @@ class _HospitalHubScreenState extends State<HospitalHubScreen> {
     final healthData = await UserHealthProfileService.instance.getConsolidatedHealthData();
     List<String> userSymptoms = [];
     List<String> userConditions = [];
+    List<ClinicalAlert> activeAlerts = [];
     
     if (healthData != null) {
       userSymptoms = healthData.recentSymptoms;
       userConditions = healthData.medicalConditions;
       _matchingSymptomsCount = userSymptoms.length;
+      activeAlerts = await ClinicalAnalysisService.instance.analyzeHealthState(healthData.userId);
     }
 
     final allHospitals = _repository.getAll();
@@ -69,6 +74,7 @@ class _HospitalHubScreenState extends State<HospitalHubScreen> {
           userSymptoms: userSymptoms,
           userMedicalConditions: userConditions,
           hospitals: allHospitals,
+          activeAlerts: activeAlerts,
         );
         
         _nearby = _engine.getNearby(
@@ -95,14 +101,36 @@ class _HospitalHubScreenState extends State<HospitalHubScreen> {
     return Scaffold(
       backgroundColor: colors.basilica,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildHeader(colors),
-            Expanded(
-              child: _isLoading 
-                ? const Center(child: CircularProgressIndicator())
-                : _buildContent(colors),
+            Column(
+              children: [
+                _buildHeader(colors),
+                Expanded(
+                  child: _isLoading 
+                    ? const Center(child: CircularProgressIndicator())
+                    : _buildContent(colors),
+                ),
+              ],
             ),
+            
+            // ── Overlay RPG Help Dialog ──
+            if (_showRpgHelp)
+              RpgHelpDialog(
+                speakerName: 'Bella',
+                message: '¡Hola! Soy Bella, tu guía. '
+                    'En este mapa puedes encontrar centros de salud '
+                    'y hospitales cercanos a tu ubicación, los cuales te recomiendo automáticamente según tus necesidades. '
+                    'También puedes usar la barra de búsqueda para filtrar por nombre '
+                    'o dirección. Toca un marcador en el mapa '
+                    'para ver los detalles del centro. '
+                    '¡Estoy aquí para ayudarte! ♥',
+                onDismiss: () {
+                  setState(() {
+                    _showRpgHelp = false;
+                  });
+                },
+              ),
           ],
         ),
       ),
@@ -153,7 +181,15 @@ class _HospitalHubScreenState extends State<HospitalHubScreen> {
             ),
           ),
           const SizedBox(width: 10),
-          BellotaTopActions(showSettings: false, onTalkBackPressed: () {}),
+          BellotaTopActions(
+            showSettings: false,
+            showHelp: true,
+            onHelpPressed: () {
+              setState(() {
+                _showRpgHelp = !_showRpgHelp;
+              });
+            },
+          ),
         ],
       ),
     );
