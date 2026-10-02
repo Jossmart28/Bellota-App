@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'dart:ui';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
@@ -10,9 +10,8 @@ import '../core/services/clinical_analysis_service.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/bellota_empty_state.dart';
-import '../database/database_helper.dart';
 
-class ResumenDiarioScreen extends StatefulWidget {
+class ResumenDiarioScreen extends StatelessWidget {
   final DateTime nextPeriodDate;
   final List<String> predictedSymptoms;
   final List<String> todaySymptoms;
@@ -21,11 +20,6 @@ class ResumenDiarioScreen extends StatefulWidget {
   final CycleInfo? cycleInfo;
   final int currentPhaseIndex;
   final List<ClinicalAlert>? activeAlerts;
-  final int? userId;
-  final String? contraceptive;
-  final DateTime? lastPeriodStart;
-  final int cycleDuration;
-  final int periodDuration;
 
   const ResumenDiarioScreen({
     super.key,
@@ -37,79 +31,12 @@ class ResumenDiarioScreen extends StatefulWidget {
     this.todayMood,
     this.cycleInfo,
     this.activeAlerts,
-    this.userId,
-    this.contraceptive,
-    this.lastPeriodStart,
-    this.cycleDuration = 28,
-    this.periodDuration = 5,
   });
-
-  @override
-  State<ResumenDiarioScreen> createState() => _ResumenDiarioScreenState();
-}
-
-class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
-  int _selectedOffset = 0;
-  bool _isLoading = false;
-  final Map<int, List<String>> _predictions = {};
-  final Map<int, int> _phases = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _predictions[0] = widget.predictedSymptoms;
-    _phases[0] = widget.currentPhaseIndex;
-  }
-
-  Future<void> _fetchPredictionForOffset(int offset) async {
-    if (_predictions.containsKey(offset) || widget.userId == null || widget.lastPeriodStart == null) {
-      setState(() {
-        _selectedOffset = offset;
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _selectedOffset = offset;
-    });
-
-    final targetDate = DateTime.now().add(Duration(days: offset));
-    final phase = CycleService.instance.getPhaseForDate(
-      date: targetDate,
-      lastPeriodStart: widget.lastPeriodStart!,
-      effectiveCycleDuration: widget.cycleDuration,
-      periodDuration: widget.periodDuration,
-    );
-
-    int pIdx = 0;
-    String pNameStr = 'ovulatory';
-    switch (phase) {
-      case CyclePhase.ovulatory: pIdx = 0; pNameStr = 'ovulatory'; break;
-      case CyclePhase.luteal: pIdx = 1; pNameStr = 'luteal'; break;
-      case CyclePhase.follicular: pIdx = 2; pNameStr = 'follicular'; break;
-      case CyclePhase.menstrual: pIdx = 3; pNameStr = 'menstrual'; break;
-    }
-
-    final symps = await DatabaseHelper.instance.getPredictedSymptomsV2(
-      widget.userId!, 
-      pNameStr,
-      widget.medicalConditions,
-      widget.contraceptive,
-      limit: 5,
-    );
-
-    setState(() {
-      _predictions[offset] = symps.isNotEmpty ? symps : ['mood_swings', 'headache', 'bloating'];
-      _phases[offset] = pIdx;
-      _isLoading = false;
-    });
-  }
 
   // Colores de fase consistentes con dashboard_screen.dart _getPhases
   Color _phaseColor(BuildContext context) {
     final colors = Theme.of(context).bellotaColors;
-    switch ((_phases[_selectedOffset] ?? widget.currentPhaseIndex)) {
+    switch (currentPhaseIndex) {
       case 0: return colors.melon;      // Ovulatoria
       case 1: return colors.asuncion;   // LÃƒÂºtea
       case 2: return colors.chiltoma;   // Folicular
@@ -130,7 +57,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
 
   String _phaseName(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    switch ((_phases[_selectedOffset] ?? widget.currentPhaseIndex)) {
+    switch (currentPhaseIndex) {
       case 0: return loc.cyclePhasesOvulatory;
       case 1: return loc.cyclePhasesLuteal;
       case 2: return loc.cyclePhasesFollicular;
@@ -157,9 +84,9 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
         final colors = Theme.of(context).bellotaColors;
-        final daysUntil = widget.nextPeriodDate.difference(DateTime.now()).inDays;
+        final daysUntil = nextPeriodDate.difference(DateTime.now()).inDays;
         final phaseColor = _phaseColor(context);
-        final phaseBorder = _phaseBorderColor((_phases[_selectedOffset] ?? widget.currentPhaseIndex));
+        final phaseBorder = _phaseBorderColor(currentPhaseIndex);
 
         return Scaffold(
           backgroundColor: colors.basilica,
@@ -234,7 +161,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'Basado en tus registros Ã¢â‚¬â€ DÃƒÂ­a ${widget.cycleInfo?.cycleDay ?? '?'} de tu ciclo',
+                                'Basado en tus registros Ã¢â‚¬â€ DÃƒÂ­a ${cycleInfo?.cycleDay ?? '?'} de tu ciclo',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: colors.textoMedio,
@@ -256,7 +183,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                               // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
                               _buildPredictionSection(context, colors),
 
-                              if (widget.activeAlerts != null && widget.activeAlerts!.isNotEmpty) ...[
+                              if (activeAlerts != null && activeAlerts!.isNotEmpty) ...[
                                 const SizedBox(height: 20),
                                 // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
                                 // ALERTAS CLÃƒÂNICAS (SemÃƒÂ¡foro)
@@ -322,7 +249,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                if (widget.todaySymptoms.isEmpty)
+                if (todaySymptoms.isEmpty)
                   Text(
                     AppLocalizations.of(context)!.symptomsAndActionsNoSymptomsLogged,
                     style: TextStyle(
@@ -331,18 +258,18 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                if (widget.todaySymptoms.isNotEmpty && _selectedOffset == 0)
-                  ...widget.todaySymptoms.take(4).map((s) => _bulletItem(
+                if (todaySymptoms.isNotEmpty)
+                  ...todaySymptoms.take(4).map((s) => _bulletItem(
                     context,
                     colors,
                     AppTranslations.get('registration_form', s, languageNotifier.currentLang, context: context),
                     phaseColor,
                   )),
-                if (widget.todaySymptoms.length > 4)
+                if (todaySymptoms.length > 4)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      '+${widget.todaySymptoms.length - 4} mÃƒÂ¡s',
+                      '+${todaySymptoms.length - 4} mÃƒÂ¡s',
                       style: TextStyle(
                         color: colors.textoMedio,
                         fontSize: 12,
@@ -350,7 +277,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                       ),
                     ),
                   ),
-                if (widget.todayMood != null) ...[
+                if (todayMood != null) ...[
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -359,7 +286,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${_getMoodEmoji(widget.todayMood!)} ${_translateMood(widget.todayMood!, context)}',
+                      '${_getMoodEmoji(todayMood!)} ${_translateMood(todayMood!, context)}',
                       style: TextStyle(
                         color: phaseColor,
                         fontSize: 13,
@@ -449,9 +376,9 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
         ),
         const SizedBox(height: 16),
 
-        if (_isLoading) const Center(child: CircularProgressIndicator()) else if ((_predictions[_selectedOffset] ?? []).isEmpty)
+        if (predictedSymptoms.isEmpty)
           BellotaEmptyState(
-            imagePath: _getMascotImageForPhase((_phases[_selectedOffset] ?? widget.currentPhaseIndex)),
+            imagePath: _getMascotImageForPhase(currentPhaseIndex),
             title: 'AÃƒÂºn no hay predicciones',
             message: 'Sigue registrando tus sÃƒÂ­ntomas diarios para que Bella pueda ayudarte a predecir cÃƒÂ³mo te sentirÃƒÂ¡s.',
             compact: true,
@@ -463,10 +390,10 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
               child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
-                itemCount: (_predictions[_selectedOffset] ?? []).length,
+                itemCount: predictedSymptoms.length,
                 clipBehavior: Clip.none,
                 itemBuilder: (BuildContext context, int index) {
-                  final s = (_predictions[_selectedOffset] ?? [])[index];
+                  final s = predictedSymptoms[index];
                   String translated = AppTranslations.get('registration_form', s, languageNotifier.currentLang, context: context);
                   if (translated.isNotEmpty) {
                     translated = translated[0].toUpperCase() + translated.substring(1);
@@ -547,10 +474,10 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
   // ALERTAS CLÃƒÂNICAS (SCORE DIARIO)
   // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   Widget _buildClinicalAlertSection(BuildContext context, BellotaColors colors) {
-    if (widget.activeAlerts == null || widget.activeAlerts!.isEmpty) return const SizedBox.shrink();
+    if (activeAlerts == null || activeAlerts!.isEmpty) return const SizedBox.shrink();
     
     // Sort so high severity is at top
-    final sortedAlerts = List<ClinicalAlert>.from(widget.activeAlerts!);
+    final sortedAlerts = List<ClinicalAlert>.from(activeAlerts!);
     sortedAlerts.sort((a, b) {
       int getSev(String s) => s == 'high' ? 3 : s == 'medium' ? 2 : 1;
       return getSev(b.severity).compareTo(getSev(a.severity));
@@ -788,68 +715,59 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
   // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   Widget _buildDateSelector(BuildContext context, BellotaColors colors) {
     final now = DateTime.now();
-    
-    final List<String> monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-    final List<String> weekDays = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+    final yesterday = now.subtract(const Duration(days: 1));
+    final tomorrow = now.add(const Duration(days: 1));
 
-    String format(DateTime d) => '\${d.day} \${monthNames[d.month - 1]}';
+    final List<String> monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    final List<String> weekDays = ['lun', 'mar', 'miÃƒÂ©', 'jue', 'vie', 'sÃƒÂ¡b', 'dom'];
+
+    String format(DateTime d) => '${d.day} ${monthNames[d.month - 1]}';
     String formatDay(DateTime d) => weekDays[d.weekday - 1];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: List.generate(5, (index) {
-            final date = now.add(Duration(days: index));
-            final isSelected = _selectedOffset == index;
-            final labelDay = index == 0 ? 'Hoy' : formatDay(date);
-            
-            return GestureDetector(
-              onTap: () => _fetchPredictionForOffset(index),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      labelDay,
-                      style: TextStyle(
-                        fontSize: isSelected ? 18 : 14,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                        color: Colors.white.withValues(alpha: isSelected ? 1.0 : 0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: isSelected ? 12 : 8, vertical: isSelected ? 4 : 4),
-                      decoration: isSelected
-                          ? BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(12),
-                            )
-                          : BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                      child: Text(
-                        format(date),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                          color: Colors.white.withValues(alpha: isSelected ? 1.0 : 0.6),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _dateItem(formatDay(yesterday), format(yesterday), false),
+          _dateItem('Hoy', format(now), true),
+          _dateItem(formatDay(tomorrow), format(tomorrow), false),
+        ],
       ),
+    );
+  }
+
+  Widget _dateItem(String day, String date, bool isToday) {
+    return Column(
+      children: [
+        Text(
+          day,
+          style: TextStyle(
+            fontSize: isToday ? 18 : 14,
+            fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
+            color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.6),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: isToday ? 12 : 0, vertical: isToday ? 4 : 0),
+          decoration: isToday
+              ? BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                )
+              : null,
+          child: Text(
+            date,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isToday ? FontWeight.w500 : FontWeight.w400,
+              color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.6),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -880,8 +798,6 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
       default: return mood;
     }
   }
-
-
-
-
 }
+
+

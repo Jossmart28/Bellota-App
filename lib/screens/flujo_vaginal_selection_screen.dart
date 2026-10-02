@@ -1,5 +1,7 @@
-import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import '../theme/bellota_colors.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
@@ -34,6 +36,7 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
   }
 
   void _toggleFlujo(String key) {
+    HapticFeedback.lightImpact();
     setState(() {
       if (_selectedFlujosKeys.contains(key)) {
         _selectedFlujosKeys.remove(key);
@@ -42,6 +45,8 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
       }
     });
   }
+
+  void _toggleSelection(String key) => _toggleFlujo(key);
 
   Widget _buildFertilityBadge(String key, String lang) {
     String badgeKey;

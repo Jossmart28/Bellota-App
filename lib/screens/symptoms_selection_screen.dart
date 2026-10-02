@@ -1,5 +1,6 @@
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 import '../theme/bellota_colors.dart';
 
@@ -122,6 +123,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
   }
 
   void _toggleSymptom(String symptomKey) {
+    HapticFeedback.lightImpact();
     setState(() {
       if (_selectedSymptoms.contains(symptomKey)) {
         _selectedSymptoms.remove(symptomKey);

@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/bellota_colors.dart';
 import '../theme/theme_notifier.dart';
@@ -1007,6 +1008,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 20),
                     const BotanicalDivider(opacity: 0.25),
                     const SizedBox(height: 20),
+                    _buildBiometricsToggle(),
+                    const SizedBox(height: 16),
                     _buildLogoutButton(),
                     const SizedBox(height: 36),
                   ],
@@ -1209,7 +1212,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
 
+  Widget _buildBiometricsToggle() {
+    return FutureBuilder<bool>(
+      future: SharedPreferences.getInstance().then((p) => p.getBool('use_biometrics') ?? false),
+      builder: (context, snapshot) {
+        final enabled = snapshot.data ?? false;
+        final colors = Theme.of(context).bellotaColors;
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: colors.nancite.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colors.nancite),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.fingerprint, color: colors.chilero, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bloqueo Biométrico',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: colors.textoDark,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      'Protege tu app con huella o rostro',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colors.textoMedio,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch.adaptive(
+                value: enabled,
+                activeColor: colors.chilero,
+                onChanged: (value) async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('use_biometrics', value);
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildLogoutButton() {
+
     bool isPressed = false;
     return StatefulBuilder(
       builder: (context, setState) {
