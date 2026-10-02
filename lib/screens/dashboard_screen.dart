@@ -1,10 +1,10 @@
-import '../core/constants/app_keys.dart';
+﻿import '../core/constants/app_keys.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:badges/badges.dart' as badges;
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -23,6 +23,7 @@ import '../core/services/notification_service.dart';
 import '../widgets/cycle_ring_widget.dart';
 import '../core/services/clinical_analysis_service.dart';
 import 'resumen_diario_screen.dart';
+import '../widgets/bellota_empty_state.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 /// Dashboard principal de Bellota
@@ -44,11 +45,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _profileImageExists = false;
   late List<Widget> _screens;
 
-  // Datos din�micos para el dashboard
+  // Datos dinï¿½micos para el dashboard
   List<String> _todaySymptoms = [];
   DateTime _nextPeriodDate = DateTime.now().add(Duration(days: 14));
   int _cycleDuration = 28;
   int _periodDuration = 5;
+  DateTime? _lastPeriodStart;
+  String? _contraceptive;
   CycleInfo? _cycleInfo;
   bool _hasPeriodsRegistered = true;
 
@@ -57,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<String> _medicalConditions = [];
   List<ClinicalAlert> _activeAlerts = [];
 
-  // ── Definición de las 4 fases ──
+  // â”€â”€ DefiniciÃ³n de las 4 fases â”€â”€
   List<_PhaseData> _getPhases(String lang) {
     return [
       _PhaseData(
@@ -65,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         shortName: AppLocalizations.of(context)!.cyclePhasesOvulatory,
         color: Theme.of(context).bellotaColors.melon,
         borderColor: Color(0xFFD97A4A),
-        symptomsTitle: 'Síntomas\nRegistrados',
+        symptomsTitle: 'SÃ­ntomas\nRegistrados',
         symptoms: [AppLocalizations.of(context)!.symptomsSeverePain],
       ),
       _PhaseData(
@@ -73,7 +76,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         shortName: AppLocalizations.of(context)!.cyclePhasesLuteal,
         color: Theme.of(context).bellotaColors.asuncion,
         borderColor: Color(0xFF8FAFC8),
-        symptomsTitle: 'Síntomas\nRegistrados',
+        symptomsTitle: 'SÃ­ntomas\nRegistrados',
         symptoms: [AppLocalizations.of(context)!.symptomsFatigue],
       ),
       _PhaseData(
@@ -81,7 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         shortName: AppLocalizations.of(context)!.cyclePhasesFollicular,
         color: Theme.of(context).bellotaColors.chiltoma,
         borderColor: Color(0xFF97B580),
-        symptomsTitle: 'Síntomas\nRegistrados',
+        symptomsTitle: 'SÃ­ntomas\nRegistrados',
         symptoms: [AppLocalizations.of(context)!.symptomsHighEnergy],
       ),
       _PhaseData(
@@ -89,7 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         shortName: AppLocalizations.of(context)!.cyclePhasesMenstrual,
         color: Theme.of(context).bellotaColors.chilero,
         borderColor: Color(0xFFD46A63),
-        symptomsTitle: 'Síntomas\nRegistrados',
+        symptomsTitle: 'SÃ­ntomas\nRegistrados',
         symptoms: [AppLocalizations.of(context)!.symptomsCramps],
       ),
     ];
@@ -150,7 +153,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadDashboardData(int userId) async {
-    // 1. Cargar perfil para duración de ciclo, foto y condiciones médicas
+    // 1. Cargar perfil para duraciÃ³n de ciclo, foto y condiciones mÃ©dicas
     final profile = await DatabaseHelper.instance.getProfile(userId);
     List<String> medicalConds = [];
     if (profile != null) {
@@ -173,12 +176,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
     }
 
-    // 2. Obtener datos de períodos y fertilidad
+    // 2. Obtener datos de perÃ­odos y fertilidad
     final now = DateTime.now();
     final lastPeriod = await DatabaseHelper.instance.getLastPeriodStart(userId);
+      _lastPeriodStart = lastPeriod;
     final allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
     
-    // Cargar datos de fertilidad del ciclo actual (hasta 45 días atrás para mayor seguridad)
+    // Cargar datos de fertilidad del ciclo actual (hasta 45 dÃ­as atrÃ¡s para mayor seguridad)
     List<Map<String, dynamic>>? fertilityData;
     if (lastPeriod != null) {
       String lastPeriodStr = "${lastPeriod.year}-${lastPeriod.month.toString().padLeft(2, '0')}-${lastPeriod.day.toString().padLeft(2, '0')}";
@@ -204,7 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       fertilityData: fertilityData,
     );
 
-    // 4. Mapear fase a índice del array _phases
+    // 4. Mapear fase a Ã­ndice del array _phases
     int phaseIndex;
     String phaseNameStr = '';
     switch (cycleInfo.phase) {
@@ -222,8 +226,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         phaseNameStr = 'menstrual';
     }
 
-    // 5. Cargar predicciones inteligentes de síntomas (Próximos 5 días)
+    // 5. Cargar predicciones inteligentes de sÃ­ntomas (PrÃ³ximos 5 dÃ­as)
     String? contraceptive = profile?['contraceptive_method'] as String?;
+      _contraceptive = contraceptive;
     
     final topSymptoms = await DatabaseHelper.instance.getPredictedSymptomsV2(
       userId, 
@@ -234,7 +239,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
     List<String> predictedSymptoms = topSymptoms.isNotEmpty ? topSymptoms : ['mood_swings', 'headache', 'bloating'];
 
-    // 6. Cargar síntomas registrados HOY y estado de ánimo
+    // 6. Cargar sÃ­ntomas registrados HOY y estado de Ã¡nimo
     String todayKey = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final log = await DatabaseHelper.instance.getDailyLog(userId, todayKey);
 
@@ -307,7 +312,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildDashboardContent(BuildContext context, String lang) {
     return Stack(
       children: [
-        // ── Decoración: marca de agua floral en esquina superior derecha ──
+        // â”€â”€ DecoraciÃ³n: marca de agua floral en esquina superior derecha â”€â”€
         Positioned(
           top: -10,
           right: -20,
@@ -332,7 +337,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildHeader(context),
                 const SizedBox(height: 28),
 
-                // ── Botón de acceso al Resumen Diario ──
+                // â”€â”€ BotÃ³n de acceso al Resumen Diario â”€â”€
                 _buildResumenDiarioBanner(context),
 
                 const SizedBox(height: 28),
@@ -375,10 +380,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 
 
-  // ───────────────────────────────────────────────
-  // BANNER / BOTÓN — Acceso a Resumen Diario
-  // ───────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // BANNER / BOTÃ“N â€” Acceso a Resumen Diario
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  String _getMascotImageForPhase(int index) {
+    if (index < 0 || index > 3) return 'assets/images/bella_mascot.png';
+    // 0: ovulatoria, 1: lutea, 2: folicular, 3: menstrual
+    switch (index) {
+      case 0: return 'assets/images/bella_ovulatoria.png';
+      case 1: return 'assets/images/bella_lutea.png';
+      case 2: return 'assets/images/bella_folicular.png';
+      case 3: return 'assets/images/bella_menstrual.png';
+      default: return 'assets/images/bella_mascot.png';
+    }
+  }
+
   Widget _buildResumenDiarioBanner(BuildContext context) {
+
     final phase = _getPhases(languageNotifier.currentLang)[_currentPhaseIndex];
     final List<String> monthNamesShort = [
       'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
@@ -407,22 +425,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
       },
-      child: badges.Badge(
-        showBadge: hasCriticalAlert,
-        position: badges.BadgePosition.topEnd(top: -5, end: -5),
-        badgeAnimation: const badges.BadgeAnimation.fade(
-          animationDuration: Duration(seconds: 1),
-          loopAnimation: true,
-        ),
-        badgeStyle: badges.BadgeStyle(
-          badgeColor: Theme.of(context).bellotaColors.chilero,
-          padding: const EdgeInsets.all(8),
-          elevation: 6,
-        ),
-        badgeContent: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-        child: Container(
+              child: Container(
           width: double.infinity,
-        decoration: BoxDecoration(
+          decoration: BoxDecoration(
+
           gradient: LinearGradient(
             colors: [
               phase.color.withValues(alpha: 0.85),
@@ -481,7 +487,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Opacity(
                     opacity: 0.88,
                     child: Image.asset(
-                      'assets/images/resumen_banner.png',
+                      'assets/images/bella_banner.jpg',
                       fit: BoxFit.cover,
                       alignment: Alignment.topRight,
                     ),
@@ -506,7 +512,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 6),
                   if (_hasPeriodsRegistered) ...[
                     Text(
-                      "Próximo período: $dateStr",
+                      "PrÃ³ximo perÃ­odo: $dateStr",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: 0.95),
                         fontWeight: FontWeight.w600,
@@ -516,7 +522,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       daysUntil <= 0
                           ? "Puede estar comenzando hoy"
-                          : "En $daysUntil ${daysUntil == 1 ? 'día' : 'días'}",
+                          : "En $daysUntil ${daysUntil == 1 ? 'dÃ­a' : 'dÃ­as'}",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 11,
@@ -530,7 +536,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        "${_predictedSymptoms.length} síntomas esperados",
+                        "${_predictedSymptoms.length} sÃ­ntomas esperados",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.white,
                           fontSize: 11,
@@ -540,7 +546,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ] else ...[
                     Text(
-                      "Registra tu primer período para ver predicciones",
+                      "Registra tu primer perÃ­odo para ver predicciones",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                       ),
@@ -550,7 +556,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
 
-            // Flecha de navegación flotante con cápsula translúcida
+            // Flecha de navegaciÃ³n flotante con cÃ¡psula translÃºcida
             Positioned(
               bottom: 14,
               right: 16,
@@ -584,13 +590,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      ),
     );
   }
 
-  // ───────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // HEADER CON BOTONERA GLOBAL
-  // ───────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildHeader(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
@@ -668,9 +673,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 
 
-  // ──────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // PREDICCIONES
-  // ──────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildPrediccionesCard(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
@@ -753,7 +758,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 8),
                 if (_medicalConditions.contains('pcos')) ...[
                   Text(
-                    '⚠️ Predicciones pueden variar por PCOS',
+                    'âš ï¸ Predicciones pueden variar por PCOS',
                     style: TextStyle(fontSize: 10, color: Theme.of(context).bellotaColors.melon),
                   ),
                   const SizedBox(height: 4),
@@ -768,10 +773,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
 
-  /// Traduce una clave de síntoma al idioma actual
+  /// Traduce una clave de sÃ­ntoma al idioma actual
   String _translateSymptomKey(String key) {
     final lang = languageNotifier.currentLang;
-    // Buscar en registration_form (donde están fever, headache, etc.)
+    // Buscar en registration_form (donde estÃ¡n fever, headache, etc.)
     final categories = ['registration_form', 'symptoms_and_actions', 'symptoms'];
     for (final cat in categories) {
       final val = AppTranslations.get(cat, key, lang, context: context);
@@ -807,9 +812,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ───────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // RESUMEN DE HOY
-  // ───────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildResumenCard(BuildContext context, _PhaseData phase) {
     final textTheme = Theme.of(context).textTheme;
 
@@ -851,27 +856,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 10),
                 if (_todaySymptoms.isEmpty)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      Image.asset(
-                        'assets/decorations/empty_state_cozy.png',
-                        width: 54,
-                        height: 54,
-                        color: Theme.of(context).bellotaColors.textoMedio.withValues(alpha: 0.7),
-                        colorBlendMode: BlendMode.srcIn,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        AppLocalizations.of(context)!.symptomsAndActionsNoSymptomsLogged,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).bellotaColors.textoMedio,
-                          fontStyle: FontStyle.italic,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
+                  BellotaEmptyState(
+                    title: 'DÃ­a tranquilo',
+                    message: AppLocalizations.of(context)!.symptomsAndActionsNoSymptomsLogged,
+                    compact: true,
+                    imagePath: _getMascotImageForPhase(_currentPhaseIndex),
                   ),
                 if (_todaySymptoms.isNotEmpty)
                   ..._todaySymptoms.take(4).map((s) => _bulletItem(context, _translateSymptomKey(s))),
@@ -879,7 +868,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
-                      '+${_todaySymptoms.length - 4} más',
+                      '+${_todaySymptoms.length - 4} mÃ¡s',
                       style: textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).bellotaColors.chilero,
                         fontWeight: FontWeight.w600,
@@ -898,9 +887,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 
 
-  // ───────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // BOTTOM NAVIGATION BAR
-  // ───────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildBottomNav(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -952,12 +941,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         } else {
           setState(() => _selectedNavIndex = index);
           if (index == 0) {
-            // Recargar datos si volvemos a Inicio (por si cambió la foto u otra cosa en Perfil)
+            // Recargar datos si volvemos a Inicio (por si cambiÃ³ la foto u otra cosa en Perfil)
             _loadUser();
           }
         }
         // Recargar datos cuando venimos del tab de Perfil al Inicio
-        // Esto asegura que nombre, foto y correo estén actualizados
+        // Esto asegura que nombre, foto y correo estÃ©n actualizados
         if (index != 2 && _selectedNavIndex == 0) {
           _loadUser();
         }
@@ -1000,19 +989,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _getMoodEmoji(String mood) {
     switch (mood) {
-      case 'great': return '😁';
-      case 'good': return '🙂';
-      case 'neutral': return '😐';
-      case 'low': return '😔';
-      case 'bad': return '😢';
+      case 'great': return 'ðŸ˜';
+      case 'good': return 'ðŸ™‚';
+      case 'neutral': return 'ðŸ˜';
+      case 'low': return 'ðŸ˜”';
+      case 'bad': return 'ðŸ˜¢';
       default: return '';
     }
   }
 }
 
-// ─────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Modelo de datos de fase
-// ─────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _PhaseData {
   final String name;
   final String shortName;
@@ -1030,4 +1019,7 @@ class _PhaseData {
     required this.symptoms,
   });
 }
+
+
+
 

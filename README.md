@@ -1,46 +1,45 @@
-<p align="center">
-  <img src="assets/images/logo.png" alt="Bellota Logo" width="120"/>
-</p>
-
-<h1 align="center">🌰 Bellota</h1>
-
-<p align="center">
-  <strong>Plataforma integral de seguimiento del ciclo menstrual, registro clínico de síntomas y educación en salud femenina.</strong>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/v1.0.0-release-8B5E3C?style=for-the-badge" alt="Version"/>
-  <img src="https://img.shields.io/badge/Flutter-3.13+-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter"/>
-  <img src="https://img.shields.io/badge/Dart-3.0+-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart"/>
-  <img src="https://img.shields.io/badge/Android-API_21+-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
-  <img src="https://img.shields.io/badge/Offline--First-SQLite-FF6F00?style=for-the-badge" alt="Offline"/>
-</p>
+﻿<h1 align="center">🌰 Bellota - Versión 1</h1>
 
 ---
 
 ## 📋 Índice
 
-| Sección | Descripción |
-|---------|-------------|
-| [Descripción General](#-descripción-general) | Qué es Bellota y a quién va dirigida |
-| [Características](#-características-principales) | Funcionalidades clave de la app |
-| [Arquitectura](#-arquitectura) | Diseño técnico y capas del sistema |
-| [Sistema de Roles (RBAC)](#-sistema-de-roles-rbac) | Administrador, Usuario y Auditor |
-| [Esquema de Base de Datos](#-esquema-de-base-de-datos) | Diagrama ER y estructura de tablas |
-| [Estructura del Proyecto](#-estructura-del-proyecto) | Organización de archivos y módulos |
-| [Lógica de Fases del Ciclo](#-lógica-de-fases-del-ciclo) | Algoritmo de predicción |
-| [Internacionalización](#-internacionalización) | Soporte multilingüe |
-| [Requisitos Previos](#-requisitos-previos) | Herramientas necesarias para desarrollo |
-| [Instalación para Desarrollo](#-instalación-para-desarrollo) | Clonar, configurar y ejecutar |
-| [Instalar la APK en un Dispositivo](#-instalar-la-apk-en-un-dispositivo) | Pasos para instalar la app ya compilada |
-| [Compilar APK desde Código Fuente](#-compilar-apk-desde-código-fuente) | Generar tu propio instalador |
-| [Dependencias](#-dependencias) | Paquetes de terceros utilizados |
+| # | Sección | Descripción |
+|---|---------|-------------|
+| 1 | [Descripción General](#-descripción-general) | Qué es Bellota, visión y público objetivo |
+| 2 | [Características Principales](#-características-principales) | Funcionalidades clave de la plataforma |
+| 3 | [Arquitectura del Sistema](#-arquitectura-del-sistema) | Diseño técnico full-stack y capas |
+| 4 | [Sistema de Roles (RBAC)](#-sistema-de-roles-rbac) | Administrador, Usuario y Auditor |
+| 5 | [Esquema de Base de Datos — Frontend (SQLite)](#-esquema-de-base-de-datos--frontend-sqlite) | Diagrama ER y estructura de tablas del móvil |
+| 6 | [Esquema de Base de Datos — Backend (SQLAlchemy)](#-esquema-de-base-de-datos--backend-sqlalchemy) | Diagrama ER y estructura de tablas del servidor |
+| 7 | [Diagrama Relacional Completo (Mermaid)](#-diagrama-relacional-completo) | DER unificado del sistema completo |
+| 8 | [API REST — Referencia de Endpoints](#-api-rest--referencia-de-endpoints) | Documentación de la API FastAPI |
+| 9 | [Estructura del Proyecto](#-estructura-del-proyecto) | Organización de archivos y módulos |
+| 10 | [Lógica de Fases del Ciclo](#-lógica-de-fases-del-ciclo) | Algoritmo de predicción |
+| 11 | [Motor de Alertas Clínicas](#-motor-de-alertas-clínicas) | Sistema de análisis y semáforo de riesgo |
+| 12 | [Internacionalización (i18n)](#-internacionalización-i18n) | Soporte multilingüe |
+| 13 | [Requisitos Previos](#-requisitos-previos) | Herramientas necesarias para desarrollo |
+| 14 | [Instalación y Desarrollo](#-instalación-y-desarrollo) | Clonar, configurar y ejecutar |
+| 15 | [Despliegue del Backend](#-despliegue-del-backend) | Docker, producción y variables de entorno |
+| 16 | [Compilar e Instalar la APK](#-compilar-e-instalar-la-apk) | Generar el instalador Android |
+| 17 | [Dependencias](#-dependencias) | Paquetes de terceros utilizados |
+| 18 | [Migraciones de Base de Datos](#-migraciones-de-base-de-datos) | Historial de versiones del esquema |
+| 19 | [Licencia](#-licencia) | Información legal |
 
 ---
 
 ## 📖 Descripción General
 
-**Bellota** es una aplicación móvil de salud femenina que empodera a mujeres en el entendimiento y monitoreo de su ciclo menstrual. Diseñada bajo el principio **Privacy by Design**, toda la información se almacena exclusivamente en el dispositivo del usuario mediante SQLite, eliminando la dependencia de servidores externos y garantizando privacidad absoluta.
+**Bellota** es una plataforma de salud femenina compuesta por una **aplicación móvil Flutter** y una **API REST con FastAPI**. Su objetivo es empoderar a mujeres en el monitoreo de su ciclo menstrual, registro clínico de síntomas y acceso a educación en salud reproductiva.
+
+### Principios de Diseño
+
+| Principio | Implementación |
+|-----------|----------------|
+| 🔒 **Privacy by Design** | Datos locales en SQLite cifrados en el dispositivo; sincronización opcional al backend |
+| 📴 **Offline-First** | Toda la funcionalidad core opera sin conexión a internet |
+| ♿ **Accesibilidad** | Soporte multilingüe incluyendo lengua indígena Miskitu |
+| 🏥 **Rigor Clínico** | Motor de alertas basado en patrones semanales de síntomas con diccionario médico |
 
 ### 🎯 Público Objetivo
 
@@ -56,226 +55,173 @@
 ## ✨ Características Principales
 
 ### 📅 Calendario Menstrual Inteligente
-- Vistas **semanal** y **mensual** con predicción automática de fases
-- Indicadores visuales por fase: 🔴 Menstrual · 🟡 Folicular · 🟠 Ovulatoria · 🟤 Lútea
-- Tour interactivo guiado para nuevas usuarias
+- Vistas **semanal** y **mensual** con predicción automática de fases.
+- Indicadores visuales dinámicos por fase: 🔴 Menstrual · 🟡 Folicular · 🟠 Ovulatoria · 🟤 Lútea.
+- Mascota animada **"Bella"** que reacciona a los síntomas y fases del ciclo.
 
-### 📝 Registro Diario Completo
-```
-┌─────────────────────────────────────────────────────┐
-│  📊 Síntomas      → Físicos y emocionales          │
-│  🩸 Sangrado      → Intensidad, coágulos, manchado │
-│  😣 Dolor (EVA)   → Escala 0-10, carácter, días    │
-│  💧 Flujo vaginal → Tipo y consistencia            │
-│  🔒 Act. sexual   → Actividad y protección         │
-│  🩺 Autoexamen    → Registro de mama               │
-│  📋 Notas libres  → Observaciones personales       │
-└─────────────────────────────────────────────────────┘
-```
+### 📝 Registro Clínico Diario y Predicción Inteligente
+- **Predicción Multi-Día:** Motor de inteligencia que predice síntomas para los próximos días cruzando el historial de la fase actual, las tendencias de la última semana y bonificaciones por condiciones médicas previas (ej. SOP, Endometriosis).
+- **Síntomas detallados:** Físicos, emocionales, digestivos y dermatológicos.
+- **Sangrado y dolor:** Intensidad de flujo, coágulos, manchado (spotting) y escala EVA 0–10.
+- **Flujo vaginal:** Clasificación médica por consistencia y color.
+- **Vida sexual:** Registro de actividad y uso de métodos anticonceptivos.
+- **Fertilidad avanzada:** Temperatura basal, test LH, posición cervical.
+- **Humor y notas:** Control de variaciones del estado de ánimo con notas libres.
 
-### 🗺️ Mapa de Centros de Salud
-- Mapa interactivo con **OpenStreetMap** (`flutter_map`)
-- Geolocalización de centros ginecológicos cercanos
-- Ficha detallada con dirección, teléfono y horarios
+### 🗺️ Mapa de Centros de Salud & Motor de Recomendación
+- Mapa interactivo con **OpenStreetMap** (flutter_map + Leaflet).
+- **Motor de Recomendación Médica:** Sugiere hospitales y clínicas según los síntomas registrados (ej. urología para dolor pélvico persistente).
+- Base de datos de hospitales de Nicaragua con geolocalización y especialidades.
 
-### 📄 Reporte Médico PDF
-- Generación automática de informe clínico profesional
-- Historial de ciclos, síntomas frecuentes y alertas
-- Exportable vía email, WhatsApp o cualquier app
+### 🔔 Análisis Clínico y Alertas Inteligentes
+- **Semáforo de alertas (High/Medium/Low):** Detecta patrones peligrosos basados en la repetición semanal de síntomas.
+- Considera condiciones médicas previas (SOP, Endometriosis, Hipotiroidismo) y efectos secundarios de anticonceptivos.
+- Diccionario clínico integrado con categorías: oncología, infecciones, dolor, riesgo sexual, sangrado.
+
+### 📄 Reporte Médico PDF & Respaldo
+- Generación de informe clínico profesional en **PDF** con membrete.
+- Exportación e importación local de la base de datos completa (`.json`) para migraciones seguras.
+- **Seguridad biométrica local:** Bloqueo opcional por huella digital o FaceID.
+
+### 🔐 Backend REST con RBAC
+- API **FastAPI** con autenticación **JWT** y autorización por roles.
+- Documentación automática Swagger UI en `/docs`.
+- Panel de administración de usuarios y dashboard de auditoría.
+- Containerización con **Docker** lista para producción.
 
 ### 🔔 Notificaciones Inteligentes
-- Recordatorios de: período, ovulación, píldora, hidratación, ejercicio
-- Horarios personalizables por tipo de recordatorio
-- Citas médicas semanales programables
-- Persistencia tras reinicio del dispositivo
-
-### 🎨 Tema y Personalización
-- Modo claro y oscuro con paleta "Bellota"
-- Fuentes: Estrella, Poppins, Google Fonts
-- `ThemeExtension` para consistencia visual global
+- Recordatorios de período, ovulación y píldora anticonceptiva.
+- Recordatorios de citas médicas semanales configurables.
+- Recordatorio diario de registro con hora personalizable.
 
 ---
 
-## 🏗️ Arquitectura
+## 🏗️ Arquitectura del Sistema
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  📱 CAPA DE PRESENTACIÓN                │
-│  23 Screens · 5 Widgets · ThemeExtension · Google Fonts │
-├─────────────────────────────────────────────────────────┤
-│                  ⚙️ CAPA DE SERVICIOS                   │
-│  AuthService    → Login, registro, sesión, Google OAuth │
-│  CycleService   → Predicción de fases y fertilidad      │
-│  NotifService   → Alarmas, recordatorios, boot receiver │
-│  NavigationSvc  → Routing por rol y estado de onboarding│
-│  LanguageNotif  → Cambio reactivo de idioma (ES/EN/MI)  │
-│  ThemeNotifier   → Toggle de tema claro/oscuro           │
-├─────────────────────────────────────────────────────────┤
-│                  💾 CAPA DE DATOS                       │
-│  DatabaseHelper → SQLite (sqflite) · 6 tablas           │
-│  SharedPrefs    → Sesión, flags de onboarding, config   │
-│  Migraciones    → v1 → v2 → v3 → v4 (incremental)     │
-├─────────────────────────────────────────────────────────┤
-│                  📦 CAPA DE MODELOS                     │
-│  UserModel · ProfileModel · DailyLogModel               │
-│  AuditLogModel · HealthCenterModel · UserRole           │
-│  PillTime · WeeklyAppointment · NotificationModels      │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         📱 FRONTEND (Flutter/Dart)                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │               🖼️ CAPA DE PRESENTACIÓN (UI)                         │    │
+│  │  27 Screens · 12 Widgets · ThemeExtension · Google Fonts           │    │
+│  │  Flutter Animate · Staggered Animations · SVG Decorations          │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │               ⚙️ CAPA DE SERVICIOS (Business Logic)                │    │
+│  │  ClinicalAnalysisService → Motor de alertas médicas (semáforo)     │    │
+│  │  CycleService            → Predicción de fases y fertilidad        │    │
+│  │  NotificationService     → Períodos, píldora, citas, recordatorios │    │
+│  │  RecommendationEngine    → Matching hospitales ↔ síntomas          │    │
+│  │  AuthService             → Login, biometría, sesión local          │    │
+│  │  SyncService             → Exportación/Importación JSON            │    │
+│  │  NavigationService       → Routing por rol y estado de onboarding  │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │               💾 CAPA DE DATOS (Local)                             │    │
+│  │  DatabaseHelper → SQLite (sqflite) · 6 tablas · v6                 │    │
+│  │  SharedPrefs    → Sesión, flags de onboarding, biometría           │    │
+│  │  Migraciones    → v1 → v2 → v3 → v4 → v5 → v6 (incremental)      │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │               📦 CAPA DE MODELOS                                   │    │
+│  │  UserModel · ProfileModel · DailyLogModel · AuditLogModel          │    │
+│  │  HealthCenterModel · HospitalRecommendation · NotificationModels   │    │
+│  │  UserRole (Enum: admin, usuario, auditor)                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                    🌐 CAPA DE INTERNACIONALIZACIÓN (l10n)                   │
+│  Español (es) · Inglés (en) · Miskitu (mi) · Delegate customizado         │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │ HTTP/REST (opcional)
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         🖥️ BACKEND (FastAPI/Python)                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │               🔌 CAPA DE API (Routers)                             │    │
+│  │  /auth    → Registro, Login JWT, Seed Admin, /me                   │    │
+│  │  /admin   → CRUD usuarios, roles, suspensión (solo admin)         │    │
+│  │  /audit   → Logs de auditoría, estadísticas (admin + auditor)     │    │
+│  │  /profile → Leer/Actualizar perfil de salud                       │    │
+│  │  /logs    → Registros diarios del ciclo                           │    │
+│  │  /medications → Medicamentos adicionales                          │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │               🔐 CAPA DE SEGURIDAD                                 │    │
+│  │  JWT (HS256) · OAuth2 Bearer · bcrypt · RBAC con require_role()    │    │
+│  │  CORS Middleware · Ownership checks (check_ownership_or_admin)     │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │               🗄️ CAPA DE PERSISTENCIA                              │    │
+│  │  SQLAlchemy ORM · SQLite (backend.db) · Pydantic Schemas           │    │
+│  │  5 modelos: User, AuditLog, UserProfile, AdditionalMedication,     │    │
+│  │             DailyLog                                               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                             │
+│  🐳 Docker: python:3.11-slim · Uvicorn (port 8000) · Auto-reload          │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
-
-### Principios
-
-| Principio | Implementación |
-|-----------|----------------|
-| **Offline-First** | SQLite local como única fuente de verdad |
-| **Privacy by Design** | Sin telemetría, sin servidores, datos 100% locales |
-| **Reactive UI** | `ValueNotifier` + `ValueListenableBuilder` para idioma y tema |
-| **RBAC** | Motor de permisos con guard widgets |
-| **Single Responsibility** | Un servicio por dominio, un modelo por entidad |
 
 ---
 
 ## 🔐 Sistema de Roles (RBAC)
 
-La aplicación implementa un sistema de **Control de Acceso Basado en Roles** con tres niveles:
+La plataforma implementa **Control de Acceso Basado en Roles** tanto en el frontend (SQLite local) como en el backend (JWT + dependencias FastAPI):
 
-### 👤 Usuario (Rol por defecto)
+| Rol | Permisos | Acceso UI | Protección Backend |
+|-----|----------|-----------|-------------------|
+| **👤 Usuario** | `view_own`, `edit_own`, `export_reports` | Dashboard → Calendario, Mapa, Registro | `get_current_active_user` |
+| **🛡️ Administrador** | `manage_users`, `assign_roles`, `configure_system`, `view_all` | Panel de Administración + Todo lo del usuario | `require_role("admin")` |
+| **🔍 Auditor** | `view_all`, `generate_compliance_reports` | Dashboard de Auditoría (solo lectura) | `require_role("admin", "auditor")` |
 
-> Se asigna automáticamente al registrarse o iniciar sesión con Google.
+### Flujo de Bootstrapping del Primer Admin
 
-| Permiso | Descripción |
-|---------|-------------|
-| ✅ `view_own` | Ver sus propios datos |
-| ✅ `edit_own` | Editar su perfil y registros |
-| ✅ `delete_own` | Eliminar sus datos |
-| ✅ `log_symptoms` | Registrar síntomas diarios |
-| ✅ `export_reports` | Generar y exportar PDF médico |
-
-**Pantalla principal:** Dashboard → Calendario, Mapa, Síntomas, Perfil
+1. **Frontend:** Se crea automáticamente un usuario admin seed al inicializar la BD (`_seedAdminUser`).
+2. **Backend:** Endpoint `POST /auth/seed-admin` — solo funciona si no existe ningún admin en el sistema.
 
 ---
 
-### 🛡️ Administrador
+## 🗃️ Esquema de Base de Datos — Frontend (SQLite)
 
-> Acceso completo al sistema. Gestiona usuarios, roles y configuración global.
-
-| Permiso | Descripción |
-|---------|-------------|
-| ✅ Todo de Usuario | + Acceso a datos de todos |
-| ✅ `manage_users` | Crear, editar, suspender o eliminar cuentas |
-| ✅ `assign_roles` | Cambiar rol de cualquier usuario |
-| ✅ `suspend_users` | Suspender/reactivar cuentas |
-| ✅ `moderate_content` | Moderar contenido de usuarios |
-| ✅ `configure_system` | Configuraciones globales |
-| ✅ `manage_backups` | Respaldos de base de datos |
-| ✅ `view_audit_logs` | Acceso a logs de auditoría |
-
-**Pantalla principal:** Panel de Administración
-
-#### ¿Cómo activar el modo Administrador?
-
-1. Abra una herramienta de base de datos SQLite (por ejemplo, [DB Browser for SQLite](https://sqlitebrowser.org/))
-2. Abra el archivo `bellota.db` del dispositivo (ubicado en los datos internos de la app)
-3. Ejecute la siguiente consulta:
-```sql
-UPDATE users SET role = 'admin' WHERE email = 'correo_del_usuario@ejemplo.com';
-```
-4. Cierre sesión en la app y vuelva a iniciar sesión
-
-> ⚠️ **Importante:** El primer administrador debe asignarse manualmente vía SQL. Una vez asignado, ese administrador puede promover a otros usuarios desde el Panel Admin dentro de la app.
-
----
-
-### 🔍 Auditor
-
-> Acceso de solo lectura a todo el sistema. Diseñado para compliance y revisión.
-
-| Permiso | Descripción |
-|---------|-------------|
-| ✅ `view_own` | Ver datos propios |
-| ✅ `view_all` | Ver datos de todos los usuarios |
-| ✅ `export_reports` | Exportar reportes |
-| ✅ `view_audit_logs` | Consultar historial de acciones |
-| ✅ `generate_compliance_reports` | Reportes de cumplimiento |
-| ✅ `detect_anomalies` | Detección de anomalías |
-| ❌ Escritura | No puede editar ni eliminar datos |
-
-**Pantalla principal:** Dashboard de Auditoría
-
-#### ¿Cómo activar el modo Auditor?
-
-Desde el **Panel de Administración** (si ya existe un admin):
-1. Abra el Panel Admin → pestaña **Usuarios**
-2. Busque el usuario deseado
-3. Toque el menú de acciones → **Cambiar Rol** → seleccione **Auditor**
-
-O manualmente por SQL:
-```sql
-UPDATE users SET role = 'auditor' WHERE email = 'correo_del_usuario@ejemplo.com';
-```
-
----
-
-### Flujo de Acceso por Rol
-
-```mermaid
-flowchart TD
-    A[Login / Google OAuth] --> B{¿Usuario existe?}
-    B -->|Sí| C{¿Qué rol tiene?}
-    B -->|No| D[Registro nuevo]
-    
-    D --> E[Política de Privacidad]
-    E --> F[Onboarding]
-    F --> G[Tour del Calendario]
-    G --> H[Datos Personales]
-    H --> I[📱 Dashboard Usuario]
-
-    C -->|admin| J[🛡️ Panel Admin]
-    C -->|auditor| K[🔍 Dashboard Auditoría]
-    C -->|usuario| L{¿Completó onboarding?}
-    
-    L -->|No| E
-    L -->|Sí| I
-
-    style J fill:#e74c3c,color:#fff
-    style K fill:#3498db,color:#fff
-    style I fill:#2ecc71,color:#fff
-```
-
----
-
-## 🗃️ Esquema de Base de Datos
-
-**Motor:** SQLite vía `sqflite` · **Archivo:** `bellota.db` · **Versión:** 4
-**Foreign Keys:** `PRAGMA foreign_keys = ON`
-
-### Diagrama Entidad-Relación
+**Motor:** SQLite vía `sqflite` · **Archivo:** `bellota.db` · **Versión actual:** 6
 
 ```mermaid
 erDiagram
-    USERS ||--o| PROFILES : "1:1 CASCADE"
+    USERS ||--|| PROFILES : "1:1 CASCADE"
+    USERS ||--o{ DAILY_LOGS : "1:N CASCADE"
     USERS ||--o{ PILL_TIMES : "1:N CASCADE"
     USERS ||--o{ WEEKLY_APPOINTMENTS : "1:N CASCADE"
-    USERS ||--o{ DAILY_LOGS : "1:N CASCADE"
     USERS ||--o{ AUDIT_LOGS : "1:N SET NULL"
 
     USERS {
         INTEGER id PK "AUTOINCREMENT"
         TEXT name "NOT NULL"
         TEXT email "NOT NULL UNIQUE"
-        TEXT password_hash "NOT NULL (SHA-256)"
-        TEXT role "DEFAULT 'usuario'"
+        TEXT password_hash "NOT NULL (salted SHA-256)"
+        TEXT role "DEFAULT 'usuario' (admin|usuario|auditor)"
         INTEGER is_active "DEFAULT 1"
+        TEXT language_pref "DEFAULT 'es' (es|en|mi)"
         TEXT created_at "ISO 8601"
     }
 
     PROFILES {
-        INTEGER user_id PK_FK "→ users(id)"
-        TEXT username "Display name"
-        TEXT gmail "Cuenta Google"
+        INTEGER user_id PK_FK "→ users(id) CASCADE"
+        TEXT username "Nombre para mostrar"
+        TEXT gmail "Cuenta Google (Opcional)"
         INTEGER cycle_duration "DEFAULT 28"
         INTEGER period_duration "DEFAULT 5"
-        TEXT profile_image_path "Ruta local"
+        TEXT profile_image_path "Ruta local de imagen"
+        TEXT medical_conditions "JSON array (SOP, Endometriosis, etc)"
+        TEXT contraceptive "Método anticonceptivo activo"
         INTEGER notif_periodo "DEFAULT 1"
         INTEGER notif_ovulacion "DEFAULT 1"
         INTEGER notif_pildora "DEFAULT 0"
@@ -291,67 +237,227 @@ erDiagram
 
     DAILY_LOGS {
         INTEGER id PK "AUTOINCREMENT"
-        INTEGER user_id FK "→ users(id)"
-        TEXT date "YYYY-MM-DD UNIQUE(user_id,date)"
-        INTEGER period_start "DEFAULT 0"
-        INTEGER period_end "DEFAULT 0"
+        INTEGER user_id FK "→ users(id) CASCADE"
+        TEXT date "YYYY-MM-DD UNIQUE(user_id, date)"
+        INTEGER period_start "Boolean 1|0"
+        INTEGER period_end "Boolean 1|0"
         TEXT symptoms "JSON array"
-        TEXT flujo "JSON array"
         TEXT sexo "JSON array"
-        TEXT bleeding_intensity "Intensidad"
-        TEXT clots "Coágulos"
-        INTEGER spotting "DEFAULT 0"
-        REAL pain_level "EVA 0-10"
-        TEXT pain_character "Tipo dolor"
-        TEXT treatment "Medicamento"
+        TEXT flujo "JSON array"
+        TEXT bleeding_intensity "light|medium|heavy"
+        TEXT clots "Descripción coágulos"
+        INTEGER spotting "Boolean 1|0"
+        TEXT spotting_days "Días de manchado"
+        TEXT sexual_symptoms "Síntomas sexuales"
+        REAL pain_level "EVA 0.0-10.0"
+        TEXT pain_character "Tipo de dolor"
+        TEXT pain_days "Días de dolor"
+        TEXT treatment "Tratamiento aplicado"
         TEXT physical_symptoms "JSON array"
         TEXT emotional_symptoms "JSON array"
-        TEXT breast_exam "Autoexamen"
+        TEXT breast_exam "Resultado autoexamen"
         TEXT notes "Notas libres"
+        REAL basal_temp "Temperatura basal"
+        TEXT lh_test_result "Resultado test LH"
+        TEXT cervical_position "Posición cervical"
+        TEXT mood "Estado de ánimo"
         TEXT created_at "ISO 8601"
     }
 
     PILL_TIMES {
         INTEGER id PK "AUTOINCREMENT"
-        INTEGER user_id FK "→ users(id)"
+        INTEGER user_id FK "→ users(id) CASCADE"
         INTEGER hour "0-23"
         INTEGER minute "0-59"
     }
 
     WEEKLY_APPOINTMENTS {
         INTEGER id PK "AUTOINCREMENT"
-        INTEGER user_id FK "→ users(id)"
+        INTEGER user_id FK "→ users(id) CASCADE"
         INTEGER weekday "1=Lun 7=Dom"
-        INTEGER hour "Hora"
-        INTEGER minute "Minuto"
+        INTEGER hour "Hora de la cita"
+        INTEGER minute "Minuto de la cita"
     }
 
     AUDIT_LOGS {
         INTEGER id PK "AUTOINCREMENT"
         INTEGER user_id FK "→ users(id) SET NULL"
-        TEXT action "NOT NULL"
-        TEXT target_type "user o daily_log"
-        INTEGER target_id "ID recurso"
-        TEXT details "JSON contexto"
-        TEXT ip_address "Opcional"
+        TEXT action "NOT NULL (login, role_change, etc)"
+        TEXT target_type "user|daily_log|profile"
+        INTEGER target_id "ID del recurso afectado"
+        TEXT details "JSON con contexto adicional"
+        TEXT ip_address "Dirección IP (opcional)"
         TEXT created_at "ISO 8601"
     }
 ```
 
-### Índices de Rendimiento
+---
 
-| Índice | Tabla | Columnas | Propósito |
-|--------|-------|----------|-----------|
-| `idx_daily_logs_user_date` | `daily_logs` | `(user_id, date)` | Consultas rápidas de registros por fecha |
-| `idx_audit_logs_created` | `audit_logs` | `(created_at, action)` | Filtrado eficiente de logs |
+## 🗄️ Esquema de Base de Datos — Backend (SQLAlchemy)
 
-### Historial de Migraciones
+**Motor:** SQLite vía SQLAlchemy ORM · **Archivo:** `backend.db` · **API Version:** 2.0.0
 
-| Versión | Cambios |
-|---------|---------|
-| **v1 → v2** | +14 columnas en `daily_logs` (bleeding, pain, symptoms detallados) |
-| **v2 → v3** | +`role`, `is_active` en `users`; +tabla `audit_logs` |
-| **v3 → v4** | +notificaciones en `profiles`; +tablas `pill_times`, `weekly_appointments` |
+```mermaid
+erDiagram
+    BACKEND_USERS ||--|| BACKEND_USER_PROFILES : "1:1 CASCADE"
+    BACKEND_USERS ||--o{ BACKEND_AUDIT_LOGS : "1:N SET NULL"
+    BACKEND_USER_PROFILES ||--o{ BACKEND_ADDITIONAL_MEDICATIONS : "1:N"
+    BACKEND_USER_PROFILES ||--o{ BACKEND_DAILY_LOGS : "1:N"
+
+    BACKEND_USERS {
+        int id PK "auto"
+        string name "NOT NULL"
+        string email "UNIQUE, INDEX"
+        string password_hash "bcrypt"
+        string role "admin|usuario|auditor"
+        bool is_active "DEFAULT true"
+        datetime created_at "auto now()"
+    }
+
+    BACKEND_USER_PROFILES {
+        int id PK "auto"
+        int user_id FK_UK "→ users(id) CASCADE"
+        int menstrual_cycle_duration "DEFAULT 28"
+        int menstruation_duration "DEFAULT 5"
+        string collection_product "DEFAULT toalla_femenina"
+        string contraceptive "nullable"
+        int age "nullable"
+        float weight "nullable"
+        string weight_unit "DEFAULT kg"
+        bool breast_exam_reminder "DEFAULT false"
+        bool privacy_policy_accepted "DEFAULT false"
+        datetime updated_at "auto now()"
+    }
+
+    BACKEND_AUDIT_LOGS {
+        int id PK "auto"
+        int user_id FK "→ users(id) SET NULL"
+        string action "NOT NULL, INDEX"
+        string target_type "nullable"
+        int target_id "nullable"
+        text details "JSON string"
+        string ip_address "nullable"
+        datetime created_at "auto now()"
+    }
+
+    BACKEND_ADDITIONAL_MEDICATIONS {
+        int id PK "auto"
+        int user_id FK "→ user_profiles(id)"
+        string name "INDEX"
+        string category "INDEX"
+        datetime updated_at "auto now()"
+    }
+
+    BACKEND_DAILY_LOGS {
+        int id PK "auto"
+        int user_id FK "→ user_profiles(id)"
+        string date "INDEX, YYYY-MM-DD"
+        bool period_start "DEFAULT false"
+        bool period_end "DEFAULT false"
+        bool sexual_intercourse "DEFAULT false"
+        string bleeding_intensity "nullable"
+        string notes "nullable"
+        datetime updated_at "auto now()"
+    }
+```
+
+---
+
+## 🔗 Diagrama Relacional Completo
+
+Diagrama unificado que muestra las relaciones entre todas las entidades del sistema (Frontend + Backend):
+
+```mermaid
+graph TB
+    subgraph FRONTEND["📱 Frontend - SQLite Local (bellota.db v6)"]
+        direction TB
+        FU["USERS<br/>───────────<br/>id PK<br/>name<br/>email UK<br/>password_hash<br/>role<br/>is_active<br/>language_pref<br/>created_at"]
+        FP["PROFILES<br/>───────────<br/>user_id PK/FK<br/>username<br/>gmail<br/>cycle_duration<br/>period_duration<br/>profile_image_path<br/>medical_conditions<br/>contraceptive<br/>notif_* (11 flags)<br/>notif_log_hour/minute"]
+        FDL["DAILY_LOGS<br/>───────────<br/>id PK<br/>user_id FK<br/>date<br/>period_start/end<br/>symptoms (JSON)<br/>sexo/flujo (JSON)<br/>bleeding_intensity<br/>clots, spotting<br/>pain_level (EVA)<br/>physical/emotional (JSON)<br/>basal_temp, lh_test<br/>cervical_position<br/>mood, notes<br/>created_at"]
+        FPT["PILL_TIMES<br/>───────────<br/>id PK<br/>user_id FK<br/>hour, minute"]
+        FWA["WEEKLY_APPOINTMENTS<br/>───────────<br/>id PK<br/>user_id FK<br/>weekday<br/>hour, minute"]
+        FAL["AUDIT_LOGS<br/>───────────<br/>id PK<br/>user_id FK<br/>action<br/>target_type<br/>target_id<br/>details (JSON)<br/>ip_address<br/>created_at"]
+
+        FU -- "1:1 CASCADE" --> FP
+        FU -- "1:N CASCADE" --> FDL
+        FU -- "1:N CASCADE" --> FPT
+        FU -- "1:N CASCADE" --> FWA
+        FU -- "1:N SET NULL" --> FAL
+    end
+
+    subgraph BACKEND["🖥️ Backend - SQLAlchemy (backend.db)"]
+        direction TB
+        BU["USERS<br/>───────────<br/>id PK<br/>name<br/>email UK<br/>password_hash (bcrypt)<br/>role<br/>is_active<br/>created_at"]
+        BUP["USER_PROFILES<br/>───────────<br/>id PK<br/>user_id FK/UK<br/>menstrual_cycle_duration<br/>menstruation_duration<br/>collection_product<br/>contraceptive<br/>age, weight<br/>breast_exam_reminder<br/>privacy_policy_accepted<br/>updated_at"]
+        BAL["AUDIT_LOGS<br/>───────────<br/>id PK<br/>user_id FK<br/>action<br/>target_type<br/>target_id<br/>details (JSON)<br/>ip_address<br/>created_at"]
+        BAM["ADDITIONAL_MEDICATIONS<br/>───────────<br/>id PK<br/>user_id FK<br/>name<br/>category<br/>updated_at"]
+        BDL["DAILY_LOGS<br/>───────────<br/>id PK<br/>user_id FK<br/>date<br/>period_start/end<br/>sexual_intercourse<br/>bleeding_intensity<br/>notes<br/>updated_at"]
+
+        BU -- "1:1 CASCADE" --> BUP
+        BU -- "1:N SET NULL" --> BAL
+        BUP -- "1:N" --> BAM
+        BUP -- "1:N" --> BDL
+    end
+
+    FRONTEND -. "Sincronización REST (Opcional)" .-> BACKEND
+
+    style FRONTEND fill:#FFF8E1,stroke:#FF8F00,stroke-width:2px
+    style BACKEND fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
+```
+
+---
+
+## 🔌 API REST — Referencia de Endpoints
+
+**Base URL:** `http://localhost:8000` · **Docs:** `/docs` (Swagger UI) · **Autenticación:** JWT Bearer Token
+
+### 🔑 Autenticación (`/auth`)
+
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/auth/register` | Registra un nuevo usuario | ❌ |
+| `POST` | `/auth/login` | Inicia sesión, retorna JWT | ❌ |
+| `GET` | `/auth/me` | Datos del usuario actual | ✅ Bearer |
+| `POST` | `/auth/seed-admin` | Crea el primer admin (solo si no existe ninguno) | ❌ |
+
+### 🛡️ Administración (`/admin`) — Solo Admin
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/admin/users` | Lista todos los usuarios (paginado) |
+| `GET` | `/admin/users/{id}` | Detalles de un usuario |
+| `PUT` | `/admin/users/{id}/role` | Cambia el rol de un usuario |
+| `PUT` | `/admin/users/{id}/status` | Suspende o reactiva una cuenta |
+| `DELETE` | `/admin/users/{id}` | Elimina permanentemente un usuario |
+
+### 📊 Auditoría (`/audit`) — Admin + Auditor
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/audit/logs` | Consulta historial con filtros (usuario, acción, fechas) |
+| `GET` | `/audit/stats` | Estadísticas generales (total, hoy, logins fallidos, etc.) |
+
+### 👤 Perfiles (`/profile`) — Owner + Admin
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/profile/{user_id}` | Lee el perfil de salud |
+| `PUT` | `/profile/{user_id}` | Actualiza el perfil de salud |
+
+### 💊 Medicamentos (`/medications`) — Owner + Admin
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/medications/{user_id}` | Lista medicamentos del usuario |
+| `POST` | `/medications/{user_id}` | Agrega un nuevo medicamento |
+| `DELETE` | `/medications/{med_id}` | Elimina un medicamento |
+
+### 📋 Registros Diarios (`/logs`) — Owner + Admin
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/logs/{user_id}/{date}` | Obtiene el registro de un día específico |
+| `POST` | `/logs/{user_id}` | Crea o actualiza el registro diario |
 
 ---
 
@@ -359,272 +465,397 @@ erDiagram
 
 ```
 bellotadevolpment/
-├── 📱 android/                         # Config nativa Android + signing
-├── 🍎 ios/                             # Config nativa iOS
+├── 📱 android/                              # Configuración nativa Android + Signing
+│   ├── app/build.gradle.kts                 # Compilación y versionamiento
+│   └── key.properties                       # Keystore para release (no versionado)
+│
 ├── 📦 assets/
-│   ├── fonts/                          # Estrella.ttf, Poppins-Medium.ttf
-│   └── images/                         # 12 archivos (logos, slides, banners)
-├── 🖥️ backend/                         # FastAPI experimental (opcional)
-└── 📂 lib/
-    ├── main.dart                       # Entry point
-    ├── core/
-    │   ├── constants/app_keys.dart     # Claves de SharedPreferences
-    │   ├── models/                     # 7 modelos de datos
-    │   └── services/                   # Auth, Cycle, Notification
-    ├── database/
-    │   └── database_helper.dart        # SQLite CRUD + migraciones (1244 líneas)
-    ├── l10n/
-    │   ├── app_translations.dart       # Diccionario ES/EN/MI
-    │   └── language_notifier.dart      # ValueNotifier reactivo
-    ├── navigation/
-    │   └── navigation_service.dart     # Routing por rol + onboarding
-    ├── screens/                        # 23 pantallas
-    ├── theme/
-    │   ├── bellota_colors.dart         # Paleta de colores
-    │   ├── bellota_theme.dart          # ThemeData claro y oscuro
-    │   └── theme_notifier.dart         # Toggle de tema
-    └── widgets/                        # 5 widgets reutilizables
+│   ├── decorations/                         # SVG decorativos (dashboard, perfil)
+│   ├── fonts/                               # Estrella.ttf, Poppins-Medium.ttf
+│   └── images/                              # Mascotas Bella (4 fases), logos, banners
+│
+├── 📂 lib/                                  # ──── Código Fuente Flutter ────
+│   ├── main.dart                            # Entry point + Global Error Boundary
+│   │
+│   ├── core/
+│   │   ├── constants/                       # Claves de app y datos de Nicaragua
+│   │   │   ├── app_keys.dart
+│   │   │   └── nicaragua_data.dart
+│   │   ├── data/                            # Datos clínicos y de hospitales
+│   │   │   ├── clinical_dictionary.dart     # Diccionario de síntomas médicos
+│   │   │   ├── hospital_data.dart           # Base de datos de hospitales
+│   │   │   ├── hospital_repository.dart     # Repositorio de acceso a hospitales
+│   │   │   └── symptom_hospital_mapping.dart # Mapeo síntomas → especialidades
+│   │   ├── models/                          # Modelos de datos
+│   │   │   ├── audit_log_model.dart
+│   │   │   ├── daily_log_model.dart
+│   │   │   ├── health_center_model.dart
+│   │   │   ├── hospital_recommendation.dart
+│   │   │   ├── notification_models.dart
+│   │   │   ├── profile_model.dart
+│   │   │   ├── user_model.dart
+│   │   │   └── user_role.dart               # Enum RBAC (admin|usuario|auditor)
+│   │   └── services/                        # Lógica de negocio
+│   │       ├── auth_service.dart            # Login, biometría, sesión local
+│   │       ├── clinical_analysis_service.dart # Motor de alertas médicas
+│   │       ├── cycle_service.dart           # Predicción de fases del ciclo
+│   │       ├── notification_service.dart    # Notificaciones locales
+│   │       ├── recommendation_engine.dart   # Matching hospitales ↔ síntomas
+│   │       ├── sync_service.dart            # Export/Import JSON
+│   │       └── user_health_profile.dart     # Perfil de salud consolidado
+│   │
+│   ├── database/
+│   │   └── database_helper.dart             # SQLite CRUD + Migraciones (v1→v6)
+│   │
+│   ├── l10n/                                # Internacionalización
+│   │   ├── app_localizations.dart           # Clase principal generada
+│   │   ├── app_localizations_es.dart        # Español
+│   │   ├── app_localizations_en.dart        # Inglés
+│   │   ├── app_localizations_mi.dart        # Miskitu
+│   │   ├── app_translations.dart            # Traducciones adicionales
+│   │   ├── language_notifier.dart           # ValueNotifier de idioma
+│   │   └── miskito_fallback_delegate.dart   # Delegate para Miskitu
+│   │
+│   ├── navigation/
+│   │   └── navigation_service.dart          # Routing por rol + verificación biométrica
+│   │
+│   ├── screens/                             # ──── 27 Pantallas ────
+│   │   ├── splash_screen.dart               # Pantalla de carga inicial
+│   │   ├── onboarding_screen.dart           # Slides de bienvenida
+│   │   ├── auth_screen.dart                 # Selector Login/Register
+│   │   ├── login_screen.dart                # Inicio de sesión
+│   │   ├── register_screen.dart             # Registro de cuenta
+│   │   ├── language_selection_screen.dart    # Selección de idioma
+│   │   ├── birth_year_screen.dart           # Año de nacimiento
+│   │   ├── personal_data_screen.dart        # Datos personales
+│   │   ├── privacy_policy_screen.dart       # Política de privacidad
+│   │   ├── dashboard_screen.dart            # Panel principal + Bella mascota
+│   │   ├── calendar_screen.dart             # Calendario menstrual
+│   │   ├── calendar_tour_screen.dart        # Tour guiado del calendario
+│   │   ├── symptom_log_screen.dart          # Registro principal de síntomas
+│   │   ├── symptoms_selection_screen.dart   # Selección de síntomas
+│   │   ├── patron_sangrado_screen.dart      # Patrón de sangrado
+│   │   ├── dolor_sintomatologia_screen.dart # Dolor y sintomatología
+│   │   ├── flujo_vaginal_selection_screen.dart # Flujo vaginal
+│   │   ├── sexo_selection_screen.dart       # Vida sexual
+│   │   ├── resumen_diario_screen.dart       # Resumen del día
+│   │   ├── profile_screen.dart              # Perfil de usuario
+│   │   ├── notifications_settings_screen.dart # Configuración notificaciones
+│   │   ├── account_language_screen.dart     # Configuración de idioma
+│   │   ├── medical_report_preview_screen.dart # Vista previa reporte PDF
+│   │   ├── hospital_hub_screen.dart         # Hub de hospitales
+│   │   ├── all_hospitals_screen.dart        # Lista completa de hospitales
+│   │   ├── health_center_detail_screen.dart # Detalle de centro de salud
+│   │   ├── map_screen.dart                  # Mapa interactivo
+│   │   ├── location_picker_screen.dart      # Selector de ubicación
+│   │   ├── admin_panel_screen.dart          # Panel de administración (Admin)
+│   │   └── audit_dashboard_screen.dart      # Dashboard de auditoría (Auditor)
+│   │
+│   ├── theme/                               # Tematización
+│   │   ├── bellota_colors.dart              # Paleta de colores (Bellota palette)
+│   │   ├── bellota_theme.dart               # ThemeData light/dark
+│   │   └── theme_notifier.dart              # ValueNotifier de tema
+│   │
+│   └── widgets/                             # Componentes reutilizables
+│       ├── bellota_empty_state.dart          # Estado vacío con Bella
+│       ├── bellota_icon.dart                # Ícono personalizado
+│       ├── bellota_text_field.dart           # Campo de texto estilizado
+│       ├── bellota_top_actions.dart          # Acciones superiores
+│       ├── botanical_divider.dart           # Divisor decorativo
+│       ├── cozy_row_item.dart               # Fila con estilo acogedor
+│       ├── cycle_ring_widget.dart           # Anillo visual del ciclo
+│       ├── health_info_carousel.dart        # Carrusel informativo
+│       ├── match_badge.dart                 # Badge de coincidencia
+│       ├── nearby_hospital_card.dart        # Tarjeta de hospital cercano
+│       ├── recommended_hospital_card.dart   # Tarjeta de recomendación
+│       ├── role_guard.dart                  # Guard de rol en UI
+│       └── rpg_help_dialog.dart             # Diálogo de ayuda gamificado
+│
+├── 🖥️ backend/                              # ──── API REST (FastAPI) ────
+│   ├── Dockerfile                           # Imagen Docker python:3.11-slim
+│   ├── requirements.txt                     # Dependencias Python
+│   └── app/
+│       ├── main.py                          # FastAPI app + CORS + Routers
+│       ├── __init__.py
+│       ├── api/
+│       │   └── routers/
+│       │       ├── auth.py                  # /auth (register, login, seed-admin)
+│       │       ├── admin.py                 # /admin (CRUD usuarios, roles)
+│       │       ├── audit.py                 # /audit (logs, estadísticas)
+│       │       ├── profile.py               # /profile (leer/actualizar)
+│       │       ├── logs.py                  # /logs (registros diarios)
+│       │       └── medications.py           # /medications (CRUD medicamentos)
+│       ├── core/
+│       │   ├── auth.py                      # JWT, bcrypt, require_role()
+│       │   └── database.py                  # SQLAlchemy engine + SessionLocal
+│       ├── crud/
+│       │   └── crud.py                      # Operaciones CRUD completas
+│       ├── models/
+│       │   └── models.py                    # ORM: User, AuditLog, UserProfile, etc.
+│       └── schemas/
+│           └── schemas.py                   # Pydantic: validación de entrada/salida
+│
+└── 📄 Archivos raíz
+    ├── pubspec.yaml                         # Dependencias Flutter + assets
+    ├── README.md                            # Este archivo
+    └── analysis_options.yaml                # Reglas de linting
 ```
-
-### Las 23 Pantallas
-
-| # | Pantalla | Rol | Descripción |
-|---|----------|-----|-------------|
-| 1 | `splash_screen` | Todos | Carga inicial y routing por sesión |
-| 2 | `login_screen` | — | Login email/contraseña + Google OAuth |
-| 3 | `register_screen` | — | Registro de nueva cuenta |
-| 4 | `privacy_policy_screen` | Nuevos | Aceptación de política de privacidad |
-| 5 | `onboarding_screen` | Nuevos | Carrusel de bienvenida (3 slides) |
-| 6 | `calendar_tour_screen` | Nuevos | Tour guiado del calendario |
-| 7 | `personal_data_screen` | Nuevos | Configuración inicial del perfil |
-| 8 | `dashboard_screen` | 👤 | Home con fase actual y accesos rápidos |
-| 9 | `calendar_screen` | 👤 | Calendario menstrual interactivo |
-| 10 | `symptom_log_screen` | 👤 | Hub central de registro diario |
-| 11 | `symptoms_selection_screen` | 👤 | Selector de síntomas por categoría |
-| 12 | `dolor_sintomatologia_screen` | 👤 | Registro de dolor (EVA 0-10) |
-| 13 | `patron_sangrado_screen` | 👤 | Patrón e intensidad de sangrado |
-| 14 | `flujo_vaginal_selection_screen` | 👤 | Tipo de flujo vaginal |
-| 15 | `sexo_selection_screen` | 👤 | Actividad sexual y protección |
-| 16 | `map_screen` | 👤 | Mapa de centros de salud |
-| 17 | `health_center_detail_screen` | 👤 | Detalle de centro de salud |
-| 18 | `location_picker_screen` | 👤 | Selector de ubicación en mapa |
-| 19 | `profile_screen` | 👤 | Perfil, preferencias y config |
-| 20 | `medical_report_preview_screen` | 👤 | Vista previa y export del PDF |
-| 21 | `notifications_settings_screen` | 👤 | Configuración de notificaciones |
-| 22 | `admin_panel_screen` | 🛡️ | Gestión de usuarios y roles |
-| 23 | `audit_dashboard_screen` | 🔍 | Revisión de logs y compliance |
 
 ---
 
 ## 🔄 Lógica de Fases del Ciclo
 
-### Fórmulas de Predicción
+El `CycleService` calcula la fase actual basándose en el último inicio de período registrado y la duración configurada del ciclo:
 
-```
-Próximo ciclo    →  T_next = T_last + D_cycle
-Día relativo     →  D = (Hoy - T_last) mod D_cycle + 1
-```
+| Fase | Condición (D = día del ciclo) | Color | Ícono | Mascota Bella | Descripción |
+|------|-------------------------------|-------|-------|---------------|-------------|
+| 🔴 Menstrual | D ≤ `period_duration` | Chilero | 🩸 | 😵 Mareada | Período activo |
+| 🟡 Folicular | `period_duration` < D ≤ `cycle_duration - 15` | Maíz | 🌱 | 🤸 Estirando | Preparación del óvulo |
+| 🟠 Ovulatoria | `cycle_duration - 15` < D ≤ `cycle_duration - 12` | Melón | 🥚 | 😴 Relajada | Ventana fértil |
+| 🟤 Lútea | D > `cycle_duration - 12` | Bellota | 🌙 | 📦 Refugiada | Post-ovulación → SPM |
 
-### Clasificación
-
-| Fase | Condición | Color | Ícono | Descripción |
-|------|-----------|-------|-------|-------------|
-| Menstrual | `D ≤ 5` | 🔴 Chilero | 🩸 | Período activo |
-| Folicular | `5 < D ≤ 13` | 🟡 Maíz | 🌱 | Preparación del óvulo |
-| Ovulatoria | `13 < D ≤ 16` | 🟠 Melón | 🥚 | Ventana fértil |
-| Lútea | `D > 16` | 🟤 Bellota | 🌙 | Post-ovulación |
-
-> **Variables:** `T_last` = último inicio de período · `D_cycle` = duración del ciclo (default 28 días) · `D` = día actual en el ciclo
+> **Variables:**
+> - `T_last` = fecha del último `period_start = true`
+> - `D_cycle` = duración del ciclo (configurable, default 28 días)
+> - `D_period` = duración del período (configurable, default 5 días)
+> - `D` = `(hoy - T_last).days + 1`
 
 ---
 
-## 🌐 Internacionalización
+## 🚨 Motor de Alertas Clínicas
 
-| Código | Idioma | Estado | Cobertura |
-|--------|--------|--------|-----------|
-| `es` | 🇳🇮 Español | ✅ Completo | Predeterminado |
-| `mi` | 🏳️ Miskitu | ✅ Completo | Lengua indígena |
-| `en` | 🇺🇸 Inglés | ✅ Completo | — |
+El `ClinicalAnalysisService` analiza los registros de los últimos 7 y 30 días para generar alertas con un sistema de semáforo:
 
-Sistema reactivo: al cambiar el idioma, **todas** las pantallas se actualizan instantáneamente sin reiniciar la app (patrón `ValueListenableBuilder`).
+```mermaid
+flowchart LR
+    A["📋 Registros<br/>últimos 7-30 días"] --> B{"Análisis de<br/>patrones"}
+    B --> C["🔴 HIGH<br/>Oncología<br/>Infecciones severas"]
+    B --> D["🟡 MEDIUM<br/>Dolor persistente<br/>Sangrado anormal"]
+    B --> E["🟢 LOW<br/>Cambios leves<br/>Spotting ocasional"]
+    C --> F["⚠️ Alerta con<br/>recomendación médica"]
+    D --> F
+    E --> G["💡 Información<br/>educativa"]
+```
+
+### Categorías de Alerta
+
+| Categoría | Ejemplo de Trigger | Severidad |
+|-----------|-------------------|-----------|
+| `oncology` | Bulto en mama, sangrado post-menopausia | 🔴 HIGH |
+| `infection` | Flujo amarillo/verde + olor fétido | 🔴 HIGH |
+| `pain` | Dolor EVA ≥ 7 por 3+ días/semana | 🟡 MEDIUM |
+| `sexual_risk` | Relaciones sin protección + síntomas ITS | 🟡 MEDIUM |
+| `bleeding` | Sangrado abundante persistente | 🟡 MEDIUM |
+| `spotting` | Manchado entre períodos | 🟢 LOW |
+| `cycle` | Irregularidad del ciclo > 7 días | 🟢 LOW |
+
+> **Nota:** Las alertas se modifican dinámicamente según las condiciones médicas previas (SOP, Endometriosis, Hipotiroidismo) y los métodos anticonceptivos configurados en el perfil.
+
+---
+
+## 🌐 Internacionalización (i18n)
+
+| Código | Idioma | Estado | Delegate | Cobertura |
+|--------|--------|--------|----------|-----------|
+| `es` | 🇳🇮 Español | ✅ Completo | `AppLocalizations` | Predeterminado |
+| `en` | 🇺🇸 Inglés | ✅ Completo | `AppLocalizations` | — |
+| `mi` | 🏳️ Miskitu | ✅ Completo | `MiskitoFallbackDelegate` | Lengua indígena de Nicaragua |
+
+La aplicación utiliza el sistema `flutter_localizations` con un delegate personalizado para Miskitu (no soportado nativamente por Flutter). El idioma se persiste en `SharedPreferences` y en la columna `language_pref` de la tabla `users`.
 
 ---
 
 ## 📋 Requisitos Previos
 
-### Para Desarrollo
+### Para el Frontend (Flutter)
 
-| Herramienta | Versión | Comando de verificación |
-|-------------|---------|------------------------|
-| Flutter SDK | ≥ 3.13.0 | `flutter --version` |
-| Dart SDK | ≥ 3.0.0 | `dart --version` |
-| Android Studio | ≥ 2023.1 | Con Android SDK 34 |
-| Java JDK | 17 | `java --version` |
-| Git | ≥ 2.x | `git --version` |
+| Herramienta | Versión Mínima | Propósito |
+|-------------|----------------|-----------|
+| Flutter SDK | 3.13+ | Framework de desarrollo |
+| Dart SDK | 3.0+ | Lenguaje de programación |
+| Android Studio / VS Code | Última | IDE de desarrollo |
+| Android SDK | API 21+ | Compilación Android |
+| JDK | 17+ | Build Android nativo |
 
-### Para Instalar la APK
+### Para el Backend (FastAPI)
 
-| Requisito | Detalle |
-|-----------|---------|
-| Android | Versión 5.0 (Lollipop) o superior — API 21+ |
-| Espacio | ~80 MB de almacenamiento disponible |
-| Permisos | Ubicación (para mapa), Cámara (para foto de perfil), Notificaciones |
-
----
-
-## 📲 Instalar la APK en un Dispositivo
-
-### Método 1: Por cable USB
-
-1. Conecte su teléfono Android al computador con un cable USB
-2. Habilite la **transferencia de archivos** en el teléfono
-3. Copie el archivo `app-release.apk` a la carpeta **Descargas** del teléfono
-4. En el teléfono, abra el archivo con un explorador de archivos
-5. Si aparece un aviso de seguridad:
-   - Vaya a **Configuración** → **Seguridad** → **Orígenes desconocidos** → ✅ Activar
-   - O en Android 8+: **Configuración** → **Apps** → **Instalar apps desconocidas** → permita el explorador de archivos
-6. Toque **Instalar** y espere a que termine
-
-### Método 2: Por WhatsApp / Telegram
-
-1. Envíese el archivo `app-release.apk` a sí mismo por WhatsApp o Telegram
-2. Abra la conversación en el teléfono
-3. Descargue y abra el archivo
-4. Permita la instalación desde orígenes desconocidos si se solicita
-5. Toque **Instalar**
-
-### Método 3: Instalación directa (dispositivo conectado)
-
-```bash
-flutter install --release
-```
-
-> ⚠️ **Nota:** La primera vez que abra la app, se le pedirán permisos de ubicación y notificaciones. Aceptar para habilitar el mapa y los recordatorios.
+| Herramienta | Versión Mínima | Propósito |
+|-------------|----------------|-----------|
+| Python | 3.11+ | Runtime del servidor |
+| pip | Última | Gestor de paquetes |
+| Docker *(opcional)* | 20+ | Containerización |
 
 ---
 
-## 🚀 Instalación para Desarrollo
+## 🚀 Instalación y Desarrollo
 
-### 1. Clonar el repositorio
+### 1. Clonar el Repositorio
 
 ```bash
 git clone https://github.com/Jossmart28/Bellota-App.git
 cd Bellota-App
 ```
 
-### 2. Instalar dependencias
+### 2. Configurar el Frontend (Flutter)
 
 ```bash
+# Instalar dependencias
 flutter pub get
-```
 
-### 3. Verificar entorno
+# Verificar entorno
+flutter doctor
 
-```bash
-flutter doctor -v
-```
-
-### 4. Ejecutar
-
-```bash
-# Debug (con hot reload)
+# Ejecutar en modo debug
 flutter run
-
-# Release (rendimiento óptimo)
-flutter run --release
 ```
 
-### 5. Verificar calidad
+### 3. Configurar el Backend (FastAPI)
 
 ```bash
-flutter analyze
+cd backend
+
+# Crear entorno virtual
+python -m venv venv
+
+# Activar entorno virtual
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Ejecutar el servidor de desarrollo
+uvicorn app.main:app --reload --port 8000
 ```
+
+El servidor estará disponible en `http://localhost:8000` y la documentación interactiva en `http://localhost:8000/docs`.
 
 ---
 
-## 🔨 Compilar APK desde Código Fuente
+## 🐳 Despliegue del Backend
 
-### Generar Keystore (solo la primera vez)
-
-```bash
-keytool -genkey -v \
-  -keystore bellota-release-key.jks \
-  -keyalg RSA -keysize 2048 \
-  -validity 10000 -alias bellota
-```
-
-### Configurar firma
-
-Crear `android/key.properties`:
-```properties
-storePassword=TU_CONTRASEÑA
-keyPassword=TU_CONTRASEÑA
-keyAlias=bellota
-storeFile=../../bellota-release-key.jks
-```
-
-### Compilar
+### Con Docker
 
 ```bash
-# APK universal
+cd backend
+
+# Construir la imagen
+docker build -t bellota-api .
+
+# Ejecutar el contenedor
+docker run -d -p 8000:8000 --name bellota-backend bellota-api
+```
+
+### Variables de Entorno (Producción)
+
+> [!CAUTION]
+> Antes de desplegar en producción, **cambie** la `SECRET_KEY` en `backend/app/core/auth.py` y configure las siguientes variables:
+
+| Variable | Descripción | Default |
+|----------|-------------|---------|
+| `SECRET_KEY` | Clave secreta para firmar JWT | `bellota-secret-key-change-in-production-2024` |
+| `ALGORITHM` | Algoritmo JWT | `HS256` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Expiración del token | `60` |
+| `SQLALCHEMY_DATABASE_URL` | URL de la base de datos | `sqlite:///./backend.db` |
+
+---
+
+## 📲 Compilar e Instalar la APK
+
+### Compilar desde Código Fuente
+
+```bash
+# 1. Asegúrese de tener bellota-release-key.jks en la raíz del proyecto
+# 2. Verificar key.properties en android/
+
+# 3. Compilar APK release
 flutter build apk --release
 
-# APKs por arquitectura (recomendado, más livianos)
-flutter build apk --release --split-per-abi
-
-# App Bundle para Google Play Store
-flutter build appbundle --release
+# 4. El archivo final estará en:
+#    build/app/outputs/flutter-apk/app-release.apk
 ```
 
-### Ubicación del APK generado
+### Instalar en Dispositivo
 
-```
-build/app/outputs/flutter-apk/app-release.apk
-```
-
-> ⚠️ **Seguridad:** Nunca suba los archivos `key.properties`, `*.jks` ni `*.keystore` a Git.
+1. Transfiera el archivo `app-release.apk` a su dispositivo Android.
+2. En el dispositivo, vaya a **Configuración → Seguridad → Orígenes desconocidos** y habilítelo.
+3. Abra el archivo APK desde el explorador de archivos y toque **Instalar**.
 
 ---
 
 ## 📚 Dependencias
 
+### Frontend (Flutter/Dart)
+
 | Paquete | Versión | Propósito |
 |---------|---------|-----------|
-| `sqflite` | ^2.4.3 | Base de datos SQLite |
-| `shared_preferences` | ^2.2.2 | Almacenamiento clave-valor |
-| `google_fonts` | ^8.2.1 | Tipografías de Google |
+| `sqflite` | ^2.4.3 | Base de datos SQLite local |
+| `local_auth` | ^3.0.2 | Biometría (huella/FaceID) |
 | `flutter_map` | ^7.0.2 | Mapas OpenStreetMap |
 | `latlong2` | ^0.9.1 | Coordenadas geográficas |
-| `geocoding` | ^3.0.0 | Geocodificación |
+| `geocoding` | ^3.0.0 | Geocodificación de direcciones |
 | `google_sign_in` | 6.2.2 | Autenticación Google OAuth |
-| `image_picker` | ^1.1.2 | Cámara y galería |
-| `pdf` | ^3.11.1 | Generación de PDF |
-| `printing` | ^5.13.2 | Vista previa e impresión |
-| `url_launcher` | ^6.3.2 | Abrir URLs externas |
-| `share_plus` | ^10.1.4 | Compartir archivos |
-| `flutter_local_notifications` | ^18.0.1 | Notificaciones locales |
-| `timezone` | ^0.9.4 | Zonas horarias |
-| `permission_handler` | ^11.3.1 | Gestión de permisos |
-| `intl` | ^0.20.3 | Formateo i18n |
-| `crypto` | ^3.0.3 | Hash SHA-256 |
+| `pdf` | ^3.11.1 | Generación de reportes PDF |
+| `printing` | ^5.13.2 | Impresión de documentos |
+| `flutter_local_notifications` | ^18.0.1 | Notificaciones y alarmas |
+| `share_plus` | ^10.1.4 | Compartir archivos (backups) |
+| `file_picker` | 8.1.4 | Selector de archivos (importar) |
+| `image_picker` | ^1.1.2 | Foto de perfil |
+| `google_fonts` | ^8.2.1 | Tipografías web |
+| `flutter_svg` | ^2.3.0 | Renderizado SVG |
+| `flutter_animate` | ^4.5.2 | Animaciones declarativas |
+| `flutter_staggered_animations` | ^1.1.1 | Animaciones escalonadas |
+| `badges` | ^4.0.1 | Badges de notificación |
+| `crypto` | ^3.0.3 | SHA-256 local |
+| `shared_preferences` | ^2.2.2 | Almacenamiento clave-valor |
 | `uuid` | ^4.6.0 | Generación de IDs únicos |
+| `intl` | ^0.20.3 | Formateo de fechas/números |
+| `timezone` | ^0.9.4 | Zonas horarias |
+| `permission_handler` | ^11.3.1 | Permisos del sistema |
+| `url_launcher` | ^6.3.2 | Abrir URLs externas |
+| `screenshot` | ^3.0.0 | Capturas de pantalla |
+| `path_provider` | ^2.1.6 | Rutas del sistema de archivos |
+
+### Backend (Python)
+
+| Paquete | Propósito |
+|---------|-----------|
+| `fastapi` | Framework web async |
+| `uvicorn[standard]` | Servidor ASGI |
+| `sqlalchemy` | ORM para base de datos |
+| `pydantic` | Validación de esquemas |
+| `python-jose[cryptography]` | Generación/verificación JWT |
+| `passlib[bcrypt]` | Hashing de contraseñas |
+| `python-multipart` | Soporte para form-data |
 
 ---
 
-## 🖥️ Backend (Opcional)
+## 🔄 Migraciones de Base de Datos
 
-El directorio `backend/` contiene un servidor **FastAPI** experimental con SQLAlchemy y JWT. **La app funciona 100% sin él.** Está diseñado para futura sincronización multi-dispositivo.
+### Frontend — SQLite (bellota.db)
+
+| Versión | Cambios |
+|---------|---------|
+| **v1** | Tablas `users`, `profiles`, `daily_logs` base |
+| **v2** | Columnas de sangrado, dolor y síntomas emocionales/físicos en `daily_logs`; migración de `SharedPreferences` a SQLite |
+| **v3** | Columnas `role` e `is_active` en `users`; tabla `audit_logs` |
+| **v4** | Columnas de notificación avanzada en `profiles` (`notif_daily_log`, `notif_log_hour/minute`); tablas `pill_times` y `weekly_appointments` |
+| **v5** | Columnas `medical_conditions` y `contraceptive` en `profiles`; columnas `basal_temp`, `lh_test_result`, `cervical_position`, `mood` en `daily_logs` |
+| **v6** | Columna `language_pref` en `users` |
+
+> [!NOTE]
+> Las migraciones son incrementales y no destructivas. Cada `ALTER TABLE` se envuelve en un `try-catch` para evitar errores si la columna ya existe, asegurando compatibilidad con actualizaciones parciales.
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto es de uso privado. Todos los derechos reservados.
-
----
-
 <p align="center">
   <img src="assets/images/logo_white.png" alt="Bellota" width="40"/>
   <br/>
   <sub>Hecho con ❤️ para la salud femenina · <strong>Bellota 2024 – 2026</strong></sub>
+  <br/>
+  <sub>Universidad del Sur de Managuá (USM) · Proyecto ShowMás</sub>
 </p>

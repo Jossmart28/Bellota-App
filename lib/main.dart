@@ -7,6 +7,7 @@ import 'l10n/miskito_fallback_delegate.dart';
 import 'theme/bellota_theme.dart';
 import 'theme/theme_notifier.dart';
 import 'screens/splash_screen.dart';
+import 'screens/auth_screen.dart';
 import 'l10n/language_notifier.dart';
 import 'core/services/notification_service.dart';
 
@@ -26,6 +27,24 @@ void main() async {
       NotificationService.instance.initialize(),
     ]);
 
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      return Material(
+        child: Container(
+          color: const Color(0xFFF7EACC), // nancite
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/images/bella_mascot.png', height: 120),
+              const SizedBox(height: 24),
+              const Text('�Ups! Bella se tropez� con un cable.', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF3D2B27))),
+              const SizedBox(height: 12),
+              const Text('Algo sali� mal, pero ya lo estamos limpiando. Intenta abrir esta pantalla de nuevo.', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: Color(0xFF7A4F47))),
+            ],
+          ),
+        ),
+      );
+    };
     runApp(const BellotaApp());
   } catch (e) {
     debugPrint('Fatal error during startup: $e');

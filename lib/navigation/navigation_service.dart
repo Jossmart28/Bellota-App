@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_keys.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/auth_screen.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/calendar_tour_screen.dart';
 import '../screens/personal_data_screen.dart';
@@ -84,12 +85,16 @@ abstract final class NavigationService {
   ///
   /// Usar en el splash para decidir entre ir a login, idioma o al home del usuario.
   static Widget resolveRootScreen(SharedPreferences prefs) {
+    final useBiometrics = prefs.getBool('use_biometrics') ?? false;
     final languageSetupDone = prefs.getBool('language_setup_done') ?? false;
     if (!languageSetupDone) return const LanguageSelectionScreen();
 
     final isLoggedIn = prefs.getBool(AppKeys.isLoggedIn) ?? false;
     if (!isLoggedIn) return const LoginScreen();
     
+    if (useBiometrics) {
+      return AuthScreen(targetScreen: resolveHomeScreen(prefs));
+    }
     return resolveHomeScreen(prefs);
   }
 

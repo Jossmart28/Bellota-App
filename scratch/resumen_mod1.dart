@@ -10,101 +10,28 @@ import '../core/services/clinical_analysis_service.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/bellota_empty_state.dart';
-import '../database/database_helper.dart';
 
 class ResumenDiarioScreen extends StatefulWidget {
-  final DateTime nextPeriodDate;
+  final DateTime widget.nextPeriodDate;
   final List<String> predictedSymptoms;
-  final List<String> todaySymptoms;
-  final String? todayMood;
+  final List<String> widget.todaySymptoms;
+  final String? widget.todayMood;
   final List<String> medicalConditions;
-  final CycleInfo? cycleInfo;
-  final int currentPhaseIndex;
-  final List<ClinicalAlert>? activeAlerts;
-  final int? userId;
-  final String? contraceptive;
-  final DateTime? lastPeriodStart;
-  final int cycleDuration;
-  final int periodDuration;
+  final CycleInfo? widget.cycleInfo;
+  final int (_phases[_selectedOffset] ?? widget.currentPhaseIndex);
+  final List<ClinicalAlert>? widget.activeAlerts;
 
   const ResumenDiarioScreen({
     super.key,
-    required this.nextPeriodDate,
+    required this.widget.nextPeriodDate,
     required this.predictedSymptoms,
-    required this.todaySymptoms,
+    required this.widget.todaySymptoms,
     required this.medicalConditions,
-    required this.currentPhaseIndex,
-    this.todayMood,
-    this.cycleInfo,
-    this.activeAlerts,
-    this.userId,
-    this.contraceptive,
-    this.lastPeriodStart,
-    this.cycleDuration = 28,
-    this.periodDuration = 5,
+    required this.(_phases[_selectedOffset] ?? widget.currentPhaseIndex),
+    this.widget.todayMood,
+    this.widget.cycleInfo,
+    this.widget.activeAlerts,
   });
-
-  @override
-  State<ResumenDiarioScreen> createState() => _ResumenDiarioScreenState();
-}
-
-class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
-  int _selectedOffset = 0;
-  bool _isLoading = false;
-  final Map<int, List<String>> _predictions = {};
-  final Map<int, int> _phases = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _predictions[0] = widget.predictedSymptoms;
-    _phases[0] = widget.currentPhaseIndex;
-  }
-
-  Future<void> _fetchPredictionForOffset(int offset) async {
-    if (_predictions.containsKey(offset) || widget.userId == null || widget.lastPeriodStart == null) {
-      setState(() {
-        _selectedOffset = offset;
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _selectedOffset = offset;
-    });
-
-    final targetDate = DateTime.now().add(Duration(days: offset));
-    final phase = CycleService.instance.getPhaseForDate(
-      date: targetDate,
-      lastPeriodStart: widget.lastPeriodStart!,
-      effectiveCycleDuration: widget.cycleDuration,
-      periodDuration: widget.periodDuration,
-    );
-
-    int pIdx = 0;
-    String pNameStr = 'ovulatory';
-    switch (phase) {
-      case CyclePhase.ovulatory: pIdx = 0; pNameStr = 'ovulatory'; break;
-      case CyclePhase.luteal: pIdx = 1; pNameStr = 'luteal'; break;
-      case CyclePhase.follicular: pIdx = 2; pNameStr = 'follicular'; break;
-      case CyclePhase.menstrual: pIdx = 3; pNameStr = 'menstrual'; break;
-    }
-
-    final symps = await DatabaseHelper.instance.getPredictedSymptomsV2(
-      widget.userId!, 
-      pNameStr,
-      widget.medicalConditions,
-      widget.contraceptive,
-      limit: 5,
-    );
-
-    setState(() {
-      _predictions[offset] = symps.isNotEmpty ? symps : ['mood_swings', 'headache', 'bloating'];
-      _phases[offset] = pIdx;
-      _isLoading = false;
-    });
-  }
 
   // Colores de fase consistentes con dashboard_screen.dart _getPhases
   Color _phaseColor(BuildContext context) {
@@ -331,7 +258,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                if (widget.todaySymptoms.isNotEmpty && _selectedOffset == 0)
+                if (widget.todaySymptoms.isNotEmpty)
                   ...widget.todaySymptoms.take(4).map((s) => _bulletItem(
                     context,
                     colors,
@@ -449,7 +376,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
         ),
         const SizedBox(height: 16),
 
-        if (_isLoading) const Center(child: CircularProgressIndicator()) else if ((_predictions[_selectedOffset] ?? []).isEmpty)
+        if ((_predictions[_selectedOffset] ?? []).isEmpty)
           BellotaEmptyState(
             imagePath: _getMascotImageForPhase((_phases[_selectedOffset] ?? widget.currentPhaseIndex)),
             title: 'AÃƒÂºn no hay predicciones',
@@ -788,68 +715,59 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
   // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
   Widget _buildDateSelector(BuildContext context, BellotaColors colors) {
     final now = DateTime.now();
-    
-    final List<String> monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-    final List<String> weekDays = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+    final yesterday = now.subtract(const Duration(days: 1));
+    final tomorrow = now.add(const Duration(days: 1));
 
-    String format(DateTime d) => '\${d.day} \${monthNames[d.month - 1]}';
+    final List<String> monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    final List<String> weekDays = ['lun', 'mar', 'miÃƒÂ©', 'jue', 'vie', 'sÃƒÂ¡b', 'dom'];
+
+    String format(DateTime d) => '${d.day} ${monthNames[d.month - 1]}';
     String formatDay(DateTime d) => weekDays[d.weekday - 1];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: List.generate(5, (index) {
-            final date = now.add(Duration(days: index));
-            final isSelected = _selectedOffset == index;
-            final labelDay = index == 0 ? 'Hoy' : formatDay(date);
-            
-            return GestureDetector(
-              onTap: () => _fetchPredictionForOffset(index),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      labelDay,
-                      style: TextStyle(
-                        fontSize: isSelected ? 18 : 14,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                        color: Colors.white.withValues(alpha: isSelected ? 1.0 : 0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: isSelected ? 12 : 8, vertical: isSelected ? 4 : 4),
-                      decoration: isSelected
-                          ? BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(12),
-                            )
-                          : BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                      child: Text(
-                        format(date),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                          color: Colors.white.withValues(alpha: isSelected ? 1.0 : 0.6),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _dateItem(formatDay(yesterday), format(yesterday), false),
+          _dateItem('Hoy', format(now), true),
+          _dateItem(formatDay(tomorrow), format(tomorrow), false),
+        ],
       ),
+    );
+  }
+
+  Widget _dateItem(String day, String date, bool isToday) {
+    return Column(
+      children: [
+        Text(
+          day,
+          style: TextStyle(
+            fontSize: isToday ? 18 : 14,
+            fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
+            color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.6),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: isToday ? 12 : 0, vertical: isToday ? 4 : 0),
+          decoration: isToday
+              ? BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                )
+              : null,
+          child: Text(
+            date,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isToday ? FontWeight.w500 : FontWeight.w400,
+              color: Colors.white.withValues(alpha: isToday ? 1.0 : 0.6),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -880,8 +798,6 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
       default: return mood;
     }
   }
-
-
-
-
 }
+
+

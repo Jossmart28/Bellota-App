@@ -1,5 +1,7 @@
-import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import '../theme/bellota_colors.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
@@ -93,7 +95,12 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
     });
   }
 
+  void _setIntensity(String key) => _toggleOption('intensidadFlujoKey', key, true);
+  void _setClots(String key) => _toggleOption('coagulosKey', key, true);
+  void _toggleSpotting(String key) => _toggleOption('manchadoKey', key, true);
+
   void _toggleOption(String field, String key, bool isSingleChoice) {
+    HapticFeedback.lightImpact();
     setState(() {
       if (isSingleChoice) {
         switch (field) {
