@@ -1,4 +1,4 @@
-﻿<h1 align="center">🌰 Bellota - Versión 1</h1>
+<h1 align="center">🌰 Bellota - Versión 1</h1>
 
 ---
 
@@ -70,13 +70,17 @@
 
 ### 🗺️ Mapa de Centros de Salud & Motor de Recomendación
 - Mapa interactivo con **OpenStreetMap** (flutter_map + Leaflet).
-- **Motor de Recomendación Médica:** Sugiere hospitales y clínicas según los síntomas registrados (ej. urología para dolor pélvico persistente).
-- Base de datos de hospitales de Nicaragua con geolocalización y especialidades.
+- **Motor de Recomendación por Tiers:** Sistema escalable basado en `HealthcareTier` (primaryCare, emergency, gynecology, specializedImaging) que filtra hospitales según el nivel de atención requerido por las alertas clínicas.
+- **Cadena de routing:** `ClinicalAlert → HealthcareRoutingService.routeAlerts() → RecommendationTerminal[] → RecommendationEngine.recommend() → HospitalRecommendation[]`
+- **Scoring 3-ejes:** Proximidad (40%) + Cobertura de Tiers (40%) + Relevancia base (20%).
+- Base de datos de hospitales de la Costa Caribe de Nicaragua con geolocalización, servicios y `supportedTiers`.
 
 ### 🔔 Análisis Clínico y Alertas Inteligentes
 - **Semáforo de alertas (High/Medium/Low):** Detecta patrones peligrosos basados en la repetición semanal de síntomas.
+- **Routing Hospitalario Escalable:** Cada alerta se traduce en un `HealthcareTier` según severidad y categoría, adaptado al sistema MINSA rural.
 - Considera condiciones médicas previas (SOP, Endometriosis, Hipotiroidismo) y efectos secundarios de anticonceptivos.
-- Diccionario clínico integrado con categorías: oncología, infecciones, dolor, riesgo sexual, sangrado.
+- Diccionario clínico integrado con ~80+ entradas en categorías: oncología, infecciones, dolor, sangrado, flujo, sexual, mama, fertilidad.
+- **Indicador visual en Análisis:** FAB pulsante condicional (≥7 días de registro + alertas activas) que navega al Hospital Hub con terminales animadas.
 
 ### 📄 Reporte Médico PDF & Respaldo
 - Generación de informe clínico profesional en **PDF** con membrete.
@@ -105,16 +109,16 @@
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
 │  │               🖼️ CAPA DE PRESENTACIÓN (UI)                         │    │
-│  │  27 Screens · 12 Widgets · ThemeExtension · Google Fonts           │    │
+│  │  32 Pantallas · 12 Widgets · ThemeExtension · Google Fonts           │    │
 │  │  Flutter Animate · Staggered Animations · SVG Decorations          │    │
 │  └────────────────────────────────┬────────────────────────────────────┘    │
 │                                   │                                         │
 │  ┌────────────────────────────────▼────────────────────────────────────┐    │
 │  │               ⚙️ CAPA DE SERVICIOS (Business Logic)                │    │
-│  │  ClinicalAnalysisService → Motor de alertas médicas (semáforo)     │    │
+│  │  ClinicalAnalysisService → Motor de alertas + HealthcareRoutingService     │    │
 │  │  CycleService            → Predicción de fases y fertilidad        │    │
 │  │  NotificationService     → Períodos, píldora, citas, recordatorios │    │
-│  │  RecommendationEngine    → Matching hospitales ↔ síntomas          │    │
+│  │  RecommendationEngine    → Matching por HealthcareTier ↔ hospitales          │    │
 │  │  AuthService             → Login, biometría, sesión local          │    │
 │  │  SyncService             → Exportación/Importación JSON            │    │
 │  │  NavigationService       → Routing por rol y estado de onboarding  │    │
@@ -211,7 +215,7 @@ erDiagram
         INTEGER is_active "DEFAULT 1"
         TEXT language_pref "DEFAULT 'es' (es|en|mi)"
         TEXT created_at "ISO 8601"
-    }
+    end
 
     PROFILES {
         INTEGER user_id PK_FK "→ users(id) CASCADE"
@@ -233,7 +237,7 @@ erDiagram
         INTEGER notif_daily_log "DEFAULT 1"
         INTEGER notif_log_hour "DEFAULT 21"
         INTEGER notif_log_minute "DEFAULT 0"
-    }
+    end
 
     DAILY_LOGS {
         INTEGER id PK "AUTOINCREMENT"
@@ -262,14 +266,14 @@ erDiagram
         TEXT cervical_position "Posición cervical"
         TEXT mood "Estado de ánimo"
         TEXT created_at "ISO 8601"
-    }
+    end
 
     PILL_TIMES {
         INTEGER id PK "AUTOINCREMENT"
         INTEGER user_id FK "→ users(id) CASCADE"
         INTEGER hour "0-23"
         INTEGER minute "0-59"
-    }
+    end
 
     WEEKLY_APPOINTMENTS {
         INTEGER id PK "AUTOINCREMENT"
@@ -277,7 +281,7 @@ erDiagram
         INTEGER weekday "1=Lun 7=Dom"
         INTEGER hour "Hora de la cita"
         INTEGER minute "Minuto de la cita"
-    }
+    end
 
     AUDIT_LOGS {
         INTEGER id PK "AUTOINCREMENT"
@@ -288,7 +292,7 @@ erDiagram
         TEXT details "JSON con contexto adicional"
         TEXT ip_address "Dirección IP (opcional)"
         TEXT created_at "ISO 8601"
-    }
+    end
 ```
 
 ---
@@ -312,7 +316,7 @@ erDiagram
         string role "admin|usuario|auditor"
         bool is_active "DEFAULT true"
         datetime created_at "auto now()"
-    }
+    end
 
     BACKEND_USER_PROFILES {
         int id PK "auto"
@@ -327,7 +331,7 @@ erDiagram
         bool breast_exam_reminder "DEFAULT false"
         bool privacy_policy_accepted "DEFAULT false"
         datetime updated_at "auto now()"
-    }
+    end
 
     BACKEND_AUDIT_LOGS {
         int id PK "auto"
@@ -338,7 +342,7 @@ erDiagram
         text details "JSON string"
         string ip_address "nullable"
         datetime created_at "auto now()"
-    }
+    end
 
     BACKEND_ADDITIONAL_MEDICATIONS {
         int id PK "auto"
@@ -346,7 +350,7 @@ erDiagram
         string name "INDEX"
         string category "INDEX"
         datetime updated_at "auto now()"
-    }
+    end
 
     BACKEND_DAILY_LOGS {
         int id PK "auto"
@@ -358,7 +362,7 @@ erDiagram
         string bleeding_intensity "nullable"
         string notes "nullable"
         datetime updated_at "auto now()"
-    }
+    end
 ```
 
 ---
@@ -385,6 +389,17 @@ graph TB
         FU -- "1:N SET NULL" --> FAL
     end
 
+    subgraph CLINICAL["🩺 Análisis Clínico & Recomendaciones (En Memoria)"]
+        direction TB
+        CD["CLINICAL_DICTIONARY<br/>───────────<br/>symptom_key<br/>baseScore<br/>relatedSpecialties"]
+        CA["CLINICAL_ALERTS<br/>───────────<br/>category<br/>severity (high|medium|low)<br/>triggerSymptoms"]
+        HR["HEALTHCARE_ROUTING<br/>───────────<br/>HealthcareTier enum<br/>RecommendationTerminal"]
+        HC["HOSPITAL_DATA<br/>───────────<br/>id PK<br/>name<br/>supportedTiers<br/>location (LatLng)"]
+
+        CD -. "Genera" .-> CA
+        CA -. "Mapea a Tiers" .-> HR
+        HR -. "Filtra por Tier" .-> HC
+    end
     subgraph BACKEND["🖥️ Backend - SQLAlchemy (backend.db)"]
         direction TB
         BU["USERS<br/>───────────<br/>id PK<br/>name<br/>email UK<br/>password_hash (bcrypt)<br/>role<br/>is_active<br/>created_at"]
@@ -400,9 +415,12 @@ graph TB
     end
 
     FRONTEND -. "Sincronización REST (Opcional)" .-> BACKEND
+    FDL -. "Analiza 30 días" .-> CA
+    FP -. "Aplica modificadores (SOP, etc)" .-> CD
 
     style FRONTEND fill:#FFF8E1,stroke:#FF8F00,stroke-width:2px
     style BACKEND fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
+    style CLINICAL fill:#E3F2FD,stroke:#1565C0,stroke-width:2px
 ```
 
 ---
@@ -484,8 +502,8 @@ bellotadevolpment/
 │   │   ├── data/                            # Datos clínicos y de hospitales
 │   │   │   ├── clinical_dictionary.dart     # Diccionario de síntomas médicos
 │   │   │   ├── hospital_data.dart           # Base de datos de hospitales
-│   │   │   ├── hospital_repository.dart     # Repositorio de acceso a hospitales
-│   │   │   └── symptom_hospital_mapping.dart # Mapeo síntomas → especialidades
+
+│   │   │   └── hospital_repository.dart     # Repositorio + filtrado por tiers
 │   │   ├── models/                          # Modelos de datos
 │   │   │   ├── audit_log_model.dart
 │   │   │   ├── daily_log_model.dart
@@ -519,7 +537,7 @@ bellotadevolpment/
 │   ├── navigation/
 │   │   └── navigation_service.dart          # Routing por rol + verificación biométrica
 │   │
-│   ├── screens/                             # ──── 27 Pantallas ────
+│   ├── screens/                             # ──── 32 Pantallas ────
 │   │   ├── splash_screen.dart               # Pantalla de carga inicial
 │   │   ├── onboarding_screen.dart           # Slides de bienvenida
 │   │   ├── auth_screen.dart                 # Selector Login/Register
@@ -624,32 +642,55 @@ El `CycleService` calcula la fase actual basándose en el último inicio de per�
 
 ## 🚨 Motor de Alertas Clínicas
 
-El `ClinicalAnalysisService` analiza los registros de los últimos 7 y 30 días para generar alertas con un sistema de semáforo:
+El `ClinicalAnalysisService` analiza los registros de los últimos 7 y 30 días para generar alertas con un sistema de semáforo, que luego se traducen en niveles de atención hospitalaria (`HealthcareTier`) mediante el `HealthcareRoutingService`:
 
 ```mermaid
 flowchart LR
-    A["📋 Registros<br/>últimos 7-30 días"] --> B{"Análisis de<br/>patrones"}
-    B --> C["🔴 HIGH<br/>Oncología<br/>Infecciones severas"]
-    B --> D["🟡 MEDIUM<br/>Dolor persistente<br/>Sangrado anormal"]
-    B --> E["🟢 LOW<br/>Cambios leves<br/>Spotting ocasional"]
-    C --> F["⚠️ Alerta con<br/>recomendación médica"]
+    A["📋 Registros<br/>últimos 7-30 días"] --> B{"ClinicalAnalysis<br/>Service"}
+    B --> C["🔴 HIGH"]
+    B --> D["🟡 MEDIUM"]
+    B --> E["🟢 LOW"]
+    C --> F{"HealthcareRouting<br/>Service"}
     D --> F
-    E --> G["💡 Información<br/>educativa"]
+    E --> F
+    F --> G["🏥 emergency"]
+    F --> H["🩺 gynecology"]
+    F --> I["🏪 primaryCare"]
+    F --> J["📷 specializedImaging"]
+    G --> K{"Recommendation<br/>Engine"}
+    H --> K
+    I --> K
+    J --> K
+    K --> L["📍 Hospitales<br/>ordenados por score"]
 ```
+
+### Niveles de Atención (HealthcareTier)
+
+| Tier | Descripción MINSA | Ejemplo |
+|------|-------------------|---------|
+| `primaryCare` | Puesto/Centro de Salud | Consulta general, ITS, planificación familiar |
+| `emergency` | Emergencias 24/7 | Dolor severo, sangrado de emergencia |
+| `gynecology` | Ginecología especializada | Sangrado anormal persistente, riesgo embarazo |
+| `specializedImaging` | Imagenología (mamografía, ultrasonido) | Bulto en mama, seguimiento oncológico |
 
 ### Categorías de Alerta
 
-| Categoría | Ejemplo de Trigger | Severidad |
-|-----------|-------------------|-----------|
-| `oncology` | Bulto en mama, sangrado post-menopausia | 🔴 HIGH |
-| `infection` | Flujo amarillo/verde + olor fétido | 🔴 HIGH |
-| `pain` | Dolor EVA ≥ 7 por 3+ días/semana | 🟡 MEDIUM |
-| `sexual_risk` | Relaciones sin protección + síntomas ITS | 🟡 MEDIUM |
-| `bleeding` | Sangrado abundante persistente | 🟡 MEDIUM |
-| `spotting` | Manchado entre períodos | 🟢 LOW |
-| `cycle` | Irregularidad del ciclo > 7 días | 🟢 LOW |
+| Categoría | Ejemplo de Trigger | Severidad | Tier Resultante |
+|-----------|-------------------|-----------|-----------------|
+| `oncology` | Bulto en mama, cambio de piel mamario | 🔴 HIGH | specializedImaging + gynecology |
+| `breast` | Descarga mamaria, dolor localizado | 🔴 HIGH | specializedImaging + gynecology |
+| `infection` | Flujo amarillo/verde + olor fétido | 🔴 HIGH | primaryCare |
+| `pain` | Dolor EVA ≥ 7 por 3+ días/semana | 🟡 MEDIUM | emergency (si HIGH) / gynecology |
+| `sexual_risk` | Relaciones sin protección + síntomas ITS | 🟡 MEDIUM | primaryCare |
+| `bleeding` | Sangrado abundante persistente | 🟡 MEDIUM | gynecology |
+| `menorrhagia` | Coágulos frecuentes + flujo abundante | 🟡 MEDIUM | gynecology |
+| `flow_anomaly` | Flujo vaginal anormal recurrente | 🟡 MEDIUM | primaryCare |
+| `contraception` | Uso frecuente píldora emergencia | 🟡 MEDIUM | gynecology |
+| `emotional` | Patrones emocionales persistentes | 🟢 LOW | primaryCare |
+| `spotting` | Manchado entre períodos | 🟢 LOW | primaryCare |
+| `cycle` | Irregularidad del ciclo > 7 días | 🟢 LOW | primaryCare |
 
-> **Nota:** Las alertas se modifican dinámicamente según las condiciones médicas previas (SOP, Endometriosis, Hipotiroidismo) y los métodos anticonceptivos configurados en el perfil.
+> **Nota:** Las alertas se modifican dinámicamente según las condiciones médicas previas (SOP, Endometriosis, Hipotiroidismo) y los métodos anticonceptivos configurados en el perfil. El `ClinicalDictionary.calculateDynamicScore()` ajusta las puntuaciones base según estas condiciones.
 
 ---
 

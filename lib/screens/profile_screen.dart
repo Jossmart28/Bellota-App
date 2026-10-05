@@ -1399,6 +1399,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+}
 class _CustomThumbShape extends SliderComponentShape {
   final Color thumbColor;
   
@@ -1501,7 +1502,6 @@ class _DashedBorderPainter extends CustomPainter {
   bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
       oldDelegate.color != color || oldDelegate.radius != radius;
 }
-
 
 
 
