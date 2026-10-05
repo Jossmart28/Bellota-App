@@ -988,15 +988,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 24),
                     _buildHealthSection(),
                     const SizedBox(height: 20),
-                    _buildPreferencesSection(),
+                    _buildNotificationsSection(),
+                    const SizedBox(height: 20),
+                    _buildSecuritySection(),
+                    const SizedBox(height: 20),
+                    _buildInfoSection(),
                     if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
                       const SizedBox(height: 20),
                       _buildAdminSection(),
                     ],
-                    const SizedBox(height: 20),
-                    _buildDataSection(),
-                    const SizedBox(height: 20),
-                    _buildBiometricsToggle(),
                     const SizedBox(height: 16),
                     _buildLogoutButton(),
                     const SizedBox(height: 36),
@@ -1064,55 +1064,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
   
-  Widget _buildDataSection() {
-    final colors = Theme.of(context).bellotaColors;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionHeader('Mis Datos'),
-        const SizedBox(height: 14),
-        CozyRowItem(
-          title: 'Exportar Backup',
-          value: 'Guardar mis datos',
-          onTap: () async {
-            if (_userId != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Generando backup...')),
-              );
-              await SyncService.instance.exportAndShareBackup(_userId!);
-            }
-          },
-          icon: Icons.cloud_download_rounded,
-          iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
-          iconColor: colors.chilero,
-        ),
-        const SizedBox(height: 8),
-        CozyRowItem(
-          title: 'Importar Backup',
-          value: 'Restaurar datos',
-          onTap: () async {
-            if (_userId != null) {
-              final result = await SyncService.instance.importBackup(_userId!);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(result ? 'Datos restaurados con éxito' : 'Error al restaurar datos'),
-                    backgroundColor: result ? Colors.green : Colors.red,
-                  ),
-                );
-                if (result) _loadProfile(); // recargar datos
-              }
-            }
-          },
-          icon: Icons.cloud_upload_rounded,
-          iconBackgroundColor: colors.asuncion.withValues(alpha: 0.10),
-          iconColor: colors.asuncion,
-        ),
-      ],
-    );
-  }
-
-
   Widget _buildBiometricsToggle() {
     return FutureBuilder<bool>(
       future: SharedPreferences.getInstance().then((p) => p.getBool('use_biometrics') ?? false),
@@ -1170,58 +1121,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildLogoutButton() {
-
-    bool isPressed = false;
-    return StatefulBuilder(
-      builder: (context, setState) {
-        
-        return GestureDetector(
-          onTapDown: (_) => setState(() => isPressed = true),
-          onTapUp: (_) {
-            setState(() => isPressed = false);
-            _handleLogout();
-          },
-          onTapCancel: () => setState(() => isPressed = false),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-              color: isPressed ? Colors.red.withValues(alpha: 0.12) : Colors.red.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: CustomPaint(
-              painter: _DashedBorderPainter(
-                color: Colors.red.withValues(alpha: 0.35),
-                radius: 16,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AnimatedRotation(
-                    turns: isPressed ? 0.25 : 0.0,
-                    duration: const Duration(milliseconds: 150),
-                    child: const Icon(Icons.logout_rounded, color: Colors.red, size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    AppLocalizations.of(context)!.profileAndReportLogout,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.red,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      child: ElevatedButton(
+        onPressed: _handleLogout,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red.withValues(alpha: 0.1),
+          foregroundColor: Colors.red,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        );
-      }
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.logout_rounded, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              AppLocalizations.of(context)!.profileAndReportLogout,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-
-
 
 
   Widget _buildAvatarSection() {
@@ -1360,14 +1289,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
 
-  Widget _buildPreferencesSection() {
+  Widget _buildNotificationsSection() {
     final colors = Theme.of(context).bellotaColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader(AppLocalizations.of(context)!.profileAndReportAppPreferences),
+        _sectionHeader('Preferencias'),
         const SizedBox(height: 14),
-        // Recordatorios y notificaciones
         CozyRowItem(
           title: AppLocalizations.of(context)!.profileAndReportRemindersNotifications,
           value: '',
@@ -1383,103 +1311,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
           iconBackgroundColor: colors.melon.withValues(alpha: 0.10),
           iconColor: colors.melon,
         ),
+      ],
+    );
+  }
+
+  Widget _buildSecuritySection() {
+    final colors = Theme.of(context).bellotaColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader('Seguridad y Datos'),
+        const SizedBox(height: 14),
+        _buildBiometricsToggle(),
         const SizedBox(height: 8),
-        // Política de privacidad
         CozyRowItem(
-          title: AppLocalizations.of(context)!.profileAndReportPrivacyPolicy,
-          value: '',
-          onTap: () {}, // Sin función
-          icon: Icons.shield_outlined,
-          iconBackgroundColor: colors.chiltoma.withValues(alpha: 0.10),
-          iconColor: colors.chiltoma,
+          title: 'Exportar Backup',
+          value: 'Guardar mis datos',
+          onTap: () async {
+            if (_userId != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Generando backup...')),
+              );
+              await SyncService.instance.exportAndShareBackup(_userId!);
+            }
+          },
+          icon: Icons.cloud_download_rounded,
+          iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
+          iconColor: colors.chilero,
         ),
         const SizedBox(height: 8),
-        /* Idioma suspendido temporalmente */
-        ValueListenableBuilder<ThemeMode>(
-          valueListenable: themeNotifier,
-          builder: (_, mode, _) {
-            final isDark = mode == ThemeMode.dark;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-              decoration: BoxDecoration(
-                color: colors.blanco,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colors.nancite.withValues(alpha: 0.6),
-                  width: 1.0,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
+        CozyRowItem(
+          title: 'Importar Backup',
+          value: 'Restaurar datos',
+          onTap: () async {
+            if (_userId != null) {
+              final result = await SyncService.instance.importBackup(_userId!);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result ? 'Datos restaurados' : 'Error al restaurar datos'),
+                    backgroundColor: result ? Colors.green : Colors.red,
                   ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  // Ícono de apariencia
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: isDark 
-                        ? const Color(0xFF9B7FD4).withValues(alpha: 0.10) 
-                        : colors.melon.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                      size: 18,
-                      color: isDark ? const Color(0xFF9B7FD4) : colors.melon,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.profileAndReportAppearance,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: colors.textoDark,
-                          ),
-                        ),
-                        Text(
-                          isDark 
-                            ? AppTranslations.get('profile_and_report', AppKeys.darkMode, languageNotifier.currentLang, context: context) 
-                            : AppLocalizations.of(context)!.profileAndReportLightMode,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 11,
-                            color: colors.textoMedio,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Switch(
-                    value: isDark,
-                    onChanged: (_) {
-                      HapticFeedback.lightImpact();
-                      themeNotifier.toggle();
-                    },
-                    activeThumbColor: const Color(0xFF9B7FD4),
-                    activeTrackColor: const Color(0xFF9B7FD4).withValues(alpha: 0.3),
-                    inactiveThumbColor: colors.melon,
-                    inactiveTrackColor: colors.melon.withValues(alpha: 0.3),
-                  ),
-                ],
-              ),
-            );
+                );
+                if (result) _loadProfile();
+              }
+            }
           },
+          icon: Icons.cloud_upload_rounded,
+          iconBackgroundColor: colors.asuncion.withValues(alpha: 0.10),
+          iconColor: colors.asuncion,
         ),
       ],
     );
   }
 
-}
+  Widget _buildInfoSection() {
+    final colors = Theme.of(context).bellotaColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader('Mas informacion'),
+        const SizedBox(height: 14),
+        CozyRowItem(
+          title: AppLocalizations.of(context)!.profileAndReportPrivacyPolicy,
+          value: '',
+          onTap: () {},
+          icon: Icons.shield_outlined,
+          iconBackgroundColor: colors.chiltoma.withValues(alpha: 0.10),
+          iconColor: colors.chiltoma,
+        ),
+        const SizedBox(height: 8),
+        CozyRowItem(
+          title: 'Acerca de Bellota',
+          value: '',
+          onTap: () {
+            showAboutDialog(
+              context: context,
+              applicationName: 'Bellota',
+              applicationVersion: '1.0.0',
+            );
+          },
+          icon: Icons.info_outline_rounded,
+          iconBackgroundColor: colors.asuncion.withValues(alpha: 0.10),
+          iconColor: colors.asuncion,
+        ),
+      ],
+    );
+  }
 
 class _CustomThumbShape extends SliderComponentShape {
   final Color thumbColor;
@@ -1583,7 +1501,6 @@ class _DashedBorderPainter extends CustomPainter {
   bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
       oldDelegate.color != color || oldDelegate.radius != radius;
 }
-
 
 
 

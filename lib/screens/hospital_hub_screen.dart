@@ -19,7 +19,8 @@ import '../widgets/rpg_help_dialog.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
 class HospitalHubScreen extends StatefulWidget {
-  const HospitalHubScreen({super.key});
+  final List<ClinicalAlert>? activeAlerts;
+  const HospitalHubScreen({super.key, this.activeAlerts});
 
   @override
   State<HospitalHubScreen> createState() => _HospitalHubScreenState();
@@ -62,7 +63,7 @@ class _HospitalHubScreenState extends State<HospitalHubScreen> {
       userSymptoms = healthData.recentSymptoms;
       userConditions = healthData.medicalConditions;
       _matchingSymptomsCount = userSymptoms.length;
-      activeAlerts = await ClinicalAnalysisService.instance.analyzeHealthState(healthData.userId);
+      activeAlerts = widget.activeAlerts ?? await ClinicalAnalysisService.instance.analyzeHealthState(healthData.userId);
     }
 
     final allHospitals = _repository.getAll();

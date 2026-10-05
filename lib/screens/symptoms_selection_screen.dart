@@ -1,4 +1,4 @@
-﻿import 'package:bellotadevelopment/l10n/language_notifier.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
@@ -20,11 +20,11 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
 
   // Keys predefinidos (no requieren context, seguros para initState)
   static const List<List<String>> _predefinedSymptomKeys = [
-    ['fever', 'body_ache', 'general_distension', 'extreme_fatigue', 'water_retention', 'night_sweats', 'hot_flashes', 'palpitations', 'dizziness'],
-    ['headache', 'vertigo', 'insomnia', 'vomiting', 'acne'],
-    ['abdominal_pain', 'abdominal_distension', 'bloating', 'diarrhea', 'constipation', 'nausea', 'pelvic_pain', 'lower_back_pain', 'leg_cramps'],
+    ['fever', 'body_ache', 'extreme_fatigue', 'water_retention', 'night_sweats', 'hot_flashes', 'palpitations', 'dizziness'],
+    ['headache', 'insomnia', 'vomiting', 'acne'],
+    ['abdominal_distension', 'bloating', 'diarrhea', 'constipation', 'nausea', 'pelvic_pain', 'lower_back_pain', 'leg_cramps'],
     ['breast_tenderness', 'appetite_changes', 'cravings'],
-    ['irritability', 'sadness', 'crying_easily', 'mood_swings', 'anxiety', 'low_self_esteem'],
+    ['irritability', 'sadness', 'mood_swings', 'anxiety', 'low_self_esteem'],
   ];
 
   List<Map<String, dynamic>> _buildSymptomCategories(BuildContext context) => [
@@ -35,7 +35,6 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
       'symptoms': [
         {'key': 'fever', 'icon': Icons.thermostat_rounded},
         {'key': 'body_ache', 'icon': Icons.sick_outlined},
-        {'key': 'general_distension', 'icon': Icons.circle_outlined},
         {'key': 'extreme_fatigue', 'icon': Icons.battery_0_bar_rounded},
         {'key': 'water_retention', 'icon': Icons.water_drop_outlined},
         {'key': 'night_sweats', 'icon': Icons.nightlight_round},
@@ -50,7 +49,6 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
       'color': Theme.of(context).bellotaColors.asuncion,
       'symptoms': [
         {'key': 'headache', 'icon': Icons.psychology_outlined},
-        {'key': 'vertigo', 'icon': Icons.swap_horiz_rounded},
         {'key': 'insomnia', 'icon': Icons.bedtime_outlined},
         {'key': 'vomiting', 'icon': Icons.sick_outlined},
         {'key': 'acne', 'icon': Icons.face_retouching_natural_outlined},
@@ -61,7 +59,6 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
       'icon': Icons.favorite_border_rounded,
       'color': Theme.of(context).bellotaColors.chilero,
       'symptoms': [
-        {'key': 'abdominal_pain', 'icon': Icons.spa_outlined},
         {'key': 'abdominal_distension', 'icon': Icons.circle_outlined},
         {'key': 'bloating', 'icon': Icons.radio_button_unchecked_rounded},
         {'key': 'diarrhea', 'icon': Icons.run_circle_outlined},
@@ -89,7 +86,6 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
       'symptoms': [
         {'key': 'irritability', 'icon': Icons.mood_bad_outlined},
         {'key': 'sadness', 'icon': Icons.sentiment_dissatisfied_outlined},
-        {'key': 'crying_easily', 'icon': Icons.water_drop_outlined},
         {'key': 'mood_swings', 'icon': Icons.swap_vert_rounded},
         {'key': 'anxiety', 'icon': Icons.warning_amber_rounded},
         {'key': 'low_self_esteem', 'icon': Icons.trending_down_rounded},

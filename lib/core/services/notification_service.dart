@@ -44,6 +44,10 @@ class NotificationService {
   // Inicialización
   // ─────────────────────────────────────────────────────────────────────────
 
+  Future<List<PendingNotificationRequest>> getPendingNotificationRequests() async {
+    return await _plugin.pendingNotificationRequests();
+  }
+
   Future<void> initialize() async {
     if (_initialized) return;
 

@@ -16,6 +16,15 @@ class HospitalRepository {
     }
   }
 
+  List<HealthCenter> getByTiers(List<String> tiers) {
+    if (tiers.isEmpty) return getAll();
+    
+    return hospitalDataList.where((h) {
+      // Return true if the hospital supports ANY of the requested tiers
+      return h.supportedTiers.any((tier) => tiers.contains(tier));
+    }).toList();
+  }
+
   List<HealthCenter> search(String query) {
     final q = query.toLowerCase();
     if (q.isEmpty) return getAll();

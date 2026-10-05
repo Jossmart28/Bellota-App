@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/services/clinical_analysis_service.dart';
+import '../database/database_helper.dart';
+import 'hospital_hub_screen.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class AnalisisScreen extends StatefulWidget {
   final int cycleDuration;
   final int periodDuration;
+  final List<ClinicalAlert>? activeAlerts;
+  final int? userId;
 
   const AnalisisScreen({
     super.key,
     required this.cycleDuration,
     required this.periodDuration,
+    this.activeAlerts,
+    this.userId,
   });
 
   @override
@@ -19,6 +27,7 @@ class _AnalisisScreenState extends State<AnalisisScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late List<Animation<double>> _animations;
+  int _loggedDays = 0;
 
   @override
   void initState() {
@@ -35,6 +44,18 @@ class _AnalisisScreenState extends State<AnalisisScreen>
       ),
     );
     _controller.forward();
+    _checkLoggedDays();
+  }
+
+  Future<void> _checkLoggedDays() async {
+    if (widget.userId != null) {
+      final count = await DatabaseHelper.instance.getTotalLoggedDays(widget.userId!);
+      if (mounted) {
+        setState(() {
+          _loggedDays = count;
+        });
+      }
+    }
   }
 
   @override
@@ -43,10 +64,63 @@ class _AnalisisScreenState extends State<AnalisisScreen>
     super.dispose();
   }
 
+  Widget? _buildHospitalIndicator() {
+    if (widget.activeAlerts == null || widget.activeAlerts!.isEmpty || _loggedDays < 7) {
+      return null;
+    }
+    
+    // Sort to find the highest severity for color
+    bool hasHigh = widget.activeAlerts!.any((a) => a.severity == 'high');
+    bool hasMed = widget.activeAlerts!.any((a) => a.severity == 'medium');
+    Color color = hasHigh ? const Color(0xFFD32F2F) : (hasMed ? const Color(0xFFF57C00) : const Color(0xFF388E3C));
+
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => HospitalHubScreen(activeAlerts: widget.activeAlerts)),
+        );
+      },
+      backgroundColor: Colors.white,
+      elevation: 4,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(Icons.local_hospital_rounded, color: color, size: 28),
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ).animate(onPlay: (c) => c.repeat()).scale(begin: const Offset(1,1), end: const Offset(1.5,1.5), duration: 1.seconds).fade(begin: 1, end: 0, duration: 1.seconds),
+          ),
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.05,1.05), duration: 1.seconds, curve: Curves.easeInOut);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF6F0),
+      floatingActionButton: _buildHospitalIndicator(),
       body: Stack(
         children: [
           // Gradient header background

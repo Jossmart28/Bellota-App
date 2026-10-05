@@ -15,6 +15,7 @@ class HealthCenter {
   // Nuevos campos
   final int relevanceScore;
   final List<String> specialtyTags;
+  final List<String> supportedTiers;
   final List<String> symptomTags;
   final String openHours;
   final bool emergencyAvailable;
@@ -34,6 +35,7 @@ class HealthCenter {
     required this.location,
     this.relevanceScore = 50,
     this.specialtyTags = const [],
+    this.supportedTiers = const [],
     this.symptomTags = const [],
     this.openHours = '',
     this.emergencyAvailable = false,

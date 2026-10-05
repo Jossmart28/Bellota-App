@@ -74,7 +74,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final colors = Theme.of(context).extension<BellotaColors>() ?? BellotaColors.light;
     
     return Scaffold(
-      backgroundColor: colors.nancite, // Fondo suave de privacidad
+      backgroundColor: colors.chilero, // Fondo suave de privacidad
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -83,35 +83,36 @@ class _AuthScreenState extends State<AuthScreen> {
             GestureDetector(
               onTap: _isAuthenticating ? null : _authenticate,
               child: Container(
-                padding: const EdgeInsets.all(32),
+                width: 140,
+                height: 140,
                 decoration: BoxDecoration(
                   color: colors.blanco,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: colors.textoDark.withValues(alpha: 0.1),
+                      color: colors.textoDark.withValues(alpha: 0.2),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     )
                   ],
                 ),
-                child: Icon(
-                  _isAuthenticating ? Icons.fingerprint : Icons.lock_outline_rounded,
-                  size: 64,
-                  color: colors.chilero,
-                )
-                    .animate(target: _isAuthenticating ? 1 : 0)
-                    .shimmer(duration: 1.seconds, color: colors.melon)
-                    .scale(begin: const Offset(1,1), end: const Offset(1.1, 1.1)),
-              ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/bella_mascot.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ).animate(target: _isAuthenticating ? 1 : 0)
+               .shimmer(duration: 1.seconds, color: colors.melon)
+               .scale(begin: const Offset(1,1), end: const Offset(1.05, 1.05)),
             ),
             const SizedBox(height: 32),
             Text(
-              "Tu salud es privada",
+              "¡Bienvenida de vuelta!",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: colors.textoDark,
+                color: colors.blanco,
                 letterSpacing: -0.5,
               ),
             ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.5, end: 0),
@@ -122,7 +123,7 @@ class _AuthScreenState extends State<AuthScreen> {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: colors.textoMedio,
+                color: colors.blanco.withValues(alpha: 0.8),
                 height: 1.4,
               ),
             ).animate().fadeIn(duration: 600.ms, delay: 200.ms),

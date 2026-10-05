@@ -1055,6 +1055,12 @@ class DatabaseHelper {
   }
 
   /// Obtiene todos los registros diarios de un usuario ordenados por fecha
+  Future<int> getTotalLoggedDays(int userId) async {
+    final db = await database;
+    final result = await db.rawQuery('SELECT COUNT(DISTINCT date) as count FROM daily_logs WHERE user_id = ?', [userId]);
+    return (result.first['count'] as int?) ?? 0;
+  }
+
   Future<List<Map<String, dynamic>>> getAllDailyLogs(int userId) async {
     final db = await instance.database;
 

@@ -1,4 +1,4 @@
-﻿import '../core/constants/app_keys.dart';
+import '../core/constants/app_keys.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
@@ -13,6 +13,7 @@ import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
 import '../database/database_helper.dart';
 import 'login_screen.dart';
+import 'notifications_screen.dart';
 import 'hospital_hub_screen.dart';
 import 'calendar_screen.dart';
 import 'symptom_log_screen.dart';
@@ -665,7 +666,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           showSettings: false,
           showNotifications: true,
 
-          onNotificationPressed: () {},
+          onNotificationPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+            );
+          },
         ),
       ],
     );

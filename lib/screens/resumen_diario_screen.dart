@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'dart:ui';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
@@ -91,11 +91,9 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
       case CyclePhase.menstrual: pIdx = 3; pNameStr = 'menstrual'; break;
     }
 
-    final symps = await DatabaseHelper.instance.getPredictedSymptomsV2(
+    final symps = await ClinicalAnalysisService.instance.predictSymptoms(
       widget.userId!, 
       pNameStr,
-      widget.medicalConditions,
-      widget.contraceptive,
       limit: 5,
     );
 
@@ -555,54 +553,25 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
 
     final lang = languageNotifier.currentLang;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(Icons.health_and_safety_rounded, color: Colors.red.shade600, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              AppLocalizations.of(context)!.profileAndReportHealthProfile,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: colors.textoDark,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ...sortedAlerts.asMap().entries.map((entry) {
-          int index = entry.key;
-          ClinicalAlert alert = entry.value;
-
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: sortedAlerts.take(3).map((alert) {
           Color alertColor;
           Color bgColor;
-          IconData icon;
           if (alert.severity == 'high') {
             alertColor = const Color(0xFFD32F2F); // Red
             bgColor = const Color(0xFFFFEBEE);
-            icon = Icons.warning_rounded;
           } else if (alert.severity == 'medium') {
             alertColor = const Color(0xFFF57C00); // Orange
             bgColor = const Color(0xFFFFF3E0);
-            icon = Icons.info_outline_rounded;
           } else {
-            alertColor = colors.chiltoma;
-            bgColor = colors.chiltoma.withValues(alpha: 0.1);
-            icon = Icons.check_circle_outline_rounded;
+            alertColor = const Color(0xFF388E3C); // Green
+            bgColor = const Color(0xFFE8F5E9);
           }
 
-          // Translate symptom keys to display names
           final translatedSymptoms = alert.triggerSymptoms.map((key) {
             String translated = AppTranslations.get(
               'registration_form', key, lang, context: context,
@@ -613,130 +582,41 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
             return translated;
           }).toList();
 
-          // Category icon
-          IconData categoryIcon;
-          switch (alert.category) {
-            case 'oncology': categoryIcon = Icons.favorite_border_rounded; break;
-            case 'infection': categoryIcon = Icons.opacity_rounded; break;
-            case 'pain': categoryIcon = Icons.thermostat_rounded; break;
-            case 'sexual_risk': categoryIcon = Icons.shield_outlined; break;
-            case 'sexual_pain': categoryIcon = Icons.spa_outlined; break;
-            case 'bleeding': categoryIcon = Icons.water_drop_rounded; break;
-            case 'spotting': categoryIcon = Icons.water_drop_outlined; break;
-            case 'cycle': categoryIcon = Icons.loop_rounded; break;
-            default: categoryIcon = Icons.health_and_safety_rounded; break;
-          }
-
           return Container(
-            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: bgColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: alertColor.withValues(alpha: 0.3)),
-              boxShadow: [
-                BoxShadow(
-                  color: alertColor.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: alertColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  translatedSymptoms.isNotEmpty ? translatedSymptoms.first : "Alerta",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: alertColor,
+                  ),
                 ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header row: icon + severity badge + weekly count
-                  Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: bgColor,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(categoryIcon, color: alertColor, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      Icon(icon, color: alertColor, size: 18),
-                      const SizedBox(width: 6),
-                      if (alert.severity == 'high')
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: alertColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            '⚠',
-                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      const Spacer(),
-                      // Weekly frequency badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: alertColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${alert.weeklyCount}/${alert.totalDaysWithData} d',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: alertColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // Symptom chips — the ONLY content shown
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: translatedSymptoms.map((name) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: alertColor.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: alertColor.withValues(alpha: 0.25)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.adjust_rounded, size: 12, color: alertColor),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                name,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: colors.textoDark,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ).animate().fade(duration: 400.ms, delay: (index * 150).ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
-        }),
-      ],
+          );
+        }).toList(),
+      ),
     );
   }
 
-  // ═══════════════════
   // TOP BAR
   // ═══════════════════
   Widget _buildTopBar(BuildContext context, BellotaColors colors) {
@@ -780,6 +660,8 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                       builder: (_) => AnalisisScreen(
                         cycleDuration: widget.cycleDuration,
                         periodDuration: widget.periodDuration,
+                        activeAlerts: widget.activeAlerts,
+                        userId: widget.userId,
                       ),
                     ),
                   );
