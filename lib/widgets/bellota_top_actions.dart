@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
 import '../l10n/language_notifier.dart';
 
@@ -43,7 +43,7 @@ class BellotaTopActions extends StatelessWidget {
 
 
 
-        // 3. Botón de Ayuda RPG o TalkBack / Audio
+        // 3. Botón de Ayuda RPG
         if (showHelp)
           _buildCircleButton(
             icon: Icons.help_outline_rounded,
@@ -51,14 +51,6 @@ class BellotaTopActions extends StatelessWidget {
             backgroundColor: Theme.of(context).bellotaColors.chilero,
             iconColor: Theme.of(context).bellotaColors.blanco,
             onPressed: onHelpPressed ?? () {},
-          )
-        else
-          _buildCircleButton(
-            icon: Icons.volume_up_rounded,
-            tooltip: 'Audio y Accesibilidad',
-            backgroundColor: Theme.of(context).bellotaColors.chilero,
-            iconColor: Theme.of(context).bellotaColors.blanco,
-            onPressed: onTalkBackPressed ?? () {},
           ),
 
         // 4. Botón de Notificaciones (Solo en el Dashboard)
@@ -111,3 +103,4 @@ class BellotaTopActions extends StatelessWidget {
     return button;
   }
 }
+

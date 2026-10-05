@@ -1,5 +1,6 @@
-import 'package:bellotadevelopment/l10n/language_notifier.dart';
+﻿import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
+import '../widgets/breast_exam_guide_overlay.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/bellota_colors.dart';
@@ -558,19 +559,6 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: _diasDolorController,
-                      style: GoogleFonts.poppins(),
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!.registrationFormCriticalPainDays,
-                        hintStyle: GoogleFonts.poppins(color: Theme.of(context).bellotaColors.textoMedio),
-                        filled: true,
-                        fillColor: Theme.of(context).bellotaColors.basilica,
-                        prefixIcon: Icon(Icons.calendar_today_rounded, color: Theme.of(context).bellotaColors.textoMedio),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -583,23 +571,6 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                     _buildSectionBadge(AppLocalizations.of(context)!.registrationFormTreatment, Icons.medical_services_outlined, Theme.of(context).bellotaColors.asuncion),
                     const SizedBox(height: 16),
                     _buildTreatmentPills(lang),
-                  ],
-                ),
-              ),
-
-              // Síntomas específicos del ciclo
-              _buildCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionBadge('🩺 Síntomas específicos del ciclo', Icons.accessibility_new_rounded, Theme.of(context).bellotaColors.chiltoma),
-                    const SizedBox(height: 16),
-                    _buildMultiChoiceChips(
-                      options: _sintomasCicloOptions,
-                      selected: _sintomasCicloKeys,
-                      onToggle: (val) => _toggleSetItem(_sintomasCicloKeys, val),
-                      lang: lang,
-                    ),
                   ],
                 ),
               ),
@@ -729,7 +700,27 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionBadge(AppLocalizations.of(context)!.registrationFormBreastExam, Icons.favorite_border_rounded, const Color(0xFFA566C1)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildSectionBadge(AppLocalizations.of(context)!.registrationFormBreastExam, Icons.favorite_border_rounded, const Color(0xFFA566C1)),
+                        IconButton(
+                          icon: const Icon(Icons.help_outline, color: Color(0xFFA566C1)),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              barrierColor: Colors.transparent,
+                              builder: (context) => Material(
+                                color: Colors.transparent,
+                                child: BreastExamGuideOverlay(
+                                  onClose: () => Navigator.of(context).pop(),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -762,3 +753,5 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     );
   }
 }
+
+

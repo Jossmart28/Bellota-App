@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -24,7 +23,6 @@ import '../navigation/navigation_service.dart';
 import '../core/services/sync_service.dart';
 import 'admin_panel_screen.dart';
 import 'audit_dashboard_screen.dart';
-import '../widgets/botanical_divider.dart';
 import '../widgets/cozy_row_item.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
@@ -495,7 +493,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'fecha_generacion': fechaHoy,
           'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : notSpec,
           'total_ciclos': periodStarts.length,
-          'anticonceptivos_medicamentos': medications.isNotEmpty ? medications.join(', ') : notSpec,
+          'anticonceptivos_medicamentos': medications.isEmpty || (medications.length == 1 && medications.first == 'none') ? notSpec : medications.join(', '),
           'fum': fum,
         }),
         'seccion_2_resumen_estadistico': filterNulls({
@@ -988,25 +986,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 24),
-                    const BotanicalDivider(),
-                    const SizedBox(height: 20),
                     _buildHealthSection(),
-                    const SizedBox(height: 20),
-                    const BotanicalDivider(),
                     const SizedBox(height: 20),
                     _buildPreferencesSection(),
                     if (_currentUser != null && (_currentUser!.isAdmin || _currentUser!.isAuditor)) ...[
                       const SizedBox(height: 20),
-                      const BotanicalDivider(),
-                      const SizedBox(height: 20),
                       _buildAdminSection(),
                     ],
                     const SizedBox(height: 20),
-                    const BotanicalDivider(),
-                    const SizedBox(height: 20),
                     _buildDataSection(),
-                    const SizedBox(height: 20),
-                    const BotanicalDivider(opacity: 0.25),
                     const SizedBox(height: 20),
                     _buildBiometricsToggle(),
                     const SizedBox(height: 16),
@@ -1022,98 +1010,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// Banner superior del perfil — tarjeta cozy con borde de color y esquina decorativa
+  /// Banner superior del perfil — sección de avatar simplificada
   Widget _buildCozyProfileBanner(BuildContext context, BellotaColors colors) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-      decoration: BoxDecoration(
-        color: colors.nancite,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: colors.melon.withValues(alpha: 0.25), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: colors.melon.withValues(alpha: 0.08),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // Franja decorativa superior (como el borde de una postal)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 6,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(28),
-                  topRight: Radius.circular(28),
-                ),
-                gradient: LinearGradient(
-                  colors: [colors.melon.withValues(alpha: 0.7), colors.chilero.withValues(alpha: 0.7)],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 10,
-            right: 10,
-            child: SvgPicture.asset(
-              'assets/decorations/profile_corner_deco.svg',
-              width: 52,
-              height: 52,
-              colorFilter: ColorFilter.mode(colors.chiltoma.withValues(alpha: 0.6), BlendMode.srcIn),
-            ),
-          ),
-          // Contenido del banner
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: colors.blanco.withValues(alpha: 0.7),
-                          border: Border.all(color: colors.nancite, width: 1),
-                        ),
-                        child: Icon(Icons.translate_rounded, size: 16, color: colors.textoDark),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: colors.chilero,
-                          boxShadow: [BoxShadow(color: colors.chilero.withValues(alpha: 0.3), blurRadius: 6, offset: const Offset(0, 2))],
-                        ),
-                        child: const Icon(Icons.volume_up_rounded, size: 16, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _buildAvatarSection(),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: _buildAvatarSection(),
     );
   }
   Widget _sectionHeader(String title) {
@@ -1447,24 +1348,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _sectionHeader(AppLocalizations.of(context)!.profileAndReportHealthProfile),
         const SizedBox(height: 14),
         CozyRowItem(
-          title: AppLocalizations.of(context)!.profileAndReportCycleDuration,
-          value: '$_cycleDuration ${AppLocalizations.of(context)!.profileAndReportDays}',
-          onTap: null, // Dinámicamente calculado
-          icon: Icons.autorenew_rounded,
-          iconBackgroundColor: colors.melon.withValues(alpha: 0.10),
-          iconColor: colors.melon,
-        ),
-        const SizedBox(height: 8),
-        CozyRowItem(
-          title: AppLocalizations.of(context)!.profileAndReportPeriodDuration,
-          value: '$_periodDuration ${AppLocalizations.of(context)!.profileAndReportDays}',
-          onTap: null, // Dinámicamente calculado
-          icon: Icons.water_drop_outlined,
-          iconBackgroundColor: colors.chilero.withValues(alpha: 0.10),
-          iconColor: colors.chilero,
-        ),
-        const SizedBox(height: 8),
-        CozyRowItem(
           title: AppLocalizations.of(context)!.profileAndReportMedicalReport,
           value: AppLocalizations.of(context)!.profileAndReportGenerate,
           onTap: _generateMedicalReport,
@@ -1700,6 +1583,8 @@ class _DashedBorderPainter extends CustomPainter {
   bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
       oldDelegate.color != color || oldDelegate.radius != radius;
 }
+
+
 
 
 

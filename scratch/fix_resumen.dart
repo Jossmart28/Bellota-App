@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 void main() {
   final file = File('lib/screens/resumen_diario_screen.dart');
@@ -109,7 +109,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
   final lastBraceIdx = content.lastIndexOf('}');
   content = content.substring(0, lastBraceIdx) + content.substring(lastBraceIdx + 1);
 
-  final methodsStartIdx = content.indexOf('// Colores de fase consistentes con dashboard_screen.dart _getPhases');
+  final methodsStartIdx = content.indexOf('Color _phaseColor(BuildContext context)');
   String stateMethods = content.substring(methodsStartIdx);
   
   stateMethods = stateMethods.replaceAll(RegExp(r'\bcurrentPhaseIndex\b'), '(_phases[_selectedOffset] ?? widget.currentPhaseIndex)');
@@ -137,7 +137,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     final List<String> monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
     final List<String> weekDays = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
 
-    String format(DateTime d) => '\\\${d.day} \\\${monthNames[d.month - 1]}';
+    String format(DateTime d) => '\${d.day} \${monthNames[d.month - 1]}';
     String formatDay(DateTime d) => weekDays[d.weekday - 1];
 
     return Padding(
@@ -222,12 +222,17 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
 
   content = content.replaceFirst(
     'if (widget.todaySymptoms.isNotEmpty)',
-    'else if (widget.todaySymptoms.isNotEmpty)'
+    'if (widget.todaySymptoms.isNotEmpty && _selectedOffset == 0)'
   );
 
   content = content.replaceFirst(
     'if ((_predictions[_selectedOffset] ?? []).isEmpty)',
     'if (_isLoading) const Center(child: CircularProgressIndicator()) else if ((_predictions[_selectedOffset] ?? []).isEmpty)'
+  );
+
+  content = content.replaceFirst(
+    "import '../widgets/bellota_empty_state.dart';",
+    "import '../widgets/bellota_empty_state.dart';\nimport '../database/database_helper.dart';"
   );
 
   content = content + '\n}\n';

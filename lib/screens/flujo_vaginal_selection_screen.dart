@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:bellotadevelopment/l10n/app_translations.dart';
@@ -46,50 +45,8 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
     });
   }
 
-  void _toggleSelection(String key) => _toggleFlujo(key);
-
-  Widget _buildFertilityBadge(String key, String lang) {
-    String badgeKey;
-    Color color;
-    Color bgColor;
-
-    switch (key) {
-      case 'dry':
-      case 'sticky':
-        badgeKey = 'fertility_low';
-        color = Theme.of(context).bellotaColors.chiltoma;
-        bgColor = Theme.of(context).bellotaColors.chiltoma.withValues(alpha: 0.2);
-        break;
-      case 'creamy':
-        badgeKey = 'fertility_medium';
-        color = Theme.of(context).bellotaColors.melon;
-        bgColor = Theme.of(context).bellotaColors.melon.withValues(alpha: 0.2);
-        break;
-      case 'watery':
-      case 'egg_white':
-        badgeKey = 'fertility_high';
-        color = Theme.of(context).bellotaColors.chilero;
-        bgColor = Theme.of(context).bellotaColors.chilero.withValues(alpha: 0.15);
-        break;
-      default:
-        return SizedBox(); // Sin badge para anormales
-    }
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        AppTranslations.get('registration_form', badgeKey, lang, context: context),
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
+    Widget _buildFertilityBadge(String key, String lang) {
+    return const SizedBox();
   }
 
   @override
@@ -225,4 +182,7 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
     );
   }
 }
+
+
+
 

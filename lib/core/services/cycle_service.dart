@@ -153,7 +153,12 @@ class CycleService {
       }
     }
 
-    if (ovulationDay < 1) ovulationDay = effectiveCycleDuration ~/ 2; // fallback para ciclos muy cortos
+    if (ovulationDay <= periodDuration + 1) {
+      ovulationDay = periodDuration + 2;
+    }
+    if (ovulationDay > effectiveCycleDuration - 2) {
+      ovulationDay = effectiveCycleDuration - 2;
+    }
 
     // Determinar fase
     CyclePhase phase = _determinePhase(cycleDay, periodDuration, ovulationDay, effectiveCycleDuration);
@@ -221,6 +226,77 @@ class CycleService {
     return effectiveCycleDuration;
   }
 
+  /// Phase calculation V2 — uses ALL period starts to find the exact cycle the date belongs to.
+  /// This fixes the bug where phases were wrong for dates far from the last recorded period.
+  CyclePhase getPhaseForDateV2({
+    required DateTime date,
+    required List<DateTime> allPeriodStarts,
+    required int defaultCycleDuration,
+    required int periodDuration,
+  }) {
+    if (allPeriodStarts.isEmpty) return CyclePhase.luteal;
+
+    final d = _dateOnly(date);
+    final sortedStarts =
+        allPeriodStarts.map((dt) => _dateOnly(dt)).toList()..sort();
+
+    // Find the most recent period start that is <= date
+    DateTime? applicableStart;
+    DateTime? nextStart;
+
+    for (int i = 0; i < sortedStarts.length; i++) {
+      if (!sortedStarts[i].isAfter(d)) {
+        applicableStart = sortedStarts[i];
+        nextStart =
+            (i + 1 < sortedStarts.length) ? sortedStarts[i + 1] : null;
+      } else {
+        break;
+      }
+    }
+
+    // Date is before all recorded period starts — use first period start going backwards
+    if (applicableStart == null) {
+      applicableStart = sortedStarts.first;
+      nextStart = sortedStarts.length > 1 ? sortedStarts[1] : null;
+    }
+
+    // Determine cycle length for this specific cycle
+    int cycleDurationToUse;
+    if (nextStart != null) {
+      cycleDurationToUse = nextStart.difference(applicableStart).inDays;
+      // Sanity check
+      if (cycleDurationToUse < 15 || cycleDurationToUse > 60) {
+        cycleDurationToUse =
+            getEffectiveCycleDuration(defaultCycleDuration, allPeriodStarts);
+      }
+    } else {
+      cycleDurationToUse =
+          getEffectiveCycleDuration(defaultCycleDuration, allPeriodStarts);
+    }
+
+    int diffDays = d.difference(applicableStart).inDays;
+    int cycleDay;
+    if (diffDays >= 0) {
+      cycleDay = (diffDays % cycleDurationToUse) + 1;
+    } else {
+      cycleDay = cycleDurationToUse -
+          ((-diffDays) % cycleDurationToUse) +
+          1;
+      if (cycleDay > cycleDurationToUse) cycleDay = 1;
+    }
+
+    int ovulationDay = cycleDurationToUse - 14;
+    if (ovulationDay <= periodDuration + 1) {
+      ovulationDay = periodDuration + 2;
+    }
+    if (ovulationDay > cycleDurationToUse - 2) {
+      ovulationDay = cycleDurationToUse - 2;
+    }
+
+    return _determinePhase(
+        cycleDay, periodDuration, ovulationDay, cycleDurationToUse);
+  }
+
   /// Retorna la fase para una fecha dada asumiendo que ya se calculó la duración efectiva.
   CyclePhase getPhaseForDate({
     required DateTime date,
@@ -242,7 +318,12 @@ class CycleService {
     }
 
     int ovulationDay = effectiveCycleDuration - 14;
-    if (ovulationDay < 1) ovulationDay = effectiveCycleDuration ~/ 2;
+    if (ovulationDay <= periodDuration + 1) {
+      ovulationDay = periodDuration + 2;
+    }
+    if (ovulationDay > effectiveCycleDuration - 2) {
+      ovulationDay = effectiveCycleDuration - 2;
+    }
 
     return _determinePhase(cycleDay, periodDuration, ovulationDay, effectiveCycleDuration);
   }

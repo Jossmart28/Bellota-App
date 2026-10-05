@@ -46,12 +46,10 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
 
   // Step 4: Medicamentos
   final List<String> _medications = AppTranslations.medicationKeys;
-  bool _takesMedication = false;
-  final TextEditingController _medicationTextController = TextEditingController();
+  final Set<String> _selectedMedications = {'none'};
 
   // Step 5: Condiciones médicas
   final List<String> _selectedConditions = ['none'];
-  final TextEditingController _otherConditionTextController = TextEditingController();
   final Map<String, String> _conditionsMap = {
     'none': 'Ninguna',
     'pcos': 'SOP (Ovarios Poliquísticos)',
@@ -75,8 +73,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
   };
 
   // Step 6: Método anticonceptivo
-  bool _usesContraceptive = false;
-  final TextEditingController _contraceptiveTextController = TextEditingController();
+  String? _selectedContraceptive = 'none';
   final Map<String, String> _contraceptivesMap = {
     'none': 'Ninguno',
     'combined_pill': 'Píldora combinada',
@@ -148,9 +145,6 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
   @override
   void dispose() {
     _pageController.dispose();
-    _medicationTextController.dispose();
-    _otherConditionTextController.dispose();
-    _contraceptiveTextController.dispose();
     super.dispose();
   }
 
@@ -181,14 +175,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       await prefs.setDouble('user_latitude', _locationLatLng!.latitude);
       await prefs.setDouble('user_longitude', _locationLatLng!.longitude);
     }
-          List<String> medicationsToSave = [];
-      if (_takesMedication && _medicationTextController.text.trim().isNotEmpty) {
-        medicationsToSave.add(_medicationTextController.text.trim());
-      } else {
-        medicationsToSave.add('none');
-      }
-      await prefs.setStringList('user_medications', medicationsToSave);
-  
+    await prefs.setStringList('user_medications', _selectedMedications.toList());
 
     int? userId = prefs.getInt(AppKeys.userId);
     if (userId != null) {
@@ -198,9 +185,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
         {
           'cycle_duration': _cycleDuration,
           'period_duration': _periodDuration,
-          // The old structure is broken here. Let's fix it by updating the save logic cleanly.
           'medical_conditions': jsonEncode(_selectedConditions),
-          'contraceptive': _usesContraceptive && _contraceptiveTextController.text.trim().isNotEmpty ? _contraceptiveTextController.text.trim() : null,
+          'contraceptive': _selectedContraceptive == 'none' ? null : _selectedContraceptive,
         },
         where: 'user_id = ?',
         whereArgs: [userId],
@@ -648,93 +634,65 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
             "¿Tomas algún medicamento regularmente?",
             style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
           ),
-          const SizedBox(height: 32),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    _takesMedication = true;
-                  }),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: _takesMedication ? Theme.of(context).bellotaColors.melon : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: _takesMedication ? Theme.of(context).bellotaColors.melon : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Sí",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: _takesMedication ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    _takesMedication = false;
-                    _medicationTextController.clear();
-                  }),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: !_takesMedication ? Theme.of(context).bellotaColors.melon : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: !_takesMedication ? Theme.of(context).bellotaColors.melon : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "No",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: !_takesMedication ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 24),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: _takesMedication
-                ? TextFormField(
-                    controller: _medicationTextController,
-                    style: TextStyle(color: Theme.of(context).bellotaColors.blanco),
-                    decoration: InputDecoration(
-                      labelText: "¿Cuál(es) medicamento(s)?",
-                      labelStyle: TextStyle(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8)),
-                      enabledBorder: OutlineInputBorder(
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: _medications.map((med) {
+                  final isSelected = _selectedMedications.contains(med);
+                  final label = AppTranslations.get('registration_form', med, languageNotifier.currentLang, context: context);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (med == 'none') {
+                          _selectedMedications.clear();
+                          _selectedMedications.add('none');
+                        } else {
+                          _selectedMedications.remove('none');
+                          if (isSelected) {
+                            _selectedMedications.remove(med);
+                            if (_selectedMedications.isEmpty) _selectedMedications.add('none');
+                          } else {
+                            _selectedMedications.add(med);
+                          }
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5)),
+                        border: Border.all(
+                          color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
+                          width: isSelected ? 1.5 : 1,
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Theme.of(context).bellotaColors.melon, width: 2),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isSelected) ...[
+                            Icon(Icons.check, color: Theme.of(context).bellotaColors.blanco, size: 18),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            label,
+                            style: GoogleFonts.poppins(
+                              color: Theme.of(context).bellotaColors.blanco,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                      filled: true,
-                      fillColor: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.1),
                     ),
-                  )
-                : const SizedBox.shrink(),
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ],
       ),
@@ -764,96 +722,63 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                   final icon = _conditionsIcons[key]!;
                   final color = _conditionsColors[key]!;
 
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (key == 'none') {
-                                _selectedConditions.clear();
-                                _selectedConditions.add('none');
-                              } else {
-                                _selectedConditions.remove('none');
-                                if (isSelected) {
-                                  _selectedConditions.remove(key);
-                                  if (_selectedConditions.isEmpty) _selectedConditions.add('none');
-                                } else {
-                                  _selectedConditions.add(key);
-                                }
-                              }
-                            });
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
-                                width: isSelected ? 1.5 : 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: color.withValues(alpha: 0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(icon, color: color, size: 24),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    label,
-                                    style: GoogleFonts.poppins(
-                                      color: Theme.of(context).bellotaColors.blanco,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(Icons.check_circle_rounded, color: Theme.of(context).bellotaColors.blanco, size: 24)
-                                else
-                                  Icon(Icons.circle_outlined, color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5), size: 24),
-                              ],
-                            ),
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (key == 'none') {
+                            _selectedConditions.clear();
+                            _selectedConditions.add('none');
+                          } else {
+                            _selectedConditions.remove('none');
+                            if (isSelected) {
+                              _selectedConditions.remove(key);
+                              if (_selectedConditions.isEmpty) _selectedConditions.add('none');
+                            } else {
+                              _selectedConditions.add(key);
+                            }
+                          }
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
+                            width: isSelected ? 1.5 : 1,
                           ),
                         ),
-                      ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        child: (key == 'other' && isSelected)
-                            ? Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: TextFormField(
-                                  controller: _otherConditionTextController,
-                                  style: TextStyle(color: Theme.of(context).bellotaColors.blanco),
-                                  decoration: InputDecoration(
-                                    labelText: "¿Cuál condición?",
-                                    labelStyle: TextStyle(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8)),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5)),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide(color: Theme.of(context).bellotaColors.blanco, width: 2),
-                                    ),
-                                    filled: true,
-                                    fillColor: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.1),
-                                  ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(icon, color: color, size: 24),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                label,
+                                style: GoogleFonts.poppins(
+                                  color: Theme.of(context).bellotaColors.blanco,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                  fontSize: 15,
                                 ),
-                              )
-                            : const SizedBox.shrink(),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(Icons.check_circle_rounded, color: Theme.of(context).bellotaColors.blanco),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
                   );
                 }).toList(),
               ),
@@ -863,7 +788,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       ),
     );
   }
-Widget _buildStep6Contraceptive() {
+
+  Widget _buildStep6Contraceptive() {
     return _stepWrapper(
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -874,100 +800,68 @@ Widget _buildStep6Contraceptive() {
             "¿Usas algún método anticonceptivo?",
             style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).bellotaColors.blanco),
           ),
-          const SizedBox(height: 32),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    _usesContraceptive = true;
-                  }),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: _usesContraceptive ? Theme.of(context).bellotaColors.melon : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: _usesContraceptive ? Theme.of(context).bellotaColors.melon : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Sí",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: _usesContraceptive ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    _usesContraceptive = false;
-                    _contraceptiveTextController.clear();
-                  }),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: !_usesContraceptive ? Theme.of(context).bellotaColors.melon : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: !_usesContraceptive ? Theme.of(context).bellotaColors.melon : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "No",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: !_usesContraceptive ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 24),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: _usesContraceptive
-                ? TextFormField(
-                    controller: _contraceptiveTextController,
-                    style: TextStyle(color: Theme.of(context).bellotaColors.blanco),
-                    decoration: InputDecoration(
-                      labelText: "¿Cuál método anticonceptivo?",
-                      labelStyle: TextStyle(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.8)),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.5)),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: _contraceptivesMap.entries.map((e) {
+                  final key = e.key;
+                  final label = e.value;
+                  final isSelected = _selectedContraceptive == key;
+                  final icon = _contraceptivesIcons[key]!;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedContraceptive = key),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2) : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? Theme.of(context).bellotaColors.blanco : Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.2),
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(icon, color: Theme.of(context).bellotaColors.blanco, size: 24),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                label,
+                                style: GoogleFonts.poppins(
+                                  color: Theme.of(context).bellotaColors.blanco,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            Radio<String>(
+                              value: key,
+                              groupValue: _selectedContraceptive,
+                              onChanged: (v) => setState(() => _selectedContraceptive = v),
+                              activeColor: Theme.of(context).bellotaColors.blanco,
+                              fillColor: WidgetStateProperty.resolveWith((states) => Theme.of(context).bellotaColors.blanco),
+                            ),
+                          ],
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Theme.of(context).bellotaColors.melon, width: 2),
-                      ),
-                      filled: true,
-                      fillColor: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.1),
                     ),
-                  )
-                : const SizedBox.shrink(),
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-Widget _buildStep7Goal() {
+  Widget _buildStep7Goal() {
     return _stepWrapper(
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,

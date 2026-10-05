@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../navigation/navigation_service.dart';
@@ -56,7 +56,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   BellotaTopActions(
                     showSettings: false,
                     onLanguagePressed: () => languageNotifier.toggle(),
-                    onTalkBackPressed: () {},
+
                   ),
                 ],
               ),
@@ -289,5 +289,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     );
   }
 }
+
 
 

@@ -1,4 +1,4 @@
-import '../core/models/health_center_model.dart';
+﻿import '../core/models/health_center_model.dart';
 import 'package:flutter/material.dart';
 import '../theme/bellota_colors.dart';
 import '../widgets/bellota_top_actions.dart';
@@ -129,7 +129,7 @@ class HealthCenterDetailScreen extends StatelessWidget {
           // === BOTONES GLOBALES ===
           BellotaTopActions(
             showSettings: false,
-            onTalkBackPressed: () {},
+
           ),
         ],
       ),
@@ -326,5 +326,6 @@ class HealthCenterDetailScreen extends StatelessWidget {
     );
   }
 }
+
 
 

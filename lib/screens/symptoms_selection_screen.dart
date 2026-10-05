@@ -1,4 +1,4 @@
-import 'package:bellotadevelopment/l10n/language_notifier.dart';
+﻿import 'package:bellotadevelopment/l10n/language_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
@@ -20,10 +20,10 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
 
   // Keys predefinidos (no requieren context, seguros para initState)
   static const List<List<String>> _predefinedSymptomKeys = [
-    ['fever', 'body_ache', 'general_distension', 'extreme_fatigue', 'water_retention', 'night_sweats', 'hot_flashes', 'palpitations', 'dizziness', 'joint_pain'],
-    ['headache', 'vertigo', 'insomnia', 'vomiting', 'acne', 'concentration_difficulty'],
+    ['fever', 'body_ache', 'general_distension', 'extreme_fatigue', 'water_retention', 'night_sweats', 'hot_flashes', 'palpitations', 'dizziness'],
+    ['headache', 'vertigo', 'insomnia', 'vomiting', 'acne'],
     ['abdominal_pain', 'abdominal_distension', 'bloating', 'diarrhea', 'constipation', 'nausea', 'pelvic_pain', 'lower_back_pain', 'leg_cramps'],
-    ['breast_tenderness', 'abnormal_discharge', 'spotting', 'appetite_changes', 'cravings'],
+    ['breast_tenderness', 'appetite_changes', 'cravings'],
     ['irritability', 'sadness', 'crying_easily', 'mood_swings', 'anxiety', 'low_self_esteem'],
   ];
 
@@ -42,7 +42,6 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         {'key': 'hot_flashes', 'icon': Icons.local_fire_department_outlined},
         {'key': 'palpitations', 'icon': Icons.favorite_border_rounded},
         {'key': 'dizziness', 'icon': Icons.rotate_90_degrees_ccw_rounded},
-        {'key': 'joint_pain', 'icon': Icons.sports_gymnastics_outlined},
       ]
     },
     {
@@ -55,7 +54,6 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
         {'key': 'insomnia', 'icon': Icons.bedtime_outlined},
         {'key': 'vomiting', 'icon': Icons.sick_outlined},
         {'key': 'acne', 'icon': Icons.face_retouching_natural_outlined},
-        {'key': 'concentration_difficulty', 'icon': Icons.blur_on_rounded},
       ]
     },
     {
@@ -80,8 +78,6 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
       'color': Theme.of(context).bellotaColors.melon,
       'symptoms': [
         {'key': 'breast_tenderness', 'icon': Icons.favorite_rounded},
-        {'key': 'abnormal_discharge', 'icon': Icons.opacity_rounded},
-        {'key': 'spotting', 'icon': Icons.water_drop_rounded},
         {'key': 'appetite_changes', 'icon': Icons.restaurant_outlined},
         {'key': 'cravings', 'icon': Icons.cake_outlined},
       ]
@@ -588,4 +584,5 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
     );
   }
 }
+
 

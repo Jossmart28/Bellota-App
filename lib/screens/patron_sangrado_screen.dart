@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/services.dart';
 import 'package:bellotadevelopment/l10n/language_notifier.dart';
@@ -47,12 +47,6 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
       'options': ['no', 'yes'],
       'isSingleChoice': true,
       'field': 'manchadoKey',
-    },
-    {
-      'titleKey': 'Complicaciones y Síntomas (Menstruación)',
-      'options': ['pain', 'bleeding', 'unusual_flow', 'none'],
-      'isSingleChoice': false,
-      'field': 'sintomasSexualesKeys',
     }
   ];
 
@@ -296,4 +290,5 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
     );
   }
 }
+
 

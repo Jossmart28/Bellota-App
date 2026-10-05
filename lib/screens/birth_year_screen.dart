@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -78,7 +78,7 @@ class _BirthYearScreenState extends State<BirthYearScreen> {
               child: BellotaTopActions(
                 showSettings: false,
                 onLanguagePressed: () => languageNotifier.toggle(),
-                onTalkBackPressed: () {},
+
               ),
             ),
           ),
@@ -268,3 +268,4 @@ class _BackgroundPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
+

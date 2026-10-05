@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/language_notifier.dart';
@@ -375,4 +375,5 @@ class _SlideData {
     required this.decoration2,
   });
 }
+
 

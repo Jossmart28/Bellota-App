@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/language_notifier.dart';
@@ -108,7 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               BellotaTopActions(
                 showSettings: false,
                 onLanguagePressed: () => languageNotifier.toggle(),
-                onTalkBackPressed: () {},
+
               ),
               const SizedBox(width: 16),
             ],
@@ -228,5 +228,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
 
 

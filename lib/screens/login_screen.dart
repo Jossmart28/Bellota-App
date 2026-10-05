@@ -40,6 +40,16 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('show_aborted_registration_msg') == true) {
+        if (mounted) {
+          _showError('El proceso de registro fue interrumpido, por favor regístrate nuevamente.');
+        }
+        await prefs.remove('show_aborted_registration_msg');
+      }
+    });
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -176,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen>
 
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
-      builder: (context, lang, _) {
+      builder: (context, _, __) {
         return Scaffold(
           resizeToAvoidBottomInset: true,
           body: Container(
@@ -198,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: BellotaTopActions(
                       showSettings: false,
                       onLanguagePressed: () => languageNotifier.toggle(),
-                      onTalkBackPressed: () {},
+
                     ),
                   ),
                 ),
@@ -559,6 +569,9 @@ class _LoginBackgroundPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
+
+
+
 
 
 

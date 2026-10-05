@@ -7,10 +7,10 @@ import 'package:bellotadevelopment/l10n/app_localizations.dart';
 import '../theme/bellota_colors.dart';
 import '../core/services/cycle_service.dart';
 import '../core/services/clinical_analysis_service.dart';
+import '../database/database_helper.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../widgets/bellota_empty_state.dart';
-import '../database/database_helper.dart';
+import 'analisis_screen.dart';
 
 class ResumenDiarioScreen extends StatefulWidget {
   final DateTime nextPeriodDate;
@@ -111,7 +111,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     final colors = Theme.of(context).bellotaColors;
     switch ((_phases[_selectedOffset] ?? widget.currentPhaseIndex)) {
       case 0: return colors.melon;      // Ovulatoria
-      case 1: return colors.asuncion;   // LÃƒÂºtea
+      case 1: return colors.asuncion;   // Lútea
       case 2: return colors.chiltoma;   // Folicular
       case 3: return colors.chilero;    // Menstrual
       default: return colors.melon;
@@ -139,19 +139,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     }
   }
 
-  String _getMascotImageForPhase(int index) {
-    if (index < 0 || index > 3) return 'assets/images/bella_mascot.png';
-    switch (index) {
-      case 0: return 'assets/images/bella_ovulatoria.png';
-      case 1: return 'assets/images/bella_lutea.png';
-      case 2: return 'assets/images/bella_folicular.png';
-      case 3: return 'assets/images/bella_menstrual.png';
-      default: return 'assets/images/bella_mascot.png';
-    }
-  }
-
   @override
-
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
@@ -220,11 +208,11 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // TÃƒÂ­tulo principal
+                              // Título principal
                               Text(
                                 daysUntil <= 0
-                                    ? 'Tu perÃƒÂ­odo puede iniciar hoy'
-                                    : 'Tu perÃƒÂ­odo inicia en $daysUntil dÃƒÂ­as',
+                                    ? 'Tu período puede iniciar hoy'
+                                    : 'Tu período inicia en $daysUntil días',
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
@@ -234,7 +222,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'Basado en tus registros Ã¢â‚¬â€ DÃƒÂ­a ${widget.cycleInfo?.cycleDay ?? '?'} de tu ciclo',
+                                'Basado en tus registros — Día ${widget.cycleInfo?.cycleDay ?? '?'} de tu ciclo',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: colors.textoMedio,
@@ -244,23 +232,23 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
 
                               const SizedBox(height: 28),
 
-                              // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-                              // TARJETA: Fase actual + SÃƒÂ­ntomas registrados
-                              // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+                              // ════════════════════════════════════════
+                              // TARJETA: Fase actual + Síntomas registrados
+                              // ════════════════════════════════════════
                               _buildPhaseAndSymptomsCard(context, colors, phaseColor, phaseBorder),
 
                               const SizedBox(height: 20),
 
-                              // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-                              // PREDICCIÃƒâ€œN DE SÃƒÂNTOMAS
-                              // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+                              // ════════════════════════════════════════
+                              // PREDICCIÓN DE SÍNTOMAS
+                              // ════════════════════════════════════════
                               _buildPredictionSection(context, colors),
 
                               if (widget.activeAlerts != null && widget.activeAlerts!.isNotEmpty) ...[
                                 const SizedBox(height: 20),
-                                // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-                                // ALERTAS CLÃƒÂNICAS (SemÃƒÂ¡foro)
-                                // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+                                // ════════════════════════════════════════
+                                // ALERTAS CLÍNICAS (Semáforo)
+                                // ════════════════════════════════════════
                                 _buildClinicalAlertSection(context, colors),
                               ],
 
@@ -280,9 +268,9 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     );
   }
 
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-  // TARJETA: Fase + SÃƒÂ­ntomas Registrados (con anillo de ciclo)
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // ═══════════════════════════════════════════════════════════
+  // TARJETA: Fase + Síntomas Registrados (con anillo de ciclo)
+  // ═══════════════════════════════════════════════════════════
   Widget _buildPhaseAndSymptomsCard(
     BuildContext context,
     BellotaColors colors,
@@ -308,7 +296,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
       ),
       child: Row(
         children: [
-          // Ã¢â€â‚¬Ã¢â€â‚¬ SÃƒÂ­ntomas registrados Ã¢â€â‚¬Ã¢â€â‚¬
+          // ── Síntomas registrados ──
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,7 +330,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      '+${widget.todaySymptoms.length - 4} mÃƒÂ¡s',
+                      '+${widget.todaySymptoms.length - 4} más',
                       style: TextStyle(
                         color: colors.textoMedio,
                         fontSize: 12,
@@ -409,9 +397,9 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     );
   }
 
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-  // PREDICCIÃƒâ€œN DE SÃƒÂNTOMAS (PREMIUM)
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // ═══════════════════════════════
+  // PREDICCIÓN DE SÍNTOMAS (PREMIUM)
+  // ═══════════════════════════════
   Widget _buildPredictionSection(BuildContext context, BellotaColors colors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +417,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
             ),
             const SizedBox(width: 12),
             Text(
-              'PredicciÃƒÂ³n de sÃƒÂ­ntomas',
+              'Predicción de síntomas',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -440,7 +428,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Basado en tus registros, podrÃƒÂ­as experimentar esto en tu fase actual:',
+          'Basado en tus registros, podrías experimentar esto en tu fase actual:',
           style: TextStyle(
             fontSize: 13,
             color: colors.textoMedio,
@@ -450,11 +438,20 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
         const SizedBox(height: 16),
 
         if (_isLoading) const Center(child: CircularProgressIndicator()) else if ((_predictions[_selectedOffset] ?? []).isEmpty)
-          BellotaEmptyState(
-            imagePath: _getMascotImageForPhase((_phases[_selectedOffset] ?? widget.currentPhaseIndex)),
-            title: 'AÃƒÂºn no hay predicciones',
-            message: 'Sigue registrando tus sÃƒÂ­ntomas diarios para que Bella pueda ayudarte a predecir cÃƒÂ³mo te sentirÃƒÂ¡s.',
-            compact: true,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colors.nancite.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              'No hay predicciones disponibles aún. Sigue registrando para mejorarlas.',
+              style: TextStyle(
+                fontSize: 13,
+                color: colors.textoMedio,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
           )
         else
           SizedBox(
@@ -543,9 +540,9 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     );
   }
 
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-  // ALERTAS CLÃƒÂNICAS (SCORE DIARIO)
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // ════════════════════════════════════════════════════════════════
+  // ALERTAS CLÍNICAS (SCORE DIARIO)
+  // ════════════════════════════════════════════════════════════════
   Widget _buildClinicalAlertSection(BuildContext context, BellotaColors colors) {
     if (widget.activeAlerts == null || widget.activeAlerts!.isEmpty) return const SizedBox.shrink();
     
@@ -672,7 +669,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Text(
-                            'Ã¢Å¡Â ',
+                            '⚠',
                             style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -698,7 +695,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
 
                   const SizedBox(height: 14),
 
-                  // Symptom chips Ã¢â‚¬â€ the ONLY content shown
+                  // Symptom chips — the ONLY content shown
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -739,9 +736,9 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     );
   }
 
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // ═══════════════════
   // TOP BAR
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // ═══════════════════
   Widget _buildTopBar(BuildContext context, BellotaColors colors) {
     return ClipRRect(
       child: BackdropFilter(
@@ -775,7 +772,37 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 48), // Spacer for centering
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AnalisisScreen(
+                        cycleDuration: widget.cycleDuration,
+                        periodDuration: widget.periodDuration,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.bar_chart_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -783,16 +810,16 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
     );
   }
 
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // ═══════════════════
   // DATE SELECTOR
-  // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+  // ═══════════════════
   Widget _buildDateSelector(BuildContext context, BellotaColors colors) {
     final now = DateTime.now();
     
     final List<String> monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
     final List<String> weekDays = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
 
-    String format(DateTime d) => '\${d.day} \${monthNames[d.month - 1]}';
+    String format(DateTime d) => '${d.day} ${monthNames[d.month - 1]}';
     String formatDay(DateTime d) => weekDays[d.weekday - 1];
 
     return Padding(
@@ -855,15 +882,15 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
 
   String _getMoodEmoji(String mood) {
     switch (mood) {
-      case 'happy': return 'Ã°Å¸ËœÅ ';
-      case 'sad': return 'Ã°Å¸ËœÂ¢';
-      case 'anxious': return 'Ã°Å¸ËœÂ°';
-      case 'angry': return 'Ã°Å¸ËœÂ ';
-      case 'calm': return 'Ã°Å¸ËœÅ’';
-      case 'energetic': return 'Ã¢Å¡Â¡';
-      case 'tired': return 'Ã°Å¸ËœÂ´';
-      case 'sensitive': return 'Ã°Å¸Â¥Âº';
-      default: return 'Ã°Å¸ËœÂ¶';
+      case 'happy': return '😊';
+      case 'sad': return '😢';
+      case 'anxious': return '😰';
+      case 'angry': return '😠';
+      case 'calm': return '😌';
+      case 'energetic': return '⚡';
+      case 'tired': return '😴';
+      case 'sensitive': return '🥺';
+      default: return '😶';
     }
   }
 
@@ -874,7 +901,7 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
       case 'anxious': return 'Ansiosa';
       case 'angry': return 'Enojada';
       case 'calm': return 'Tranquila';
-      case 'energetic': return 'EnergÃƒÂ©tica';
+      case 'energetic': return 'Energética';
       case 'tired': return 'Cansada';
       case 'sensitive': return 'Sensible';
       default: return mood;
@@ -882,6 +909,5 @@ class _ResumenDiarioScreenState extends State<ResumenDiarioScreen> {
   }
 
 
-
-
 }
+
