@@ -36,9 +36,9 @@ final List<HealthCenter> hospitalDataList = [
     type: "Puesto de Salud",
     services: [
       "Consulta General",
-      "EnfermerÃ­a",
-      "PlanificaciÃ³n Familiar",
-      "Control Prenatal BÃ¡sico",
+      "Enfermería",
+      "Planificación Familiar",
+      "Control Prenatal Básico",
     ],
     location: LatLng(12.0136, -83.7634),
     relevanceScore: 70,

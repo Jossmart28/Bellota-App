@@ -144,8 +144,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         title: Text(isActive ? 'Suspender cuenta' : 'Reactivar cuenta'),
         content: Text(
           isActive
-              ? 'Â¿Suspender la cuenta de $name? No podrÃ¡ iniciar sesiÃ³n.'
-              : 'Â¿Reactivar la cuenta de $name?',
+              ? '¿Suspender la cuenta de $name? No podrá iniciar sesión.'
+              : '¿Reactivar la cuenta de $name?',
         ),
         actions: [
           TextButton(
@@ -195,8 +195,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar usuario'),
         content: Text(
-          'Â¿Eliminar permanentemente la cuenta de $name y todos sus datos? '
-          'Esta acciÃ³n no se puede deshacer.',
+          '¿Eliminar permanentemente la cuenta de $name y todos sus datos? '
+          'Esta acción no se puede deshacer.',
         ),
         actions: [
           TextButton(
@@ -239,7 +239,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Mostrar loader mientras se resuelve el usuario de sesiÃ³n
+    // Mostrar loader mientras se resuelve el usuario de sesión
     if (_isLoading || _currentUser == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -267,7 +267,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesiÃ³n',
+            tooltip: 'Cerrar sesión',
             onPressed: _logout,
           ),
         ],
@@ -299,7 +299,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   Widget _buildUsersTab() {
     return Column(
       children: [
-        // Barra de bÃºsqueda
+        // Barra de búsqueda
         Padding(
           padding: const EdgeInsets.all(16),
           child: TextField(
@@ -395,7 +395,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'TÃº',
+                  'Tú',
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.blue.shade800,
@@ -480,7 +480,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _SectionHeader(title: 'InformaciÃ³n del sistema'),
+        _SectionHeader(title: 'Información del sistema'),
         _InfoTile(
           icon: Icons.people,
           label: 'Total de usuarios',
@@ -498,7 +498,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         ),
         _InfoTile(
           icon: Icons.person,
-          label: 'Usuarios estÃ¡ndar',
+          label: 'Usuarios estándar',
           value: '${_users.where((u) => u.role?.name == 'usuario').length}',
         ),
         _InfoTile(
@@ -510,7 +510,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         _SectionHeader(title: 'Herramientas'),
         ListTile(
           leading: const Icon(Icons.manage_search, color: Colors.purple),
-          title: const Text('Ver logs de auditorÃ­a'),
+          title: const Text('Ver logs de auditoría'),
           subtitle: const Text('Historial completo de acciones del sistema'),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => NavigationService.goTo(

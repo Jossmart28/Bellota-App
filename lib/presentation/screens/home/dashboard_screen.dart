@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _profileImageExists = false;
   late List<Widget> _screens;
 
-  // Datos dinÃ¯Â¿Â½micos para el dashboard
+  // Datos dinámicos para el dashboard
   List<String> _todaySymptoms = [];
   DateTime _nextPeriodDate = DateTime.now().add(Duration(days: 14));
   int _cycleDuration = 28;

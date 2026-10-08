@@ -24,11 +24,11 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
       'options': ['protected', 'unprotected', 'masturbation', 'high_libido']
     },
     {
-      'titleKey': 'AnticoncepciÃ³n / ProtecciÃ³n',
+      'titleKey': 'Anticoncepción / Protección',
       'options': ['no_contraception', 'condom', 'no_ejaculation', 'short_pill']
     },
     {
-      'titleKey': 'Complicaciones y SÃ­ntomas',
+      'titleKey': 'Complicaciones y Síntomas',
       'options': ['pain_during_sex', 'unprotected_new_partner']
     }
   ];
@@ -45,7 +45,7 @@ class _SexoSelectionScreenState extends State<SexoSelectionScreen> {
       if (_selectedSexoKeys.contains(key)) {
         _selectedSexoKeys.remove(key);
       } else {
-        // LÃ³gica de exclusiÃ³n
+        // Lógica de exclusión
         if (key == 'no_contraception') {
           _selectedSexoKeys.remove('condom');
           _selectedSexoKeys.remove('protected');

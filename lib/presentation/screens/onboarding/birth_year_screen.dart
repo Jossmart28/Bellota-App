@@ -114,7 +114,7 @@ class _BirthYearScreenState extends State<BirthYearScreen> {
                     child: Column(
                       children: [
                         Text(
-                          "Â¿En quÃ© aÃ±o naciste?",
+                          "¿En qué año naciste?",
                           style: GoogleFonts.poppins(
                             fontSize: 26,
                             fontWeight: FontWeight.w700,

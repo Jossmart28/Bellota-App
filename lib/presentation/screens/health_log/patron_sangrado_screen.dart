@@ -37,7 +37,7 @@ class _PatronSangradoScreenState extends State<PatronSangradoScreen> {
       'field': 'colorSangradoKey',
     },
     {
-      'titleKey': 'CoÃ¡gulos',
+      'titleKey': 'Coágulos',
       'options': ['never', 'occasional', 'frequent'],
       'isSingleChoice': true,
       'field': 'coagulosKey',

@@ -19,11 +19,11 @@ class _FlujoVaginalSelectionScreenState extends State<FlujoVaginalSelectionScree
 
   final List<Map<String, dynamic>> _sections = [
     {
-      'titleKey': 'FisiolÃ³gico (Normal)',
+      'titleKey': 'Fisiológico (Normal)',
       'options': ['dry', 'sticky', 'creamy', 'watery', 'egg_white']
     },
     {
-      'titleKey': 'Anormal (Posible InfecciÃ³n)',
+      'titleKey': 'Anormal (Posible Infección)',
       'options': ['yellow_green', 'cottage_cheese', 'foul_odor']
     }
   ];

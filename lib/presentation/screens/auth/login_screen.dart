@@ -11,10 +11,10 @@ import 'package:bellotadevelopment/presentation/common/bellota_top_actions.dart'
 import 'register_screen.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
 
-/// Pantalla de Inicio de SesiÃƒÂ³n de Bellota.
+/// Pantalla de Inicio de SesiÃƒ³n de Bellota.
 ///
 /// Valida las credenciales locales del usuario y redirige al flujo
-/// de incorporaciÃƒÂ³n correcto usando [NavigationService.resolveHomeScreen].
+/// de incorporaciÃƒ³n correcto usando [NavigationService.resolveHomeScreen].
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen>
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('show_aborted_registration_msg') == true) {
         if (mounted) {
-          _showError('El proceso de registro fue interrumpido, por favor regÃ­strate nuevamente.');
+          _showError('El proceso de registro fue interrumpido, por favor regístrate nuevamente.');
         }
         await prefs.remove('show_aborted_registration_msg');
       }
@@ -108,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen>
         );
         if (!mounted) return;
 
-        // ResoluciÃƒÂ³n de pantalla sin gaps asÃƒÂ­ncronos tras el mounted check
+        // ResoluciÃƒ³n de pantalla sin gaps asÃƒÂ­ncronos tras el mounted check
         final prefs = await SharedPreferences.getInstance();
         if (!mounted) return;
         final destination = NavigationService.resolveHomeScreen(prefs);
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesiÃƒÂ³n.');
+      _showError('Error al iniciar sesiÃƒ³n.');
     }
   }
 
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesiÃƒÂ³n con Google.');
+      _showError('Error al iniciar sesiÃƒ³n con Google.');
     }
   }
 
@@ -345,7 +345,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 12),
 
-            // OlvidÃƒÂ© mi contraseÃƒÂ±a
+            // OlvidÃƒ© mi contraseÃƒÂ±a
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -368,7 +368,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 24),
 
-            // BotÃƒÂ³n de ingreso
+            // BotÃƒ³n de ingreso
             _BellotaButton(
               onPressed: _isLoading ? null : _handleLogin,
               isLoading: _isLoading,
@@ -399,7 +399,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 20),
 
-            // BotÃƒÂ³n de Google
+            // BotÃƒ³n de Google
             _SocialButton(
               label: (AppLocalizations.of(context)?.onboardingAndAuthContinueGoogle ?? ''),
               icon: Icons.g_mobiledata_rounded,
@@ -444,7 +444,7 @@ class _LoginScreenState extends State<LoginScreen>
 }
 
 
-/// BotÃƒÂ³n principal con gradiente Bellota.
+/// BotÃƒ³n principal con gradiente Bellota.
 class _BellotaButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String label;
@@ -494,7 +494,7 @@ class _BellotaButton extends StatelessWidget {
   }
 }
 
-/// BotÃƒÂ³n de proveedor externo (Google, Apple, etc.).
+/// BotÃƒ³n de proveedor externo (Google, Apple, etc.).
 class _SocialButton extends StatelessWidget {
   final String label;
   final IconData icon;

@@ -1145,4 +1145,132 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hospitalHubViewMap => 'Ver en mapa';
+
+  @override
+  String get privacyPolicyTitle => 'Política de Privacidad';
+
+  @override
+  String get privacyPolicyLastUpdated =>
+      'Última actualización: 4 de septiembre de 2026';
+
+  @override
+  String get privacyPolicyIntro =>
+      'En Bellota, nos tomamos muy en serio tu privacidad. Esta política explica de manera clara y directa cómo manejamos la información que recopilamos cuando usas nuestra aplicación. Nos regimos bajo el principio de minimización de datos: solo solicitamos la información estrictamente necesaria para que la aplicación funcione y te brinde un servicio seguro y personalizado.';
+
+  @override
+  String get privacyPolicySec1 => '1. Datos que Recopilamos y Finalidad';
+
+  @override
+  String get privacyPolicyEmailTitle => 'Correo Electrónico';
+
+  @override
+  String get privacyPolicyEmailBody =>
+      'Solicitamos tu dirección de correo exclusivamente para la creación y gestión de tu cuenta, autenticación de seguridad y recuperación de acceso. No compartimos ni vendemos tu correo a terceros para fines publicitarios.';
+
+  @override
+  String get privacyPolicyLocationTitle => 'Datos de Ubicación Precisa (GPS)';
+
+  @override
+  String get privacyPolicyLocationBody =>
+      'Solicitamos acceso a la ubicación de tu dispositivo únicamente para identificar y mostrarte en un mapa interactivo las clínicas, farmacias y centros de salud más cercanos a ti.';
+
+  @override
+  String get privacyPolicyLocationUseTitle => 'Uso de la ubicación';
+
+  @override
+  String get privacyPolicyLocationUseBody =>
+      'La ubicación se procesa únicamente mientras usas esta función específica en la aplicación. No rastreamos tu ubicación en segundo plano ni guardamos un historial de tus desplazamientos.';
+
+  @override
+  String get privacyPolicySec2 => '2. Datos de Salud y Ciclo Menstrual';
+
+  @override
+  String get privacyPolicyHealthBody =>
+      '• Los datos sobre tu ciclo menstrual, síntomas o fechas registradas en la aplicación se procesan exclusivamente para brindarte las estimaciones del calendario.\n• Priorizamos la privacidad de tus datos de salud: la información de tu ciclo se almacena localmente en tu dispositivo o de forma cifrada y segura, garantizando que nadie fuera de la aplicación (incluyendo terceros) pueda acceder a tus registros médicos o personales.';
+
+  @override
+  String get privacyPolicySec3 => '3. Compartición de Datos con Terceros';
+
+  @override
+  String get privacyPolicyThirdPartyBody =>
+      'No vendemos, alquilamos ni comercializamos tus datos personales. Solo compartimos información en el siguiente caso puntual:';
+
+  @override
+  String get privacyPolicyMapsTitle => 'Proveedores de Mapas';
+
+  @override
+  String get privacyPolicyMapsBody =>
+      'Para mostrarte los centros de salud cercanos, la aplicación utiliza servicios de mapas de terceros (como Google Maps o Apple Maps). Estos servicios reciben únicamente las coordenadas de tu ubicación actual de forma anónima, exclusivamente para devolver los resultados en el mapa.';
+
+  @override
+  String get privacyPolicySec4 => '4. Almacenamiento y Seguridad';
+
+  @override
+  String get privacyPolicySecurityBody =>
+      'Implementamos medidas de seguridad técnicas y administrativas avanzadas (como cifrado de datos en tránsito y en reposo) para proteger tu correo electrónico y tu información registrada contra el acceso no autorizado, pérdida, alteración o divulgación.';
+
+  @override
+  String get privacyPolicySec5 => '5. Tus Derechos';
+
+  @override
+  String get privacyPolicyRightsBody =>
+      'En cualquier momento tienes derecho a:';
+
+  @override
+  String get privacyPolicyDeleteTitle => 'Acceder, Corregir o Eliminar';
+
+  @override
+  String get privacyPolicyDeleteBody =>
+      'Puedes solicitar la eliminación completa de tu cuenta, tus datos de salud y tu correo electrónico en cualquier momento desde la configuración de la app o enviándonos un mensaje.';
+
+  @override
+  String get privacyPolicyLocationPermTitle =>
+      'Controlar los Permisos de Ubicación';
+
+  @override
+  String get privacyPolicyLocationPermBody =>
+      'Puedes activar o desactivar el permiso de ubicación directamente desde la configuración de tu dispositivo móvil en cualquier momento (aunque esto impedirá buscar clínicas cercanas automáticamente).';
+
+  @override
+  String get privacyPolicySec6 => '6. Modificaciones a esta Política';
+
+  @override
+  String get privacyPolicyModBody =>
+      'Podemos actualizar esta política ocasionalmente para reflejar mejoras en la aplicación o cambios legales. Te notificaremos de manera destacada sobre cambios significativos antes de que entren en vigor.';
+
+  @override
+  String get privacyPolicySec7 => '7. Contacto';
+
+  @override
+  String get privacyPolicyContactBody =>
+      'Si tienes dudas, comentarios o deseas ejercer tus derechos de privacidad, puedes contactarnos en:';
+
+  @override
+  String get privacyPolicyEmail => 'Correo de soporte: usm.unshowmas@gmail.com';
+
+  @override
+  String get privacyPolicyAcceptText =>
+      'He leído y acepto la Política de Privacidad de Bellota.';
+
+  @override
+  String get privacyPolicyContinue => 'Continuar';
+
+  @override
+  String get languageScreenTitle => 'Elige tu idioma';
+
+  @override
+  String get languageScreenSubtitle => 'Esta será la configuración permanente';
+
+  @override
+  String get languageScreenComingSoon => 'Próximamente';
+
+  @override
+  String get languageScreenUnderConstruction => 'Idioma en Construcción';
+
+  @override
+  String get languageScreenMiskitoNotice =>
+      'La traducción completa al idioma Miskito se encuentra actualmente en desarrollo y se agregará en próximas actualizaciones.\n\nPor el momento, algunas secciones podrían mostrarse en español. ¿Deseas continuar?';
+
+  @override
+  String get birthYearTitle => '¿En qué año naciste?';
 }

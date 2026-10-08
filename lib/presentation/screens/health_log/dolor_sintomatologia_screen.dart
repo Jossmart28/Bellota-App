@@ -79,7 +79,7 @@ class _DolorSintomatologiaScreenState extends State<DolorSintomatologiaScreen> {
     if (_initialized) return;
     _initialized = true;
 
-    // AquÃ­ sÃ­ podemos usar context (AppLocalizations, AppTranslations)
+    // Aquí sí podemos usar context (AppLocalizations, AppTranslations)
     final lang = languageNotifier.currentLang;
     _caracterDolorKey = widget.initialData['caracterDolorKey'] ??
         _mapCaracterDolor(widget.initialData['caracterDolor'], lang);

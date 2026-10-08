@@ -28,39 +28,6 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
   }
 
   Future<void> _selectLanguage(String lang) async {
-    if (lang == 'mi') {
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(
-            'Idioma en ConstrucciÃ³n', 
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          content: Text(
-            'La traducciÃ³n completa al idioma Miskito se encuentra actualmente en desarrollo y se agregarÃ¡ en prÃ³ximas actualizaciones.\n\nPor el momento, algunas secciones podrÃ­an mostrarse en espaÃ±ol. Â¿Deseas continuar?',
-            style: GoogleFonts.poppins(fontSize: 14),
-          ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text('Elegir otro', style: TextStyle(color: Theme.of(context).bellotaColors.textoMedio)),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).bellotaColors.chilero,
-                foregroundColor: Theme.of(context).bellotaColors.blanco,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Continuar'),
-            ),
-          ],
-        ),
-      );
-      if (confirm != true) return;
-    }
-
     await languageNotifier.setLanguage(lang);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('language_setup_done', true);
@@ -123,7 +90,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Choose your language",
+                          "Man bilam aisanka ba wahbma",
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75),
@@ -132,9 +99,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                         ),
                         const SizedBox(height: 40),
                         
-                        _buildLangCard('es', 'EspaÃ±ol', 'Hola'),
-                        const SizedBox(height: 16),
-                        _buildLangCard('en', 'English', 'Hello'),
+                        _buildLangCard('es', 'Español', 'Hola'),
                         const SizedBox(height: 16),
                         _buildLangCard('mi', 'Miskitu', 'Naksa'),
                         

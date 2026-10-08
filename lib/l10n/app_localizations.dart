@@ -2295,6 +2295,228 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ver en mapa'**
   String get hospitalHubViewMap;
+
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de Privacidad'**
+  String get privacyPolicyTitle;
+
+  /// No description provided for @privacyPolicyLastUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Última actualización: 4 de septiembre de 2026'**
+  String get privacyPolicyLastUpdated;
+
+  /// No description provided for @privacyPolicyIntro.
+  ///
+  /// In es, this message translates to:
+  /// **'En Bellota, nos tomamos muy en serio tu privacidad. Esta política explica de manera clara y directa cómo manejamos la información que recopilamos cuando usas nuestra aplicación. Nos regimos bajo el principio de minimización de datos: solo solicitamos la información estrictamente necesaria para que la aplicación funcione y te brinde un servicio seguro y personalizado.'**
+  String get privacyPolicyIntro;
+
+  /// No description provided for @privacyPolicySec1.
+  ///
+  /// In es, this message translates to:
+  /// **'1. Datos que Recopilamos y Finalidad'**
+  String get privacyPolicySec1;
+
+  /// No description provided for @privacyPolicyEmailTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo Electrónico'**
+  String get privacyPolicyEmailTitle;
+
+  /// No description provided for @privacyPolicyEmailBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitamos tu dirección de correo exclusivamente para la creación y gestión de tu cuenta, autenticación de seguridad y recuperación de acceso. No compartimos ni vendemos tu correo a terceros para fines publicitarios.'**
+  String get privacyPolicyEmailBody;
+
+  /// No description provided for @privacyPolicyLocationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos de Ubicación Precisa (GPS)'**
+  String get privacyPolicyLocationTitle;
+
+  /// No description provided for @privacyPolicyLocationBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitamos acceso a la ubicación de tu dispositivo únicamente para identificar y mostrarte en un mapa interactivo las clínicas, farmacias y centros de salud más cercanos a ti.'**
+  String get privacyPolicyLocationBody;
+
+  /// No description provided for @privacyPolicyLocationUseTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Uso de la ubicación'**
+  String get privacyPolicyLocationUseTitle;
+
+  /// No description provided for @privacyPolicyLocationUseBody.
+  ///
+  /// In es, this message translates to:
+  /// **'La ubicación se procesa únicamente mientras usas esta función específica en la aplicación. No rastreamos tu ubicación en segundo plano ni guardamos un historial de tus desplazamientos.'**
+  String get privacyPolicyLocationUseBody;
+
+  /// No description provided for @privacyPolicySec2.
+  ///
+  /// In es, this message translates to:
+  /// **'2. Datos de Salud y Ciclo Menstrual'**
+  String get privacyPolicySec2;
+
+  /// No description provided for @privacyPolicyHealthBody.
+  ///
+  /// In es, this message translates to:
+  /// **'• Los datos sobre tu ciclo menstrual, síntomas o fechas registradas en la aplicación se procesan exclusivamente para brindarte las estimaciones del calendario.\n• Priorizamos la privacidad de tus datos de salud: la información de tu ciclo se almacena localmente en tu dispositivo o de forma cifrada y segura, garantizando que nadie fuera de la aplicación (incluyendo terceros) pueda acceder a tus registros médicos o personales.'**
+  String get privacyPolicyHealthBody;
+
+  /// No description provided for @privacyPolicySec3.
+  ///
+  /// In es, this message translates to:
+  /// **'3. Compartición de Datos con Terceros'**
+  String get privacyPolicySec3;
+
+  /// No description provided for @privacyPolicyThirdPartyBody.
+  ///
+  /// In es, this message translates to:
+  /// **'No vendemos, alquilamos ni comercializamos tus datos personales. Solo compartimos información en el siguiente caso puntual:'**
+  String get privacyPolicyThirdPartyBody;
+
+  /// No description provided for @privacyPolicyMapsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Proveedores de Mapas'**
+  String get privacyPolicyMapsTitle;
+
+  /// No description provided for @privacyPolicyMapsBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Para mostrarte los centros de salud cercanos, la aplicación utiliza servicios de mapas de terceros (como Google Maps o Apple Maps). Estos servicios reciben únicamente las coordenadas de tu ubicación actual de forma anónima, exclusivamente para devolver los resultados en el mapa.'**
+  String get privacyPolicyMapsBody;
+
+  /// No description provided for @privacyPolicySec4.
+  ///
+  /// In es, this message translates to:
+  /// **'4. Almacenamiento y Seguridad'**
+  String get privacyPolicySec4;
+
+  /// No description provided for @privacyPolicySecurityBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Implementamos medidas de seguridad técnicas y administrativas avanzadas (como cifrado de datos en tránsito y en reposo) para proteger tu correo electrónico y tu información registrada contra el acceso no autorizado, pérdida, alteración o divulgación.'**
+  String get privacyPolicySecurityBody;
+
+  /// No description provided for @privacyPolicySec5.
+  ///
+  /// In es, this message translates to:
+  /// **'5. Tus Derechos'**
+  String get privacyPolicySec5;
+
+  /// No description provided for @privacyPolicyRightsBody.
+  ///
+  /// In es, this message translates to:
+  /// **'En cualquier momento tienes derecho a:'**
+  String get privacyPolicyRightsBody;
+
+  /// No description provided for @privacyPolicyDeleteTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Acceder, Corregir o Eliminar'**
+  String get privacyPolicyDeleteTitle;
+
+  /// No description provided for @privacyPolicyDeleteBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes solicitar la eliminación completa de tu cuenta, tus datos de salud y tu correo electrónico en cualquier momento desde la configuración de la app o enviándonos un mensaje.'**
+  String get privacyPolicyDeleteBody;
+
+  /// No description provided for @privacyPolicyLocationPermTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Controlar los Permisos de Ubicación'**
+  String get privacyPolicyLocationPermTitle;
+
+  /// No description provided for @privacyPolicyLocationPermBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes activar o desactivar el permiso de ubicación directamente desde la configuración de tu dispositivo móvil en cualquier momento (aunque esto impedirá buscar clínicas cercanas automáticamente).'**
+  String get privacyPolicyLocationPermBody;
+
+  /// No description provided for @privacyPolicySec6.
+  ///
+  /// In es, this message translates to:
+  /// **'6. Modificaciones a esta Política'**
+  String get privacyPolicySec6;
+
+  /// No description provided for @privacyPolicyModBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Podemos actualizar esta política ocasionalmente para reflejar mejoras en la aplicación o cambios legales. Te notificaremos de manera destacada sobre cambios significativos antes de que entren en vigor.'**
+  String get privacyPolicyModBody;
+
+  /// No description provided for @privacyPolicySec7.
+  ///
+  /// In es, this message translates to:
+  /// **'7. Contacto'**
+  String get privacyPolicySec7;
+
+  /// No description provided for @privacyPolicyContactBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Si tienes dudas, comentarios o deseas ejercer tus derechos de privacidad, puedes contactarnos en:'**
+  String get privacyPolicyContactBody;
+
+  /// No description provided for @privacyPolicyEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo de soporte: usm.unshowmas@gmail.com'**
+  String get privacyPolicyEmail;
+
+  /// No description provided for @privacyPolicyAcceptText.
+  ///
+  /// In es, this message translates to:
+  /// **'He leído y acepto la Política de Privacidad de Bellota.'**
+  String get privacyPolicyAcceptText;
+
+  /// No description provided for @privacyPolicyContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get privacyPolicyContinue;
+
+  /// No description provided for @languageScreenTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige tu idioma'**
+  String get languageScreenTitle;
+
+  /// No description provided for @languageScreenSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta será la configuración permanente'**
+  String get languageScreenSubtitle;
+
+  /// No description provided for @languageScreenComingSoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximamente'**
+  String get languageScreenComingSoon;
+
+  /// No description provided for @languageScreenUnderConstruction.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma en Construcción'**
+  String get languageScreenUnderConstruction;
+
+  /// No description provided for @languageScreenMiskitoNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'La traducción completa al idioma Miskito se encuentra actualmente en desarrollo y se agregará en próximas actualizaciones.\n\nPor el momento, algunas secciones podrían mostrarse en español. ¿Deseas continuar?'**
+  String get languageScreenMiskitoNotice;
+
+  /// No description provided for @birthYearTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿En qué año naciste?'**
+  String get birthYearTitle;
 }
 
 class _AppLocalizationsDelegate

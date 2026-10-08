@@ -14,14 +14,14 @@ import 'package:bellotadevelopment/presentation/screens/onboarding/birth_year_sc
 import 'package:bellotadevelopment/presentation/screens/profile/account_language_screen.dart';
 import 'package:bellotadevelopment/presentation/screens/onboarding/language_selection_screen.dart';
 
-/// Servicio de navegaciÃ³n que centraliza la lÃ³gica de redirecciÃ³n post-login.
+/// Servicio de navegación que centraliza la lógica de redirección post-login.
 ///
-/// Esta lÃ³gica estaba duplicada en [SplashScreen] y [LoginScreen].
-/// Ahora existe en un Ãºnico lugar, eliminando la posibilidad de divergencias.
+/// Esta lógica estaba duplicada en [SplashScreen] y [LoginScreen].
+/// Ahora existe en un único lugar, eliminando la posibilidad de divergencias.
 ///
-/// Orden de verificaciÃ³n del flujo de incorporaciÃ³n (usuarios estÃ¡ndar):
+/// Orden de verificación del flujo de incorporación (usuarios estándar):
 ///
-/// Roles especiales omiten el flujo de incorporaciÃ³n:
+/// Roles especiales omiten el flujo de incorporación:
 abstract final class NavigationService {
   NavigationService._();
 
@@ -43,12 +43,12 @@ abstract final class NavigationService {
   /// Dashboard principal del auditor.
   static const String auditDashboard = '/audit';
 
-  /// Visor de logs de auditorÃ­a.
+  /// Visor de logs de auditoría.
   static const String auditLogs = '/audit/logs';
 
 
   /// Determina la pantalla correcta para un usuario **autenticado**
-  /// segÃºn su rol y progreso en el flujo de incorporaciÃ³n.
+  /// según su rol y progreso en el flujo de incorporación.
   ///
   static Widget resolveHomeScreen(SharedPreferences prefs) {
     final roleStr = prefs.getString(AppKeys.userRole) ?? 'usuario';
@@ -80,7 +80,7 @@ abstract final class NavigationService {
     }
   }
 
-  /// Determina la pantalla raÃ­z basÃ¡ndose en si hay sesiÃ³n activa y
+  /// Determina la pantalla raíz basándose en si hay sesión activa y
   /// configuraciones previas al login.
   ///
   /// Usar en el splash para decidir entre ir a login, idioma o al home del usuario.
@@ -99,7 +99,7 @@ abstract final class NavigationService {
   }
 
 
-  /// Navega a la [screen] reemplazando toda la pila de navegaciÃ³n.
+  /// Navega a la [screen] reemplazando toda la pila de navegación.
   static void goAndClearStack(BuildContext context, Widget screen) {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => screen),

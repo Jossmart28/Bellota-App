@@ -13,7 +13,7 @@ import '../constants/app_keys.dart';
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 /// Perfil de salud integral de la usuaria.
-/// Centraliza datos del perfil + historial para alimentar el motor de anÃ¡lisis.
+/// Centraliza datos del perfil + historial para alimentar el motor de análisis.
 class UserHealthProfile {
   final int age;
   final int cycleDuration;
@@ -22,25 +22,25 @@ class UserHealthProfile {
   final List<String> medicalConditions;
   final String? contraceptiveMethod;
 
-  /// EstadÃ­sticas calculadas del historial de ciclos.
+  /// Estadísticas calculadas del historial de ciclos.
   final double avgCycleLength;
   final bool isCycleRegular;
   final int totalCyclesRecorded;
 
-  /// Frecuencias de actividad sexual (Ãºltimos 30 dÃ­as).
+  /// Frecuencias de actividad sexual (últimos 30 días).
   final int sexualActivityDays;
   final Map<String, int> sexoFrequency;
 
-  /// Frecuencias de flujo vaginal (Ãºltimos 30 dÃ­as).
+  /// Frecuencias de flujo vaginal (últimos 30 días).
   final Map<String, int> flujoFrequency;
 
-  /// Frecuencias de patrÃ³n de sangrado (Ãºltimos 30 dÃ­as).
+  /// Frecuencias de patrón de sangrado (últimos 30 días).
   final Map<String, int> bleedingFrequency;
 
-  /// Frecuencias de dolor/sÃ­ntomas (Ãºltimos 30 dÃ­as).
+  /// Frecuencias de dolor/síntomas (últimos 30 días).
   final Map<String, int> painFrequency;
 
-  /// Frecuencias de autoexamen mamario (Ãºltimos 30 dÃ­as).
+  /// Frecuencias de autoexamen mamario (últimos 30 días).
   final Map<String, int> breastFrequency;
 
   /// Scores de riesgo calculados (0.0-10.0).
@@ -70,25 +70,25 @@ class UserHealthProfile {
   });
 }
 
-/// Alerta clÃ­nica generada por el motor de anÃ¡lisis.
-/// Contiene solo llaves de sÃ­ntomas y metadatos â€” sin texto traducido.
+/// Alerta clínica generada por el motor de análisis.
+/// Contiene solo llaves de síntomas y metadatos â€” sin texto traducido.
 class ClinicalAlert {
   /// 'high', 'medium', 'low'
   final String severity;
 
-  /// CategorÃ­a de la alerta. Valores posibles:
+  /// Categoría de la alerta. Valores posibles:
   /// 'oncology', 'infection', 'pain', 'sexual_risk', 'sexual_pain',
   /// 'general_health', 'bleeding', 'spotting', 'cycle', 'contraception',
   /// 'emergency_pill', 'pregnancy_risk', 'flow_anomaly', 'breast'
   final String category;
 
-  /// Llaves de los sÃ­ntomas que dispararon esta alerta.
+  /// Llaves de los síntomas que dispararon esta alerta.
   final List<String> triggerSymptoms;
 
-  /// CuÃ¡ntos dÃ­as (de la ventana analizada) se detectÃ³ el patrÃ³n.
+  /// Cuántos días (de la ventana analizada) se detectó el patrón.
   final int weeklyCount;
 
-  /// CuÃ¡ntos dÃ­as tienen datos registrados (contexto de completitud).
+  /// Cuántos días tienen datos registrados (contexto de completitud).
   final int totalDaysWithData;
 
   /// Mensaje interno descriptivo (para logs/debug, no para UI).
@@ -105,14 +105,14 @@ class ClinicalAlert {
 }
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  MOTOR DE ANÃLISIS CLÃNICO
+//  MOTOR DE ANÁLISIS CLÍNICO
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-/// Motor de anÃ¡lisis clÃ­nico integral de Bellota.
+/// Motor de análisis clínico integral de Bellota.
 ///
 /// Combina datos del perfil de la usuaria (edad, ciclo, condiciones,
-/// anticonceptivo, medicamentos) con registros de sÃ­ntomas para generar
-/// alertas predictivas con perspectiva ginecolÃ³gica profesional.
+/// anticonceptivo, medicamentos) con registros de síntomas para generar
+/// alertas predictivas con perspectiva ginecológica profesional.
 ///
 /// Flujo de datos:
 /// ```
@@ -151,7 +151,7 @@ class ClinicalAnalysisService {
       if (birthYear != null) age = DateTime.now().year - birthYear;
     }
 
-    // Condiciones mÃ©dicas
+    // Condiciones médicas
     List<String> conditions = [];
     if (profile != null && profile.medicalConditions != null) {
       try {
@@ -165,19 +165,19 @@ class ClinicalAnalysisService {
     final List<String> medications =
         prefs.getStringList('user_medications') ?? [];
 
-    // â”€â”€ EstadÃ­sticas de ciclo â”€â”€
+    // â”€â”€ Estadísticas de ciclo â”€â”€
     final cycleStats = await sl<DailyLogRepository>().getCycleStatistics(userId);
     final int cycleCount = cycleStats['count'] as int? ?? 0;
     final double avgCycle =
         (cycleStats['averageCycleLength'] as double?) ?? cycleDuration.toDouble();
     final bool isRegular = cycleStats['isRegular'] as bool? ?? true;
 
-    // â”€â”€ Registros de los Ãºltimos 30 dÃ­as â”€â”€
+    // â”€â”€ Registros de los últimos 30 días â”€â”€
     final now = DateTime.now();
     final thirtyDaysAgo = now.subtract(const Duration(days: 30));
     final logs30 = (await sl<DailyLogRepository>().getLogsInRange(userId, _fmt(thirtyDaysAgo), _fmt(now))).map((m) => m.toMap()).toList();
 
-    // â”€â”€ Frecuencias por categorÃ­a â”€â”€
+    // â”€â”€ Frecuencias por categoría â”€â”€
     final Map<String, int> sexoFreq = {};
     final Map<String, int> flujoFreq = {};
     final Map<String, int> bleedingFreq = {};
@@ -199,7 +199,7 @@ class ClinicalAnalysisService {
         flujoFreq[f] = (flujoFreq[f] ?? 0) + 1;
       }
 
-      // PatrÃ³n de sangrado
+      // Patrón de sangrado
       if (log['bleeding_intensity'] != null &&
           log['bleeding_intensity'].toString().isNotEmpty &&
           log['bleeding_intensity'].toString() != 'null') {
@@ -237,7 +237,7 @@ class ClinicalAnalysisService {
         painFreq['treatment_$tk'] = (painFreq['treatment_$tk'] ?? 0) + 1;
       }
 
-      // SÃ­ntomas fÃ­sicos y emocionales
+      // Síntomas físicos y emocionales
       final physItems = _parseJsonArray(log['physical_symptoms']);
       for (var p in physItems) {
         painFreq[p] = (painFreq[p] ?? 0) + 1;
@@ -286,13 +286,13 @@ class ClinicalAnalysisService {
   }
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  ANÃLISIS DE SALUD â€” GENERADOR DE ALERTAS
+  //  ANÁLISIS DE SALUD â€” GENERADOR DE ALERTAS
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  /// Analiza el estado de salud integral y genera alertas clÃ­nicas.
+  /// Analiza el estado de salud integral y genera alertas clínicas.
   ///
   /// Combina el perfil de salud con registros recientes para detectar
-  /// patrones que requieran atenciÃ³n mÃ©dica, organizados por severidad.
+  /// patrones que requieran atención médica, organizados por severidad.
   Future<List<ClinicalAlert>> analyzeHealthState(int userId) async {
     final List<ClinicalAlert> alerts = [];
     final profile = await buildUserHealthProfile(userId);
@@ -309,7 +309,7 @@ class ClinicalAnalysisService {
     final logs30WithData = logs30.where((log) => _logHasRealData(log)).toList();
     if (logs30WithData.isEmpty) return alerts;
 
-    // Logs de los Ãºltimos 7 dÃ­as
+    // Logs de los últimos 7 días
     final logs7 = logs30WithData.where((log) {
       final date = DateTime.parse(log['date'].toString());
       return date.isAfter(sevenDaysAgo) || date.isAtSameMomentAs(sevenDaysAgo);
@@ -318,7 +318,7 @@ class ClinicalAnalysisService {
     final int totalDaysWithData = logs7.length;
     if (totalDaysWithData == 0) return alerts;
 
-    // â”€â”€ Frecuencia semanal de cada Ã­tem clÃ­nico â”€â”€
+    // â”€â”€ Frecuencia semanal de cada ítem clínico â”€â”€
     final Map<String, int> weeklyFrequency = {};
     final List<Set<String>> dailyItemSets = [];
 
@@ -336,18 +336,18 @@ class ClinicalAnalysisService {
     //  ALERTAS HIGH (rojas)
     // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-    // 1. ONCOLOGÃA MAMARIA â€” â‰¥ 2 dÃ­as con anomalÃ­a mamaria
+    // 1. ONCOLOGÍA MAMARIA â€” â‰¥ 2 días con anomalía mamaria
     _checkHighAlert(
       alerts: alerts,
       triggeredCategories: triggeredCategories,
       category: 'oncology',
       symptomKeys: const ['breast_lump', 'breast_skin_change', 'breast_discharge'],
       weeklyFrequency: weeklyFrequency,
-      minDays: profile.age > 40 ? 1 : 2, // MÃ¡s sensible en > 40 aÃ±os
+      minDays: profile.age > 40 ? 1 : 2, // Más sensible en > 40 años
       totalDaysWithData: totalDaysWithData,
     );
 
-    // 2. INFECCIÃ“N GINECOLÃ“GICA â€” â‰¥ 2 dÃ­as con flujo anormal
+    // 2. INFECCIÃ“N GINECOLÃ“GICA â€” â‰¥ 2 días con flujo anormal
     _checkHighAlert(
       alerts: alerts,
       triggeredCategories: triggeredCategories,
@@ -358,8 +358,8 @@ class ClinicalAnalysisService {
       totalDaysWithData: totalDaysWithData,
     );
 
-    // 3. DOLOR CRÃTICO
-    // 3a. CombinaciÃ³n emergencia (severe_pain/incapacitating + fever/vomiting)
+    // 3. DOLOR CRÍTICO
+    // 3a. Combinación emergencia (severe_pain/incapacitating + fever/vomiting)
     if (!triggeredCategories.contains('pain')) {
       final Set<String> emergencySymptoms = {};
       int emergencyDays = 0;
@@ -389,7 +389,7 @@ class ClinicalAnalysisService {
       }
     }
 
-    // 3b. Dolor severo/incapacitante solo â†’ â‰¥ 2 dÃ­as
+    // 3b. Dolor severo/incapacitante solo â†’ â‰¥ 2 días
     if (!triggeredCategories.contains('pain')) {
       _checkHighAlert(
         alerts: alerts,
@@ -402,7 +402,7 @@ class ClinicalAnalysisService {
       );
     }
 
-    // 3c. Fiebre sola â†’ â‰¥ 2 dÃ­as
+    // 3c. Fiebre sola â†’ â‰¥ 2 días
     if (!triggeredCategories.contains('pain')) {
       final feverDays = weeklyFrequency['fever'] ?? 0;
       if (feverDays >= 2) {
@@ -432,9 +432,9 @@ class ClinicalAnalysisService {
       }
     }
 
-    // 5. PÃLDORA DE EMERGENCIA FRECUENTE â€” â‰¥ 2 en 30 dÃ­as
-    //    La OMS advierte que el uso repetido de anticoncepciÃ³n de
-    //    emergencia indica falla en el mÃ©todo habitual y altera el eje HPO.
+    // 5. PÍLDORA DE EMERGENCIA FRECUENTE â€” â‰¥ 2 en 30 días
+    //    La OMS advierte que el uso repetido de anticoncepción de
+    //    emergencia indica falla en el método habitual y altera el eje HPO.
     if (!triggeredCategories.contains('emergency_pill')) {
       final pillCount30 = profile.sexoFrequency['short_pill'] ?? 0;
       if (pillCount30 >= 2) {
@@ -444,14 +444,14 @@ class ClinicalAnalysisService {
           triggerSymptoms: const ['short_pill'],
           weeklyCount: pillCount30,
           totalDaysWithData: totalDaysWithData,
-          internalNote: 'Uso de anticoncepciÃ³n de emergencia â‰¥2 veces en 30 dÃ­as',
+          internalNote: 'Uso de anticoncepción de emergencia â‰¥2 veces en 30 días',
         ));
         triggeredCategories.add('emergency_pill');
       }
     }
 
     // 6. RIESGO DE EMBARAZO ELEVADO
-    //    Sexo sin protecciÃ³n frecuente + sin anticonceptivo configurado
+    //    Sexo sin protección frecuente + sin anticonceptivo configurado
     if (!triggeredCategories.contains('pregnancy_risk')) {
       final unprotectedDays =
           (profile.sexoFrequency['unprotected'] ?? 0) +
@@ -466,7 +466,7 @@ class ClinicalAnalysisService {
           triggerSymptoms: const ['unprotected', 'no_contraception'],
           weeklyCount: unprotectedDays,
           totalDaysWithData: totalDaysWithData,
-          internalNote: 'Actividad sexual sin protecciÃ³n recurrente sin anticonceptivo',
+          internalNote: 'Actividad sexual sin protección recurrente sin anticonceptivo',
         ));
         triggeredCategories.add('pregnancy_risk');
       }
@@ -476,7 +476,7 @@ class ClinicalAnalysisService {
     //  ALERTAS MEDIUM (amarillas)
     // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-    // 7. CARGA SINTOMÃTICA â€” Score acumulado semanal alto
+    // 7. CARGA SINTOMÁTICA â€” Score acumulado semanal alto
     if (!triggeredCategories.contains('general_health') &&
         totalDaysWithData >= 3) {
       int totalWeeklyScore = 0;
@@ -513,14 +513,14 @@ class ClinicalAnalysisService {
       }
     }
 
-    // 8. DOLOR DURANTE RELACIONES â€” â‰¥ 2 dÃ­as (1 si endometriosis)
+    // 8. DOLOR DURANTE RELACIONES â€” â‰¥ 2 días (1 si endometriosis)
     if (!triggeredCategories.contains('sexual_pain')) {
       final painSexDays = weeklyFrequency['pain_during_sex'] ?? 0;
       final threshold =
           profile.medicalConditions.contains('endometriosis') ? 1 : 2;
       if (painSexDays >= threshold) {
         String severity = 'medium';
-        // En adolescentes es mÃ¡s preocupante
+        // En adolescentes es más preocupante
         if (profile.age < 20) severity = 'high';
 
         alerts.add(ClinicalAlert(
@@ -534,7 +534,7 @@ class ClinicalAnalysisService {
       }
     }
 
-    // 9. SANGRADO PROLONGADO (30 dÃ­as) â€” > 7 dÃ­as consecutivos
+    // 9. SANGRADO PROLONGADO (30 días) â€” > 7 días consecutivos
     if (!triggeredCategories.contains('bleeding')) {
       int consecutiveBleeding = 0;
       int maxConsecutive = 0;
@@ -570,7 +570,7 @@ class ClinicalAnalysisService {
       }
     }
 
-    // 10. MANCHADO INTERMENSTRUAL PERSISTENTE â€” > 5 dÃ­as consecutivos
+    // 10. MANCHADO INTERMENSTRUAL PERSISTENTE â€” > 5 días consecutivos
     if (!triggeredCategories.contains('spotting')) {
       int consecutiveSpotting = 0;
       int maxConsecutiveSpotting = 0;
@@ -648,7 +648,7 @@ class ClinicalAnalysisService {
           triggerSymptoms: triggers,
           weeklyCount: totalAbnormal,
           totalDaysWithData: totalDaysWithData,
-          internalNote: 'Flujo vaginal anormal persistente en 30 dÃ­as',
+          internalNote: 'Flujo vaginal anormal persistente en 30 días',
         ));
         triggeredCategories.add('flow_anomaly');
       }
@@ -669,20 +669,20 @@ class ClinicalAnalysisService {
           triggerSymptoms: const ['no_contraception'],
           weeklyCount: noContraceptionDays,
           totalDaysWithData: totalDaysWithData,
-          internalNote: 'Reporta no usar anticoncepciÃ³n pero tiene mÃ©todo configurado',
+          internalNote: 'Reporta no usar anticoncepción pero tiene método configurado',
         ));
         triggeredCategories.add('contraception');
       }
     }
 
-    // 14. SANGRADO ABUNDANTE CON COÃGULOS FRECUENTES
+    // 14. SANGRADO ABUNDANTE CON COÁGULOS FRECUENTES
     if (!triggeredCategories.contains('menorrhagia')) {
       final heavyFlowDays = profile.bleedingFrequency['heavy_flow'] ?? 0;
       final frequentClots = profile.bleedingFrequency['frequent'] ?? 0;
 
       if (heavyFlowDays >= 3 && frequentClots >= 2) {
         String severity = 'medium';
-        // En endometriosis o hipotiroidismo, es mÃ¡s preocupante
+        // En endometriosis o hipotiroidismo, es más preocupante
         if (profile.medicalConditions.contains('endometriosis') ||
             profile.medicalConditions.contains('hypothyroidism')) {
           severity = 'high';
@@ -693,7 +693,7 @@ class ClinicalAnalysisService {
           triggerSymptoms: const ['heavy_flow', 'frequent'],
           weeklyCount: heavyFlowDays,
           totalDaysWithData: totalDaysWithData,
-          internalNote: 'PatrÃ³n de menorragia: sangrado abundante + coÃ¡gulos frecuentes',
+          internalNote: 'Patrón de menorragia: sangrado abundante + coágulos frecuentes',
         ));
         triggeredCategories.add('menorrhagia');
       }
@@ -703,7 +703,7 @@ class ClinicalAnalysisService {
     //  ALERTAS LOW (informativas)
     // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-    // 15. SÃ­ntomas recurrentes con score â‰¥ 5 que aparecen â‰¥ 3 dÃ­as
+    // 15. Síntomas recurrentes con score â‰¥ 5 que aparecen â‰¥ 3 días
     if (totalDaysWithData >= 3) {
       for (var entry in weeklyFrequency.entries) {
         final symptomKey = entry.key;
@@ -737,10 +737,10 @@ class ClinicalAnalysisService {
   }
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  //  MOTOR DE PREDICCIÃ“N DE SÃNTOMAS
+  //  MOTOR DE PREDICCIÃ“N DE SÍNTOMAS
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-  /// Predice los sÃ­ntomas mÃ¡s probables para la fase actual.
+  /// Predice los síntomas más probables para la fase actual.
   Future<List<String>> predictSymptoms(int userId, String phaseName, {int limit = 5}) async {
     final profile = await buildUserHealthProfile(userId);
     
@@ -834,11 +834,11 @@ class ClinicalAnalysisService {
   }
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  //  CÃLCULO DE SCORES DE RIESGO
+  //  CÁLCULO DE SCORES DE RIESGO
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   /// Score de riesgo sexual (0.0-10.0).
-  /// Factores: frecuencia sin protecciÃ³n, pareja nueva, pÃ­ldora emergencia,
+  /// Factores: frecuencia sin protección, pareja nueva, píldora emergencia,
   /// disponibilidad de anticonceptivo, condiciones.
   double _calculateSexualRiskScore(
     Map<String, int> sexoFreq,
@@ -855,14 +855,14 @@ class ClinicalAnalysisService {
     final shortPill = sexoFreq['short_pill'] ?? 0;
     final painSex = sexoFreq['pain_during_sex'] ?? 0;
 
-    // ProporciÃ³n sin protecciÃ³n
+    // Proporción sin protección
     final unprotectedRatio = (unprotected + noContraception) / sexDays;
     score += unprotectedRatio * 4.0;
 
-    // Pareja nueva sin protecciÃ³n
+    // Pareja nueva sin protección
     if (newPartner > 0) score += 3.0;
 
-    // PÃ­ldora de emergencia
+    // Píldora de emergencia
     score += shortPill * 1.5;
 
     // Dolor durante sexo
@@ -877,7 +877,7 @@ class ClinicalAnalysisService {
   }
 
   /// Score de salud menstrual (0.0-10.0).
-  /// 0 = saludable, 10 = requiere atenciÃ³n urgente.
+  /// 0 = saludable, 10 = requiere atención urgente.
   double _calculateMenstrualHealthScore(
     Map<String, int> bleedingFreq,
     double avgCycle,
@@ -890,17 +890,17 @@ class ClinicalAnalysisService {
     // Regularidad del ciclo
     if (!isRegular) score += 2.0;
 
-    // DuraciÃ³n del ciclo fuera de rango normal (21-35 dÃ­as)
+    // Duración del ciclo fuera de rango normal (21-35 días)
     if (avgCycle < 21 || avgCycle > 35) score += 2.0;
 
-    // DuraciÃ³n del sangrado fuera de rango (3-7 dÃ­as)
+    // Duración del sangrado fuera de rango (3-7 días)
     if (periodDuration < 3 || periodDuration > 7) score += 1.5;
 
     // Sangrado abundante
     final heavyDays = bleedingFreq['heavy_flow'] ?? 0;
     if (heavyDays >= 3) score += 2.0;
 
-    // CoÃ¡gulos frecuentes
+    // Coágulos frecuentes
     final freqClots = bleedingFreq['frequent'] ?? 0;
     if (freqClots >= 2) score += 1.5;
 
@@ -911,7 +911,7 @@ class ClinicalAnalysisService {
     return score.clamp(0.0, 10.0);
   }
 
-  /// Carga sintomÃ¡tica general (0.0-10.0).
+  /// Carga sintomática general (0.0-10.0).
   double _calculateOverallSymptomBurden(
     Map<String, int> painFreq,
     Map<String, int> flujoFreq,
@@ -921,7 +921,7 @@ class ClinicalAnalysisService {
     double score = 0;
     int totalSymptoms = 0;
 
-    // Sumar todos los sÃ­ntomas con sus scores base
+    // Sumar todos los síntomas con sus scores base
     void addFromMap(Map<String, int> freq) {
       for (var entry in freq.entries) {
         final def = ClinicalDictionary.dictionary[entry.key];
@@ -936,7 +936,7 @@ class ClinicalAnalysisService {
     addFromMap(flujoFreq);
     addFromMap(breastFreq);
 
-    // Normalizar por cantidad de sÃ­ntomas
+    // Normalizar por cantidad de síntomas
     if (totalSymptoms > 0) {
       score = score / totalSymptoms * 3.0;
     }
@@ -961,7 +961,7 @@ class ClinicalAnalysisService {
     }
   }
 
-  /// Verifica si una alerta HIGH debe dispararse para un grupo de sÃ­ntomas.
+  /// Verifica si una alerta HIGH debe dispararse para un grupo de síntomas.
   void _checkHighAlert({
     required List<ClinicalAlert> alerts,
     required Set<String> triggeredCategories,
@@ -990,7 +990,7 @@ class ClinicalAnalysisService {
     }
   }
 
-  /// Verifica que un log tenga datos reales (no una fila vacÃ­a).
+  /// Verifica que un log tenga datos reales (no una fila vacía).
   bool _logHasRealData(Map<String, dynamic> log) {
     final hasSymptoms = _hasNonEmptyJsonArray(log['symptoms']);
     final hasPhysical = _hasNonEmptyJsonArray(log['physical_symptoms']);
@@ -1036,11 +1036,11 @@ class ClinicalAnalysisService {
     }
   }
 
-  /// Extrae todas las llaves clÃ­nicas de un registro diario.
+  /// Extrae todas las llaves clínicas de un registro diario.
   List<String> _extractAllItemsFromLog(Map<String, dynamic> log) {
     List<String> items = [];
 
-    // SÃ­ntomas generales, fÃ­sicos, emocionales
+    // Síntomas generales, físicos, emocionales
     _addJsonArrayItems(items, log['symptoms']);
     _addJsonArrayItems(items, log['physical_symptoms']);
     _addJsonArrayItems(items, log['emotional_symptoms']);
@@ -1051,7 +1051,7 @@ class ClinicalAnalysisService {
     // Actividad sexual
     _addJsonArrayItems(items, log['sexo']);
 
-    // PatrÃ³n de sangrado
+    // Patrón de sangrado
     if (log['bleeding_intensity'] != null &&
         log['bleeding_intensity'].toString().isNotEmpty &&
         log['bleeding_intensity'].toString() != 'null') {
@@ -1067,7 +1067,7 @@ class ClinicalAnalysisService {
       items.add('spotting');
     }
 
-    // Autoexamen de mama (solo anomalÃ­as)
+    // Autoexamen de mama (solo anomalías)
     if (log['breast_exam'] != null) {
       final breast = log['breast_exam'].toString();
       if (breast.isNotEmpty &&
@@ -1077,7 +1077,7 @@ class ClinicalAnalysisService {
       }
     }
 
-    // Nivel de dolor â†’ mapear a sÃ­ntoma
+    // Nivel de dolor â†’ mapear a síntoma
     if (log['pain_level'] != null) {
       final painLevel = (log['pain_level'] as num?)?.toDouble() ?? 0;
       if (painLevel >= 8) {
@@ -1087,13 +1087,13 @@ class ClinicalAnalysisService {
       }
     }
 
-    // CarÃ¡cter del dolor
+    // Carácter del dolor
     if (log['pain_character'] != null &&
         log['pain_character'].toString().isNotEmpty) {
       items.add(log['pain_character'].toString());
     }
 
-    // Estado de Ã¡nimo
+    // Estado de ánimo
     if (log['mood'] != null && log['mood'].toString().isNotEmpty) {
       items.add(log['mood'].toString());
     }
@@ -1115,16 +1115,16 @@ class ClinicalAnalysisService {
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 enum HealthcareTier {
-  /// Puesto de Salud / Centro de Salud (AtenciÃ³n Primaria, Medicina General, PlanificaciÃ³n)
+  /// Puesto de Salud / Centro de Salud (Atención Primaria, Medicina General, Planificación)
   primaryCare,
   
   /// Emergencias 24/7 (Hospital Primario / Departamental)
   emergency,
   
-  /// Especialidad GinecolÃ³gica (Hospital Primario / Regional)
+  /// Especialidad Ginecológica (Hospital Primario / Regional)
   gynecology,
   
-  /// ImagenologÃ­a y DiagnÃ³stico Especializado (Ultrasonido, MamografÃ­a - Hospital Regional o Jornadas)
+  /// Imagenología y Diagnóstico Especializado (Ultrasonido, Mamografía - Hospital Regional o Jornadas)
   specializedImaging,
   
 }
@@ -1145,27 +1145,27 @@ class HealthcareRoutingService {
   static const Map<HealthcareTier, RecommendationTerminal> terminals = {
     HealthcareTier.emergency: RecommendationTerminal(
       tier: HealthcareTier.emergency,
-      title: 'Urgencias MÃ©dicas (AtenciÃ³n Inmediata)',
-      description: 'Acude de inmediato a la sala de emergencias del hospital mÃ¡s cercano (Hospital Primario o Departamental).',
+      title: 'Urgencias Médicas (Atención Inmediata)',
+      description: 'Acude de inmediato a la sala de emergencias del hospital más cercano (Hospital Primario o Departamental).',
     ),
     HealthcareTier.primaryCare: RecommendationTerminal(
       tier: HealthcareTier.primaryCare,
       title: 'Centro de Salud / Puesto de Salud',
-      description: 'Visita tu centro de salud local para consulta general, enfermerÃ­a, pruebas bÃ¡sicas o planificaciÃ³n familiar.',
+      description: 'Visita tu centro de salud local para consulta general, enfermería, pruebas básicas o planificación familiar.',
     ),
     HealthcareTier.gynecology: RecommendationTerminal(
       tier: HealthcareTier.gynecology,
-      title: 'GinecologÃ­a (Hospital Regional)',
-      description: 'Requiere evaluaciÃ³n por un especialista en ginecologÃ­a. Solicita traslado o cita en el Hospital Primario/Regional.',
+      title: 'Ginecología (Hospital Regional)',
+      description: 'Requiere evaluación por un especialista en ginecología. Solicita traslado o cita en el Hospital Primario/Regional.',
     ),
     HealthcareTier.specializedImaging: RecommendationTerminal(
       tier: HealthcareTier.specializedImaging,
-      title: 'ExÃ¡menes Especializados (Ultrasonido / MamografÃ­a)',
-      description: 'Requiere exÃ¡menes de imagen. Generalmente disponibles en Hospitales Regionales, clÃ­nicas especializadas o Brigadas MÃ©dicas.',
+      title: 'Exámenes Especializados (Ultrasonido / Mamografía)',
+      description: 'Requiere exámenes de imagen. Generalmente disponibles en Hospitales Regionales, clínicas especializadas o Brigadas Médicas.',
     ),
   };
 
-  /// Deriva una lista de alertas clÃ­nicas a las terminales de atenciÃ³n mÃ¡s adecuadas
+  /// Deriva una lista de alertas clínicas a las terminales de atención más adecuadas
   /// para entornos de recursos limitados.
   static List<RecommendationTerminal> routeAlerts(List<ClinicalAlert> alerts) {
     final Set<HealthcareTier> requiredTiers = {};
@@ -1192,14 +1192,14 @@ class HealthcareRoutingService {
         }
       } else { // Low
         if (alert.category == 'emotional') {
-          requiredTiers.add(HealthcareTier.primaryCare); // Salud emocional se aborda primero en atenciÃ³n primaria
+          requiredTiers.add(HealthcareTier.primaryCare); // Salud emocional se aborda primero en atención primaria
         } else {
           requiredTiers.add(HealthcareTier.primaryCare);
         }
       }
     }
 
-    // Si no hay alertas, la recomendaciÃ³n base para chequeos es atenciÃ³n primaria
+    // Si no hay alertas, la recomendación base para chequeos es atención primaria
     if (requiredTiers.isEmpty) {
       requiredTiers.add(HealthcareTier.primaryCare);
     }

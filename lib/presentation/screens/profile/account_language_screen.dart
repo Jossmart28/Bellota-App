@@ -42,11 +42,11 @@ class _AccountLanguageScreenState extends State<AccountLanguageScreen> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(
-            'Idioma en ConstrucciÃ³n',
+            'Idioma en Construcción',
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           content: Text(
-            'La traducciÃ³n completa al idioma Miskito se encuentra actualmente en desarrollo y se agregarÃ¡ en prÃ³ximas actualizaciones.\n\nPor el momento, algunas secciones podrÃ­an mostrarse en espaÃ±ol. Â¿Deseas continuar?',
+            'La traducción completa al idioma Miskito se encuentra actualmente en desarrollo y se agregará en próximas actualizaciones.\n\nPor el momento, algunas secciones podrían mostrarse en español. ¿Deseas continuar?',
             style: GoogleFonts.poppins(fontSize: 14),
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -92,7 +92,7 @@ class _AccountLanguageScreenState extends State<AccountLanguageScreen> {
       backgroundColor: Theme.of(context).bellotaColors.chilero,
       body: Stack(
         children: [
-          // Fondo decorativo idÃ©ntico al LanguageSelectionScreen original
+          // Fondo decorativo idéntico al LanguageSelectionScreen original
           Positioned.fill(
             child: CustomPaint(painter: _BackgroundPainter(Theme.of(context).bellotaColors.blanco)),
           ),
@@ -119,7 +119,7 @@ class _AccountLanguageScreenState extends State<AccountLanguageScreen> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.12),
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
-                      // Border idÃ©ntico a LanguageSelectionScreen
+                      // Border idéntico a LanguageSelectionScreen
                       border: Border(
                         top: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
                         left: BorderSide(color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.25), width: 1),
@@ -158,7 +158,7 @@ class _AccountLanguageScreenState extends State<AccountLanguageScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Esta serÃ¡ la configuraciÃ³n permanente",
+                          "Esta será la configuración permanente",
                           style: GoogleFonts.poppins(
                             fontSize: 13,
                             color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.75),
@@ -167,7 +167,7 @@ class _AccountLanguageScreenState extends State<AccountLanguageScreen> {
                         ),
                         const SizedBox(height: 36),
                         
-                        _buildLangCard('es', 'EspaÃ±ol', 'Hola'),
+                        _buildLangCard('es', 'Español', 'Hola'),
                         const SizedBox(height: 16),
                         _buildLangCard('mi', 'Miskitu', 'Naksa'),
                         
@@ -234,7 +234,7 @@ class _AccountLanguageScreenState extends State<AccountLanguageScreen> {
                           borderRadius: BorderRadius.circular(10)
                         ),
                         child: Text(
-                          'PrÃ³ximamente', 
+                          'Próximamente', 
                           style: GoogleFonts.poppins(
                             fontSize: 10, 
                             color: Theme.of(context).bellotaColors.blanco.withValues(alpha: 0.9), 

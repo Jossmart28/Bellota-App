@@ -161,7 +161,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text(AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodTitle == 'recent_period_title' ? 'Ã‚Â¿Periodo reciente?' : AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodTitle),
+              title: Text(AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodTitle == 'recent_period_title' ? 'Ã‚¿Periodo reciente?' : AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodTitle),
               content: Text(AppLocalizations.of(context)!.symptomsAndActionsRecentPeriodError),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               actions: [
@@ -226,7 +226,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
           AppLogger.d('Error scheduling notifications: $e');
         }
 
-        // Evaluar estado clÃ­nico para disparar notificaciÃ³n push
+        // Evaluar estado clínico para disparar notificación push
         try {
           final alerts = await ClinicalAnalysisService.instance.analyzeHealthState(_userId!);
           final highAlert = alerts.where((a) => a.severity == 'high').firstOrNull;

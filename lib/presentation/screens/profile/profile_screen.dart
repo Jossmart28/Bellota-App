@@ -31,7 +31,7 @@ import 'package:bellotadevelopment/presentation/screens/profile/medical_report_p
 import 'package:bellotadevelopment/presentation/theme/bellota_colors.dart';
 import 'package:bellotadevelopment/presentation/theme/theme_notifier.dart';
 
-/// DiseÃ±o fiel al mockup de referencia con paleta de colores Bellota.
+/// Diseño fiel al mockup de referencia con paleta de colores Bellota.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -156,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirmed == true && mounted) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', false);
-      // Mantenemos datos mÃ©dicos en la BD; solo limpiamos sesiÃ³n activa
+      // Mantenemos datos médicos en la BD; solo limpiamos sesión activa
       await prefs.remove(AppKeys.userEmail);
       await prefs.remove(AppKeys.userId);
 
@@ -324,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _generateMedicalReport() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se encontrÃ³ usuario.'), backgroundColor: Colors.red),
+        SnackBar(content: Text('No se encontró usuario.'), backgroundColor: Colors.red),
       );
       return;
     }
@@ -487,13 +487,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'fecha_generacion': fechaHoy,
           'version': '1.0',
           'app': 'Bellota - Calendario Menstrual',
-          'tipo': 'Reporte de salud menstrual y clÃ­nico ginecolÃ³gico',
+          'tipo': 'Reporte de salud menstrual y clínico ginecológico',
           'uso': 'Seguimiento y apoyo para consulta profesional',
           'aviso': AppLocalizations.of(context)!.registrationFormReportDisclaimer,
         },
         'seccion_1_informacion_general': filterNulls({
           'paciente': _userName,
-          'edad': userAge.isNotEmpty ? '$userAge ${lang == 'en' ? 'years' : 'aÃ±os'}' : notSpec,
+          'edad': userAge.isNotEmpty ? '$userAge ${lang == 'en' ? 'years' : 'años'}' : notSpec,
           'ubicacion': userLocation.isNotEmpty ? userLocation : notSpec,
           'fecha_generacion': fechaHoy,
           'rango_analizado': lastPeriod != null ? '$rangoInicio al $rangoFin' : notSpec,
@@ -924,7 +924,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              _buildLanguageOption(ctx, 'es', 'EspaÃ±ol'),
+              _buildLanguageOption(ctx, 'es', 'Español'),
               const SizedBox(height: 12),
               _buildLanguageOption(ctx, 'en', 'English'),
               const SizedBox(height: 12),
@@ -985,7 +985,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               // â”€â”€ Banner Header Cozy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               _buildCozyProfileBanner(context, colors),
-              // â”€â”€ Secciones con divisores botÃ¡nicos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+              // â”€â”€ Secciones con divisores botánicos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -1015,7 +1015,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// Banner superior del perfil â€” secciÃ³n de avatar simplificada
+  /// Banner superior del perfil â€” sección de avatar simplificada
   Widget _buildCozyProfileBanner(BuildContext context, BellotaColors colors) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -1040,7 +1040,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionHeader('AdministraciÃ³n'),
+        _sectionHeader('Administración'),
         const SizedBox(height: 14),
         if (_currentUser!.isAdmin)
           CozyRowItem(
@@ -1056,7 +1056,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (_currentUser!.isAdmin) const SizedBox(height: 8),
         if (_currentUser!.isAdmin || _currentUser!.isAuditor)
           CozyRowItem(
-            title: 'Registro de AuditorÃ­a',
+            title: 'Registro de Auditoría',
             value: 'Ver logs',
             onTap: () {
               NavigationService.goTo(context, const AuditDashboardScreen());
@@ -1092,7 +1092,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bloqueo BiomÃ©trico',
+                      'Bloqueo Biométrico',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: colors.textoDark,
                         fontSize: 15,
@@ -1467,7 +1467,7 @@ class _CustomThumbShape extends SliderComponentShape {
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Painter para el borde discontinuo (dashed) del botÃ³n
+// Painter para el borde discontinuo (dashed) del botón
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _DashedBorderPainter extends CustomPainter {
   final Color color;
