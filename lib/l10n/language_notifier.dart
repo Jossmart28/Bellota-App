@@ -1,9 +1,17 @@
+import 'package:bellotadevelopment/core/errors/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../core/constants/app_keys.dart';
-import '../core/services/auth_service.dart';
-import '../database/database_helper.dart';
+import 'package:bellotadevelopment/core/constants/app_keys.dart';
+import 'package:bellotadevelopment/core/services/auth_service.dart';
+import 'package:bellotadevelopment/core/di/injection_container.dart';
+import 'package:bellotadevelopment/domain/repositories/auth_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/user_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/profile_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/audit_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/daily_log_repository.dart';
+import 'package:bellotadevelopment/data/datasources/database_provider.dart';
+
 
 class LanguageNotifier extends ValueNotifier<String> {
   static const supportedLocales = ['es', 'en', 'mi'];
@@ -22,10 +30,10 @@ class LanguageNotifier extends ValueNotifier<String> {
     try {
       final user = await AuthService.instance.currentSessionUser();
       if (user != null) {
-        await DatabaseHelper.instance.updateUserLanguage(user.id, lang);
+        await sl<UserRepository>().updateUserLanguage(user.id, lang);
       }
     } catch (e) {
-      debugPrint('Error syncing language to DB: $e');
+      AppLogger.d('Error syncing language to DB: $e');
     }
   }
 

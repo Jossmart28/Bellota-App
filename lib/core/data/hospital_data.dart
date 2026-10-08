@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import '../models/health_center_model.dart';
+import 'package:bellotadevelopment/core/models/health_center_model.dart';
 
 final List<HealthCenter> hospitalDataList = [
   HealthCenter(

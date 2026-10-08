@@ -1,5 +1,5 @@
-import '../models/health_center_model.dart';
-import 'hospital_data.dart';
+import 'package:bellotadevelopment/core/models/health_center_model.dart';
+import 'package:bellotadevelopment/core/data/hospital_data.dart';
 
 class HospitalRepository {
   static final HospitalRepository _instance = HospitalRepository._();

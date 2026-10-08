@@ -1,15 +1,17 @@
+import 'package:bellotadevelopment/core/di/injection_container.dart';
+import 'package:bellotadevelopment/core/errors/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:bellotadevelopment/l10n/app_localizations.dart';
-import 'l10n/miskito_fallback_delegate.dart';
+import 'package:bellotadevelopment/l10n/miskito_fallback_delegate.dart';
 
-import 'theme/bellota_theme.dart';
-import 'theme/theme_notifier.dart';
-import 'screens/splash_screen.dart';
-import 'screens/auth_screen.dart';
-import 'l10n/language_notifier.dart';
-import 'core/services/notification_service.dart';
+import 'package:bellotadevelopment/presentation/theme/bellota_theme.dart';
+import 'package:bellotadevelopment/presentation/theme/theme_notifier.dart';
+import 'package:bellotadevelopment/presentation/screens/auth/splash_screen.dart';
+import 'package:bellotadevelopment/presentation/screens/auth/auth_screen.dart';
+import 'package:bellotadevelopment/l10n/language_notifier.dart';
+import 'package:bellotadevelopment/core/services/notification_service.dart';
 
 void main() async {
   try {
@@ -21,6 +23,8 @@ void main() async {
     ]);
 
     // Ejecutar inicializaciones en paralelo para optimizar startup
+    await initDependencies();
+    
     await Future.wait([
       themeNotifier.load(),
       languageNotifier.load(),
@@ -47,7 +51,7 @@ void main() async {
     };
     runApp(const BellotaApp());
   } catch (e) {
-    debugPrint('Fatal error during startup: $e');
+    AppLogger.d('Fatal error during startup: $e');
   }
 }
 

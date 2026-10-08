@@ -1,10 +1,18 @@
+import 'package:bellotadevelopment/core/errors/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../constants/app_keys.dart';
-import '../models/user_model.dart';
-import '../models/user_role.dart';
-import '../../database/database_helper.dart';
+import 'package:bellotadevelopment/core/constants/app_keys.dart';
+import 'package:bellotadevelopment/core/models/user_model.dart';
+import 'package:bellotadevelopment/core/models/user_role.dart';
+import 'package:bellotadevelopment/core/di/injection_container.dart';
+import 'package:bellotadevelopment/domain/repositories/auth_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/user_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/profile_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/audit_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/daily_log_repository.dart';
+import 'package:bellotadevelopment/data/datasources/database_provider.dart';
+
 
 /// Servicio de autenticación de Bellota.
 ///
@@ -34,13 +42,13 @@ class AuthService {
   /// Retorna un [UserModel] con el rol incluido si las credenciales son
   /// correctas y la cuenta está activa, `null` en caso contrario.
   Future<UserModel?> login(String email, String password) async {
-    final map = await DatabaseHelper.instance.loginUser(
+    final map = await sl<AuthRepository>().loginUser(
       email.trim().toLowerCase(),
       password,
     );
     if (map == null) return null;
     
-    UserModel user = UserModel.fromMap(map);
+    UserModel user = map;
     
     return user;
   }
@@ -49,7 +57,7 @@ class AuthService {
 
   /// Verifica si un correo ya está en uso.
   Future<bool> emailExists(String email) =>
-      DatabaseHelper.instance.emailExists(email.trim().toLowerCase());
+      sl<AuthRepository>().emailExists(email.trim().toLowerCase());
 
   /// Registra un nuevo usuario y retorna su [UserModel].
   ///
@@ -68,7 +76,7 @@ class AuthService {
 
     await resetOnboardingFlags();
 
-    final userId = await DatabaseHelper.instance.registerUser(
+    final userId = await sl<AuthRepository>().registerUser(
       name.trim(),
       normalizedEmail,
       password,
@@ -197,7 +205,7 @@ class AuthService {
   }) async {
     try {
       final user = await currentSessionUser();
-      await DatabaseHelper.instance.insertAuditLog(
+      await sl<AuditRepository>().insertAuditLog(
         userId: user?.id,
         action: action,
         targetType: targetType,
@@ -229,10 +237,10 @@ class AuthService {
       final String name = googleUser.displayName ?? 'Usuario Google';
 
       // Verificar si ya existe una cuenta con este correo
-      final userMap = await DatabaseHelper.instance.getUserByEmail(email);
+      final userMap = await sl<AuthRepository>().getUserByEmail(email);
       if (userMap != null) {
         // Usuario existente → login directo
-        return UserModel.fromMap(userMap);
+        return userMap;
       } else {
         // Usuario nuevo → registrar en la BD.
         // El flujo de incorporación (Privacidad → Onboarding → Datos Personales)
@@ -240,7 +248,7 @@ class AuthService {
         // gracias a las banderas en SharedPreferences.
         await resetOnboardingFlags();
 
-        final userId = await DatabaseHelper.instance.registerUser(
+        final userId = await sl<AuthRepository>().registerUser(
           name,
           email,
           'google_oauth_no_password_required',
@@ -256,7 +264,7 @@ class AuthService {
         );
       }
     } catch (e) {
-      debugPrint('Error en signInWithGoogle: $e');
+      AppLogger.d('Error en signInWithGoogle: $e');
       return null;
     }
   }

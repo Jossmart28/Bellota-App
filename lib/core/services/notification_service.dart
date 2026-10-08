@@ -1,3 +1,4 @@
+import 'package:bellotadevelopment/core/errors/app_logger.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -7,9 +8,17 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-import '../../database/database_helper.dart';
-import '../models/notification_models.dart';
-import 'cycle_service.dart';
+import 'package:bellotadevelopment/database/database_helper.dart';
+import 'package:bellotadevelopment/core/models/notification_models.dart';
+import 'package:bellotadevelopment/core/services/cycle_service.dart';
+import 'package:bellotadevelopment/core/di/injection_container.dart';
+import 'package:bellotadevelopment/domain/repositories/auth_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/user_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/profile_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/audit_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/daily_log_repository.dart';
+import 'package:bellotadevelopment/data/datasources/database_provider.dart';
+
 
 /// IDs únicos para cada tipo de notificación.
 /// Píldoras: 100-149 (máximo 50 horarios)
@@ -168,31 +177,31 @@ class NotificationService {
   Future<void> scheduleAllNotifications(int userId) async {
     await _plugin.cancelAll();
 
-    final profile = await DatabaseHelper.instance.getProfile(userId);
+    final profile = await sl<ProfileRepository>().getProfile(userId);
     if (profile == null) return;
 
-    final notifApp = (profile['notif_app'] as int? ?? 1) == 1;
+    final notifApp = profile.notifApp;
     if (!notifApp) return;
 
-    final notifPeriodo = (profile['notif_periodo'] as int? ?? 1) == 1;
-    final notifOvulacion = (profile['notif_ovulacion'] as int? ?? 1) == 1;
-    final notifPildora = (profile['notif_pildora'] as int? ?? 0) == 1;
-    final notifCita = (profile['notif_cita_medica'] as int? ?? 0) == 1;
-    final notifLog = (profile['notif_daily_log'] as int? ?? 1) == 1;
-    final notifSonidos = (profile['notif_sonidos'] as int? ?? 1) == 1;
+    final notifPeriodo = profile.notifPeriodo;
+    final notifOvulacion = profile.notifOvulacion;
+    final notifPildora = profile.notifPildora;
+    final notifCita = profile.notifCitaMedica;
+    final notifLog = profile.notifApp;
+    final notifSonidos = profile.notifSonidos;
 
-    final cycleDuration = profile['cycle_duration'] as int? ?? 28;
-    final periodDuration = profile['period_duration'] as int? ?? 5;
+    final cycleDuration = profile.cycleDuration as int? ?? 28;
+    final periodDuration = profile.periodDuration as int? ?? 5;
 
     final lastPeriodStart =
-        await DatabaseHelper.instance.getLastPeriodStart(userId);
+        await sl<DailyLogRepository>().getLastPeriodStart(userId);
 
-    final allPeriodStarts = await DatabaseHelper.instance.getAllPeriodStartDates(userId);
+    final allPeriodStarts = await sl<DailyLogRepository>().getAllPeriodStartDates(userId);
     List<String> medicalConds = [];
-    if (profile['medical_conditions'] != null) {
+    if ((profile.medicalConditions?.isNotEmpty ?? false)) {
       try {
-        medicalConds = List<String>.from(jsonDecode(profile['medical_conditions'].toString()));
-      } catch (_) {}
+        medicalConds = profile.medicalConditions ?? [];
+      } catch (e) { AppLogger.w('Error ignorado', e); }
     }
 
     if (notifPeriodo && lastPeriodStart != null) {
@@ -218,7 +227,7 @@ class NotificationService {
     }
 
     if (notifPildora) {
-      final rawTimes = await DatabaseHelper.instance.getPillTimes(userId);
+      final rawTimes = await sl<DailyLogRepository>().getPillTimes(userId);
       final times = rawTimes
           .map((r) => PillTime(hour: r['hour'] as int, minute: r['minute'] as int))
           .toList();
@@ -232,7 +241,7 @@ class NotificationService {
     }
 
     if (notifCita) {
-      final rawAppts = await DatabaseHelper.instance.getWeeklyAppointments(userId);
+      final rawAppts = await sl<DailyLogRepository>().getWeeklyAppointments(userId);
       final appointments = rawAppts
           .map((r) => WeeklyAppointment(
                 weekday: r['weekday'] as int,
@@ -250,8 +259,8 @@ class NotificationService {
     }
 
     if (notifLog) {
-      final logHour = profile['notif_log_hour'] as int? ?? 21;
-      final logMinute = profile['notif_log_minute'] as int? ?? 0;
+      final logHour = (profile.toMap()['notif_log_hour'] as int? ?? 21);
+      final logMinute = (profile.toMap()['notif_log_minute'] as int? ?? 0);
       await _scheduleDailyLogReminder(
         hour: logHour,
         minute: logMinute,

@@ -1,4 +1,4 @@
-import '../models/user_role.dart';
+import 'package:bellotadevelopment/core/models/user_role.dart';
 
 /// Modelo tipado para los datos del usuario autenticado.
 ///

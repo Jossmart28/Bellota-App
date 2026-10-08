@@ -1,7 +1,15 @@
+import 'package:bellotadevelopment/core/errors/app_logger.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../database/database_helper.dart';
-import '../constants/app_keys.dart';
+import 'package:bellotadevelopment/core/constants/app_keys.dart';
+import 'package:bellotadevelopment/core/di/injection_container.dart';
+import 'package:bellotadevelopment/domain/repositories/auth_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/user_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/profile_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/audit_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/daily_log_repository.dart';
+import 'package:bellotadevelopment/data/datasources/database_provider.dart';
+
 
 class UserHealthData {
   final int userId;
@@ -35,24 +43,24 @@ class UserHealthProfileService {
     if (userId == null) {
       final email = prefs.getString(AppKeys.userEmail);
       if (email != null) {
-        userId = await DatabaseHelper.instance.getUserIdByEmail(email);
+        userId = await sl<AuthRepository>().getUserIdByEmail(email);
       }
     }
     
     if (userId == null) return null;
 
     // 1. Obtener perfil para condiciones médicas y anticonceptivo
-    final profile = await DatabaseHelper.instance.getProfile(userId);
+    final profile = await sl<ProfileRepository>().getProfile(userId);
     List<String> medicalConditions = [];
     String? contraceptive;
     
     if (profile != null) {
-      if (profile['medical_conditions'] != null) {
+      if (profile.medicalConditions != null) {
         try {
-          medicalConditions = List<String>.from(jsonDecode(profile['medical_conditions'].toString()));
-        } catch (_) {}
+          medicalConditions = profile.medicalConditions ?? [];
+        } catch (e) { AppLogger.w('Error ignorado', e); }
       }
-      contraceptive = profile['contraceptive'] as String?;
+      contraceptive = profile.toMap()['contraceptive'] as String?;
     }
 
     // 2. Obtener síntomas recientes (últimos 14 días)
@@ -62,34 +70,34 @@ class UserHealthProfileService {
     final startDate = '${twoWeeksAgo.year}-${twoWeeksAgo.month.toString().padLeft(2, '0')}-${twoWeeksAgo.day.toString().padLeft(2, '0')}';
     final endDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     
-    final recentLogs = await DatabaseHelper.instance.getLogsInRange(userId, startDate, endDate);
+    final recentLogs = await sl<DailyLogRepository>().getLogsInRange(userId, startDate, endDate);
     
     final Set<String> uniqueSymptoms = {};
     for (final log in recentLogs) {
       // Síntomas generales
-      if (log['symptoms'] != null) {
+      if (log.symptoms != null) {
         try {
-          final symps = List<String>.from(jsonDecode(log['symptoms'].toString()));
+          final symps = log.symptoms;
           uniqueSymptoms.addAll(symps);
-        } catch (_) {}
+        } catch (e) { AppLogger.w('Error ignorado', e); }
       }
       // Síntomas físicos
-      if (log['physical_symptoms'] != null) {
+      if (log.physicalSymptoms != null) {
         try {
-          final phys = List<String>.from(jsonDecode(log['physical_symptoms'].toString()));
+          final phys = log.physicalSymptoms ?? [];
           uniqueSymptoms.addAll(phys);
-        } catch (_) {}
+        } catch (e) { AppLogger.w('Error ignorado', e); }
       }
       // Síntomas emocionales
-      if (log['emotional_symptoms'] != null) {
+      if (log.emotionalSymptoms != null) {
         try {
-          final emo = List<String>.from(jsonDecode(log['emotional_symptoms'].toString()));
+          final emo = log.emotionalSymptoms ?? [];
           uniqueSymptoms.addAll(emo);
-        } catch (_) {}
+        } catch (e) { AppLogger.w('Error ignorado', e); }
       }
       // Anomalías mamarias
-      if (log['breast_exam'] != null) {
-        final exam = log['breast_exam'].toString();
+      if (log.breastExam != null) {
+        final exam = log.breastExam.toString();
         if (exam != 'breast_normal' && exam != 'breast_pending') {
           uniqueSymptoms.add(exam);
         }

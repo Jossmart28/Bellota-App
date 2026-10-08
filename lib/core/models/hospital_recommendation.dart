@@ -1,4 +1,4 @@
-import 'health_center_model.dart';
+import 'package:bellotadevelopment/core/models/health_center_model.dart';
 
 class HospitalRecommendation {
   final HealthCenter hospital;

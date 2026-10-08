@@ -29,6 +29,22 @@ class AppTranslations {
   }
 
   static const Map<String, Map<String, String>> _manualFallback = {
+    'light_flow': {'es': 'Flujo ligero', 'en': 'Light flow'},
+    'moderate_flow': {'es': 'Flujo moderado', 'en': 'Moderate flow'},
+    'heavy_flow': {'es': 'Flujo abundante', 'en': 'Heavy flow'},
+    'bright_red': {'es': 'Rojo brillante', 'en': 'Bright red'},
+    'dark_red': {'es': 'Rojo oscuro', 'en': 'Dark red'},
+    'brown': {'es': 'Marrón', 'en': 'Brown'},
+    'pink': {'es': 'Rosado', 'en': 'Pink'},
+    'never': {'es': 'Nunca', 'en': 'Never'},
+    'occasional': {'es': 'Ocasionales', 'en': 'Occasional'},
+    'frequent': {'es': 'Frecuentes', 'en': 'Frequent'},
+    'yes': {'es': 'Sí', 'en': 'Yes'},
+    'no': {'es': 'No', 'en': 'No'},
+    'thermal_remedies': {'es': 'Remedios térmicos', 'en': 'Thermal remedies'},
+    'medication': {'es': 'Medicamentos', 'en': 'Medication'},
+    'none': {'es': 'Ninguno', 'en': 'None'},
+
     'body_ache': {'es': 'Dolor corporal', 'en': 'Body ache'},
     'breast_lump': {'es': 'Bulto palpado', 'en': 'Breast lump'},
     'breast_skin_change': {'es': 'Cambio en piel', 'en': 'Skin change'},

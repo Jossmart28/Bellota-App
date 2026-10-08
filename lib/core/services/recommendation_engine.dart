@@ -1,8 +1,8 @@
 import 'package:latlong2/latlong.dart';
 import 'dart:math' as math;
-import '../models/health_center_model.dart';
-import '../models/hospital_recommendation.dart';
-import 'clinical_analysis_service.dart';
+import 'package:bellotadevelopment/core/models/health_center_model.dart';
+import 'package:bellotadevelopment/core/models/hospital_recommendation.dart';
+import 'package:bellotadevelopment/core/services/clinical_analysis_service.dart';
 
 class RecommendationEngine {
   /// Retorna una lista de hospitales recomendados ordenados por score.

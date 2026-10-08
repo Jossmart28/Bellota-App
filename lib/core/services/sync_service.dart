@@ -1,9 +1,18 @@
+import 'package:bellotadevelopment/core/errors/app_logger.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
-import '../../database/database_helper.dart';
+import 'package:bellotadevelopment/database/database_helper.dart';
+import 'package:bellotadevelopment/core/di/injection_container.dart';
+import 'package:bellotadevelopment/domain/repositories/auth_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/user_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/profile_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/audit_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/daily_log_repository.dart';
+import 'package:bellotadevelopment/data/datasources/database_provider.dart';
+
 
 class SyncService {
   SyncService._();
@@ -12,10 +21,10 @@ class SyncService {
   /// Exporta todos los datos del usuario a un archivo JSON y permite compartirlo
   Future<String?> exportAndShareBackup(int userId) async {
     try {
-      final db = await DatabaseHelper.instance.database;
+      final db = await sl<DatabaseProvider>().database;
       
       // Obtener perfil
-      final profile = await DatabaseHelper.instance.getProfile(userId);
+      final profile = await sl<ProfileRepository>().getProfile(userId);
       
       // Obtener todos los daily_logs
       final logs = await db.query(
@@ -45,7 +54,7 @@ class SyncService {
       
       return path; 
     } catch (e) {
-      print('Error exporting backup: $e');
+      AppLogger.e('Error exporting backup: $e');
       return null;
     }
   }
@@ -68,7 +77,7 @@ class SyncService {
           final profileData = backupData['profile'] as Map<String, dynamic>?;
           final logsData = backupData['daily_logs'] as List<dynamic>?;
 
-          final db = await DatabaseHelper.instance.database;
+          final db = await sl<DatabaseProvider>().database;
 
           await db.transaction((txn) async {
             if (profileData != null) {
@@ -109,7 +118,7 @@ class SyncService {
         }
       }
     } catch (e) {
-      print('Error importing backup: $e');
+      AppLogger.e('Error importing backup: $e');
     }
     return false;
   }

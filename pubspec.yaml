@@ -40,6 +40,8 @@ dependencies:
   flutter_staggered_animations: ^1.1.1
   local_auth: ^3.0.2
   table_calendar: ^3.3.0
+  get_it: ^9.3.0
+  logger: ^2.8.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

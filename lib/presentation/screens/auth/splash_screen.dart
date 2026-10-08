@@ -1,0 +1,220 @@
+import 'package:bellotadevelopment/core/errors/app_logger.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:bellotadevelopment/navigation/navigation_service.dart';
+import 'package:bellotadevelopment/presentation/theme/bellota_colors.dart';
+import 'package:bellotadevelopment/core/services/auth_service.dart';
+import 'package:bellotadevelopment/core/constants/app_keys.dart';
+import 'package:bellotadevelopment/core/di/injection_container.dart';
+import 'package:bellotadevelopment/domain/repositories/auth_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/user_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/profile_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/audit_repository.dart';
+import 'package:bellotadevelopment/domain/repositories/daily_log_repository.dart';
+import 'package:bellotadevelopment/data/datasources/database_provider.dart';
+
+
+/// Pantalla de inicio (Splash) de Bellota.
+///
+/// Muestra el logo animado mientras determina la pantalla de destino
+/// usando [NavigationService.resolveRootScreen], eliminando la lógica
+/// de redirección duplicada que existía en [LoginScreen].
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.7, curve: Curves.easeIn),
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.75, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.8, curve: Curves.easeOutBack),
+      ),
+    );
+
+    _controller.forward();
+    _scheduleNavigation();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+
+  /// Espera 3 segundos y navega a la pantalla correspondiente según el estado
+  /// de sesión e incorporación del usuario.
+  void _scheduleNavigation() {
+    Future.delayed(const Duration(seconds: 3), () async {
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      
+      final isLoggedIn = prefs.getBool(AppKeys.isLoggedIn) ?? false;
+      final setupCompleted = prefs.getBool(AppKeys.setupCompleted) ?? false;
+      
+      if (isLoggedIn && !setupCompleted) {
+        // Interrupted registration! Delete the user and log out.
+        final email = prefs.getString(AppKeys.userEmail);
+        if (email != null) {
+          try {
+            final uid = await sl<AuthRepository>().getUserIdByEmail(email);
+            if (uid != null) {
+              final db = await sl<DatabaseProvider>().database;
+              await db.delete('users', where: 'id = ?', whereArgs: [uid]);
+              await db.delete('profiles', where: 'user_id = ?', whereArgs: [uid]);
+            }
+          } catch (e) { AppLogger.w('Error ignorado', e); }
+        }
+        await AuthService.instance.clearSession();
+        await prefs.setBool('show_aborted_registration_msg', true);
+      }
+
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (_, _, _) =>
+              NavigationService.resolveRootScreen(prefs),
+          transitionsBuilder: (_, animation, _, child) =>
+              FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 600),
+        ),
+      );
+    });
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(gradient: Theme.of(context).bellotaColors.splashGradient),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              // Patrón de puntos decorativo
+              Positioned.fill(
+                child: CustomPaint(painter: _DotPatternPainter(Theme.of(context).bellotaColors.blanco)),
+              ),
+
+              // Logo animado centrado
+              Center(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40),
+                    child: Image(
+                      image: AssetImage('assets/images/logo_white.png'),
+                      width: 280,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Indicadores inferiores y versión
+              Positioned(
+                bottom: 48,
+                left: 0,
+                right: 0,
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, _) {
+                    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/images/showmas_logo.png',
+                            height: 60,
+                            fit: BoxFit.contain,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+}
+
+
+/// Patrón de puntos sutiles sobre el fondo degradado del splash.
+class _DotPatternPainter extends CustomPainter {
+  final Color dotColor;
+  const _DotPatternPainter(this.dotColor);
+
+  static const double _spacing = 28.0;
+  static const double _dotRadius = 2.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = dotColor.withValues(alpha: 0.06)
+      ..style = PaintingStyle.fill;
+
+    for (double x = 0; x < size.width + _spacing; x += _spacing) {
+      for (double y = 0; y < size.height + _spacing; y += _spacing) {
+        canvas.drawCircle(Offset(x, y), _dotRadius, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+
+

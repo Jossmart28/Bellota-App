@@ -1,172 +1,152 @@
-%% ═══════════════════════════════════════════════════════════════════════════════
-%% BELLOTA — Diagrama Entidad-Relación Completo (Frontend + Backend)
-%% Versión: 2.0.0
-%% Fecha:   Octubre 2026
-%% Motor Frontend: SQLite (sqflite) · bellota.db v6
-%% Motor Backend:  SQLite (SQLAlchemy) · backend.db
-%% ═══════════════════════════════════════════════════════════════════════════════
-
 erDiagram
-
-    %% ─────────────────────────────────────────────────────────────────────────────
-    %% FRONTEND — Base de datos local SQLite (bellota.db) — 6 tablas
-    %% ─────────────────────────────────────────────────────────────────────────────
-
-    USERS ||--|| PROFILES : "1:1 tiene perfil (CASCADE)"
-    USERS ||--o{ DAILY_LOGS : "1:N registra (CASCADE)"
-    USERS ||--o{ PILL_TIMES : "1:N configura (CASCADE)"
-    USERS ||--o{ WEEKLY_APPOINTMENTS : "1:N agenda (CASCADE)"
-    USERS ||--o{ AUDIT_LOGS : "1:N genera acciones (SET NULL)"
-
+    %% Capa Local (SQLite)
     USERS {
-        INTEGER id PK "AUTOINCREMENT"
-        TEXT name "NOT NULL"
-        TEXT email "NOT NULL UNIQUE"
-        TEXT password_hash "NOT NULL (salted SHA-256)"
-        TEXT role "DEFAULT 'usuario' — admin | usuario | auditor"
-        INTEGER is_active "DEFAULT 1 — Boolean"
-        TEXT language_pref "DEFAULT 'es' — es | en | mi"
-        TEXT created_at "ISO 8601"
+        int id PK
+        string name
+        string email UK
+        string password_hash
+        string role "admin|usuario|auditor"
+        int is_active "1 o 0"
+        string created_at
     }
 
     PROFILES {
-        INTEGER user_id PK_FK "→ users(id) ON DELETE CASCADE"
-        TEXT username "Nombre para mostrar"
-        TEXT gmail "Cuenta Google (Opcional)"
-        INTEGER cycle_duration "DEFAULT 28 días"
-        INTEGER period_duration "DEFAULT 5 días"
-        TEXT profile_image_path "Ruta local de imagen avatar"
-        TEXT medical_conditions "JSON array — SOP, Endometriosis, Hipotiroidismo"
-        TEXT contraceptive "Método anticonceptivo activo"
-        INTEGER notif_periodo "DEFAULT 1 — Notificar período"
-        INTEGER notif_ovulacion "DEFAULT 1 — Notificar ovulación"
-        INTEGER notif_pildora "DEFAULT 0 — Notificar píldora"
-        INTEGER notif_hidratacion "DEFAULT 0 — Notificar hidratación"
-        INTEGER notif_ejercicio "DEFAULT 0 — Notificar ejercicio"
-        INTEGER notif_app "DEFAULT 1 — Notificaciones generales"
-        INTEGER notif_sonidos "DEFAULT 1 — Sonidos de notificación"
-        INTEGER notif_cita_medica "DEFAULT 0 — Notificar citas médicas"
-        INTEGER notif_daily_log "DEFAULT 1 — Recordatorio registro diario"
-        INTEGER notif_log_hour "DEFAULT 21 — Hora del recordatorio"
-        INTEGER notif_log_minute "DEFAULT 0 — Minuto del recordatorio"
+        int user_id PK, FK
+        string username
+        string gmail
+        int cycle_duration
+        int period_duration
+        string profile_image_path
+        int notif_periodo
+        int notif_ovulacion
+        int notif_pildora
+        int notif_hidratacion
+        int notif_ejercicio
+        int notif_app
+        int notif_sonidos
+        int notif_cita_medica
+        int notif_daily_log
+        int notif_log_hour
+        int notif_log_minute
     }
 
     DAILY_LOGS {
-        INTEGER id PK "AUTOINCREMENT"
-        INTEGER user_id FK "→ users(id) ON DELETE CASCADE"
-        TEXT date "YYYY-MM-DD — UNIQUE con user_id"
-        INTEGER period_start "Boolean 1 o 0 — Inicio del período"
-        INTEGER period_end "Boolean 1 o 0 — Fin del período"
-        TEXT symptoms "JSON array — Síntomas generales"
-        TEXT sexo "JSON array — Datos vida sexual"
-        TEXT flujo "JSON array — Datos flujo vaginal"
-        TEXT bleeding_intensity "light | medium | heavy"
-        TEXT clots "Descripción de coágulos"
-        INTEGER spotting "Boolean 1 o 0 — Manchado"
-        TEXT spotting_days "Días de manchado"
-        TEXT sexual_symptoms "Síntomas sexuales"
-        REAL pain_level "Escala EVA 0.0 a 10.0"
-        TEXT pain_character "Tipo de dolor — cólico, punzante, etc"
-        TEXT pain_days "Días con dolor"
-        TEXT treatment "Tratamiento aplicado"
-        TEXT physical_symptoms "JSON array — Síntomas físicos"
-        TEXT emotional_symptoms "JSON array — Síntomas emocionales"
-        TEXT breast_exam "Resultado de autoexamen mamario"
-        TEXT notes "Notas libres de la usuaria"
-        REAL basal_temp "Temperatura basal corporal"
-        TEXT lh_test_result "Resultado test hormona LH"
-        TEXT cervical_position "Posición cervical"
-        TEXT mood "Estado de ánimo"
-        TEXT created_at "ISO 8601"
+        int id PK
+        int user_id FK
+        string date
+        int period_start
+        int period_end
+        string symptoms
+        string sexo
+        string flujo
+        string bleeding_intensity
+        string clots
+        int spotting
+        string spotting_days
+        string sexual_symptoms
+        float pain_level
+        string pain_character
+        string pain_days
+        string treatment
+        string physical_symptoms
+        string emotional_symptoms
+        string breast_exam
+        string notes
+        string created_at
+    }
+    
+    AUDIT_LOGS {
+        int id PK
+        int user_id FK
+        string action
+        string target_type
+        int target_id
+        string details
+        string ip_address
+        string created_at
     }
 
     PILL_TIMES {
-        INTEGER id PK "AUTOINCREMENT"
-        INTEGER user_id FK "→ users(id) ON DELETE CASCADE"
-        INTEGER hour "0-23 — Hora del recordatorio"
-        INTEGER minute "0-59 — Minuto del recordatorio"
+        int id PK
+        int user_id FK
+        int hour
+        int minute
     }
 
     WEEKLY_APPOINTMENTS {
-        INTEGER id PK "AUTOINCREMENT"
-        INTEGER user_id FK "→ users(id) ON DELETE CASCADE"
-        INTEGER weekday "1=Lunes a 7=Domingo"
-        INTEGER hour "Hora de la cita"
-        INTEGER minute "Minuto de la cita"
+        int id PK
+        int user_id FK
+        int weekday
+        int hour
+        int minute
     }
 
-    AUDIT_LOGS {
-        INTEGER id PK "AUTOINCREMENT"
-        INTEGER user_id FK "→ users(id) ON DELETE SET NULL"
-        TEXT action "NOT NULL — login, role_change, user_suspend, etc"
-        TEXT target_type "user | daily_log | profile"
-        INTEGER target_id "ID del recurso afectado"
-        TEXT details "JSON string con contexto adicional"
-        TEXT ip_address "Dirección IP (opcional)"
-        TEXT created_at "ISO 8601"
-    }
-
-    %% ─────────────────────────────────────────────────────────────────────────────
-    %% BACKEND — Base de datos del servidor SQLAlchemy (backend.db) — 5 tablas
-    %% ─────────────────────────────────────────────────────────────────────────────
-
-    BACKEND_USERS ||--|| BACKEND_USER_PROFILES : "1:1 tiene perfil (CASCADE)"
-    BACKEND_USERS ||--o{ BACKEND_AUDIT_LOGS : "1:N genera acciones (SET NULL)"
-    BACKEND_USER_PROFILES ||--o{ BACKEND_ADDITIONAL_MEDICATIONS : "1:N toma medicamentos"
-    BACKEND_USER_PROFILES ||--o{ BACKEND_DAILY_LOGS : "1:N registra datos"
-
+    %% Capa Backend (FastAPI)
     BACKEND_USERS {
-        INTEGER id PK "auto-generated"
-        STRING name "NOT NULL"
-        STRING email "NOT NULL UNIQUE INDEX"
-        STRING password_hash "bcrypt hash"
-        STRING role "DEFAULT 'usuario' — admin | usuario | auditor"
-        BOOLEAN is_active "DEFAULT true"
-        DATETIME created_at "auto func.now()"
+        int id PK
+        string name
+        string email UK
+        string password_hash
+        string role "admin|usuario|auditor"
+        bool is_active
+        datetime created_at
     }
 
     BACKEND_USER_PROFILES {
-        INTEGER id PK "auto-generated"
-        INTEGER user_id FK_UK "→ users(id) CASCADE — UNIQUE"
-        INTEGER menstrual_cycle_duration "DEFAULT 28"
-        INTEGER menstruation_duration "DEFAULT 5"
-        STRING collection_product "DEFAULT 'toalla_femenina'"
-        STRING contraceptive "nullable — Método anticonceptivo"
-        INTEGER age "nullable — Edad de la usuaria"
-        FLOAT weight "nullable — Peso corporal"
-        STRING weight_unit "DEFAULT 'kg' — kg | lb"
-        BOOLEAN breast_exam_reminder "DEFAULT false"
-        BOOLEAN privacy_policy_accepted "DEFAULT false"
-        DATETIME updated_at "auto func.now() — onupdate"
-    }
-
-    BACKEND_AUDIT_LOGS {
-        INTEGER id PK "auto-generated"
-        INTEGER user_id FK "→ users(id) SET NULL"
-        STRING action "NOT NULL INDEX — register, login, role_change, etc"
-        STRING target_type "nullable — user, profile, daily_log, medication"
-        INTEGER target_id "nullable — ID del recurso afectado"
-        TEXT details "nullable — JSON string con contexto"
-        STRING ip_address "nullable — Dirección IP del cliente"
-        DATETIME created_at "auto func.now()"
+        int id PK
+        int user_id FK
+        int menstrual_cycle_duration
+        int menstruation_duration
+        string collection_product
+        string contraceptive
+        int age
+        float weight
+        string weight_unit
+        bool breast_exam_reminder
+        bool privacy_policy_accepted
+        datetime updated_at
     }
 
     BACKEND_ADDITIONAL_MEDICATIONS {
-        INTEGER id PK "auto-generated"
-        INTEGER user_id FK "→ user_profiles(id)"
-        STRING name "INDEX — Nombre del medicamento"
-        STRING category "INDEX — Categoría farmacológica"
-        DATETIME updated_at "auto func.now() — onupdate"
+        int id PK
+        int user_id FK
+        string name
+        string category
+        datetime updated_at
     }
 
     BACKEND_DAILY_LOGS {
-        INTEGER id PK "auto-generated"
-        INTEGER user_id FK "→ user_profiles(id)"
-        STRING date "INDEX — YYYY-MM-DD"
-        BOOLEAN period_start "DEFAULT false — Inicio del período"
-        BOOLEAN period_end "DEFAULT false — Fin del período"
-        BOOLEAN sexual_intercourse "DEFAULT false — Actividad sexual"
-        STRING bleeding_intensity "nullable — light, medium, heavy"
-        STRING notes "nullable — Notas de la usuaria"
-        DATETIME updated_at "auto func.now() — onupdate"
+        int id PK
+        int user_id FK
+        string date
+        bool period_start
+        bool period_end
+        bool sexual_intercourse
+        string bleeding_intensity
+        string notes
+        datetime updated_at
     }
+    
+    BACKEND_AUDIT_LOGS {
+        int id PK
+        int user_id FK
+        string action
+        string target_type
+        int target_id
+        string details
+        string ip_address
+        datetime created_at
+    }
+
+    %% Relaciones Locales
+    USERS ||--|| PROFILES : "1:1 tiene perfil"
+    USERS ||--o{ DAILY_LOGS : "1:N registra"
+    USERS ||--o{ AUDIT_LOGS : "1:N genera acciones"
+    USERS ||--o{ PILL_TIMES : "1:N configura"
+    USERS ||--o{ WEEKLY_APPOINTMENTS : "1:N agenda"
+
+    %% Relaciones Backend
+    BACKEND_USERS ||--|| BACKEND_USER_PROFILES : "1:1 tiene perfil"
+    BACKEND_USERS ||--o{ BACKEND_AUDIT_LOGS : "1:N genera acciones"
+    BACKEND_USER_PROFILES ||--o{ BACKEND_ADDITIONAL_MEDICATIONS : "1:N toma"
+    BACKEND_USER_PROFILES ||--o{ BACKEND_DAILY_LOGS : "1:N registra"
