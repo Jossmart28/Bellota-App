@@ -67,40 +67,40 @@ class AppLocalizationsMi extends AppLocalizations {
   String get cyclePhasesLuteal => 'Lútea';
 
   @override
-  String get calendarJan => 'ene';
+  String get calendarJan => 'Siakwa kati';
 
   @override
-  String get calendarFeb => 'feb';
+  String get calendarFeb => 'Kuswa kati';
 
   @override
-  String get calendarMar => 'mar';
+  String get calendarMar => 'Kakamuk kati';
 
   @override
-  String get calendarApr => 'abr';
+  String get calendarApr => 'Lih wauhni kati';
 
   @override
-  String get calendarMay => 'may';
+  String get calendarMay => 'Lih mairin kati';
 
   @override
-  String get calendarJun => 'jun';
+  String get calendarJun => 'Li kati';
 
   @override
-  String get calendarJul => 'jul';
+  String get calendarJul => 'Pastara kati';
 
   @override
-  String get calendarAug => 'ago';
+  String get calendarAug => 'Sikla kati';
 
   @override
-  String get calendarSep => 'sep';
+  String get calendarSep => 'Wis kati';
 
   @override
-  String get calendarOct => 'oct';
+  String get calendarOct => 'Waupasa kati';
 
   @override
-  String get calendarNov => 'nov';
+  String get calendarNov => 'Yahbra kati';
 
   @override
-  String get calendarDec => 'dic';
+  String get calendarDec => 'Krismis kati';
 
   @override
   String get calendarSun => 'dom';
@@ -148,37 +148,38 @@ class AppLocalizationsMi extends AppLocalizations {
   String get calendarViewsBackToYear => 'Volver al Año';
 
   @override
-  String get symptomsAndActionsLogSymptoms => 'Registrar síntomas';
+  String get symptomsAndActionsLogSymptoms => 'Naiwa ulbanka';
 
   @override
-  String get symptomsAndActionsLoggedSymptoms => 'Síntomas Registrados';
+  String get symptomsAndActionsLoggedSymptoms => 'Ulbi mangkan kan nani';
 
   @override
   String get symptomsAndActionsNoEntriesDay =>
-      'No hay registros para este día. Presiona el botón para agregar.';
+      'Naiwa ulbanka pain ba. Witin ba ulbi mangkaia butunka ba tilara tama.';
 
   @override
-  String get symptomsAndActionsNoSymptomsLogged => 'Ningún síntoma registrado.';
+  String get symptomsAndActionsNoSymptomsLogged =>
+      'Trabilka nani ulbi mangkan pain ba.';
 
   @override
-  String get symptomsAndActionsPeriodStart => 'Inicio del periodo';
+  String get symptomsAndActionsPeriodStart => 'Kati iwaia takwakanka';
 
   @override
-  String get symptomsAndActionsLastPeriodStart => 'Inicio del último período';
+  String get symptomsAndActionsLastPeriodStart => 'Bui kati iwaia takwakanka';
 
   @override
-  String get symptomsAndActionsExpectedSymptoms => 'Síntomas esperados';
+  String get symptomsAndActionsExpectedSymptoms => 'Trabilka nani sip takaia';
 
   @override
-  String get symptomsAndActionsNextPeriodWillBe => 'Tu próximo periodo será...';
+  String get symptomsAndActionsNextPeriodWillBe => 'Kaunwan katim ba...';
 
   @override
   String get symptomsAndActionsBasedOnLastCycles =>
-      'Basado en tus últimos ciclos.';
+      'Yawan bui kati nani ra mina munan.';
 
   @override
   String get symptomsAndActionsRecentPeriodError =>
-      'Ya existe un inicio de periodo reciente. Elimina el registro anterior para agregar este.';
+      'Pat katka iwanka kum takwakansa';
 
   @override
   String get symptomsCramps => 'Cólicos';
@@ -216,13 +217,13 @@ class AppLocalizationsMi extends AppLocalizations {
       'Toca el día en que comenzó tu último período';
 
   @override
-  String get onboardingConfirm => 'Confirmar';
+  String get onboardingConfirm => 'Kainara waia';
 
   @override
   String get onboardingCalendarIsBelow => 'El calendario está debajo';
 
   @override
-  String get onboardingGotItLetsGo => 'Entendido, ¡vamos!';
+  String get onboardingGotItLetsGo => 'Kainara waia';
 
   @override
   String get informationStressQuestion => '¿Cómo afecta el estrés tu ciclo?';
@@ -232,68 +233,69 @@ class AppLocalizationsMi extends AppLocalizations {
       'El estrés crónico puede alterar tus niveles hormonales, provocando retrasos en tu periodo o cambios en la ovulación.';
 
   @override
-  String get registrationFormCancel => 'Cancelar';
+  String get registrationFormCancel => 'Dakbaia';
 
   @override
-  String get registrationFormSymptoms => 'Síntomas';
+  String get registrationFormSymptoms => 'Trabilka nani';
 
   @override
-  String get registrationFormWholeBody => 'Todo el cuerpo';
+  String get registrationFormWholeBody => 'Wina aiska';
 
   @override
-  String get registrationFormFever => 'Fiebre';
+  String get registrationFormFever => 'Rihka';
 
   @override
-  String get registrationFormBodyAche => 'Dolor de cuerpo';
+  String get registrationFormBodyAche => 'Wina aiska latwanka';
 
   @override
-  String get registrationFormGeneralDistension => 'Distensión general';
+  String get registrationFormGeneralDistension => 'Wina aiska puskanka';
 
   @override
-  String get registrationFormHead => 'Cabeza';
+  String get registrationFormHead => 'Lal';
 
   @override
-  String get registrationFormHeadache => 'Dolor de cabeza';
+  String get registrationFormHeadache => 'Lal klahwan';
 
   @override
-  String get registrationFormVertigo => 'Vértigo';
+  String get registrationFormVertigo => 'Bla daukanka';
 
   @override
-  String get registrationFormInsomnia => 'Insomnio';
+  String get registrationFormInsomnia => 'Sip yapras';
 
   @override
-  String get registrationFormVomiting => 'Vómitos';
+  String get registrationFormVomiting => 'Aikaban';
 
   @override
-  String get registrationFormAcne => 'Acné';
+  String get registrationFormAcne => 'Umala';
 
   @override
-  String get registrationFormAbdomen => 'Abdomen';
+  String get registrationFormAbdomen => 'Biara';
 
   @override
-  String get registrationFormAbdominalPain => 'Dolor abdominal';
+  String get registrationFormAbdominalPain => 'Biara klahwanka';
 
   @override
   String get registrationFormAbdominalDistension =>
-      'Distensión abdominal y vientre hinchado';
+      'Biara puskan baku sin plauya puskan';
 
   @override
-  String get registrationFormDiarrhea => 'Diarrea';
+  String get registrationFormDiarrhea => 'Biara sakan';
 
   @override
-  String get registrationFormConstipation => 'Estreñimiento';
+  String get registrationFormConstipation => 'Kanka karna takan trabilka';
 
   @override
-  String get registrationFormOther => 'Otro';
+  String get registrationFormOther => 'Wala';
 
   @override
-  String get registrationFormBreastTenderness => 'Sensibilidad en los senos';
+  String get registrationFormBreastTenderness => 'Tialka trabilka';
 
   @override
-  String get registrationFormAbnormalDischarge => 'Secreción vaginal anormal';
+  String get registrationFormAbnormalDischarge =>
+      'Mairin wina wina laya takanka';
 
   @override
-  String get registrationFormSpotting => 'Manchado menstrual';
+  String get registrationFormSpotting => 'Talia baiwanka';
 
   @override
   String get registrationFormPersonalization => 'Personalización';
@@ -306,7 +308,7 @@ class AppLocalizationsMi extends AppLocalizations {
       'Pulse la tecla Enter para finalizar la edición';
 
   @override
-  String get registrationFormVaginalFlow => 'Flujo vaginal';
+  String get registrationFormVaginalFlow => 'Mairin wina wina laya takanka';
 
   @override
   String get registrationFormDry => 'Seco';
@@ -324,7 +326,7 @@ class AppLocalizationsMi extends AppLocalizations {
   String get registrationFormEggWhite => 'Clara de huevo';
 
   @override
-  String get registrationFormSex => 'Sexo';
+  String get registrationFormSex => 'Mairin ar waitna sapa';
 
   @override
   String get registrationFormNoContraception => 'Sin anticoncepción';
@@ -339,7 +341,7 @@ class AppLocalizationsMi extends AppLocalizations {
   String get registrationFormShortPill => 'Píldora de corta duración';
 
   @override
-  String get registrationFormBleedingPattern => 'Patrón de Sangrado';
+  String get registrationFormBleedingPattern => 'Nahki pit talia plapi ba';
 
   @override
   String get registrationFormFlowIntensity => 'Intensidad del flujo';
@@ -394,7 +396,8 @@ class AppLocalizationsMi extends AppLocalizations {
   String get registrationFormNone => 'Ninguno';
 
   @override
-  String get registrationFormPainAndSymptoms => 'Dolor y Sintomatología';
+  String get registrationFormPainAndSymptoms =>
+      'Latwan bara trabilka wala nani';
 
   @override
   String get registrationFormPainLevel => 'Nivel de dolor';
@@ -439,10 +442,10 @@ class AppLocalizationsMi extends AppLocalizations {
   String get registrationFormEmotionalSymptoms => 'Síntomas emocionales';
 
   @override
-  String get registrationFormAnxiety => 'Ansiedad';
+  String get registrationFormAnxiety => 'Sin sin daukan';
 
   @override
-  String get registrationFormExtremeFatigue => 'Fatiga extrema';
+  String get registrationFormExtremeFatigue => 'Sip ai prui kaka';
 
   @override
   String get registrationFormPmddSuspicion => 'Sospecha de TDPM';
@@ -457,71 +460,72 @@ class AppLocalizationsMi extends AppLocalizations {
   String get registrationFormPending => 'Pendiente';
 
   @override
-  String get registrationFormPeriodStarts => 'Inicia el período';
+  String get registrationFormPeriodStarts => 'Kati iwaia takwakanka';
 
   @override
-  String get registrationFormSaved => 'Registrado ✓';
+  String get registrationFormSaved => 'Pat ulbi mangkan';
 
   @override
-  String get registrationFormSaveLog => 'Guardar registro';
+  String get registrationFormSaveLog => 'Ulbi mangkan kan sunaia';
 
   @override
-  String get registrationFormLowerBackPain => 'Dolor lumbar';
+  String get registrationFormLowerBackPain => 'Nina dusa latwan ka';
 
   @override
-  String get registrationFormLegCramps => 'Calambres en piernas';
+  String get registrationFormLegCramps => 'Kuhma ra sula wakia aubanka';
 
   @override
-  String get registrationFormAppetiteChanges => 'Cambios de apetito';
+  String get registrationFormAppetiteChanges =>
+      'Plun piaia natka chins takanka';
 
   @override
-  String get registrationFormCravings => 'Antojos';
+  String get registrationFormCravings => 'Diara pin dauki nani ba';
 
   @override
-  String get registrationFormWaterRetention => 'Retención de líquidos';
+  String get registrationFormWaterRetention => 'Wina ra li alki takaskanka';
 
   @override
-  String get registrationFormNightSweats => 'Sudoración nocturna';
+  String get registrationFormNightSweats => 'Tihmia ra laptika takanka';
 
   @override
-  String get registrationFormPalpitations => 'Palpitaciones';
+  String get registrationFormPalpitations => 'Kupia isti prukanka';
 
   @override
-  String get registrationFormDizziness => 'Mareos';
+  String get registrationFormDizziness => 'Bladaukanka';
 
   @override
-  String get registrationFormHotFlashes => 'Sofocos';
+  String get registrationFormHotFlashes => 'Winka prakaia munanka';
 
   @override
-  String get registrationFormJointPain => 'Dolor articular';
+  String get registrationFormJointPain => 'Dusa wilkanka nani latwanka';
 
   @override
-  String get registrationFormBloating => 'Hinchazón';
+  String get registrationFormBloating => 'Puskan';
 
   @override
-  String get registrationFormNausea => 'Náuseas';
+  String get registrationFormNausea => 'Aikabanka';
 
   @override
-  String get registrationFormPelvicPain => 'Dolor pélvico';
+  String get registrationFormPelvicPain => 'Maisa tani latwanka';
 
   @override
-  String get registrationFormIrritability => 'Irritabilidad';
+  String get registrationFormIrritability => 'Alki prukan';
 
   @override
-  String get registrationFormSadness => 'Tristeza';
+  String get registrationFormSadness => 'Sinska wiliwi';
 
   @override
-  String get registrationFormCryingEasily => 'Llanto fácil';
+  String get registrationFormCryingEasily => 'Wih wihwia';
 
   @override
-  String get registrationFormConcentrationDifficulty =>
-      'Dificultad para concentrarse';
+  String get registrationFormConcentrationDifficulty => 'Lukanka kakaira';
 
   @override
-  String get registrationFormLowSelfEsteem => 'Baja autoestima';
+  String get registrationFormLowSelfEsteem =>
+      'Uplika dukiara yamni kaikanka pain';
 
   @override
-  String get registrationFormMoodSwings => 'Cambios de humor';
+  String get registrationFormMoodSwings => 'Sinska chins takanka';
 
   @override
   String get registrationFormBloodColor => 'Color del sangrado';
@@ -606,25 +610,25 @@ class AppLocalizationsMi extends AppLocalizations {
   String get registrationFormFertilityLow => 'Baja fertilidad';
 
   @override
-  String get registrationFormNotes => 'Notas personales';
+  String get registrationFormNotes => 'Uplika dukiara ulbanka nani';
 
   @override
-  String get registrationFormNotesHint => 'Escribe observaciones del día...';
+  String get registrationFormNotesHint => 'Naiwa diara mai takan nani ba uls';
 
   @override
-  String get registrationFormComplete => 'Completo';
+  String get registrationFormComplete => 'Sut aslika';
 
   @override
-  String get registrationFormPartial => 'Parcial';
+  String get registrationFormPartial => 'Piska kum baman';
 
   @override
-  String get registrationFormLogProgress => 'Progreso del registro';
+  String get registrationFormLogProgress => 'Ulbi mangkan ka kainara';
 
   @override
-  String get registrationFormSelectedCount => 'seleccionados';
+  String get registrationFormSelectedCount => 'alkiwan nani';
 
   @override
-  String get registrationFormAddSymptom => 'Agregar';
+  String get registrationFormAddSymptom => 'Tanka';
 
   @override
   String get registrationFormTotalCycles => 'Total de ciclos registrados';
@@ -729,13 +733,13 @@ class AppLocalizationsMi extends AppLocalizations {
   String get registrationFormNoPainLogged => 'Sin registro de dolor';
 
   @override
-  String get registrationFormEmotional => 'Emocional';
+  String get registrationFormEmotional => 'Sinska darawalanka';
 
   @override
-  String get registrationFormDigestive => 'Digestivo';
+  String get registrationFormDigestive => 'Klunghka tanira';
 
   @override
-  String get registrationFormConfirm => 'Confirmar';
+  String get registrationFormConfirm => 'Kainara waia';
 
   @override
   String get profileAndReportHealthProfile => 'Perfil de salud';
@@ -900,40 +904,43 @@ class AppLocalizationsMi extends AppLocalizations {
   String get onboardingAndAuthSlogan => 'Tu acompañante de salud menstrual';
 
   @override
-  String get onboardingAndAuthSkip => 'Saltar';
+  String get onboardingAndAuthSkip => 'Swih luwaia';
 
   @override
-  String get onboardingAndAuthContinue => 'Continuar';
+  String get onboardingAndAuthContinue => 'Kainam kat waia';
 
   @override
-  String get onboardingAndAuthStart => 'Comenzar';
+  String get onboardingAndAuthStart => 'Ta kwakaia';
 
   @override
-  String get onboardingAndAuthSlide1Title => 'Conoce tu ciclo';
+  String get onboardingAndAuthSlide1Title =>
+      'Katkam kaikaia awarka ba kakaira taks';
 
   @override
   String get onboardingAndAuthSlide1Sub =>
-      'Registra cada día y descubre\nlos patrones que tu cuerpo te comunica.';
+      'Yu bani uls bara winam dia mai aisaia want\nba kakaira takma';
 
   @override
-  String get onboardingAndAuthSlide2Title => 'Registra cómo te sientes';
+  String get onboardingAndAuthSlide2Title =>
+      'Nahki damra walisna ba ulbi mangks';
 
   @override
   String get onboardingAndAuthSlide2Sub =>
-      'Síntomas, flujo, humor y más —\ntodo en un solo lugar, cada día.';
+      'Sikniska trabilka nani, wina laya, kiya baku wala\nnani kau — sut plis kumira pyu banira';
 
   @override
-  String get onboardingAndAuthSlide3Title => 'Predicciones inteligentes';
+  String get onboardingAndAuthSlide3Title =>
+      'Sins laka wal kaina wina nu takanka';
 
   @override
   String get onboardingAndAuthSlide3Sub =>
-      'Bellota aprende de tu historial\ny te avisa cuándo esperar tu próximo período.';
+      'Bellota man winam warktakanka wina lan takisa\nbaku maisampakisa ahkia katkam bal iwaisa sapa';
 
   @override
-  String get onboardingAndAuthLoginTitle => 'Iniciar Sesión';
+  String get onboardingAndAuthLoginTitle => 'Wark takwakaia';
 
   @override
-  String get onboardingAndAuthWelcomeBack => 'Bienvenida de vuelta 🌸';
+  String get onboardingAndAuthWelcomeBack => 'Kli yamni balram 🌸';
 
   @override
   String get onboardingAndAuthEmailLabel => 'Correo electrónico';
@@ -945,137 +952,150 @@ class AppLocalizationsMi extends AppLocalizations {
   String get onboardingAndAuthPasswordLabel => 'Contraseña';
 
   @override
-  String get onboardingAndAuthForgotPass => '¿Olvidaste tu contraseña?';
+  String get onboardingAndAuthForgotPass => 'Contraseña kam amia tiwan?';
 
   @override
-  String get onboardingAndAuthEnter => 'Ingresar';
+  String get onboardingAndAuthEnter => 'Dimaia';
 
   @override
-  String get onboardingAndAuthOrContinueWith => 'o continúa con';
+  String get onboardingAndAuthOrContinueWith => 'apia kaka kainara waia';
 
   @override
-  String get onboardingAndAuthContinueGoogle => 'Continuar con Google';
+  String get onboardingAndAuthContinueGoogle => 'kainara waia Google wal';
 
   @override
-  String get onboardingAndAuthNoAccount => '¿No tienes cuenta? ';
+  String get onboardingAndAuthNoAccount => 'Cuenta apu sma? ';
 
   @override
-  String get onboardingAndAuthRegisterNow => 'Regístrate';
+  String get onboardingAndAuthRegisterNow => 'Ninam mangks';
 
   @override
-  String get onboardingAndAuthCreateAccount => 'Crear Cuenta';
+  String get onboardingAndAuthCreateAccount => 'Cuenta kwakaia';
 
   @override
-  String get onboardingAndAuthJoinBellota => 'Únete a Bellota 🌸';
+  String get onboardingAndAuthJoinBellota => 'Bellota tilara dims 🌸';
 
   @override
-  String get onboardingAndAuthNameLabel => 'Nombre';
+  String get onboardingAndAuthNameLabel => 'Nina';
 
   @override
-  String get onboardingAndAuthNameHint => 'Tu nombre o apodo';
+  String get onboardingAndAuthNameHint => 'Ninam ar puli ninam';
 
   @override
-  String get onboardingAndAuthConfirmPass => 'Confirmar Contraseña';
+  String get onboardingAndAuthConfirmPass => 'Contraseña laki pain kaiks';
 
   @override
-  String get onboardingAndAuthRegisterBtn => 'Registrarse';
+  String get onboardingAndAuthRegisterBtn => 'Ulbi mangks';
 
   @override
-  String get onboardingAndAuthInvalidEmail => 'Correo no válido';
+  String get onboardingAndAuthInvalidEmail => 'Correo ka kasak apia';
 
   @override
-  String get onboardingAndAuthEnterEmail => 'Ingresa tu correo';
+  String get onboardingAndAuthEnterEmail => 'Correo kam dingks';
 
   @override
-  String get onboardingAndAuthEnterPass => 'Ingresa tu contraseña';
+  String get onboardingAndAuthEnterPass => 'Contraseña mangks';
 
   @override
-  String get onboardingAndAuthMin6Chars => 'Mínimo 6 caracteres';
+  String get onboardingAndAuthMin6Chars => '6 ulbanka nani kaia sa';
 
   @override
-  String get onboardingAndAuthEnterName => 'Ingresa tu nombre';
+  String get onboardingAndAuthEnterName => 'Ninam mangks';
 
   @override
-  String get onboardingAndAuthConfirmPassReq => 'Confirma tu contraseña';
+  String get onboardingAndAuthConfirmPassReq => 'Constrañera kli mangks';
 
   @override
-  String get onboardingAndAuthPassNoMatch => 'Las contraseñas no coinciden';
+  String get onboardingAndAuthPassNoMatch => 'Contraseña kam pain apia';
 
   @override
-  String get onboardingAndAuthPersonalData => 'Datos Personales';
+  String get onboardingAndAuthInvalidCredentials =>
+      'Adar ka nani ba kasak apia';
 
   @override
-  String get onboardingAndAuthTellUs => 'Cuéntanos sobre ti';
+  String get onboardingAndAuthLoginError => 'Sip takwakras';
 
   @override
-  String get onboardingAndAuthOnlyOnce => 'Solo lo hacemos una vez 🌸';
+  String get onboardingAndAuthGoogleLoginError => 'Google ra sip takwakras';
 
   @override
-  String get onboardingAndAuthYourCycle => 'Tu Ciclo Menstrual';
+  String get onboardingAndAuthPersonalData => 'Uplika srtuka nani';
 
   @override
-  String get onboardingAndAuthDepartment => 'Departamento';
+  String get onboardingAndAuthTellUs => 'Man dukiam ra ai wis';
+
+  @override
+  String get onboardingAndAuthOnlyOnce => 'Yawan pyu kumi baman daukisa';
+
+  @override
+  String get onboardingAndAuthYourCycle => 'Katkam lahwanka';
+
+  @override
+  String get onboardingAndAuthDepartment => 'Tasbaia tara baikisakanka';
 
   @override
   String get onboardingAndAuthMunicipality => 'Municipio';
 
   @override
-  String get onboardingAndAuthCycleDuration => 'Duración del ciclo';
+  String get onboardingAndAuthCycleDuration =>
+      'Mairin katkam lahwan ka aslika ba';
 
   @override
-  String get onboardingAndAuthPeriodDuration => 'Duración de la menstruación';
+  String get onboardingAndAuthPeriodDuration =>
+      'Nahki pit mairin katka wihka brih wi ba';
 
   @override
-  String get onboardingAndAuthAge => 'Edad';
+  String get onboardingAndAuthAge => 'Man ka';
 
   @override
-  String get onboardingAndAuthAgeHint => 'Ej. 25 años';
+  String get onboardingAndAuthAgeHint => 'Sampla, 25 mani.';
 
   @override
-  String get onboardingAndAuthInvalidNumber => 'Introduce un número válido';
+  String get onboardingAndAuthInvalidNumber => 'Numbika rait ba dingks';
 
   @override
-  String get onboardingAndAuthLocationSelected => 'Ubicación seleccionada';
+  String get onboardingAndAuthLocationSelected => 'Ani pliska ba winasba ba';
 
   @override
-  String get onboardingAndAuthSelectOnMap => 'Seleccionar en el mapa';
+  String get onboardingAndAuthSelectOnMap => 'Map ka wahbaia';
 
   @override
-  String get onboardingAndAuthTapToOpenMap => 'Toca para abrir el mapa';
+  String get onboardingAndAuthTapToOpenMap => 'Map ka kwakaia';
 
   @override
-  String get onboardingAndAuthLocation => 'Ubicación';
+  String get onboardingAndAuthLocation => 'Pliska';
 
   @override
-  String get onboardingAndAuthHealthCenterFilter =>
-      'Filtro para Centros de Salud';
+  String get onboardingAndAuthHealthCenterFilter => 'Klinik watla plikaia';
 
   @override
-  String get onboardingAndAuthMedications => 'Anticonceptivos / Medicamentos';
+  String get onboardingAndAuthMedications =>
+      'Kwihra takaia apia pilks/ pils nani';
 
   @override
-  String get onboardingAndAuthMedNone => 'Ninguno';
+  String get onboardingAndAuthMedNone => 'Kumi sin apia';
 
   @override
   String get onboardingAndAuthMedIud => 'DIU';
 
   @override
-  String get onboardingAndAuthMedPills => 'Pastillas';
+  String get onboardingAndAuthMedPills => 'Pils nani';
 
   @override
-  String get onboardingAndAuthMedAnticonvulsants => 'Anticonvulsivos';
+  String get onboardingAndAuthMedAnticonvulsants =>
+      'Bila ukata taki siknis ka mapara';
 
   @override
-  String get onboardingAndAuthMedAnticoagulants => 'Anticoagulantes';
+  String get onboardingAndAuthMedAnticoagulants => 'Talaskatwan mapara';
 
   @override
-  String get onboardingAndAuthCycle => 'Ciclo';
+  String get onboardingAndAuthCycle => 'Aslika';
 
   @override
-  String get onboardingAndAuthMenstruation => 'Menstruación';
+  String get onboardingAndAuthMenstruation => 'Mairin katka lahwan ka';
 
   @override
-  String get onboardingAndAuthFinishRegistration => 'Finalizar Registro';
+  String get onboardingAndAuthFinishRegistration => 'Ninamangkan ba danh muaia';
 
   @override
   String get registrationFormStabbing => 'Punzante';
@@ -1147,7 +1167,8 @@ class AppLocalizationsMi extends AppLocalizations {
   String get hospitalHubViewMap => 'Ver en mapa';
 
   @override
-  String get privacyPolicyTitle => 'Política de Privacidad';
+  String get privacyPolicyTitle =>
+      'Upla sturka kulkanka yabaia palitik ka dukiara lâ numba 787, Upla sturka kankahbaia lâ ka baku sin lâ 621, Pablik sturka nani yus munaia lâ ba dukiara.';
 
   @override
   String get privacyPolicyLastUpdated =>
@@ -1155,81 +1176,84 @@ class AppLocalizationsMi extends AppLocalizations {
 
   @override
   String get privacyPolicyIntro =>
-      'En Bellota, nos tomamos muy en serio tu privacidad. Esta política explica de manera clara y directa cómo manejamos la información que recopilamos cuando usas nuestra aplicación. Nos regimos bajo el principio de minimización de datos: solo solicitamos la información estrictamente necesaria para que la aplicación funcione y te brinde un servicio seguro y personalizado.';
+      'Bellota ra, man sturkam ba kulkanka tara yabisa. Naha palitikka na klir bara kasak aisisa nahki ra man sturkan yus munaiba ani pyua ra man wan aplicación ka yus munisma pyua ra. Yawan wark takisa lâ numba 787, Upla sturka kulkanka yabaia lâ ka bapanka ba wal, baku dia sturkam nani mai makabia ba yamni lakara, natka kat baku sin wark daukaia lukanka nit ka ba wal. Baku sin, man rait kam nani ba rispik ka yabisa nu kama dia muni baku sin dia muni man sturkam nani nit ba lâ 621, Pablik sturka nani yus munaia lâ ka ba dukiara mina munhtara.';
 
   @override
-  String get privacyPolicySec1 => '1. Datos que Recopilamos y Finalidad';
+  String get privacyPolicySec1 =>
+      'Sturi nani wahbi ba bara dia muni daukiba tanka';
 
   @override
-  String get privacyPolicyEmailTitle => 'Correo Electrónico';
+  String get privacyPolicyEmailTitle => 'Correo electronico';
 
   @override
   String get privacyPolicyEmailBody =>
-      'Solicitamos tu dirección de correo exclusivamente para la creación y gestión de tu cuenta, autenticación de seguridad y recuperación de acceso. No compartimos ni vendemos tu correo a terceros para fines publicitarios.';
+      'correo kam makabisa cuenta kam paskaia dukiara baman, kainakahbaia rait bri kaia dukiara baku sin kli dimaia want sa kaka dukiara. Upla wala wal sir munras baku sin atkras corre kam ba diara wala daukaia dukiara.';
 
   @override
-  String get privacyPolicyLocationTitle => 'Datos de Ubicación Precisa (GPS)';
+  String get privacyPolicyLocationTitle => 'Ani pliska ra sma ba (GPS)';
 
   @override
   String get privacyPolicyLocationBody =>
-      'Solicitamos acceso a la ubicación de tu dispositivo únicamente para identificar y mostrarte en un mapa interactivo las clínicas, farmacias y centros de salud más cercanos a ti.';
+      'anirasma pliska sturka ba makabisa kan baku sip kabia kaikaia bara marikaia map kum ra klinik nani, sîka atki pliska nani baku sin wan wîna yamnika dukiara watla nani.';
 
   @override
-  String get privacyPolicyLocationUseTitle => 'Uso de la ubicación';
+  String get privacyPolicyLocationUseTitle =>
+      'Anirasma pliska sturka nahkira yus muniba';
 
   @override
   String get privacyPolicyLocationUseBody =>
-      'La ubicación se procesa únicamente mientras usas esta función específica en la aplicación. No rastreamos tu ubicación en segundo plano ni guardamos un historial de tus desplazamientos.';
+      'man pliskam anirasma ba sturka yus munisa ani pyuara aplicación ka na yus munisma pyuara. Baha yus muni luma ninkara man ninam blikras anirasma sapa baku sin plis kum wina wala ra wisma sturka ba sin suni briras sa.';
 
   @override
-  String get privacyPolicySec2 => '2. Datos de Salud y Ciclo Menstrual';
+  String get privacyPolicySec2 =>
+      'Wîna târa sturka bara mairin katka iwan sturka aislika';
 
   @override
   String get privacyPolicyHealthBody =>
-      '• Los datos sobre tu ciclo menstrual, síntomas o fechas registradas en la aplicación se procesan exclusivamente para brindarte las estimaciones del calendario.\n• Priorizamos la privacidad de tus datos de salud: la información de tu ciclo se almacena localmente en tu dispositivo o de forma cifrada y segura, garantizando que nadie fuera de la aplicación (incluyendo terceros) pueda acceder a tus registros médicos o personales.';
+      'Mairin katka iwan sturka, siknis trabil ka nani ani pyua ra mangkram nani ba sika man man winam tara bara man rayakam sturka dukiara aisisa, baha mihta kulkan sa “upla sturka baksakan” , Lâ numba 787, articulo 3 ra.\n\nSim natkara, naha sturka nani ba “Upla sut nu takaia sturka apia” baku sin Lâ numba 621 ra Habeas Data mihta kan kahban sa, baku natkara man ar pamalikam sturka ra trabil munbia apia dukiara.\n\nNaha sturka baksakan nani ba man yamni kaikankam wal yus munisa baku sin natkara aplicación bilara kâti nani kulkaia dukiara.\n\nMan sturkam baksakan nani ba kulkanka yabisa: sturi nani sut ba man dispositivo kam ra kan suni apia kaka yang nani servidor ki nanira, baku upla man sturkam dukiaramra nu takbia apia lâ numba 787 aisi baku.';
 
   @override
-  String get privacyPolicySec3 => '3. Compartición de Datos con Terceros';
+  String get privacyPolicySec3 => 'Upla wala wal sturkam sir munaia';
 
   @override
   String get privacyPolicyThirdPartyBody =>
-      'No vendemos, alquilamos ni comercializamos tus datos personales. Solo compartimos información en el siguiente caso puntual:';
+      'Upla wala ra atkras, lin munras apia kaka lahla daukras man sturkam wal. Lâ numba 787 ba kat, upla sturka len munaia ar lakaia ba lâ dia aisi ba kat sipsa daukaia kan apstu sa uplika wina pas adar saki wal. Yawan sturkam nani sir munisa naku natkara baman:';
 
   @override
-  String get privacyPolicyMapsTitle => 'Proveedores de Mapas';
+  String get privacyPolicyMapsTitle => 'Map papaskra nani';
 
   @override
   String get privacyPolicyMapsBody =>
-      'Para mostrarte los centros de salud cercanos, la aplicación utiliza servicios de mapas de terceros (como Google Maps o Apple Maps). Estos servicios reciben únicamente las coordenadas de tu ubicación actual de forma anónima, exclusivamente para devolver los resultados en el mapa.';
+      'klinik nani lamara ba mamrikaia dukiara, aplicación ka ba map paskaia dukiara upla wala hilp ka yus munisa (Google Maps apia kaka Apple Maps baku)\n\nNina paramra sakras laka: naha wark ka nani ba ani pliska ra sma sturka ba brisa natka kum nina “disocioacion de datos” makiba Lâ numba 787 mina munhtak, baku natkara sturi nani ul bri ba man mampara trabil kum apia kabia dukiara.';
 
   @override
-  String get privacyPolicySec4 => '4. Almacenamiento y Seguridad';
+  String get privacyPolicySec4 => 'Suni swin bara kainakahbanka';
 
   @override
   String get privacyPolicySecurityBody =>
-      'Implementamos medidas de seguridad técnicas y administrativas avanzadas (como cifrado de datos en tránsito y en reposo) para proteger tu correo electrónico y tu información registrada contra el acceso no autorizado, pérdida, alteración o divulgación.';
+      'Sturi nani baks ka dawan ka baku, Lâ numba 787 adar ka kat wark daukisa baku param laka wal, la kat laka wal baku sin man sturkam nani kankahban wal, baku natkara sturkam chins munras, tikras, param sakras apia kaka upla walara yabras man adar kam apu wal.';
 
   @override
-  String get privacyPolicySec5 => '5. Tus Derechos';
+  String get privacyPolicySec5 => 'Man rait kam nani';
 
   @override
   String get privacyPolicyRightsBody =>
-      'En cualquier momento tienes derecho a:';
+      'Pyu banira bara pri laka wal, sipsma Lâ numba 787 wal rait kam yus munaia.';
 
   @override
-  String get privacyPolicyDeleteTitle => 'Acceder, Corregir o Eliminar';
+  String get privacyPolicyDeleteTitle => 'Dimaia bara kakaira takaia';
 
   @override
   String get privacyPolicyDeleteBody =>
-      'Puedes solicitar la eliminación completa de tu cuenta, tus datos de salud y tu correo electrónico en cualquier momento desde la configuración de la app o enviándonos un mensaje.';
+      'man sturkam makabaia bara briaia, baku sin Habeas Data yus munanka wal sipsma man sturkam brisna ba man mihtam ra briaia.\n\nKli paskaia bara dikaia: sipsma kli paskaia makabaia, chins munaia, dikaia, kau pain daukaia, dingkaia, raya daukaia apia kaka alki takaskaia man sturkam nani su ba.\n\nLukankam chins munaia: man lukankan ba sipsma chins munaia trabil apu kira wal lâ bapanka bilka nani ba wal.\n\nAnsika yabaia pyua: sturkam nani chins munaia makabanka bara sa kaka, Bellota mihta wapni daukbia apia kaka dikbia yua matsip bilara, Lâ numba 787 kulkanka ba wal.';
 
   @override
   String get privacyPolicyLocationPermTitle =>
-      'Controlar los Permisos de Ubicación';
+      'Anirasma pliska adarka ba purakaikaia';
 
   @override
   String get privacyPolicyLocationPermBody =>
-      'Puedes activar o desactivar el permiso de ubicación directamente desde la configuración de tu dispositivo móvil en cualquier momento (aunque esto impedirá buscar clínicas cercanas automáticamente).';
+      'ani pliska ra sma butin ka ba sipsma yabrika wark takaia apia kaka daskaia dispositivo movil kam ba wina ani pyua man want sma taim (kuna naku pyuara sip klinik lamara nani ba nu takma apia)';
 
   @override
   String get privacyPolicySec6 => '6. Modificaciones a esta Política';
@@ -1239,21 +1263,22 @@ class AppLocalizationsMi extends AppLocalizations {
       'Podemos actualizar esta política ocasionalmente para reflejar mejoras en la aplicación o cambios legales. Te notificaremos de manera destacada sobre cambios significativos antes de que entren en vigor.';
 
   @override
-  String get privacyPolicySec7 => '7. Contacto';
+  String get privacyPolicySec7 => 'Ya wal aisaia ba';
 
   @override
   String get privacyPolicyContactBody =>
-      'Si tienes dudas, comentarios o deseas ejercer tus derechos de privacidad, puedes contactarnos en:';
+      'Makabanka brisma kaka, aisanka apia sturkam paramra sakaia apia rait ka La numba 787 bara Lâ numba 621 ra asi ba alki daukaia want sma kaka, sipsma wan aisaia naha ra:';
 
   @override
-  String get privacyPolicyEmail => 'Correo de soporte: usm.unshowmas@gmail.com';
+  String get privacyPolicyEmail =>
+      'Tabaikanka correo ka: usm.unshowmas@gmail.com';
 
   @override
   String get privacyPolicyAcceptText =>
-      'He leído y acepto la Política de Privacidad de Bellota.';
+      'Aisi kaikri bara yamni kaikisna baksakan sturka palitik ka ulbanka ba wal';
 
   @override
-  String get privacyPolicyContinue => 'Continuar';
+  String get privacyPolicyContinue => 'Kainara waia';
 
   @override
   String get languageScreenTitle => 'Elige tu idioma';
@@ -1272,5 +1297,12 @@ class AppLocalizationsMi extends AppLocalizations {
       'La traducción completa al idioma Miskito se encuentra actualmente en desarrollo y se agregará en próximas actualizaciones.\n\nPor el momento, algunas secciones podrían mostrarse en español. ¿Deseas continuar?';
 
   @override
-  String get birthYearTitle => '¿En qué año naciste?';
+  String get birthYearTitle => 'Dia yal ra winim?';
+
+  @override
+  String get birthYearSubtitle =>
+      'Naha man dukiara sin yamni braikaia dukiara wark takisa';
+
+  @override
+  String get birthYearContinue => 'Kainara waia';
 }

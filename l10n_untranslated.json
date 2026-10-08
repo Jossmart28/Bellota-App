@@ -36,12 +36,6 @@
     "privacyPolicyContactBody",
     "privacyPolicyEmail",
     "privacyPolicyAcceptText",
-    "privacyPolicyContinue",
-    "languageScreenTitle",
-    "languageScreenSubtitle",
-    "languageScreenComingSoon",
-    "languageScreenUnderConstruction",
-    "languageScreenMiskitoNotice",
-    "birthYearTitle"
+    "privacyPolicyContinue"
   ]
 }

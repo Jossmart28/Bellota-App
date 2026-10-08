@@ -48,10 +48,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
   late DateTime _date;
   int? _userId;
 
-  final List<String> _monthNames = [
-    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
-  ];
+
+
 
   @override
   void initState() {
@@ -69,7 +67,26 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
 
   String get _dateKey => '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}';
 
-  String get _formattedDate => '${_date.day} de ${_monthNames[_date.month - 1]} ${_date.year}';
+  String _getFormattedDate(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final List<String> monthNames = [
+      loc.calendarJan, loc.calendarFeb, loc.calendarMar, loc.calendarApr,
+      loc.calendarMay, loc.calendarJun, loc.calendarJul, loc.calendarAug,
+      loc.calendarSep, loc.calendarOct, loc.calendarNov, loc.calendarDec
+    ];
+    String month = monthNames[_date.month - 1];
+    return '${_date.day} de $month ${_date.year}';
+  }
+
+  String _getMonthName(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final List<String> monthNames = [
+      loc.calendarJan, loc.calendarFeb, loc.calendarMar, loc.calendarApr,
+      loc.calendarMay, loc.calendarJun, loc.calendarJul, loc.calendarAug,
+      loc.calendarSep, loc.calendarOct, loc.calendarNov, loc.calendarDec
+    ];
+    return monthNames[_date.month - 1];
+  }
 
   double get _completionPercent {
     int filled = 0;
@@ -251,7 +268,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
             children: [
               Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
               SizedBox(width: 8),
-              Expanded(child: Text('Registro guardado para $_formattedDate', style: TextStyle(color: Colors.white))),
+              Expanded(child: Text('Registro guardado para ${_getFormattedDate(context)}', style: TextStyle(color: Colors.white))),
             ],
           ),
           backgroundColor: Theme.of(context).bellotaColors.chiltoma,
@@ -367,7 +384,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       children: [
                         Expanded(child: _buildGridCard(
                           context, colors, 
-                          title: 'Sexo', 
+                          title: AppLocalizations.of(context)!.registrationFormSex, 
                           hasData: _selectedSexo.isNotEmpty,
                           icon: Icons.favorite_rounded, 
                           iconColor: colors.melon, 
@@ -376,7 +393,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                         const SizedBox(width: 16),
                         Expanded(child: _buildGridCard(
                           context, colors, 
-                          title: 'Síntomas', 
+                          title: AppLocalizations.of(context)!.registrationFormSymptoms, 
                           hasData: _selectedSymptoms.isNotEmpty,
                           icon: Icons.medical_services_rounded, 
                           iconColor: colors.chiltoma, 
@@ -389,7 +406,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       children: [
                         Expanded(child: _buildGridCard(
                           context, colors, 
-                          title: 'Flujo vaginal', 
+                          title: AppLocalizations.of(context)!.registrationFormVaginalFlow, 
                           hasData: _selectedFlujos.isNotEmpty,
                           icon: Icons.water_drop_rounded, 
                           iconColor: const Color(0xFF7E9EC9), 
@@ -398,7 +415,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                         const SizedBox(width: 16),
                         Expanded(child: _buildGridCard(
                           context, colors, 
-                          title: 'Patrón de\nsangrado', 
+                          title: AppLocalizations.of(context)!.registrationFormBleedingPattern, 
                           hasData: _patronSangrado.isNotEmpty,
                           icon: Icons.water_drop_rounded, 
                           iconColor: colors.chilero, 
@@ -484,8 +501,8 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Registro de hoy',
+                      Text(
+                        AppLocalizations.of(context)!.symptomsAndActionsLogSymptoms,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -494,7 +511,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                         ),
                       ),
                       Text(
-                        _formattedDate,
+                        _getFormattedDate(context),
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           fontSize: 14,
@@ -526,7 +543,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     }),
                     const SizedBox(width: 8),
                     Text(
-                      '$filled de 5 secciones',
+                      '$filled / 5 - ${AppLocalizations.of(context)!.registrationFormLogProgress}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -580,7 +597,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Inicio del período',
+                      AppLocalizations.of(context)!.registrationFormPeriodStarts,
                       style: TextStyle(
                         color: colors.textoDark,
                         fontSize: 17,
@@ -590,7 +607,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      iniciaPeriodo ? '1 fecha marcada' : 'No marcado',
+                      iniciaPeriodo ? AppLocalizations.of(context)!.registrationFormSaved : AppLocalizations.of(context)!.registrationFormAddSymptom,
                       style: TextStyle(
                         color: colors.textoMedio,
                         fontSize: 13,
@@ -665,7 +682,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   Icon(Icons.water_drop_rounded, color: colors.chilero, size: 12),
                   const SizedBox(width: 6),
                   Text(
-                    '${_date.day} ${_monthNames[_date.month - 1].substring(0, 3)}',
+                    '${_date.day} ${_getMonthName(context)}',
                     style: TextStyle(
                       color: colors.chilero,
                       fontWeight: FontWeight.w800,
@@ -763,7 +780,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    hasData ? 'Registrado' : 'Toca para agregar',
+                    hasData ? AppLocalizations.of(context)!.registrationFormSaved : AppLocalizations.of(context)!.registrationFormAddSymptom,
                     style: TextStyle(
                       color: colors.textoMedio,
                       fontSize: 12,
@@ -825,7 +842,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Dolor y sintomatología',
+                          AppLocalizations.of(context)!.registrationFormPainAndSymptoms,
                           style: TextStyle(
                             color: colors.textoDark,
                             fontSize: 17,
@@ -835,7 +852,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          hasData ? 'Registrado' : 'Toca para agregar',
+                          hasData ? AppLocalizations.of(context)!.registrationFormSaved : AppLocalizations.of(context)!.registrationFormAddSymptom,
                           style: TextStyle(
                             color: colors.textoMedio,
                             fontSize: 13,
@@ -899,7 +916,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
               ),
               const SizedBox(width: 14),
               Text(
-                'Notas personales',
+                AppLocalizations.of(context)!.registrationFormNotes,
                 style: TextStyle(
                   color: colors.textoDark,
                   fontSize: 17,
@@ -923,7 +940,7 @@ class _SymptomLogScreenState extends State<SymptomLogScreen> {
               controller: _notesController,
               style: TextStyle(fontSize: 14, color: colors.textoDark),
               decoration: InputDecoration(
-                hintText: 'Escribe observaciones del día...',
+                hintText: AppLocalizations.of(context)!.registrationFormNotesHint,
                 hintStyle: TextStyle(color: colors.textoMedio.withOpacity(0.6), fontSize: 13),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.all(16),

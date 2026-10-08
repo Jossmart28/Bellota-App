@@ -236,7 +236,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              _getTranslated('', context),
+              _getTranslated('symptoms', context),
               style: TextStyle(
                 color: Theme.of(context).bellotaColors.textoDark,
                 fontWeight: FontWeight.bold,
@@ -245,7 +245,7 @@ class _SymptomsSelectionScreenState extends State<SymptomsSelectionScreen> {
             ),
             if (_selectedSymptoms.isNotEmpty)
               Text(
-                '${_selectedSymptoms.length} ${_getTranslated('', context)}',
+                '${_selectedSymptoms.length} ${_getTranslated('selected_count', context)}',
                 style: TextStyle(
                   fontSize: 11,
                   color: Theme.of(context).bellotaColors.textoMedio,

@@ -318,6 +318,9 @@
   "onboardingAndAuthEnterName": "Ingresa tu nombre",
   "onboardingAndAuthConfirmPassReq": "Confirma tu contraseña",
   "onboardingAndAuthPassNoMatch": "Las contraseñas no coinciden",
+  "onboardingAndAuthInvalidCredentials": "Credenciales incorrectas.",
+  "onboardingAndAuthLoginError": "Error al iniciar sesión.",
+  "onboardingAndAuthGoogleLoginError": "Error al iniciar sesión con Google.",
   "onboardingAndAuthPersonalData": "Datos Personales",
   "onboardingAndAuthTellUs": "Cuéntanos sobre ti",
   "onboardingAndAuthOnlyOnce": "Solo lo hacemos una vez 🌸",
@@ -402,5 +405,7 @@
   "languageScreenComingSoon": "Próximamente",
   "languageScreenUnderConstruction": "Idioma en Construcción",
   "languageScreenMiskitoNotice": "La traducción completa al idioma Miskito se encuentra actualmente en desarrollo y se agregará en próximas actualizaciones.\n\nPor el momento, algunas secciones podrían mostrarse en español. ¿Deseas continuar?",
-  "birthYearTitle": "¿En qué año naciste?"
+  "birthYearTitle": "¿En qué año naciste?",
+  "birthYearSubtitle": "Esto nos ayuda a personalizar tu experiencia",
+  "birthYearContinue": "Continuar"
 }

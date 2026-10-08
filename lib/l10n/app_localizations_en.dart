@@ -1002,6 +1002,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingAndAuthPassNoMatch => 'Las contraseñas no coinciden';
 
   @override
+  String get onboardingAndAuthInvalidCredentials => 'Credenciales incorrectas.';
+
+  @override
+  String get onboardingAndAuthLoginError => 'Error al iniciar sesión.';
+
+  @override
+  String get onboardingAndAuthGoogleLoginError =>
+      'Error al iniciar sesión con Google.';
+
+  @override
   String get onboardingAndAuthPersonalData => 'Datos Personales';
 
   @override
@@ -1273,4 +1283,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get birthYearTitle => '¿En qué año naciste?';
+
+  @override
+  String get birthYearSubtitle =>
+      'Esto nos ayuda a personalizar tu experiencia';
+
+  @override
+  String get birthYearContinue => 'Continuar';
 }

@@ -2008,6 +2008,24 @@ abstract class AppLocalizations {
   /// **'Las contraseñas no coinciden'**
   String get onboardingAndAuthPassNoMatch;
 
+  /// No description provided for @onboardingAndAuthInvalidCredentials.
+  ///
+  /// In es, this message translates to:
+  /// **'Credenciales incorrectas.'**
+  String get onboardingAndAuthInvalidCredentials;
+
+  /// No description provided for @onboardingAndAuthLoginError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar sesión.'**
+  String get onboardingAndAuthLoginError;
+
+  /// No description provided for @onboardingAndAuthGoogleLoginError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar sesión con Google.'**
+  String get onboardingAndAuthGoogleLoginError;
+
   /// No description provided for @onboardingAndAuthPersonalData.
   ///
   /// In es, this message translates to:
@@ -2517,6 +2535,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿En qué año naciste?'**
   String get birthYearTitle;
+
+  /// No description provided for @birthYearSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Esto nos ayuda a personalizar tu experiencia'**
+  String get birthYearSubtitle;
+
+  /// No description provided for @birthYearContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get birthYearContinue;
 }
 
 class _AppLocalizationsDelegate

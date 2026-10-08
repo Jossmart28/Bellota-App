@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen>
         NavigationService.goReplace(context, destination);
       } else {
         _setLoading(false);
-        _showError('Credenciales incorrectas.');
+        _showError(AppLocalizations.of(context)?.onboardingAndAuthInvalidCredentials ?? 'Credenciales incorrectas.');
         // Registrar intento de login fallido
         await AuthService.instance.logAction(
           action: 'login_failed',
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesiÃƒ³n.');
+      _showError(AppLocalizations.of(context)?.onboardingAndAuthLoginError ?? 'Error al iniciar sesión.');
     }
   }
 
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (_) {
       _setLoading(false);
-      _showError('Error al iniciar sesiÃƒ³n con Google.');
+      _showError(AppLocalizations.of(context)?.onboardingAndAuthGoogleLoginError ?? 'Error al iniciar sesión con Google.');
     }
   }
 
