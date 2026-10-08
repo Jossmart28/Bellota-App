@@ -7,6 +7,7 @@ erDiagram
         string password_hash
         string role "admin|usuario|auditor"
         int is_active "1 o 0"
+        string language_pref "es|en|mi"
         string created_at
     }
 
@@ -17,6 +18,8 @@ erDiagram
         int cycle_duration
         int period_duration
         string profile_image_path
+        string medical_conditions "JSON Array"
+        string contraceptive
         int notif_periodo
         int notif_ovulacion
         int notif_pildora
@@ -52,6 +55,10 @@ erDiagram
         string emotional_symptoms
         string breast_exam
         string notes
+        float basal_temp
+        string lh_test_result
+        string cervical_position
+        string mood
         string created_at
     }
     
