@@ -100,80 +100,58 @@
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## 🏗️ Arquitectura del Sistema (Clean Architecture)
 
-```
+La plataforma ha evolucionado hacia una **Clean Architecture** estructurada en capas, aplicando rigurosamente los **Principios SOLID** para garantizar escalabilidad, mantenibilidad y un bajo acoplamiento.
+
+### 🧩 Capas de la Arquitectura (Frontend)
+
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         📱 FRONTEND (Flutter/Dart)                         │
+│                         📱 FRONTEND (Flutter/Dart)                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ 🖼️ PRESENTATION LAYER (UI & State)                                    │  │
+│  │ Directorio: lib/presentation/                                         │  │
+│  │ - Pantallas agrupadas por feature (auth, home, calendar, etc.)        │  │
+│  │ - Controladores de estado (e.g., DashboardController)                 │  │
+│  │ - Widgets comunes y tematización                                      │  │
+│  └──────────────────────────────────┬────────────────────────────────────┘  │
+│                                     │ (Llama a Casos de Uso / Servicios)    │
+│  ┌──────────────────────────────────▼────────────────────────────────────┐  │
+│  │ ⚙️ DOMAIN LAYER (Business Logic - Capa Central)                       │  │
+│  │ Directorio: lib/domain/                                               │  │
+│  │ - Repositorios (Interfaces abstractas: AuthRepository, etc.)          │  │
+│  │ - Servicios de Dominio (HealthPredictionService, PdfReportService)    │  │
+│  │ - Totalmente independiente de frameworks externos o UI                │  │
+│  └──────────────────────────────────▲────────────────────────────────────┘  │
+│                                     │ (Implementa Interfaces)               │
+│  ┌──────────────────────────────────┴────────────────────────────────────┐  │
+│  │ 💾 DATA LAYER (Data Access & API)                                     │  │
+│  │ Directorio: lib/data/                                                 │  │
+│  │ - Data Sources (DatabaseProvider - SQLite local)                      │  │
+│  │ - Implementaciones de Repositorios (AuthRepositoryImpl, etc.)         │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
 │                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │               🖼️ CAPA DE PRESENTACIÓN (UI)                         │    │
-│  │  32 Pantallas · 12 Widgets · ThemeExtension · Google Fonts           │    │
-│  │  Flutter Animate · Staggered Animations · SVG Decorations          │    │
-│  └────────────────────────────────┬────────────────────────────────────┘    │
-│                                   │                                         │
-│  ┌────────────────────────────────▼────────────────────────────────────┐    │
-│  │               ⚙️ CAPA DE SERVICIOS (Business Logic)                │    │
-│  │  ClinicalAnalysisService → Motor de alertas + HealthcareRoutingService     │    │
-│  │  CycleService            → Predicción de fases y fertilidad        │    │
-│  │  NotificationService     → Períodos, píldora, citas, recordatorios │    │
-│  │  RecommendationEngine    → Matching por HealthcareTier ↔ hospitales          │    │
-│  │  AuthService             → Login, biometría, sesión local          │    │
-│  │  SyncService             → Exportación/Importación JSON            │    │
-│  │  NavigationService       → Routing por rol y estado de onboarding  │    │
-│  └────────────────────────────────┬────────────────────────────────────┘    │
-│                                   │                                         │
-│  ┌────────────────────────────────▼────────────────────────────────────┐    │
-│  │               💾 CAPA DE DATOS (Local)                             │    │
-│  │  DatabaseHelper → SQLite (sqflite) · 6 tablas · v6                 │    │
-│  │  SharedPrefs    → Sesión, flags de onboarding, biometría           │    │
-│  │  Migraciones    → v1 → v2 → v3 → v4 → v5 → v6 (incremental)      │    │
-│  └────────────────────────────────┬────────────────────────────────────┘    │
-│                                   │                                         │
-│  ┌────────────────────────────────▼────────────────────────────────────┐    │
-│  │               📦 CAPA DE MODELOS                                   │    │
-│  │  UserModel · ProfileModel · DailyLogModel · AuditLogModel          │    │
-│  │  HealthCenterModel · HospitalRecommendation · NotificationModels   │    │
-│  │  UserRole (Enum: admin, usuario, auditor)                          │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                    🌐 CAPA DE INTERNACIONALIZACIÓN (l10n)                   │
-│  Español (es) · Inglés (en) · Miskitu (mi) · Delegate customizado         │
-└──────────────────────────────────┬──────────────────────────────────────────┘
-                                   │ HTTP/REST (opcional)
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         🖥️ BACKEND (FastAPI/Python)                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │               🔌 CAPA DE API (Routers)                             │    │
-│  │  /auth    → Registro, Login JWT, Seed Admin, /me                   │    │
-│  │  /admin   → CRUD usuarios, roles, suspensión (solo admin)         │    │
-│  │  /audit   → Logs de auditoría, estadísticas (admin + auditor)     │    │
-│  │  /profile → Leer/Actualizar perfil de salud                       │    │
-│  │  /logs    → Registros diarios del ciclo                           │    │
-│  │  /medications → Medicamentos adicionales                          │    │
-│  └────────────────────────────────┬────────────────────────────────────┘    │
-│                                   │                                         │
-│  ┌────────────────────────────────▼────────────────────────────────────┐    │
-│  │               🔐 CAPA DE SEGURIDAD                                 │    │
-│  │  JWT (HS256) · OAuth2 Bearer · bcrypt · RBAC con require_role()    │    │
-│  │  CORS Middleware · Ownership checks (check_ownership_or_admin)     │    │
-│  └────────────────────────────────┬────────────────────────────────────┘    │
-│                                   │                                         │
-│  ┌────────────────────────────────▼────────────────────────────────────┐    │
-│  │               🗄️ CAPA DE PERSISTENCIA                              │    │
-│  │  SQLAlchemy ORM · SQLite (backend.db) · Pydantic Schemas           │    │
-│  │  5 modelos: User, AuditLog, UserProfile, AdditionalMedication,     │    │
-│  │             DailyLog                                               │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-│  🐳 Docker: python:3.11-slim · Uvicorn (port 8000) · Auto-reload          │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ 🛠️ CORE LAYER (Transversal)                                           │  │
+│  │ Directorio: lib/core/                                                 │  │
+│  │ - Inyección de Dependencias (GetIt en injection_container.dart)       │  │
+│  │ - Modelos de Datos (Entities)                                         │  │
+│  │ - Manejo de Errores (AppLogger) y Constantes                          │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### 📐 Aplicación de Principios SOLID
+
+| Principio | Implementación en Bellota |
+|-----------|---------------------------|
+| **S** (Single Responsibility) | Cada controlador, servicio y repositorio tiene una única responsabilidad. Por ejemplo, `PdfReportService` solo genera PDFs, mientras que `HealthPredictionService` solo calcula predicciones médicas. Se separó la UI de la lógica de negocio usando Controladores dedicados. |
+| **O** (Open/Closed) | Los servicios de dominio están abiertos a la extensión (ej. agregar nuevas reglas de alertas clínicas) pero cerrados a la modificación del flujo principal, gracias al uso de interfaces y abstracciones. |
+| **L** (Liskov Substitution) | Las implementaciones de repositorios (ej. `DailyLogRepositoryImpl`) respetan rigurosamente el contrato de su interfaz (`DailyLogRepository`), pudiendo ser sustituidas en cualquier momento (ej. por repositorios Mock para pruebas) sin afectar el sistema. |
+| **I** (Interface Segregation) | Los repositorios están divididos por contexto de negocio específicos (`AuthRepository`, `DailyLogRepository`, `AuditRepository`, `ProfileRepository`, `UserRepository`) en lugar de depender de una única interfaz masiva (Fat Interface). |
+| **D** (Dependency Inversion) | La capa de presentación y los servicios dependen de abstracciones (interfaces), no de implementaciones concretas. La inyección de dependencias se centraliza a través de un Service Locator (`GetIt`) en `core/di/injection_container.dart`. |
 
 ---
 
@@ -481,142 +459,56 @@ graph TB
 
 ## 📁 Estructura del Proyecto
 
-```
-bellotadevolpment/
-├── 📱 android/                              # Configuración nativa Android + Signing
-│   ├── app/build.gradle.kts                 # Compilación y versionamiento
-│   └── key.properties                       # Keystore para release (no versionado)
-│
-├── 📦 assets/
-│   ├── decorations/                         # SVG decorativos (dashboard, perfil)
-│   ├── fonts/                               # Estrella.ttf, Poppins-Medium.ttf
-│   └── images/                              # Mascotas Bella (4 fases), logos, banners
-│
-├── 📂 lib/                                  # ──── Código Fuente Flutter ────
-│   ├── main.dart                            # Entry point + Global Error Boundary
-│   │
-│   ├── core/
-│   │   ├── constants/                       # Claves de app y datos de Nicaragua
-│   │   │   ├── app_keys.dart
-│   │   │   └── nicaragua_data.dart
-│   │   ├── data/                            # Datos clínicos y de hospitales
-│   │   │   ├── clinical_dictionary.dart     # Diccionario de síntomas médicos
-│   │   │   ├── hospital_data.dart           # Base de datos de hospitales
+El proyecto sigue una estructura de **Clean Architecture** orientada a dominio, asegurando modularidad y separación de responsabilidades:
 
-│   │   │   └── hospital_repository.dart     # Repositorio + filtrado por tiers
-│   │   ├── models/                          # Modelos de datos
-│   │   │   ├── audit_log_model.dart
-│   │   │   ├── daily_log_model.dart
-│   │   │   ├── health_center_model.dart
-│   │   │   ├── hospital_recommendation.dart
-│   │   │   ├── notification_models.dart
-│   │   │   ├── profile_model.dart
-│   │   │   ├── user_model.dart
-│   │   │   └── user_role.dart               # Enum RBAC (admin|usuario|auditor)
-│   │   └── services/                        # Lógica de negocio
-│   │       ├── auth_service.dart            # Login, biometría, sesión local
-│   │       ├── clinical_analysis_service.dart # Motor de alertas médicas
-│   │       ├── cycle_service.dart           # Predicción de fases del ciclo
-│   │       ├── notification_service.dart    # Notificaciones locales
-│   │       ├── recommendation_engine.dart   # Matching hospitales ↔ síntomas
-│   │       ├── sync_service.dart            # Export/Import JSON
-│   │       └── user_health_profile.dart     # Perfil de salud consolidado
+```text
+bellotadevelopment/
+├── 📱 android/                              # Configuración nativa Android + Signing
+├── 📦 assets/                               # Imágenes, íconos y fuentes (Bella mascot)
+├── 📂 lib/                                  # ──── Código Fuente Flutter ────
+│   ├── main.dart                            # Entry point + Inicialización de Dependencias
 │   │
-│   ├── database/
-│   │   └── database_helper.dart             # SQLite CRUD + Migraciones (v1→v6)
+│   ├── core/                                # 🛠️ Capa Transversal (Compartida)
+│   │   ├── constants/                       # Claves de app y datos estáticos
+│   │   ├── data/                            # Diccionario clínico y datos base
+│   │   ├── di/                              # 💉 Inyección de Dependencias (injection_container.dart)
+│   │   ├── errors/                          # Manejo centralizado de logs (AppLogger)
+│   │   ├── models/                          # Modelos de datos (User, DailyLog, etc.)
+│   │   └── services/                        # Servicios base (Notificaciones, Clínicos)
 │   │
-│   ├── l10n/                                # Internacionalización
-│   │   ├── app_localizations.dart           # Clase principal generada
-│   │   ├── app_localizations_es.dart        # Español
-│   │   ├── app_localizations_en.dart        # Inglés
-│   │   ├── app_localizations_mi.dart        # Miskitu
-│   │   ├── app_translations.dart            # Traducciones adicionales
-│   │   ├── language_notifier.dart           # ValueNotifier de idioma
-│   │   └── miskito_fallback_delegate.dart   # Delegate para Miskitu
+│   ├── data/                                # 💾 Capa de Datos (Implementaciones)
+│   │   ├── datasources/                     # Proveedores de datos (DatabaseProvider - SQLite)
+│   │   └── repositories/                    # Implementaciones (AuthRepositoryImpl, etc.)
 │   │
-│   ├── navigation/
-│   │   └── navigation_service.dart          # Routing por rol + verificación biométrica
+│   ├── database/                            # Configuración de SQLite y scripts de Migración
 │   │
-│   ├── screens/                             # ──── 32 Pantallas ────
-│   │   ├── splash_screen.dart               # Pantalla de carga inicial
-│   │   ├── onboarding_screen.dart           # Slides de bienvenida
-│   │   ├── auth_screen.dart                 # Selector Login/Register
-│   │   ├── login_screen.dart                # Inicio de sesión
-│   │   ├── register_screen.dart             # Registro de cuenta
-│   │   ├── language_selection_screen.dart    # Selección de idioma
-│   │   ├── birth_year_screen.dart           # Año de nacimiento
-│   │   ├── personal_data_screen.dart        # Datos personales
-│   │   ├── privacy_policy_screen.dart       # Política de privacidad
-│   │   ├── dashboard_screen.dart            # Panel principal + Bella mascota
-│   │   ├── calendar_screen.dart             # Calendario menstrual
-│   │   ├── calendar_tour_screen.dart        # Tour guiado del calendario
-│   │   ├── symptom_log_screen.dart          # Registro principal de síntomas
-│   │   ├── symptoms_selection_screen.dart   # Selección de síntomas
-│   │   ├── patron_sangrado_screen.dart      # Patrón de sangrado
-│   │   ├── dolor_sintomatologia_screen.dart # Dolor y sintomatología
-│   │   ├── flujo_vaginal_selection_screen.dart # Flujo vaginal
-│   │   ├── sexo_selection_screen.dart       # Vida sexual
-│   │   ├── resumen_diario_screen.dart       # Resumen del día
-│   │   ├── profile_screen.dart              # Perfil de usuario
-│   │   ├── notifications_settings_screen.dart # Configuración notificaciones
-│   │   ├── account_language_screen.dart     # Configuración de idioma
-│   │   ├── medical_report_preview_screen.dart # Vista previa reporte PDF
-│   │   ├── hospital_hub_screen.dart         # Hub de hospitales
-│   │   ├── all_hospitals_screen.dart        # Lista completa de hospitales
-│   │   ├── health_center_detail_screen.dart # Detalle de centro de salud
-│   │   ├── map_screen.dart                  # Mapa interactivo
-│   │   ├── location_picker_screen.dart      # Selector de ubicación
-│   │   ├── admin_panel_screen.dart          # Panel de administración (Admin)
-│   │   └── audit_dashboard_screen.dart      # Dashboard de auditoría (Auditor)
+│   ├── domain/                              # ⚙️ Capa de Dominio (Reglas de Negocio)
+│   │   ├── repositories/                    # Interfaces abstractas (Contratos de Datos)
+│   │   └── services/                        # Casos de uso específicos (HealthPrediction, PdfReport)
 │   │
-│   ├── theme/                               # Tematización
-│   │   ├── bellota_colors.dart              # Paleta de colores (Bellota palette)
-│   │   ├── bellota_theme.dart               # ThemeData light/dark
-│   │   └── theme_notifier.dart              # ValueNotifier de tema
+│   ├── l10n/                                # 🌐 Internacionalización (es, en, mi)
 │   │
-│   └── widgets/                             # Componentes reutilizables
-│       ├── bellota_empty_state.dart          # Estado vacío con Bella
-│       ├── bellota_icon.dart                # Ícono personalizado
-│       ├── bellota_text_field.dart           # Campo de texto estilizado
-│       ├── bellota_top_actions.dart          # Acciones superiores
-│       ├── botanical_divider.dart           # Divisor decorativo
-│       ├── cozy_row_item.dart               # Fila con estilo acogedor
-│       ├── cycle_ring_widget.dart           # Anillo visual del ciclo
-│       ├── health_info_carousel.dart        # Carrusel informativo
-│       ├── match_badge.dart                 # Badge de coincidencia
-│       ├── nearby_hospital_card.dart        # Tarjeta de hospital cercano
-│       ├── recommended_hospital_card.dart   # Tarjeta de recomendación
-│       ├── role_guard.dart                  # Guard de rol en UI
-│       └── rpg_help_dialog.dart             # Diálogo de ayuda gamificado
+│   ├── navigation/                          # 🗺️ Enrutamiento y control de acceso por Rol
+│   │
+│   └── presentation/                        # 🖼️ Capa de Presentación (UI)
+│       ├── common/                          # Widgets reutilizables (Botones, Tarjetas, Diálogos)
+│       ├── screens/                         # Pantallas agrupadas por característica modular:
+│       │   ├── admin/                       # Panel de administración y auditoría
+│       │   ├── auth/                        # Flujo de Autenticación (Login, Registro)
+│       │   ├── calendar/                    # Vista de calendario y registro de ciclos
+│       │   ├── health_log/                  # Formularios para síntomas diarios y análisis
+│       │   ├── home/                        # Dashboard principal y estado
+│       │   ├── hospitals/                   # Mapa integrado y directorio de centros de salud
+│       │   ├── notifications/               # Configuración de alertas y recordatorios
+│       │   ├── onboarding/                  # Flujo de bienvenida y configuración inicial
+│       │   └── profile/                     # Gestión del perfil médico y exportación PDF
+│       └── theme/                           # Configuración global visual (BellotaTheme)
 │
 ├── 🖥️ backend/                              # ──── API REST (FastAPI) ────
-│   ├── Dockerfile                           # Imagen Docker python:3.11-slim
-│   ├── requirements.txt                     # Dependencias Python
-│   └── app/
-│       ├── main.py                          # FastAPI app + CORS + Routers
-│       ├── __init__.py
-│       ├── api/
-│       │   └── routers/
-│       │       ├── auth.py                  # /auth (register, login, seed-admin)
-│       │       ├── admin.py                 # /admin (CRUD usuarios, roles)
-│       │       ├── audit.py                 # /audit (logs, estadísticas)
-│       │       ├── profile.py               # /profile (leer/actualizar)
-│       │       ├── logs.py                  # /logs (registros diarios)
-│       │       └── medications.py           # /medications (CRUD medicamentos)
-│       ├── core/
-│       │   ├── auth.py                      # JWT, bcrypt, require_role()
-│       │   └── database.py                  # SQLAlchemy engine + SessionLocal
-│       ├── crud/
-│       │   └── crud.py                      # Operaciones CRUD completas
-│       ├── models/
-│       │   └── models.py                    # ORM: User, AuditLog, UserProfile, etc.
-│       └── schemas/
-│           └── schemas.py                   # Pydantic: validación de entrada/salida
+│   ├── Dockerfile                           # Contenedor para producción
+│   └── app/                                 # Código fuente Python (FastAPI + SQLAlchemy)
 │
-└── 📄 Archivos raíz
-    ├── pubspec.yaml                         # Dependencias Flutter + assets
-    ├── README.md                            # Este archivo
-    └── analysis_options.yaml                # Reglas de linting
+└── 📄 Archivos raíz (pubspec.yaml, README.md, analysis_options.yaml)
 ```
 
 ---
@@ -858,6 +750,9 @@ flutter build apk --release
 | `url_launcher` | ^6.3.2 | Abrir URLs externas |
 | `screenshot` | ^3.0.0 | Capturas de pantalla |
 | `path_provider` | ^2.1.6 | Rutas del sistema de archivos |
+| `get_it` | ^9.3.0 | Inyección de dependencias (Service Locator) |
+| `logger` | ^2.8.0 | Sistema de registro centralizado (AppLogger) |
+
 
 ### Backend (Python)
 
